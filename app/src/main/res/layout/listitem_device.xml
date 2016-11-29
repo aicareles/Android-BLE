@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <TextView android:id="@+id/device_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="24dp"/>
+    <TextView android:id="@+id/device_address"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="12dp"/>
+    <TextView android:id="@+id/device_RSSI"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="20dp"/>
+    <TextView android:id="@+id/state"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="20dp"/>
+
+    <!--<Button-->
+        <!--android:id="@+id/send"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:text="发送数据"/>-->
+
+</LinearLayout>

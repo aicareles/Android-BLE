@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="10dp">
+    <LinearLayout android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp">
+        <TextView android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/label_device_address"
+            android:textSize="18sp"/>
+        <Space android:layout_width="5dp"
+            android:layout_height="wrap_content"/>
+        <TextView android:id="@+id/device_address"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"/>
+    </LinearLayout>
+    <LinearLayout android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp">
+        <TextView android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/label_state"
+            android:textSize="18sp"/>
+        <Space android:layout_width="5dp"
+            android:layout_height="wrap_content"/>
+        <TextView android:id="@+id/connection_state"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/disconnected"
+            android:textSize="18sp"/>
+    </LinearLayout>
+    <LinearLayout android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp">
+        <TextView android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/label_data"
+            android:textSize="18sp"/>
+        <Space android:layout_width="5dp"
+            android:layout_height="wrap_content"/>
+        <TextView android:id="@+id/data_value"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/no_data"
+            android:textSize="18sp"/>
+    </LinearLayout>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="New Button"
+        android:id="@+id/button" />
+
+
+</LinearLayout>
