@@ -7,7 +7,7 @@
  * @author Quintic Zhang Fuquan
  *
  */
-package com.example.admin.mybledemo;
+package cn.com.heaton.blelibrary.bleApi;
 
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothGatt;

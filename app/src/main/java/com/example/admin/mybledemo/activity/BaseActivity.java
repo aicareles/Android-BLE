@@ -1,4 +1,4 @@
-package com.example.admin.mybledemo;
+package com.example.admin.mybledemo.activity;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
@@ -14,6 +14,8 @@ import android.util.SparseArray;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+
+import com.example.admin.mybledemo.R;
 
 public class BaseActivity extends Activity {
     protected final String TAG = this.getClass().getSimpleName();

@@ -188,7 +188,7 @@ public class MainActivity extends BaseActivity {
                     mBluetoothLeService.setCharacteristicNotification(address,gattCharacteristic, true);//
 //                    mBluetoothLeService.readCharacteristic(address,gattCharacteristic);//暂时注释
                 }
-                
+
             }
         }
     }

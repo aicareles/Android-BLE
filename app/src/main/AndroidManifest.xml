@@ -2,21 +2,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.admin.mybledemo">
 
-
-    <uses-permission android:name="android.permission.BLUETOOTH"/>
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
-    <uses-feature android:name="android.hardware.bluetooth_le" android:required="true"/>
-
-
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@android:style/Theme.Holo.Light">
-        <activity android:name=".MainActivity">
+        <activity android:name=".activity.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -24,12 +16,11 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".BaseActivity"/>
+        <activity android:name=".activity.BaseActivity"/>
 
         <activity
-            android:name=".DeviceControlActivity"
+            android:name=".activity.DeviceControlActivity"
             android:screenOrientation="portrait" />
-        <service android:name=".BluetoothLeService"></service>
     </application>
 
 </manifest>

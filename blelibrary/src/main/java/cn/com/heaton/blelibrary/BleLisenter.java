@@ -1,8 +1,11 @@
-package com.example.admin.mybledemo;
+package cn.com.heaton.blelibrary;
 
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
+
+import cn.com.heaton.blelibrary.BleVO.BleDevice;
+
 
 /**
  * Created by liulei on 2016/11/25.

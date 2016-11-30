@@ -1,15 +1,12 @@
-package com.example.admin.mybledemo;
+package com.example.admin.mybledemo.activity;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -21,9 +18,13 @@ import android.widget.ExpandableListView;
 import android.widget.SimpleExpandableListAdapter;
 import android.widget.TextView;
 
+import com.example.admin.mybledemo.R;
+
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
+
+import cn.com.heaton.blelibrary.BluetoothLeService;
 
 @SuppressLint("NewApi")
 public class DeviceControlActivity extends Activity {

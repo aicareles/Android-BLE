@@ -1,4 +1,4 @@
-package com.example.admin.mybledemo;
+package cn.com.heaton.blelibrary.BleVO;
 
 import android.bluetooth.BluetoothDevice;
 
@@ -7,9 +7,10 @@ import java.util.List;
 
 /**
  * Created by admin on 2016/11/26.
+ * 如果需要设置蓝牙对象的更多属性与行为   则可继承自该类
  */
 
-public class BleDevice{
+public class BleDevice {
 
     public final static String          TAG                      = BleDevice.class.getSimpleName();
 
@@ -25,7 +26,7 @@ public class BleDevice{
 
 
 
-    BleDevice(BluetoothDevice device) {
+    public BleDevice(BluetoothDevice device) {
         this.mBleAddress = device.getAddress();
         this.mBleName = device.getName();
     }
