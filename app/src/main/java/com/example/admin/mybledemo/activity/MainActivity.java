@@ -94,11 +94,11 @@ public class MainActivity extends BaseActivity {
                                         if (device.getBleAddress().equals(mLeDeviceListAdapter.getDevice(i).getBleAddress())) {
                                             if (device.isConnected()) {
                                                 mLeDeviceListAdapter.getDevice(i).setConnected(true);
-                                                Toast.makeText(MainActivity.this, "连接成功", Toast.LENGTH_SHORT).show();
+                                                Toast.makeText(MainActivity.this, R.string.line_success, Toast.LENGTH_SHORT).show();
 
                                             } else {
                                                 mLeDeviceListAdapter.getDevice(i).setConnected(false);
-                                                Toast.makeText(MainActivity.this, "断开连接", Toast.LENGTH_SHORT).show();
+                                                Toast.makeText(MainActivity.this, R.string.line_disconnect, Toast.LENGTH_SHORT).show();
                                             }
                                         }
                                     }
@@ -300,7 +300,7 @@ public class MainActivity extends BaseActivity {
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
         } else {
-            requestPermission(new String[]{Manifest.permission.BLUETOOTH_ADMIN, Manifest.permission.ACCESS_COARSE_LOCATION}, "请求设备权限", new GrantedResult() {
+            requestPermission(new String[]{Manifest.permission.BLUETOOTH_ADMIN, Manifest.permission.ACCESS_COARSE_LOCATION}, getString(R.string.ask_permission), new GrantedResult() {
                 @Override
                 public void onResult(boolean granted) {
                     if (!granted) {
@@ -315,7 +315,7 @@ public class MainActivity extends BaseActivity {
 
     private void setConnectedNum() {
         if (mBluetoothLeService != null) {
-            mConnectedNum.setText("连接数量:" + mBluetoothLeService.getConnectedDevices().size());
+            mConnectedNum.setText(getString(R.string.lined_num) + mBluetoothLeService.getConnectedDevices().size());
         }
     }
 

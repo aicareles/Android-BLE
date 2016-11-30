@@ -24,4 +24,11 @@
     <string name="btn_sure">确定</string>
     <string name="btn_cancel">取消</string>
 
+    <string name="ask_permission">请求设备权限</string>
+
+    <string name="lined_num">连接数量:</string>
+
+    <string name="line_success">连接成功</string>
+    <string name="line_disconnect">断开连接</string>
+
 </resources>
