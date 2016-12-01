@@ -61,7 +61,7 @@ public class DeviceControlActivity extends Activity {
             }
             // Automatically connects to the device upon successful start-up
             // initialization.
-            mBluetoothLeService.connect(mDeviceAddress);
+//            mBluetoothLeService.connect(mDeviceAddress);
         }
 
         @Override
@@ -145,8 +145,8 @@ public class DeviceControlActivity extends Activity {
         super.onResume();
 //        registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
         if (mBluetoothLeService != null) {
-            final boolean result = mBluetoothLeService.connect(mDeviceAddress);
-            Log.d(TAG, "Connect request result=" + result);
+//            final boolean result = mBluetoothLeService.connect(mDeviceAddress);
+//            Log.d(TAG, "Connect request result=" + result);
         }
     }
 
@@ -180,7 +180,7 @@ public class DeviceControlActivity extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_connect:
-                mBluetoothLeService.connect(mDeviceAddress);
+//                mBluetoothLeService.connect(mDeviceAddress);
                 return true;
             case R.id.menu_disconnect:
 //                mBluetoothLeService.disconnect();//暂时注释

@@ -76,11 +76,21 @@ public class MainActivity extends BaseActivity {
                         }
 
                         @Override
-                        public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
+                        public void onLeScan(final BluetoothDevice device, int rssi, byte[] scanRecord) {
                             Log.e(TAG, "onLeScan");
-                            BleDevice bleDevice = new BleDevice(device);
-                            mLeDeviceListAdapter.addDevice(bleDevice);
-                            mLeDeviceListAdapter.notifyDataSetChanged();
+//                            //可以选择性的根据scanRecord蓝牙广播包进行过滤
+//                            如下  此处注释（根据你们产品的广播进行过滤或者根据产品的特定name或者address进行过滤也可以）
+//                            if(!BleConfig.matchProduct(scanRecord)){
+//                                return;
+//                            }
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    BleDevice bleDevice = new BleDevice(device);
+                                    mLeDeviceListAdapter.addDevice(bleDevice);
+                                    mLeDeviceListAdapter.notifyDataSetChanged();
+                                }
+                            });
                         }
 
                         @Override
@@ -250,7 +260,9 @@ public class MainActivity extends BaseActivity {
         send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                changeLevelInner(currentAddress,-16717569);
+                if(currentAddress != null){
+                    changeLevelInner(currentAddress,-16717569);
+                }
             }
         });
         setConnectedNum();
