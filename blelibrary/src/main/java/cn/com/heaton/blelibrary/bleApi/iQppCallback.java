@@ -3,11 +3,11 @@ package cn.com.heaton.blelibrary.bleApi;
 import android.bluetooth.BluetoothGatt;
 
 /**
- * @Description QPP interface
- * @author fqZhang
+ * @Description QPP API / CallBack functions
+ * @author liulei
  * @version 1.0
- * @date 2014-7-10
- * @Copyright (c) 2014 Quintic Co., Ltd. Inc. All rights reserved.
+ * @date 2016-11-27
+ * @Copyright (c) 2016 Quintic Co., Ltd. Inc. All rights reserved.
  *
  */
 

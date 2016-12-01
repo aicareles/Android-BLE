@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">BleLibrary</string>
+    <string name="connect_timeout">设备连接超时</string>
 </resources>

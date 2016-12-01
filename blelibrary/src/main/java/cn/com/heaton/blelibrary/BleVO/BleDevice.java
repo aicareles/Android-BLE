@@ -5,6 +5,8 @@ import android.bluetooth.BluetoothDevice;
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.com.heaton.blelibrary.BleConfig;
+
 /**
  * Created by admin on 2016/11/26.
  * 如果需要设置蓝牙对象的更多属性与行为   则可继承自该类
@@ -15,15 +17,13 @@ public class BleDevice {
     public final static String          TAG                      = BleDevice.class.getSimpleName();
 
     private boolean isConnected = false;//是否被连接
-    private int mConnectionState = 2503;//连接状态  2503未连接     2504正在连接中   2505已连接  2506已断开
+    private int mConnectionState = BleConfig.DISCONNECT;//连接状态  2503未连接     2504正在连接中   2505已连接  2506已断开
 
     private String mBleAddress;//蓝牙地址
 
     private String mBleName;//蓝牙名称
     private String mBleAlias;//蓝牙修改后的名称
     private List<BleDevice>mConnectedDevices = new ArrayList<>();
-
-
 
 
     public BleDevice(BluetoothDevice device) {

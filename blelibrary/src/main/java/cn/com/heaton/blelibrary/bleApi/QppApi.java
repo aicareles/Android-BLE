@@ -22,10 +22,10 @@ import java.util.UUID;
 
 /**
  * @Description QPP API / CallBack functions
- * @author fqZhang
+ * @author liulei
  * @version 1.0
- * @date 2014-7-10
- * @Copyright (c) 2014 Quintic Co., Ltd. Inc. All rights reserved.
+ * @date 2016-11-27
+ * @Copyright (c) 2016 Quintic Co., Ltd. Inc. All rights reserved.
  *
  */
 
