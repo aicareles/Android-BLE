@@ -19,7 +19,7 @@ public abstract class BleLisenter {
 
     public abstract void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord);//扫描到设备
 
-    public void onWrite(BluetoothGatt gatt,BluetoothGattCharacteristic characteristic, int status){};//当可写的时候
+    public void onWrite(BluetoothGatt gatt,BluetoothGattCharacteristic characteristic, int status){};//当写入成功时
 
 //    public void onConnected(BluetoothDevice device){};//已经被连接
 
@@ -33,7 +33,9 @@ public abstract class BleLisenter {
 
     public abstract void onConnectionChanged(BluetoothGatt gatt,BleDevice device);//连接改变时的回调   断开或者连接
 
-    public void onReady(BluetoothGatt gatt){};//
+    public void onDescriptorWriter(BluetoothGatt gatt){};//通知描述写入成功时
+
+    public void onDescriptorRead(BluetoothGatt gatt){};//读取到通知描述成功时
 
     public void onError(int errorCode){};//当错误时的回调   比如app只可同时连接4个设备时   用户强行连接4个以上的设备   就会回调该方法
 }

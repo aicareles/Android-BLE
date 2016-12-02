@@ -32,6 +32,7 @@ import com.example.admin.mybledemo.Command;
 import com.example.admin.mybledemo.LeDeviceListAdapter;
 import com.example.admin.mybledemo.R;
 
+import java.util.Arrays;
 import java.util.List;
 
 import cn.com.heaton.blelibrary.BleConfig;
@@ -128,7 +129,7 @@ public class MainActivity extends BaseActivity {
 
                         @Override
                         public void onChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
-                            Log.e(TAG, "data===" + characteristic.getValue());
+                            Log.e(TAG, "data===" + Arrays.toString(characteristic.getValue()));
                             //可以选择性实现该方法   不需要则不用实现
 //                            QppApi.updateValueForNotification(gatt, characteristic);
                         }
@@ -146,11 +147,10 @@ public class MainActivity extends BaseActivity {
                         }
 
                         @Override
-                        public void onReady(BluetoothGatt gatt) {
-                            super.onReady(gatt);
-                            Log.e(TAG, "onReady");
+                        public void onDescriptorWriter(BluetoothGatt gatt) {
+                            super.onDescriptorWriter(gatt);
                             //可以选择性实现该方法   不需要则不用实现
-//                            QppApi.setQppNextNotify(gatt, true);
+////                            QppApi.setQppNextNotify(gatt, true);
                         }
                     });
                     //开始扫描  如果想更改扫描时间   则修改BleConfig中的SCAN_PERIOD = 10000;//默认扫描时间
@@ -161,13 +161,14 @@ public class MainActivity extends BaseActivity {
     };
 
     public boolean changeLevelInner(String address, int color) {
-        byte[] data = new byte[Command.ComSyncColorLen];
-        System.arraycopy(Command.ComSyncColor, 0, data, 0, Command.ComSyncColor.length);
-        data[4] = (byte) (color & 0xff);
-        data[5] = (byte) ((color >> 8) & 0xff);
-        data[6] = (byte) ((color >> 16) & 0xff);
-        data[7] = (byte) ((color >> 24) & 0xff);
-        boolean result = mBluetoothLeService.wirteCharacteristic(address, mWriteCharacteristic, getWriteData(data));
+//        byte[] data = new byte[Command.ComSyncColorLen];
+//        System.arraycopy(Command.ComSyncColor, 0, data, 0, Command.ComSyncColor.length);
+//        data[4] = (byte) (color & 0xff);
+//        data[5] = (byte) ((color >> 8) & 0xff);
+//        data[6] = (byte) ((color >> 16) & 0xff);
+//        data[7] = (byte) ((color >> 24) & 0xff);
+//        boolean result = mBluetoothLeService.wirteCharacteristic(address, mWriteCharacteristic, getWriteData(data));
+        boolean result = mBluetoothLeService.wirteCharacteristic(address, mWriteCharacteristic, sendData(1));
         Log.e(TAG, "result==" + result);
         return result;
     }
@@ -189,16 +190,22 @@ public class MainActivity extends BaseActivity {
         for (BluetoothGattService gattService : gattServices) {
             uuid = gattService.getUuid().toString();
             Log.d(TAG, "displayGattServices: " + uuid);
-            List<BluetoothGattCharacteristic> gattCharacteristics = gattService.getCharacteristics();
-            for (BluetoothGattCharacteristic gattCharacteristic : gattCharacteristics) {
-                uuid = gattCharacteristic.getUuid().toString();
-                if (uuid.equals(BleConfig.UUID_CHARACTERISTIC_TEXT)) {
-                    Log.e("console", "2gatt Characteristic: " + uuid);
-                    mWriteCharacteristic = gattCharacteristic;
-                    mBluetoothLeService.setCharacteristicNotification(address,gattCharacteristic, true);//
-//                    mBluetoothLeService.readCharacteristic(address,gattCharacteristic);//暂时注释
-                }
+            if(uuid.equals(BleConfig.UUID_SERVICE_TEXT)){
+                Log.d(TAG, "service_uuid: " + uuid);
+                List<BluetoothGattCharacteristic> gattCharacteristics = gattService.getCharacteristics();
+                for (BluetoothGattCharacteristic gattCharacteristic : gattCharacteristics) {
+                    uuid = gattCharacteristic.getUuid().toString();
+                    Log.e("all_characteristic", "Characteristic: " + uuid);
+                    if (uuid.equals(BleConfig.UUID_NOTIFY_TEXT)) {
+                        Log.e("console", "2gatt Characteristic: " + uuid);
+                        mBluetoothLeService.setCharacteristicNotification(address,gattCharacteristic, true);//
+//                        mBluetoothLeService.readCharacteristic(address,gattCharacteristic);//暂时注释
+                    }else if(uuid.equals(BleConfig.UUID_CHARACTERISTIC_TEXT)){
+                        mWriteCharacteristic = gattCharacteristic;
+                        Log.e("write_characteristic", "Characteristic: " + uuid);
+                    }
 
+                }
             }
         }
     }
@@ -251,6 +258,17 @@ public class MainActivity extends BaseActivity {
         } else {
             System.out.println("===============");
         }
+    }
+
+    //播放音乐
+    public byte[] sendData(int play) {
+        byte[] data = new byte[Command.qppDataSend.length];
+        System.arraycopy(Command.qppDataSend, 0, data, 0, data.length);
+
+        data[6] = 0x03;
+        data[7] = (byte) play;
+        Log.e(TAG,"data:"+Arrays.toString(data));
+        return data;
     }
 
     private void initView() {

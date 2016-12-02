@@ -4,6 +4,9 @@ package com.example.admin.mybledemo;
  * 设备命令
  */
 public class Command {
+
+    public static byte qppDataSend[] = {'T','R',0x16,0x06,'R',0x05,0x00,0x00,0x00,0x00,0x00,0x00,0x00}; // 发送数据的数组
+
     public static byte[] ComSyncColor    = {'C', 'O', 'L', 'R'};
     public static int    ComSyncColorLen = 8;
     public static byte[] ComSyncMode     = {'M', 'O', 'D', 'E'};

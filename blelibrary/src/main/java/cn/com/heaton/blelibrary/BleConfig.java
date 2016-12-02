@@ -17,11 +17,12 @@ public class BleConfig {
 
     public static final int BLE_GAP_AD_TYPE_MANUFACTURER_SPECIFIC_DATA          = 0xFF; /**< Manufacturer Specific Data. */
 
-    public final static String UUID_DESCRIPTOR_TEXT     = "00002902-0000-1000-8000-00805f9b34fb";//描述UUID字符串
+    public final static String UUID_DESCRIPTOR_TEXT     = "00002902-0000-1000-8000-00805f9b34fb";//描述UUID字符串  00002901-0000-1000-8000-00805f9b34fb
     public static String CLIENT_CHARACTERISTIC_CONFIG = "00002902-0000-1000-8000-00805f9b34fb";
-    public final static String UUID_SERVICE_TEXT        = "0000fee9-0000-1000-8000-00805f9b34fb";//服务UUID字符串
+    public final static String UUID_SERVICE_TEXT        = "0000fee9-0000-1000-8000-00805f9b34fb";//服务UUID字符串  0000fee9-0000-1000-8000-00805f9b34fb
     public final static UUID UUID_SERVICE             = UUID.fromString(UUID_SERVICE_TEXT);//服务UUID字符串
-    public final static String UUID_CHARACTERISTIC_TEXT = "d44bc439-abfd-45a2-b575-925416129600";//特性UUID字符串
+    public final static String UUID_CHARACTERISTIC_TEXT = "d44bc439-abfd-45a2-b575-925416129600";//特性UUID字符串 d44bc439-abfd-45a2-b575-925416129600
+    public final static String UUID_NOTIFY_TEXT = "d44bc439-abfd-45a2-b575-925416129601";//设置通知特性UUID字符串 d44bc439-abfd-45a2-b575-925416129601
     public final static             UUID   UUID_CHARACTERISTIC      = UUID.fromString(UUID_CHARACTERISTIC_TEXT);//特性UUID字符串
 
     /**

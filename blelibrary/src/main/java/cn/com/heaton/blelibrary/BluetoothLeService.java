@@ -121,7 +121,17 @@ public class BluetoothLeService extends Service {
                                       BluetoothGattDescriptor descriptor, int status) {
             UUID uuid = descriptor.getCharacteristic().getUuid();
             Log.w(TAG,"onDescriptorWrite");
-            mBleLisenter.onReady(gatt);
+            Log.e(TAG,"descriptor_uuid:"+uuid);
+            mBleLisenter.onDescriptorWriter(gatt);
+        }
+
+        @Override
+        public void onDescriptorRead(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
+            super.onDescriptorRead(gatt, descriptor, status);
+            UUID uuid = descriptor.getCharacteristic().getUuid();
+            Log.w(TAG,"onDescriptorRead");
+            Log.e(TAG,"descriptor_uuid:"+uuid);
+            mBleLisenter.onDescriptorRead(gatt);
         }
 
         @Override
@@ -376,12 +386,16 @@ public class BluetoothLeService extends Service {
             return;
         }
         mBluetoothGattMap.get(address).setCharacteristicNotification(characteristic, enabled);
-        BluetoothGattDescriptor descriptor = characteristic.getDescriptor(UUID
-                .fromString(BleConfig.UUID_DESCRIPTOR_TEXT));
-        if (descriptor != null) {
-            descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-            mBluetoothGattMap.get(address).writeDescriptor(descriptor);
+        if(characteristic.getDescriptors().size()>0){//如果通知的特征值中的描述符个数大于0
+            BluetoothGattDescriptor descriptor = characteristic.getDescriptor(UUID  //根据描述符的uuid进行过滤描述符
+                    .fromString(BleConfig.UUID_DESCRIPTOR_TEXT));
+            if (descriptor != null) {
+                //写入描述值
+                descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+                mBluetoothGattMap.get(address).writeDescriptor(descriptor);
+            }
         }
+
     }
 
     /**
