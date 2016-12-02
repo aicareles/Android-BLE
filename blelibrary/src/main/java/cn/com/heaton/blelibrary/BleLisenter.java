@@ -13,29 +13,42 @@ import cn.com.heaton.blelibrary.BleVO.BleDevice;
 
 public abstract class BleLisenter {
 
-    public void onStart(){};//开始扫描
+    //开始扫描
+    public void onStart(){};
 
-    public void onStop(){};//停止扫描
+    //停止扫描
+    public void onStop(){};
 
-    public abstract void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord);//扫描到设备
+    //扫描到设备
+    public abstract void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord);
 
-    public void onWrite(BluetoothGatt gatt,BluetoothGattCharacteristic characteristic, int status){};//当写入成功时
+    //当写入成功时
+    public void onWrite(BluetoothGatt gatt,BluetoothGattCharacteristic characteristic, int status){};
 
-//    public void onConnected(BluetoothDevice device){};//已经被连接
+    //已经被连接
+//    public void onConnected(BluetoothDevice device){};
 
-//    public void onDisConnected(BluetoothDevice device){};//断开连接
+    //断开连接
+//    public void onDisConnected(BluetoothDevice device){};
 
-    public void onRead(BluetoothDevice device){};//当读取到muc返回的数据
+    //当读取到muc返回的数据
+    public void onRead(BluetoothDevice device){};
 
-    public void onChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic){};//单片机数据改变时发送给app的数据回调  前提是setNotify
+    //单片机数据改变时发送给app的数据回调  前提是setNotify
+    public void onChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic){};
 
-    public void onServicesDiscovered(BluetoothGatt gatt){};//当服务发现时的回调    //在此处设置通知  setNotify
+    //当服务发现时的回调    //在此处设置通知  setNotify
+    public void onServicesDiscovered(BluetoothGatt gatt){};
 
-    public abstract void onConnectionChanged(BluetoothGatt gatt,BleDevice device);//连接改变时的回调   断开或者连接
+    //连接改变时的回调   断开或者连接
+    public abstract void onConnectionChanged(BluetoothGatt gatt,BleDevice device);
 
-    public void onDescriptorWriter(BluetoothGatt gatt){};//通知描述写入成功时
+    //通知描述写入成功时
+    public void onDescriptorWriter(BluetoothGatt gatt){};
 
-    public void onDescriptorRead(BluetoothGatt gatt){};//读取到通知描述成功时
+    //读取到通知描述成功时
+    public void onDescriptorRead(BluetoothGatt gatt){};
 
-    public void onError(int errorCode){};//当错误时的回调   比如app只可同时连接4个设备时   用户强行连接4个以上的设备   就会回调该方法
+    //当错误时的回调   比如app只可同时连接4个设备时   用户强行连接4个以上的设备   就会回调该方法
+    public void onError(int errorCode){};
 }

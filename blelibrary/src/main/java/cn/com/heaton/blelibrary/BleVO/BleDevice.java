@@ -16,13 +16,18 @@ public class BleDevice {
 
     public final static String          TAG                      = BleDevice.class.getSimpleName();
 
-    private boolean isConnected = false;//是否被连接
-    private int mConnectionState = BleConfig.DISCONNECT;//连接状态  2503未连接     2504正在连接中   2505已连接  2506已断开
+    //是否被连接
+    private boolean isConnected = false;
+    //连接状态  2503未连接     2504正在连接中   2505已连接  2506已断开
+    private int mConnectionState = BleConfig.DISCONNECT;
 
-    private String mBleAddress;//蓝牙地址
+    //蓝牙地址
+    private String mBleAddress;
 
-    private String mBleName;//蓝牙名称
-    private String mBleAlias;//蓝牙修改后的名称
+    //蓝牙名称
+    private String mBleName;
+    //蓝牙修改后的名称
+    private String mBleAlias;
     private List<BleDevice>mConnectedDevices = new ArrayList<>();
 
 

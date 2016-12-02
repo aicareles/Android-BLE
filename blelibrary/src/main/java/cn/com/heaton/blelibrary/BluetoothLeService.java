@@ -37,12 +37,15 @@ public class BluetoothLeService extends Service {
     private Handler mHandler;
     private BluetoothManager mBluetoothManager;
     private BluetoothAdapter mBluetoothAdapter;
-    public boolean mScanning;//公共的
+    //公共的
+    public boolean mScanning;
 
     private ArrayList<BluetoothDevice> mScanDevices = new ArrayList<>();
     private ArrayList<BluetoothDevice> mConnectedDevices = new ArrayList<>();
-    private Map<String, BluetoothGatt> mBluetoothGattMap;//多设备连接  必须要把gatt对象放进集合中
-    private List<String> mConnectedAddressList;//已连接设备的address
+    //多设备连接  必须要把gatt对象放进集合中
+    private Map<String, BluetoothGatt> mBluetoothGattMap;
+    //已连接设备的address
+    private List<String> mConnectedAddressList;
 
     private Runnable                          mConnectTimeout        = new Runnable() { // 连接设备超时
         @Override
@@ -59,7 +62,8 @@ public class BluetoothLeService extends Service {
         public void onConnectionStateChange(BluetoothGatt gatt, int status,
                                             int newState) {
             BluetoothDevice device = gatt.getDevice();
-            BleDevice bleDevice = new BleDevice(device);//这里有问题  每次都生成一个新的对象  导致同一个设备断开和连接   产生了两个对象
+            //这里有问题  每次都生成一个新的对象  导致同一个设备断开和连接   产生了两个对象
+            BleDevice bleDevice = new BleDevice(device);
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 mHandler.removeCallbacks(mConnectTimeout);
                 bleDevice.setConnected(true);
@@ -68,7 +72,7 @@ public class BluetoothLeService extends Service {
                 Log.i(TAG, "Connected to GATT server.");
                 // Attempts to discover services after successful connection.
                 Log.i(TAG, "Attempting to start service discovery:"
-                        + mBluetoothGattMap.get(device.getAddress()).discoverServices());//mBluetoothGatt.discoverServices()
+                        + mBluetoothGattMap.get(device.getAddress()).discoverServices());
 
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 mHandler.removeCallbacks(mConnectTimeout);
@@ -274,7 +278,8 @@ public class BluetoothLeService extends Service {
         if (mBluetoothGattMap == null) {
             mBluetoothGattMap = new HashMap<>();
         }
-        mHandler.postDelayed(mConnectTimeout,BleConfig.CONNECT_TIME_OUT);//10s后超时提示
+        //10s后超时提示
+        mHandler.postDelayed(mConnectTimeout,BleConfig.CONNECT_TIME_OUT);
         if (mBluetoothGattMap.get(address) != null && mConnectedAddressList.contains(address)) {
             if (mBluetoothGattMap.get(address).connect()) {
                 return true;
@@ -386,8 +391,10 @@ public class BluetoothLeService extends Service {
             return;
         }
         mBluetoothGattMap.get(address).setCharacteristicNotification(characteristic, enabled);
-        if(characteristic.getDescriptors().size()>0){//如果通知的特征值中的描述符个数大于0
-            BluetoothGattDescriptor descriptor = characteristic.getDescriptor(UUID  //根据描述符的uuid进行过滤描述符
+        //如果通知的特征值中的描述符个数大于0
+        if(characteristic.getDescriptors().size()>0){
+            //根据描述符的uuid进行过滤描述符
+            BluetoothGattDescriptor descriptor = characteristic.getDescriptor(UUID
                     .fromString(BleConfig.UUID_DESCRIPTOR_TEXT));
             if (descriptor != null) {
                 //写入描述值

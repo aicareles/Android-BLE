@@ -21,13 +21,11 @@ import cn.com.heaton.blelibrary.BleVO.BleDevice;
 public class LeDeviceListAdapter extends BaseAdapter {
     private ArrayList<BleDevice> mLeDevices;
     private LayoutInflater mInflator;
-    private Activity activity;
 
     public LeDeviceListAdapter(Activity context) {
         super();
         mLeDevices = new ArrayList<BleDevice>();
         mInflator = context.getLayoutInflater();
-        activity = context;
     }
 
     public void addDevice(BleDevice device) {
@@ -70,7 +68,6 @@ public class LeDeviceListAdapter extends BaseAdapter {
             viewHolder.deviceName = (TextView) view.findViewById(R.id.device_name);
             viewHolder.deviceRSSI = (TextView) view.findViewById(R.id.device_RSSI);
             viewHolder.deviceState = (TextView) view.findViewById(R.id.state);
-//            viewHolder.send = (Button) view.findViewById(R.id.send);
             view.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) view.getTag();
@@ -95,12 +92,6 @@ public class LeDeviceListAdapter extends BaseAdapter {
             viewHolder.deviceName.setText(R.string.unknown_device);
         viewHolder.deviceAddress.setText(device.getBleAddress());
 
-//        viewHolder.send.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                ((MainActivity)activity).changeLevelInner(device.getBleAddress(),-16711872);
-//            }
-//        });
         return view;
     }
 
@@ -109,7 +100,6 @@ public class LeDeviceListAdapter extends BaseAdapter {
         TextView deviceAddress;
         TextView deviceRSSI;
         TextView deviceState;
-//        Button send;
     }
 
 }

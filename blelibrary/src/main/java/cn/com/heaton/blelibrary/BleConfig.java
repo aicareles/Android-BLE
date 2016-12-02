@@ -7,23 +7,36 @@ import java.util.UUID;
  */
 
 public class BleConfig {
-    public final static int SCAN_PERIOD = 10000;//默认扫描时间
-    public final static int CONNECT_TIME_OUT         = 10 * 1000;// 连接超时时间限制
+    //默认扫描时间
+    public final static int SCAN_PERIOD = 10000;
+    // 连接超时时间限制
+    public final static int CONNECT_TIME_OUT         = 10 * 1000;
 
-    public final static int CONNECTED = 2505;//连接成功状态
-    public final static int CONNECTING = 2504;//正在连接状态
-    public final static int DISCONNECT = 2503;//断开连接状态  为连接状态
-    public static final byte[] BROADCAST_SPECIFIC_PRODUCT                       = {'T', 'R', 0, 1};//广播对应产品值
+    //连接成功状态
+    public final static int CONNECTED = 2505;
+    //正在连接状态
+    public final static int CONNECTING = 2504;
+    //断开连接状态  为连接状态
+    public final static int DISCONNECT = 2503;
+    //广播对应产品值
+    public static final byte[] BROADCAST_SPECIFIC_PRODUCT                       = {'T', 'R', 0, 1};
 
-    public static final int BLE_GAP_AD_TYPE_MANUFACTURER_SPECIFIC_DATA          = 0xFF; /**< Manufacturer Specific Data. */
+    /**< Manufacturer Specific Data. */
+    public static final int BLE_GAP_AD_TYPE_MANUFACTURER_SPECIFIC_DATA          = 0xFF;
 
-    public final static String UUID_DESCRIPTOR_TEXT     = "00002902-0000-1000-8000-00805f9b34fb";//描述UUID字符串  00002901-0000-1000-8000-00805f9b34fb
+    //描述UUID字符串  00002901-0000-1000-8000-00805f9b34fb
+    public final static String UUID_DESCRIPTOR_TEXT     = "00002902-0000-1000-8000-00805f9b34fb";
     public static String CLIENT_CHARACTERISTIC_CONFIG = "00002902-0000-1000-8000-00805f9b34fb";
-    public final static String UUID_SERVICE_TEXT        = "0000fee9-0000-1000-8000-00805f9b34fb";//服务UUID字符串  0000fee9-0000-1000-8000-00805f9b34fb
-    public final static UUID UUID_SERVICE             = UUID.fromString(UUID_SERVICE_TEXT);//服务UUID字符串
-    public final static String UUID_CHARACTERISTIC_TEXT = "d44bc439-abfd-45a2-b575-925416129600";//特性UUID字符串 d44bc439-abfd-45a2-b575-925416129600
-    public final static String UUID_NOTIFY_TEXT = "d44bc439-abfd-45a2-b575-925416129601";//设置通知特性UUID字符串 d44bc439-abfd-45a2-b575-925416129601
-    public final static             UUID   UUID_CHARACTERISTIC      = UUID.fromString(UUID_CHARACTERISTIC_TEXT);//特性UUID字符串
+    //服务UUID字符串  0000fee9-0000-1000-8000-00805f9b34fb
+    public final static String UUID_SERVICE_TEXT        = "0000fee9-0000-1000-8000-00805f9b34fb";
+    //服务UUID字符串
+    public final static UUID UUID_SERVICE             = UUID.fromString(UUID_SERVICE_TEXT);
+    //特性UUID字符串 d44bc439-abfd-45a2-b575-925416129600
+    public final static String UUID_CHARACTERISTIC_TEXT = "d44bc439-abfd-45a2-b575-925416129600";
+    //设置通知特性UUID字符串 d44bc439-abfd-45a2-b575-925416129601
+    public final static String UUID_NOTIFY_TEXT = "d44bc439-abfd-45a2-b575-925416129601";
+    //特性UUID字符串
+    public final static             UUID   UUID_CHARACTERISTIC      = UUID.fromString(UUID_CHARACTERISTIC_TEXT);
 
     /**
      * 验证产品广播参数
@@ -47,7 +60,8 @@ public class BleConfig {
                 } while (j < len);
                 // 验证类型 及长度
                 if (d.length > BROADCAST_SPECIFIC_PRODUCT.length && (d[0] & 0xFF) == BLE_GAP_AD_TYPE_MANUFACTURER_SPECIFIC_DATA) {
-                    boolean passed = true;// 匹配产品参数
+                    // 匹配产品参数
+                    boolean passed = true;
                     for (int x = 0; x < BROADCAST_SPECIFIC_PRODUCT.length; x++) {
                         passed = passed && d[x + 1] == BROADCAST_SPECIFIC_PRODUCT[x];
                     }
