@@ -9,24 +9,24 @@ import cn.com.heaton.blelibrary.BleConfig;
 
 /**
  * Created by admin on 2016/11/26.
- * 如果需要设置蓝牙对象的更多属性与行为   则可继承自该类
+ * If you need to set the Bluetooth object more properties and behavior can be inherited from the class     such as extends BleDevice
  */
 
 public class BleDevice {
 
     public final static String          TAG                      = BleDevice.class.getSimpleName();
 
-    //是否被连接
+    //Is connected
     private boolean isConnected = false;
-    //连接状态  2503未连接     2504正在连接中   2505已连接  2506已断开
+    //Connection Status: 2503 Not Connected       2504 Connected       2505 Connected      2506 Disconnected
     private int mConnectionState = BleConfig.DISCONNECT;
 
-    //蓝牙地址
+    //Bluetooth address
     private String mBleAddress;
 
-    //蓝牙名称
+    //Bluetooth name
     private String mBleName;
-    //蓝牙修改后的名称
+    //Bluetooth modified name
     private String mBleAlias;
     private List<BleDevice>mConnectedDevices = new ArrayList<>();
 

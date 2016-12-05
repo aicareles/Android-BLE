@@ -55,14 +55,14 @@ public class BluetoothLeService extends Service {
     };
 
     /**
-     * 连接改变或者服务被发现等多种状态的回调
+     * Connection changes or services were found in a variety of state callbacks
      */
     private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status,
                                             int newState) {
             BluetoothDevice device = gatt.getDevice();
-            //这里有问题  每次都生成一个新的对象  导致同一个设备断开和连接   产生了两个对象
+            //There is a problem here Every time a new object is generated that causes the same device to be disconnected and the connection produces two objects
             BleDevice bleDevice = new BleDevice(device);
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 mHandler.removeCallbacks(mConnectTimeout);
@@ -112,7 +112,7 @@ public class BluetoothLeService extends Service {
 
         /*
          * when connected successfully will callback this method , this method can dealwith send password or data analyze
-         * 当设置了setnotify（true）时,如果muc（设备端）有数据发生变化时会回调该方法
+         * When setnotify (true) is set, the method is called back if the data on the MCU (device side) changes.
          */
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt,
@@ -151,8 +151,8 @@ public class BluetoothLeService extends Service {
     }
 
     /**
-     * 开始扫描或者停止扫描设备
-     * @param enable  是否开始
+     * Starts scanning or stops scanning the device
+     * @param enable  Whether to start
      */
     public void scanLeDevice(final boolean enable) {
         if (enable) {
@@ -186,7 +186,7 @@ public class BluetoothLeService extends Service {
     };
 
 //    /**
-//     * 通过蓝牙地址查找并返回ble蓝牙设备
+//     * Finds and returns the bluetooth device through Bluetooth address
 //     * @param address
 //     * @return
 //     */
@@ -195,7 +195,7 @@ public class BluetoothLeService extends Service {
 //    }
 
     /**
-     * 获取扫描到的设备
+     * Get the scanned device
      * @return
      */
     public List<BluetoothDevice> getScanDevices() {
@@ -203,7 +203,7 @@ public class BluetoothLeService extends Service {
     }
 
     /**
-     * 获取已连接的设备
+     * Gets the connected device
      * @return
      */
     public List<BluetoothDevice> getConnectedDevices() {
@@ -232,12 +232,12 @@ public class BluetoothLeService extends Service {
     private final IBinder mBinder = new LocalBinder();
 
     /**
-     * 初始化ble蓝牙设备
-     * @return  是否初始化成功
+     * Initializes the ble Bluetooth device
+     * @return  Whether the initialization is successful
      */
     public boolean initialize() {
         // For API level 18 and above, get a reference to BluetoothAdapter
-        //蓝牙4.0，也就是说API level >= 18，且支持蓝牙4.0的手机才可以使用，如果手机系统版本API level < 18，也是用不了蓝牙4.0的  android系统4.3以上，手机支持蓝牙4.0
+        //Bluetooth 4.0, that API level> = 18, and supports Bluetooth 4.0 phone can use, if the mobile phone system version API level <18, is not used Bluetooth 4 android system 4.3 above, the phone supports Bluetooth 4.0
         if (mBluetoothManager == null) {
             mBluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
             if (mBluetoothManager == null) {
@@ -256,7 +256,7 @@ public class BluetoothLeService extends Service {
     }
 
     /**
-     * 连接指定address的ble蓝牙设备
+     * Connects to a specified Bluetooth device
      * @param address
      * @return
      */
@@ -278,7 +278,7 @@ public class BluetoothLeService extends Service {
         if (mBluetoothGattMap == null) {
             mBluetoothGattMap = new HashMap<>();
         }
-        //10s后超时提示
+        //10s after the timeout prompt
         mHandler.postDelayed(mConnectTimeout,BleConfig.CONNECT_TIME_OUT);
         if (mBluetoothGattMap.get(address) != null && mConnectedAddressList.contains(address)) {
             if (mBluetoothGattMap.get(address).connect()) {
@@ -308,7 +308,7 @@ public class BluetoothLeService extends Service {
     }
 
     /**
-     * 断开指定address的ble蓝牙连接设备
+     * Disconnects the specified Bluetooth blinking device
      */
     public void disconnect(final String address) {
         if (mBluetoothAdapter == null || mBluetoothGattMap.get(address) == null) {
@@ -319,7 +319,7 @@ public class BluetoothLeService extends Service {
     }
 
     /**
-     *清除指定address蓝牙地址的ble蓝牙连接设备
+     *Clear the specified Bluetooth address of the Bluetooth bluetooth connection device
      */
     public void close(String address) {
         mConnectedAddressList.remove(address);
@@ -330,7 +330,7 @@ public class BluetoothLeService extends Service {
     }
 
     /**
-     *清除所有的ble蓝牙连接设备
+     *Clear all ble connected devices
      */
     public void close() {
         if (mConnectedAddressList == null) return;
@@ -391,13 +391,13 @@ public class BluetoothLeService extends Service {
             return;
         }
         mBluetoothGattMap.get(address).setCharacteristicNotification(characteristic, enabled);
-        //如果通知的特征值中的描述符个数大于0
+        //If the number of descriptors in the eigenvalue of the notification is greater than zero
         if(characteristic.getDescriptors().size()>0){
-            //根据描述符的uuid进行过滤描述符
+            //Filter descriptors based on the uuid of the descriptor
             BluetoothGattDescriptor descriptor = characteristic.getDescriptor(UUID
                     .fromString(BleConfig.UUID_DESCRIPTOR_TEXT));
             if (descriptor != null) {
-                //写入描述值
+                //Write the description value
                 descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
                 mBluetoothGattMap.get(address).writeDescriptor(descriptor);
             }
