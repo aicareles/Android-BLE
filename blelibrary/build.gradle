@@ -2,30 +2,6 @@ apply plugin: 'com.android.library'
 //配置插件
 apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'com.jfrog.bintray'
-//ext {
-//    bintrayRepo = 'maven'
-//    bintrayName = 'BleLib'
-//
-//    publishedGroupId = 'cn.com.heaton.blelibrary'
-//    libraryName = 'BleLib'
-//    artifact = 'blelibrary'
-//
-//    libraryDescription = 'This is a library of BLE bluetooth, encapsulates all sorts of bluetooth connection state and data of reading and writing, etc)'
-//
-//    siteUrl = 'https://github.com/liulei-0911/BleDemo'
-//    issueUrl = 'https://github.com/liulei-0911/BleDemo/issues'
-//    gitUrl = 'https://github.com/liulei-0911/BleDemo.git'
-//
-//    libraryVersion = '1.0.1'
-//
-//    developerId = 'liulei'
-//    developerName = 'Liu Lei'
-//    developerEmail = 'superliu@gmail.com'
-//
-//    licenseName = 'The Apache Software License, Version 2.0'
-//    licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-//    allLicenses = ["Apache-2.0"]
-//}
 
 android {
     compileSdkVersion 24
@@ -70,7 +46,7 @@ version = "1.0.0"       //这个是版本号，必须填写
 def siteUrl = 'https://github.com/liulei-0911/BleDemo'      // 项目的主页   这个是说明，可随便填
 def gitUrl = 'https://github.com/liulei-0911/BleDemo'      // Git仓库的url  这个是说明，可随便填
 //compile 'com.arshowbaby:mylibrary:1.0.0'中的com.arshowbaby
-group = "cn.com.heaton.blelibrary"    // 这里是groupId ,必须填写  一般填你唯一的包名
+group = "cn.com.superLei"    // 这里是groupId ,必须填写  一般填你唯一的包名
 
 install {
     repositories.mavenInstaller {
@@ -137,10 +113,10 @@ bintray {
 
     configurations = ['archives']
     pkg {
-        userOrg = "xanthuimsoft"      //发布到JCenter的组织，注意新版本的bintray是需要手动创建的
+        userOrg = "superliu"      //发布到JCenter的组织，注意新版本的bintray是需要手动创建的
         repo = "maven"          //发布到JCenter上的仓库名称，注意新版本的bintray是需要手动创建的
         // 发布到Bintray上的项目名字，这里的名字不是compile 'com.arshowbaby:mylibrary:1.0.0'中的mylibrary
-        name = "mylibrary"
+        name = "BleLib"
         websiteUrl = siteUrl
         vcsUrl = gitUrl
         licenses = ["Apache-2.0"]
