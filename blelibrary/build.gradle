@@ -69,7 +69,7 @@ install {
                     developer {
                         id 'liulei'        //填写开发者的一些基本信息
                         name 'liulei'    //填写开发者的一些基本信息
-                        email 'superliu@gmail.com'   //填写开发者的一些基本信息
+                        email 'superliu0911@gmail.com'   //填写开发者的一些基本信息
                     }
                 }
                 // SCM，复制我的，这里不需要修改。
