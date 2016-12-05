@@ -21,7 +21,7 @@ public class BleConfig {
     //Broadcast corresponds to the product value
     public static final byte[] BROADCAST_SPECIFIC_PRODUCT                       = {'T', 'R', 0, 1};
 
-    /**< Manufacturer Specific Data. */
+    /* Manufacturer Specific Data. */
     public static final int BLE_GAP_AD_TYPE_MANUFACTURER_SPECIFIC_DATA          = 0xFF;
 
     //Describes the UUID string  00002901-0000-1000-8000-00805f9b34fb

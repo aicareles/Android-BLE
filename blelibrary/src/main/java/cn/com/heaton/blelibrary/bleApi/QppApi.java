@@ -19,14 +19,8 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
 /**
- * @Description QPP API / CallBack functions
- * @author liulei
- * @version 1.0
- * @date 2016-11-27
- * @Copyright (c) 2016 Quintic Co., Ltd. Inc. All rights reserved.
- *
+ * Created by liulei on 2016/11/29.
  */
 
 @SuppressLint("NewApi")

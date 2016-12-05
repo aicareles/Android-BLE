@@ -196,7 +196,7 @@ public class BluetoothLeService extends Service {
 
     /**
      * Get the scanned device
-     * @return
+     * @return scanned device
      */
     public List<BluetoothDevice> getScanDevices() {
         return mScanDevices;
@@ -204,7 +204,7 @@ public class BluetoothLeService extends Service {
 
     /**
      * Gets the connected device
-     * @return
+     * @return  connected device
      */
     public List<BluetoothDevice> getConnectedDevices() {
         if (mBluetoothManager == null) return null;
@@ -258,7 +258,7 @@ public class BluetoothLeService extends Service {
     /**
      * Connects to a specified Bluetooth device
      * @param address
-     * @return
+     * @return  Whether connect is successful
      */
     public boolean connect(final String address) {
         if (mConnectedAddressList == null) {
@@ -309,6 +309,7 @@ public class BluetoothLeService extends Service {
 
     /**
      * Disconnects the specified Bluetooth blinking device
+     *  @param address
      */
     public void disconnect(final String address) {
         if (mBluetoothAdapter == null || mBluetoothGattMap.get(address) == null) {
@@ -320,6 +321,7 @@ public class BluetoothLeService extends Service {
 
     /**
      *Clear the specified Bluetooth address of the Bluetooth bluetooth connection device
+     * @param address
      */
     public void close(String address) {
         mConnectedAddressList.remove(address);
@@ -366,7 +368,7 @@ public class BluetoothLeService extends Service {
      * result is reported asynchronously through the
      * {@code BluetoothGattCallback#onCharacteristicRead(android.bluetooth.BluetoothGatt, android.bluetooth.BluetoothGattCharacteristic, int)}
      * callback.
-     *
+     * @param address
      * @param characteristic The characteristic to read from.
      */
     public void readCharacteristic(String address, BluetoothGattCharacteristic characteristic) {
@@ -380,7 +382,7 @@ public class BluetoothLeService extends Service {
 
     /**
      * Enables or disables notification on a give characteristic.
-     *
+     * @param address
      * @param characteristic Characteristic to act on.
      * @param enabled        If true, enable notification. False otherwise.
      */
@@ -409,7 +411,7 @@ public class BluetoothLeService extends Service {
      * Retrieves a list of supported GATT services on the connected device. This
      * should be invoked only after {@code BluetoothGatt#discoverServices()}
      * completes successfully.
-     *
+     * @param address
      * @return A {@code List} of supported services.
      */
     public List<BluetoothGattService> getSupportedGattServices(String address) {
@@ -421,6 +423,8 @@ public class BluetoothLeService extends Service {
 
     /**
      * Read the RSSI for a connected remote device.
+     * @param address
+     * @return  Whether get rssi values is successful
      */
     public boolean getRssiVal(String address) {
         if (mBluetoothGattMap.get(address) == null)
