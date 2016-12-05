@@ -37,14 +37,14 @@ public class BluetoothLeService extends Service {
     private Handler mHandler;
     private BluetoothManager mBluetoothManager;
     private BluetoothAdapter mBluetoothAdapter;
-    //公共的
+    //public
     public boolean mScanning;
 
     private ArrayList<BluetoothDevice> mScanDevices = new ArrayList<>();
     private ArrayList<BluetoothDevice> mConnectedDevices = new ArrayList<>();
-    //多设备连接  必须要把gatt对象放进集合中
+    //Multiple device connections must put the gatt object in the collection
     private Map<String, BluetoothGatt> mBluetoothGattMap;
-    //已连接设备的address
+    //The address of the connected device
     private List<String> mConnectedAddressList;
 
     private Runnable                          mConnectTimeout        = new Runnable() { // 连接设备超时
