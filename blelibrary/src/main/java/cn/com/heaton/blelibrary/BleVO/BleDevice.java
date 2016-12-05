@@ -16,17 +16,31 @@ public class BleDevice {
 
     public final static String          TAG                      = BleDevice.class.getSimpleName();
 
-    //Is connected
+    /**
+     * Is connected
+     */
     private boolean isConnected = false;
-    //Connection Status: 2503 Not Connected       2504 Connected       2505 Connected      2506 Disconnected
+    /**
+     *  Connection Status:
+     *  2503 Not Connected
+     *  2504 Connected
+     *  2505 Connected
+     *  2506 Disconnected
+     */
     private int mConnectionState = BleConfig.DISCONNECT;
 
-    //Bluetooth address
+    /**
+     *   Bluetooth address
+     */
     private String mBleAddress;
 
-    //Bluetooth name
+    /**
+     *  Bluetooth name
+     */
     private String mBleName;
-    //Bluetooth modified name
+    /**
+     *   Bluetooth modified name
+     */
     private String mBleAlias;
     private List<BleDevice>mConnectedDevices = new ArrayList<>();
 

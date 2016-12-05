@@ -37,14 +37,18 @@ public class BluetoothLeService extends Service {
     private Handler mHandler;
     private BluetoothManager mBluetoothManager;
     private BluetoothAdapter mBluetoothAdapter;
-    //public
+    /**public*/
     public boolean mScanning;
 
     private ArrayList<BluetoothDevice> mScanDevices = new ArrayList<>();
     private ArrayList<BluetoothDevice> mConnectedDevices = new ArrayList<>();
-    //Multiple device connections must put the gatt object in the collection
+    /**
+     *  Multiple device connections must put the gatt object in the collection
+     */
     private Map<String, BluetoothGatt> mBluetoothGattMap;
-    //The address of the connected device
+    /**
+     *  The address of the connected device
+     */
     private List<String> mConnectedAddressList;
 
     private Runnable                          mConnectTimeout        = new Runnable() { // 连接设备超时
