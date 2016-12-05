@@ -24,12 +24,18 @@ public abstract class BleLisenter {
     public void onStop(){};
 
     /**
-     *   Scan to device
+     * Scan to device
+     * @param device
+     * @param rssi
+     * @param scanRecord
      */
     public abstract void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord);
 
     /**
      *  When the write succeeds
+     * @param gatt
+     * @param characteristic
+     * @param status
      */
     public void onWrite(BluetoothGatt gatt,BluetoothGattCharacteristic characteristic, int status){};
 
@@ -38,9 +44,6 @@ public abstract class BleLisenter {
      */
 //    public void onConnected(BluetoothDevice device){};
 
-    /**
-     *  Disconnect
-     */
 //    public void onDisConnected(BluetoothDevice device){};
 
     /**
