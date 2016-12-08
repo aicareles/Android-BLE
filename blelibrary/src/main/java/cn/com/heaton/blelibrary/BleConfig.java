@@ -1,8 +1,11 @@
 package cn.com.heaton.blelibrary;
 
+import android.text.TextUtils;
+
 import java.util.UUID;
 
 /**
+ * This class sets various static property values for Bluetooth
  * Created by liulei on 2016/11/29.
  */
 
@@ -28,6 +31,21 @@ public class BleConfig {
      *  The disconnected state is a disconnected state
      */
     public final static int DISCONNECT = 2503;
+
+    /**
+     *  handler massage type
+     */
+    public final static int ConnectionChanged = 2511;
+    public final static int ServicesDiscovered = 2512;
+    public final static int Read = 2513;
+    public final static int Write = 2514;
+    public final static int Changed = 2515;
+    public final static int DescriptorWriter = 2516;
+    public final static int DescriptorRead = 2517;
+    public final static int Start = 2518;
+    public final static int Stop = 2519;
+    public final static int ConnectTimeOut = 2510;
+
     /**
      *    Broadcast corresponds to the product value
      */
@@ -39,28 +57,94 @@ public class BleConfig {
     /**
      *  Describes the UUID string  00002901-0000-1000-8000-00805f9b34fb
      */
-    public final static String UUID_DESCRIPTOR_TEXT     = "00002902-0000-1000-8000-00805f9b34fb";
+    public static String UUID_DESCRIPTOR_TEXT     = "00002902-0000-1000-8000-00805f9b34fb";
     public static String CLIENT_CHARACTERISTIC_CONFIG = "00002902-0000-1000-8000-00805f9b34fb";
     /**
      *  The service UUID string  0000fee9-0000-1000-8000-00805f9b34fb
      */
-    public final static String UUID_SERVICE_TEXT        = "0000fee9-0000-1000-8000-00805f9b34fb";
+    public static String UUID_SERVICE_TEXT        = "0000fee9-0000-1000-8000-00805f9b34fb";
     /**
      *   The service UUID string
      */
-    public final static UUID UUID_SERVICE             = UUID.fromString(UUID_SERVICE_TEXT);
+    public static UUID UUID_SERVICE             = UUID.fromString(UUID_SERVICE_TEXT);
+
+    public static UUID UUID_DESCRIPTOR             = UUID.fromString(UUID_DESCRIPTOR_TEXT);
     /**
      *   Attribute UUID string d44bc439-abfd-45a2-b575-925416129600
      */
-    public final static String UUID_CHARACTERISTIC_TEXT = "d44bc439-abfd-45a2-b575-925416129600";
+    public static String UUID_CHARACTERISTIC_TEXT = "d44bc439-abfd-45a2-b575-925416129600";
     /**
      *  Sets the notification attribute UUID string d44bc439-abfd-45a2-b575-925416129601
      */
-    public final static String UUID_NOTIFY_TEXT = "d44bc439-abfd-45a2-b575-925416129601";
+    public static String UUID_NOTIFY_TEXT = "d44bc439-abfd-45a2-b575-925416129601";
     /**
      *  CHARACTERISTIC UUID string
      */
-    public final static             UUID   UUID_CHARACTERISTIC      = UUID.fromString(UUID_CHARACTERISTIC_TEXT);
+    public static             UUID   UUID_CHARACTERISTIC      = UUID.fromString(UUID_CHARACTERISTIC_TEXT);
+
+    /**
+     * Sets the service UUID string
+     *
+     * @param uuidServiceText Service UUID string
+     */
+    public static void setUuidServiceText(String uuidServiceText) {
+        if (TextUtils.isEmpty(uuidServiceText)) {
+            return;
+        }
+        UUID_SERVICE = UUID.fromString(uuidServiceText);
+    }
+
+    /**
+     * Sets the Characteristic UUID string
+     *
+     * @param uuidCharacteristicText Characteristic UUID string
+     */
+    public static void setUuidCharacteristicText(String uuidCharacteristicText) {
+        if (TextUtils.isEmpty(uuidCharacteristicText)) {
+            return;
+        }
+        UUID_CHARACTERISTIC = UUID.fromString(uuidCharacteristicText);
+    }
+
+    /**
+     * Sets the Description UUID string
+     *
+     * @param uuidDescriptorText Description UUID string
+     */
+    public static void setUuidDescriptorText(String uuidDescriptorText) {
+        if (TextUtils.isEmpty(uuidDescriptorText)) {
+            return;
+        }
+        UUID_DESCRIPTOR = UUID.fromString(uuidDescriptorText);
+    }
+
+    /**
+     * Sets the Notification UUID string
+     *
+     * @param uuidNotifyText Notification UUID string
+     */
+    public static void setUuidNotifyText(String uuidNotifyText) {
+        if (TextUtils.isEmpty(uuidNotifyText)) {
+            return;
+        }
+        UUID_NOTIFY_TEXT = uuidNotifyText;
+    }
+
+    public static UUID getUuidService(){
+        return UUID_SERVICE;
+    }
+
+    public static UUID getUuidCharacteristic(){
+        return UUID_CHARACTERISTIC;
+    }
+
+    public static UUID getUuidDescriptor() {
+        return UUID_DESCRIPTOR;
+    }
+
+    public static String getNotifyText(){
+        return UUID_NOTIFY_TEXT;
+    }
 
     /**
      * Verify the product broadcast parameters

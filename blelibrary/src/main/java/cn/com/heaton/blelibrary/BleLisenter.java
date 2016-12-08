@@ -25,19 +25,17 @@ public abstract class BleLisenter {
 
     /**
      * Scan to device
-     * @param device
-     * @param rssi
-     * @param scanRecord
+     * @param device ble device object
+     * @param rssi rssi
+     * @param scanRecord Bluetooth radio package
      */
     public abstract void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord);
 
     /**
      *  When the write succeeds
-     * @param gatt
-     * @param characteristic
-     * @param status
+     * @param gatt Bluetooth central device
      */
-    public void onWrite(BluetoothGatt gatt,BluetoothGattCharacteristic characteristic, int status){};
+    public void onWrite(BluetoothGatt gatt){};
 
     /**
      *  Has been connected
@@ -48,46 +46,54 @@ public abstract class BleLisenter {
 
     /**
      *  When the MCU returns the data read
-     * @param device
+     * @param device ble device object
      */
     public void onRead(BluetoothDevice device){};
 
     /**
      *  MCU data sent to the app when the data callback call is setNotify
-     * @param gatt
-     * @param characteristic
+     * @param characteristic  characteristic
      */
-    public void onChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic){};
+    public void onChanged(BluetoothGattCharacteristic characteristic){};
 
     /**
      *  Set the notification here when the service finds a callback       setNotify
-     * @param gatt
+     * @param gatt gatt
      */
     public void onServicesDiscovered(BluetoothGatt gatt){};
 
     /**
      *  The callback is disconnected or connected when the connection is changed
-     * @param gatt
-     * @param device
+     * @param device ble device object
      */
-    public abstract void onConnectionChanged(BluetoothGatt gatt,BleDevice device);
+    public abstract void onConnectionChanged(BleDevice device);
 
     /**
      *  The notification describes when the write succeeded
-     * @param gatt
+     * @param gatt gatt
      */
     public void onDescriptorWriter(BluetoothGatt gatt){};
 
     /**
      *  Reads when the notification description is successful
-     * @param gatt
+     * @param gatt gatt
      */
     public void onDescriptorRead(BluetoothGatt gatt){};
 
     /**
      *  When the callback when the error, such as app can only connect four devices
      *  at the same time forcing the user to connect more than four devices will call back the method
-     * @param errorCode
+     * @param errorCode errorCode
      */
     public void onError(int errorCode){};
+
+    /**
+     *  device connect timeout
+     */
+    public void onConnectTimeOut(){}
+
+    /**
+     *  Unable to initialize Bluetooth
+     */
+    public void onInitFailed(){}
 }

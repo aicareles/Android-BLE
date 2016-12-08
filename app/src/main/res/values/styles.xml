@@ -8,4 +8,21 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <!--//新添加Base application theme.-->
+    <style name="Theme.DesignDemo" parent="Base.Theme.DesignDemo" />
+
+    <!--app默认主题  白天模式-->
+    <style name="Base.Theme.DesignDemo" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <!--<item name="android:textColorPrimary">@color/white</item>-->
+        <!--<item name="actionMenuTextColor">@color/menu_text</item>-->
+        <!--<item name="actionMenuTextAppearance">@style/MenuTextStyle</item>-->
+        <!--<item name="android:actionMenuTextAppearance">@style/MenuTextStyle</item>-->
+        <!--<item name="android:windowBackground">@color/transparent</item>-->
+        <!--<item name="android:windowIsTranslucent">true</item>-->
+        <!--<item name="android:windowNoTitle">true</item>-->
+    </style>
+
 </resources>

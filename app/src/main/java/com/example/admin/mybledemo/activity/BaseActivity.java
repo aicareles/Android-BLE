@@ -1,7 +1,6 @@
 package com.example.admin.mybledemo.activity;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -9,25 +8,51 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.SparseArray;
-import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
+import android.widget.TextView;
 
 import com.example.admin.mybledemo.R;
 
-public class BaseActivity extends Activity {
-    protected final String TAG = this.getClass().getSimpleName();
+public class BaseActivity extends AppCompatActivity {
 
+    protected final String TAG = this.getClass().getSimpleName();
+    public Toolbar toolbar;
+    private TextView abTitle;
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
+        initToolBar();
+    }
+
+    @Override
+    protected void onTitleChanged(CharSequence title, int color) {
+        super.onTitleChanged(title, color);
+        if (abTitle != null) {
+            abTitle.setText(title);
+        }
+    }
+
+    private void initToolBar() {
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        if (toolbar != null) {
+            setSupportActionBar(toolbar);
+            abTitle = (TextView) toolbar.findViewById(R.id.toolbar_title);
+        }
+        if (abTitle != null) {
+            ActionBar actionBar = getSupportActionBar();
+            if (actionBar != null) {
+                actionBar.setDisplayShowTitleEnabled(false);
+            }
+        }
     }
 
     @Override
     public void setContentView(int layoutResID) {
         super.setContentView(layoutResID);
+        initToolBar();
     }
 
     private int                   mPermissionIdx = 0x10;//请求权限索引

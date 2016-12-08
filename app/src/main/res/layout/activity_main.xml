@@ -4,25 +4,27 @@
     android:id="@+id/activity_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
+    android:fitsSystemWindows="true"
+    android:clipToPadding="true"
     tools:context="com.example.admin.mybledemo.activity.MainActivity">
 
-
+    <include android:id="@+id/toolbar_main"
+        layout="@layout/toolbar_layout"/>
     <!--<android.support.v7.widget.RecyclerView-->
         <!--android:id="@+id/recycle_listView"-->
         <!--android:layout_width="match_parent"-->
         <!--android:layout_height="match_parent"/>-->
     <TextView
         android:id="@+id/connected_num"
+        android:layout_below="@id/toolbar_main"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"/>
+        android:layout_marginBottom="10dp"
+        android:text="@string/lined_num"/>
 
     <Button
         android:id="@+id/sendData"
+        android:layout_below="@id/toolbar_main"
         android:layout_alignParentRight="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

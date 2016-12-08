@@ -10,7 +10,6 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -19,6 +18,7 @@ import android.widget.SimpleExpandableListAdapter;
 import android.widget.TextView;
 
 import com.example.admin.mybledemo.R;
+import com.orhanobut.logger.Logger;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -56,7 +56,7 @@ public class DeviceControlActivity extends Activity {
                                        IBinder service) {
             mBluetoothLeService = ((BluetoothLeService.LocalBinder) service).getService();
             if (!mBluetoothLeService.initialize()) {
-                Log.e(TAG, "Unable to initialize Bluetooth");
+                Logger.e(TAG, "Unable to initialize Bluetooth");
                 finish();
             }
             // Automatically connects to the device upon successful start-up
@@ -135,7 +135,7 @@ public class DeviceControlActivity extends Activity {
             @Override
             public void onClick(View v) {
                 String s = BodyCHOLRead(sb.toString());
-                Log.d(TAG, "onClick: 结果"+s);
+                Logger.d(TAG, "onClick: 结果"+s);
             }
         });
     }
@@ -146,7 +146,7 @@ public class DeviceControlActivity extends Activity {
 //        registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
         if (mBluetoothLeService != null) {
 //            final boolean result = mBluetoothLeService.connect(mDeviceAddress);
-//            Log.d(TAG, "Connect request result=" + result);
+//            Logger.d(TAG, "Connect request result=" + result);
         }
     }
 
@@ -165,29 +165,29 @@ public class DeviceControlActivity extends Activity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.gatt_services, menu);
-        if (mConnected) {
-            menu.findItem(R.id.menu_connect).setVisible(false);
-            menu.findItem(R.id.menu_disconnect).setVisible(true);
-        } else {
-            menu.findItem(R.id.menu_connect).setVisible(true);
-            menu.findItem(R.id.menu_disconnect).setVisible(false);
-        }
+//        getMenuInflater().inflate(R.menu.gatt_services, menu);
+//        if (mConnected) {
+//            menu.findItem(R.id.menu_connect).setVisible(false);
+//            menu.findItem(R.id.menu_disconnect).setVisible(true);
+//        } else {
+//            menu.findItem(R.id.menu_connect).setVisible(true);
+//            menu.findItem(R.id.menu_disconnect).setVisible(false);
+//        }
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.menu_connect:
+//            case R.id.menu_connect:
 //                mBluetoothLeService.connect(mDeviceAddress);
-                return true;
-            case R.id.menu_disconnect:
+//                return true;
+//            case R.id.menu_disconnect:
 //                mBluetoothLeService.disconnect();//暂时注释
-                return true;
-            case android.R.id.home:
-                onBackPressed();
-                return true;
+//                return true;
+//            case android.R.id.home:
+//                onBackPressed();
+//                return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -203,7 +203,7 @@ public class DeviceControlActivity extends Activity {
     StringBuffer sb = new StringBuffer();
     private void displayData(String data) {
         sb.append(data);
-        Log.d(TAG, "displayData: "+sb.toString());
+        Logger.d(TAG, "displayData: "+sb.toString());
     }
 
     // Demonstrates how to iterate through the supported GATT
@@ -218,12 +218,12 @@ public class DeviceControlActivity extends Activity {
         // Loops through available GATT Services.
         for (BluetoothGattService gattService : gattServices) {
             uuid = gattService.getUuid().toString();
-            Log.d(TAG, "displayGattServices: "+uuid);
+            Logger.d(TAG, "displayGattServices: "+uuid);
             List<BluetoothGattCharacteristic> gattCharacteristics = gattService.getCharacteristics();
             for (BluetoothGattCharacteristic gattCharacteristic : gattCharacteristics) {
                 uuid = gattCharacteristic.getUuid().toString();
                 if (uuid.contains("fff4")) {
-                    Log.e("console", "2gatt Characteristic: " + uuid);
+                    Logger.e("console", "2gatt Characteristic: " + uuid);
 //                    mBluetoothLeService.setCharacteristicNotification(gattCharacteristic, true);//暂时注释
 //                    mBluetoothLeService.readCharacteristic(gattCharacteristic);//暂时注释
                 }
@@ -291,7 +291,7 @@ public class DeviceControlActivity extends Activity {
         // 根据换行符分割
         String[] datas = data.split(print10("0A"));
         for (int i = 0 ; i < datas.length; i ++) {
-            Log.d(TAG, String.format("split[%s]:%s",i, datas[i]));
+            Logger.d(TAG, String.format("split[%s]:%s",i, datas[i]));
         }
         String unit = "";
         String data7 = datas[7].split("\"")[1].split(":")[1].trim();
@@ -325,7 +325,7 @@ public class DeviceControlActivity extends Activity {
                 sbr.append(value).append(",");
             }
         }
-        Log.d(TAG, "血脂4项测量结果:" +  sbr);
+        Logger.d(TAG, "血脂4项测量结果:" +  sbr);
         return sbr.substring(0, sbr.length() - 1);
     }
 
