@@ -26,7 +26,7 @@ import cn.com.heaton.blelibrary.BleVO.BleDevice;
  * Created by liulei on 2016/12/7.
  */
 
-public class BleManager {
+public class BleManager<T extends BleDevice> {
 
     private final static String TAG = "BleManager";
     public static final int REQUEST_ENABLE_BT = 1;
@@ -35,18 +35,28 @@ public class BleManager {
     private static BleLisenter mBleLisenter;
     public boolean mScanning;
     private BluetoothAdapter mBluetoothAdapter;
-    private ArrayList<BluetoothDevice> mScanDevices = new ArrayList<>();
+    private ArrayList<T> mScanDevices = new ArrayList<>();
     private static BleManager instance;
 
-    private Handler mHandler = new Handler(Looper.getMainLooper()){
+    private Handler mHandler = new Handler(Looper.getMainLooper()) {
         @Override
         public void handleMessage(Message msg) {
-            switch (msg.what){
+            switch (msg.what) {
                 case BleConfig.ConnectTimeOut:
                     mBleLisenter.onConnectTimeOut();
                     break;
                 case BleConfig.ConnectionChanged:
-                    mBleLisenter.onConnectionChanged((BleDevice) msg.obj);
+                    BleDevice device = getBleDevice((BluetoothDevice) msg.obj);
+                    if (msg.arg1 == 1) {
+                        //connect
+                        device.setConnected(true);
+                        device.setConnectionState(BleConfig.CONNECTED);
+                    } else if (msg.arg1 == 0) {
+                        //disconnect
+                        device.setConnected(false);
+                        device.setConnectionState(BleConfig.DISCONNECT);
+                    }
+                    mBleLisenter.onConnectionChanged(device);
                     break;
                 case BleConfig.Changed:
                     mBleLisenter.onChanged((BluetoothGattCharacteristic) msg.obj);
@@ -72,35 +82,38 @@ public class BleManager {
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
     }
 
-    public static BleManager getInstance(Context context,BleLisenter bleLisenter) throws Exception{
+    public static BleManager getInstance(Context context, BleLisenter bleLisenter) throws Exception {
         mBleLisenter = bleLisenter;
-        if(instance == null){
-            synchronized (BleManager.class){
-                if(instance == null){
+        if (instance == null) {
+            synchronized (BleManager.class) {
+                if (instance == null) {
                     instance = new BleManager(context);
                 }
             }
         }
-        if(instance.isSupportBle()){
+        if (instance.isSupportBle()) {
             return instance;
-        }else {
+        } else {
             throw new Exception("BLE is not supported");
         }
     }
 
     /**
      * Whether to support Bluetooth
+     *
      * @return Whether to support Ble
      */
-    public boolean isSupportBle(){
+    public boolean isSupportBle() {
         return (mBluetoothAdapter != null && mContext.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE));
     }
 
-    public BluetoothLeService getBleService(){
+    public BluetoothLeService getBleService() {
         return mBluetoothLeService;
     }
+
     /**
      * Bluetooth is turned on
+     *
      * @return true  Bluetooth is turned on
      */
     public boolean isBleEnable() {
@@ -109,6 +122,7 @@ public class BleManager {
 
     /**
      * open ble
+     *
      * @param activity The context object
      */
     public void turnOnBlueTooth(Activity activity) {
@@ -129,12 +143,13 @@ public class BleManager {
 
     /**
      * start bind service
+     *
      * @return Whether the service is successfully bound
      */
     public boolean startService() {
         Intent gattServiceIntent = new Intent(mContext, BluetoothLeService.class);
         boolean bll = false;
-        if(mContext != null){
+        if (mContext != null) {
             bll = mContext.bindService(gattServiceIntent, mServiceConnection, Context.BIND_AUTO_CREATE);
         }
         if (bll) {
@@ -148,8 +163,8 @@ public class BleManager {
     /**
      * unbind service
      */
-    public void unService(){
-        if(mContext != null){
+    public void unService() {
+        if (mContext != null) {
             mContext.unbindService(mServiceConnection);
             mBluetoothLeService = null;
         }
@@ -165,7 +180,7 @@ public class BleManager {
             Log.e(TAG, "Service connection successful");
             if (!mBluetoothLeService.initialize()) {
                 Log.e(TAG, "Unable to initialize Bluetooth");
-                if(mBleLisenter != null){
+                if (mBleLisenter != null) {
                     mBleLisenter.onInitFailed();
                 }
             }
@@ -182,7 +197,8 @@ public class BleManager {
 
     /**
      * Starts scanning or stops scanning the device
-     * @param enable  Whether to start
+     *
+     * @param enable Whether to start
      */
     public void scanLeDevice(final boolean enable) {
         if (enable) {
@@ -210,25 +226,89 @@ public class BleManager {
 
         @Override
         public void onLeScan(final BluetoothDevice device, int rssi, final byte[] scanRecord) {
-            mBleLisenter.onLeScan(device, rssi, scanRecord);
-            mScanDevices.add(device);
+            if(!contains(device)){
+                T bleDevice = (T) new BleDevice(device);
+                mBleLisenter.onLeScan(bleDevice, rssi, scanRecord);
+                mScanDevices.add(bleDevice);
+            }
         }
     };
 
     /**
-     * Get the scanned device
-     * @return scanned device
+     * Get the scanned bleDevice
+     *
+     * @return scanned bleDevice
      */
-    public List<BluetoothDevice> getScanDevices() {
+    public List<T> getScanBleDevice() {
         return mScanDevices;
+    }
+
+    public int getScanBleSize(){
+        return mScanDevices.size();
+    }
+
+    public void clear(){
+        mScanDevices.clear();
+    }
+
+    public T getBleDevice(int index){
+        return mScanDevices.get(index);
+    }
+
+    /**
+     * Add Scanned BleDevice
+     * @param device BleDevice
+     */
+    public void addBleDevice(T device){
+        if(device == null){
+            return;
+        }
+        if(mScanDevices.contains(device)){
+            return;
+        }
+        mScanDevices.add(device);
+    }
+
+    public boolean contains(BluetoothDevice device) {
+        if (device == null) {
+            return false;
+        }
+        for (T bleDevice : mScanDevices) {
+            if (bleDevice.equals(device.getAddress())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * get bleDeive
+     *
+     * @param device blutoothdevice
+     * @return bleDeive
+     */
+    public T getBleDevice(BluetoothDevice device) {
+        if (device == null) {
+            return null;
+        }
+        for (T bleDevice : mScanDevices) {
+            if (bleDevice.equals(device.getAddress())) {
+                return bleDevice;
+            } else {
+                T newDevice = (T) new BleDevice(device);
+                return newDevice;
+            }
+        }
+        return null;
     }
 
     /**
      * Gets the connected device
-     * @return  connected device
+     *
+     * @return connected device
      */
     public List<BluetoothDevice> getConnectedDevices() {
-        if(mBluetoothLeService != null){
+        if (mBluetoothLeService != null) {
             return mBluetoothLeService.getConnectedDevices();
         }
         return null;
@@ -236,73 +316,54 @@ public class BleManager {
 
     /**
      * connecte bleDevice
+     *
      * @param address ble address
      */
-    public void connect(String address){
-        if(mBluetoothLeService != null){
+    public void connect(String address) {
+        if (mBluetoothLeService != null) {
             mBluetoothLeService.connect(address);
         }
     }
 
     /**
      * disconnect device
-     * @param address  ble address
+     *
+     * @param address ble address
      */
     public void disconnect(String address) {
-        if(mBluetoothLeService != null){
+        if (mBluetoothLeService != null) {
             mBluetoothLeService.disconnect(address);
         }
     }
 
     /**
      * Set up notifications
-     * @param address ble address
+     *
+     * @param address        ble address
      * @param characteristic Bluetooth device object
-     * @param enabled Whether to set notifications
+     * @param enabled        Whether to set notifications
      */
     public void setCharacteristicNotification(String address, BluetoothGattCharacteristic characteristic, boolean enabled) {
-        if(mBluetoothLeService != null){
-            mBluetoothLeService.setCharacteristicNotification(address,characteristic, true);
+        if (mBluetoothLeService != null) {
+            mBluetoothLeService.setCharacteristicNotification(address, characteristic, true);
         }
     }
 
     /**
      * send data
-     * @param address ble address
+     *
+     * @param address        ble address
      * @param characteristic Bluetooth device object
-     * @param data data
+     * @param data           data
      * @return Whether send success
      */
-    public boolean sendData(String address, BluetoothGattCharacteristic characteristic, byte[]data){
+    public boolean sendData(String address, BluetoothGattCharacteristic characteristic, byte[] data) {
         boolean result = false;
-        if(mBluetoothLeService != null){
+        if (mBluetoothLeService != null) {
             result = mBluetoothLeService.wirteCharacteristic(address, characteristic, data);
         }
         return result;
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 }

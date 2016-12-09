@@ -29,7 +29,7 @@ public abstract class BleLisenter {
      * @param rssi rssi
      * @param scanRecord Bluetooth radio package
      */
-    public abstract void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord);
+    public abstract void onLeScan(BleDevice device, int rssi, byte[] scanRecord);
 
     /**
      *  When the write succeeds

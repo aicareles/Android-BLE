@@ -65,7 +65,7 @@ public class MainActivity extends BaseActivity {
             }
 
             @Override
-            public void onLeScan(final BluetoothDevice device, int rssi, byte[] scanRecord) {
+            public void onLeScan(final BleDevice device, int rssi, byte[] scanRecord) {
                 Logger.e("onLeScan");
 //                            //可以选择性的根据scanRecord蓝牙广播包进行过滤
 //                            如下  此处注释（根据你们产品的广播进行过滤或者根据产品的特定name或者address进行过滤也可以）
@@ -75,8 +75,7 @@ public class MainActivity extends BaseActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        BleDevice bleDevice = new BleDevice(device);
-                        mLeDeviceListAdapter.addDevice(bleDevice);
+                        mLeDeviceListAdapter.addDevice(device);
                         mLeDeviceListAdapter.notifyDataSetChanged();
                     }
                 });
@@ -84,7 +83,7 @@ public class MainActivity extends BaseActivity {
 
             @Override
             public void onConnectionChanged(final BleDevice device) {
-                Logger.e("onConnectionChanged");
+                Logger.e("onConnectionChanged"+device.getConnectionState()+device.isConnected());
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -94,7 +93,6 @@ public class MainActivity extends BaseActivity {
                                 if (device.isConnected()) {
                                     mLeDeviceListAdapter.getDevice(i).setConnected(true);
                                     Toast.makeText(MainActivity.this, R.string.line_success, Toast.LENGTH_SHORT).show();
-
                                 } else {
                                     mLeDeviceListAdapter.getDevice(i).setConnected(false);
                                     Toast.makeText(MainActivity.this, R.string.line_disconnect, Toast.LENGTH_SHORT).show();
@@ -250,7 +248,9 @@ public class MainActivity extends BaseActivity {
         });
 //        setConnectedNum();
         // Initializes list view adapter.
-        mLeDeviceListAdapter = new LeDeviceListAdapter(this);
+        if(mManager != null){
+            mLeDeviceListAdapter = new LeDeviceListAdapter(this);
+        }
         mListView.setAdapter(mLeDeviceListAdapter);
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -310,8 +310,12 @@ public class MainActivity extends BaseActivity {
             case R.id.menu_disconnect_all:
                 Logger.e("点击了断开全部设备按钮");
                 if (mManager != null) {
-                    for(int i = 0;i< mLeDeviceListAdapter.getCount();i++){
-                        BleDevice device = mLeDeviceListAdapter.getDevice(i);
+//                    for(int i = 0;i< mLeDeviceListAdapter.getCount();i++){
+//                        BleDevice device = mLeDeviceListAdapter.getDevice(i);
+//                        mManager.disconnect(device.getBleAddress());
+//                    }
+                    for(int i = 0;i<mManager.getScanBleDevice().size();i++){
+                        BleDevice device = mManager.getBleDevice(i);
                         mManager.disconnect(device.getBleAddress());
                     }
                 }

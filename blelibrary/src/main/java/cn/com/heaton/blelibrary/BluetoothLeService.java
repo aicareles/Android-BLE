@@ -64,14 +64,14 @@ public class BluetoothLeService extends Service {
                                             int newState) {
             BluetoothDevice device = gatt.getDevice();
             //There is a problem here Every time a new object is generated that causes the same device to be disconnected and the connection produces two objects
-            BleDevice bleDevice = new BleDevice(device);
+//            BleDevice bleDevice = new BleDevice(device);
 
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 mHandler.removeCallbacks(mConnectTimeout);
-                bleDevice.setConnected(true);
-                bleDevice.setConnectionState(BleConfig.CONNECTED);
+//                bleDevice.setConnected(true);
+//                bleDevice.setConnectionState(BleConfig.CONNECTED);
 //                mBleLisenter.onConnectionChanged(gatt,bleDevice);
-                mHandler.obtainMessage(BleConfig.ConnectionChanged,bleDevice).sendToTarget();
+                mHandler.obtainMessage(BleConfig.ConnectionChanged,1,0,device).sendToTarget();
                 Log.i(TAG, "Connected to GATT server.");
                 // Attempts to discover services after successful connection.
                 Log.i(TAG, "Attempting to start service discovery:"
@@ -80,10 +80,10 @@ public class BluetoothLeService extends Service {
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 mHandler.removeCallbacks(mConnectTimeout);
                 Log.i(TAG, "Disconnected from GATT server.");
-                bleDevice.setConnected(false);
-                bleDevice.setConnectionState(BleConfig.DISCONNECT);
+//                bleDevice.setConnected(false);
+//                bleDevice.setConnectionState(BleConfig.DISCONNECT);
 //                mBleLisenter.onConnectionChanged(gatt,bleDevice);
-                mHandler.obtainMessage(BleConfig.ConnectionChanged,bleDevice).sendToTarget();
+                mHandler.obtainMessage(BleConfig.ConnectionChanged,0,0,device).sendToTarget();
                 close(device.getAddress());
             }
         }
