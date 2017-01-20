@@ -14,7 +14,7 @@
     <!--app默认主题  白天模式-->
     <style name="Base.Theme.DesignDemo" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorPrimaryDark">@color/colorPrimary</item>
         <item name="colorAccent">@color/colorAccent</item>
         <!--<item name="android:textColorPrimary">@color/white</item>-->
         <!--<item name="actionMenuTextColor">@color/menu_text</item>-->
@@ -24,5 +24,62 @@
         <!--<item name="android:windowIsTranslucent">true</item>-->
         <!--<item name="android:windowNoTitle">true</item>-->
     </style>
+
+
+    <style name="ThemeBaseLight" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorPrimary</item>
+        <item name="android:windowBackground">@color/window_background</item>
+        <!--<item name="cardStyle">@style/CardViewStyle.Light</item>-->
+        <!--<item name="accentColor">@color/colorAccent</item>-->
+        <!--<item name="iconColor">@android:color/black</item>-->
+        <!--<item name="windowBackground">@color/window_background</item>-->
+        <!--<item name="stateSelector">@color/state_selector_light</item>-->
+        <!--<item name="progressBackgroundColor">@color/progressBackgroundColorLight</item>-->
+        <!--<item name="progressDrawable">@drawable/progress_drawable</item>-->
+        <!--<item name="progressDrawableWithBackground">@drawable/progress_drawable_withbackground</item>-->
+        <!--<item name="ate_key">light_theme</item>-->
+    </style>
+
+    <style name="ThemeBaseDark" parent="Theme.AppCompat.NoActionBar">
+        <item name="colorPrimary">@color/colorPrimaryDarkTheme</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDarkDarkTheme</item>
+        <item name="colorAccent">@color/colorAccentDarkTheme</item>
+        <item name="android:windowBackground">@color/window_background_dark</item>
+        <!--返回键样式-->
+        <item name="drawerArrowStyle">@style/AppTheme.DrawerArrowToggle</item>
+        <!--<item name="cardStyle">@style/CardViewStyle.Dark</item>-->
+        <!--<item name="accentColor">@color/colorAccentDarkTheme</item>-->
+        <!--<item name="iconColor">@android:color/white</item>-->
+        <!--<item name="windowBackground">@color/window_background_dark</item>-->
+        <!--<item name="stateSelector">@color/state_selector_dark</item>-->
+        <!--<item name="progressBackgroundColor">@color/progressBackgroundColorDark</item>-->
+        <!--<item name="progressDrawable">@drawable/progress_drawable_dark</item>-->
+        <!--<item name="progressDrawableWithBackground">@drawable/progress_drawable_withbackground_dark</item>-->
+        <!--<item name="ate_key">dark_theme</item>-->
+    </style>
+
+    <style name="AppTheme.DrawerArrowToggle" parent="Base.Widget.AppCompat.DrawerArrowToggle">
+        <item name="color">@android:color/white</item>
+    </style>
+
+
+    <style name="ThemeBaseBlack" parent="Theme.AppCompat.NoActionBar">
+        <item name="colorPrimary">@color/colorPrimaryBlack</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDarkBlack</item>
+        <item name="colorAccent">@color/colorAccentBlack</item>
+        <item name="android:windowBackground">@color/window_background_black</item>
+        <!--<item name="cardStyle">@style/CardViewStyle.Black</item>-->
+        <!--<item name="accentColor">@color/colorAccentBlack</item>-->
+        <!--<item name="iconColor">@android:color/white</item>-->
+        <!--<item name="windowBackground">@color/window_background_black</item>-->
+        <!--<item name="stateSelector">@color/state_selector_black</item>-->
+        <!--<item name="progressBackgroundColor">@color/progressBackgroundColorDark</item>-->
+        <!--<item name="progressDrawable">@drawable/progress_drawable_black</item>-->
+        <!--<item name="progressDrawableWithBackground">@drawable/progress_drawable_withbackground_black</item>-->
+
+    </style>
+
 
 </resources>

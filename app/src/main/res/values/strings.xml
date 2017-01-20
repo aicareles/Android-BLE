@@ -15,6 +15,7 @@
     <string name="unknown_characteristic">Unknown characteristic</string>
     <string name="unknown_service">Unknown service</string>
 
+
     <!-- Menu items -->
     <string name="menu_disconnect_all">DisConnect_All</string>
     <string name="menu_connect_all">Connect_All</string>
@@ -22,6 +23,8 @@
     <string name="menu_scan">Scan</string>
     <string name="menu_stop">Stop</string>
     <string name="menu_refresh">Refreshing</string>
+    <string name="open">打开</string>
+    <string name="close">关闭</string>
 
     <string name="btn_sure">确定</string>
     <string name="btn_cancel">取消</string>

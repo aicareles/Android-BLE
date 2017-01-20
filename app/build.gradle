@@ -29,5 +29,5 @@ dependencies {
     compile 'com.orhanobut:logger:1.15'
     testCompile 'junit:junit:4.12'
     compile project(':blelibrary')
-//    compile 'cn.com.superLei:blelibrary:1.0.0'
+//    compile 'cn.com.superLei:blelibrary:1.0.1'
 }

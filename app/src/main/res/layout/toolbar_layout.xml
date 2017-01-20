@@ -23,7 +23,7 @@
             android:focusableInTouchMode="true"
             android:marqueeRepeatLimit="marquee_forever"
             android:singleLine="true"
-            android:textColor="@android:color/white"/>
+            android:textColor="@android:color/black"/>
     </android.support.v7.widget.Toolbar>
 
 </LinearLayout>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/dl_left"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <!--主布局-->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <ImageView
+            android:id="@+id/iv_main"
+            android:layout_width="100dp"
+            android:layout_height="100dp" />
+    </LinearLayout>
+    <!--侧滑菜单-->
+    <LinearLayout
+        android:id="@+id/drawer_menu"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#fff"
+        android:layout_gravity="start">
+        <ListView
+            android:id="@+id/lv_left_menu"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:divider="@null"
+            android:text="DrawerLayout" />
+    </LinearLayout>
+</android.support.v4.widget.DrawerLayout>

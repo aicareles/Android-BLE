@@ -274,7 +274,7 @@ public class BleManager<T extends BleDevice> {
             return false;
         }
         for (T bleDevice : mScanDevices) {
-            if (bleDevice.equals(device.getAddress())) {
+            if (bleDevice.getBleAddress().equals(device.getAddress())) {
                 return true;
             }
         }
