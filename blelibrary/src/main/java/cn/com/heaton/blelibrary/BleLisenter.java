@@ -7,7 +7,7 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import cn.com.heaton.blelibrary.BleVO.BleDevice;
 
 
-/**
+/**This class is provide interface for BLE states
  * Created by liulei on 2016/11/25.
  */
 

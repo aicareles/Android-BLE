@@ -19,7 +19,7 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-/**
+/**This class is un_used current
  * Created by liulei on 2016/11/29.
  */
 

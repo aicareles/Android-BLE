@@ -57,6 +57,7 @@ public class BaseActivity extends AppCompatActivity {
         initToolBar();
     }
 
+    /*---------------------------------------------------------------------------以下是android6.0动态授权的封装十分好用---------------------------------------------------------------------------*/
     private int                   mPermissionIdx = 0x10;//请求权限索引
     private SparseArray<GrantedResult> mPermissions   = new SparseArray<>();//请求权限运行列表
 
