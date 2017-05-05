@@ -7,7 +7,7 @@ import com.orhanobut.logger.Logger;
 
 /**
  * 应用入口
- * Created by LL on 2016/4/25.
+ * Created by LiuLei on 2016/4/25.
  * 　　　　　　　　┏┓　　　┏┓
  * 　　　　　　　┏┛┻━━━┛┻┓
  * 　　　　　　　┃　　　　　　　┃

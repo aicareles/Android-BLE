@@ -44,23 +44,15 @@ import cn.com.heaton.blelibrary.BleVO.BleDevice;
 /**
  * Activity for scanning and displaying available Bluetooth LE devices.
  */
-public class MainActivity extends BaseActivity implements AdapterView.OnItemClickListener {
+public class MainActivity extends BaseActivity{
 
     private String TAG = MainActivity.class.getSimpleName();
 
-    private DrawerLayout mDrawerLayout;
-    private ActionBarDrawerToggle mDrawerToggle;
-    private ListView lvLeftMenu;
-    private String[] lvs = {"设置", "切换主题颜色", "待定", "待定"};
-    private ArrayAdapter arrayAdapter;
-    private AnimationDrawable mAnimationDrawable;
-
     private LeDeviceListAdapter mLeDeviceListAdapter;
-    private BleManager mManager;
+    private BleManager<BleDevice> mManager;
     private ListView mListView;
     private TextView mConnectedNum;
     private Button mSend;
-    private String currentAddress;
 
     private BleLisenter mLisenter = new BleLisenter() {
         @Override
@@ -90,13 +82,15 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemClic
 //                            if(!BleConfig.matchProduct(scanRecord)){
 //                                return;
 //                            }
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    mLeDeviceListAdapter.addDevice(device);
-                    mLeDeviceListAdapter.notifyDataSetChanged();
-                }
-            });
+            synchronized (mManager.getLocker()){
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mLeDeviceListAdapter.addDevice(device);
+                        mLeDeviceListAdapter.notifyDataSetChanged();
+                    }
+                });
+            }
         }
 
         @Override
@@ -109,15 +103,19 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemClic
                     for (int i = 0; i < mLeDeviceListAdapter.getCount(); i++) {
                         if (device.getBleAddress().equals(mLeDeviceListAdapter.getDevice(i).getBleAddress())) {
                             if (device.isConnected()) {
-                                mLeDeviceListAdapter.getDevice(i).setConnected(true);
+                                mLeDeviceListAdapter.getDevice(i).setConnectionState(BleConfig.CONNECTED);
                                 Toast.makeText(MainActivity.this, R.string.line_success, Toast.LENGTH_SHORT).show();
-                            } else {
-                                mLeDeviceListAdapter.getDevice(i).setConnected(false);
+                            } else if(device.isConnectting()){
+                                mLeDeviceListAdapter.getDevice(i).setConnectionState(BleConfig.CONNECTING);
+                            } else{
+                                mLeDeviceListAdapter.getDevice(i).setConnectionState(BleConfig.DISCONNECT);
                                 Toast.makeText(MainActivity.this, R.string.line_disconnect, Toast.LENGTH_SHORT).show();
                             }
                         }
                     }
-                    mLeDeviceListAdapter.notifyDataSetChanged();
+                    synchronized (mManager.getLocker()){
+                        mLeDeviceListAdapter.notifyDataSetChanged();
+                    }
                 }
             });
         }
@@ -128,7 +126,6 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemClic
             //可以选择性实现该方法   不需要则不用实现
 //                            if (QppApi.qppEnable(mBluetoothGatt, uuidQppService, uuidQppCharWrite)) {}
             //设置notify
-            displayGattServices(gatt.getDevice().getAddress(), mManager.getBleService().getSupportedGattServices(gatt.getDevice().getAddress()));
         }
 
         @Override
@@ -165,40 +162,9 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemClic
 //        data[5] = (byte) ((color >> 8) & 0xff);
 //        data[6] = (byte) ((color >> 16) & 0xff);
 //        data[7] = (byte) ((color >> 24) & 0xff);
-        boolean result = mManager.sendData(address, mWriteCharacteristic, sendData(1));
+        boolean result = mManager.sendData(address,sendData(1));
         Logger.e("result==" + result);
         return result;
-    }
-
-    private BluetoothGattCharacteristic mWriteCharacteristic;//ble发送对象
-
-    private void displayGattServices(String address, List<BluetoothGattService> gattServices) {
-        if (gattServices == null)
-            return;
-        currentAddress = address;
-        String uuid = null;
-        // Loops through available GATT Services.
-        for (BluetoothGattService gattService : gattServices) {
-            uuid = gattService.getUuid().toString();
-            Logger.d("displayGattServices: " + uuid);
-            if (uuid.equals(BleConfig.UUID_SERVICE_TEXT)) {
-                Logger.d("service_uuid: " + uuid);
-                List<BluetoothGattCharacteristic> gattCharacteristics = gattService.getCharacteristics();
-                for (BluetoothGattCharacteristic gattCharacteristic : gattCharacteristics) {
-                    uuid = gattCharacteristic.getUuid().toString();
-                    Logger.e("all_characteristic: " + uuid);
-                    if (uuid.equals(BleConfig.UUID_NOTIFY_TEXT)) {
-                        Logger.e("2gatt Characteristic: " + uuid);
-                        mManager.setCharacteristicNotification(address, gattCharacteristic, true);//
-//                        mBluetoothLeService.readCharacteristic(address,gattCharacteristic);//暂时注释
-                    } else if (uuid.equals(BleConfig.UUID_CHARACTERISTIC_TEXT)) {
-                        mWriteCharacteristic = gattCharacteristic;
-                        Logger.e("write_characteristic: " + uuid);
-                    }
-
-                }
-            }
-        }
     }
 
     @Override
@@ -209,34 +175,6 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemClic
         //初始化蓝牙
         initBle();
         initView();
-//        initMenu();
-    }
-
-    private void initMenu() {
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.dl_left);
-        LinearLayout menu_bg = (LinearLayout) findViewById(R.id.drawer_menu);
-        lvLeftMenu = (ListView) findViewById(R.id.lv_left_menu);
-
-        //创建返回键，并实现打开关/闭监听
-        mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, toolbar, R.string.open, R.string.close) {
-            @Override
-            public void onDrawerOpened(View drawerView) {
-                super.onDrawerOpened(drawerView);
-                //侧滑菜单打开时
-            }
-
-            @Override
-            public void onDrawerClosed(View drawerView) {
-                super.onDrawerClosed(drawerView);
-                //侧滑菜单关闭时
-            }
-        };
-        mDrawerToggle.syncState();
-        mDrawerLayout.setDrawerListener(mDrawerToggle);
-        //设置菜单列表
-        arrayAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, lvs);
-        lvLeftMenu.setAdapter(arrayAdapter);
-        lvLeftMenu.setOnItemClickListener(this);
     }
 
     private void initBle() {
@@ -281,24 +219,22 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemClic
 
     private void initView() {
         setTitle("扫描界面");
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
         mListView = (ListView) findViewById(R.id.listView);
         mConnectedNum = (TextView) findViewById(R.id.connected_num);
         mSend = (Button) findViewById(R.id.sendData);
         mSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (currentAddress != null) {
-                    changeLevelInner(currentAddress);
+                List<BleDevice> list = mManager.getConnetedDevices();
+                if (list.size() > 0) {
+                    synchronized (mManager.getLocker()){
+                        for (BleDevice device : list){
+                            changeLevelInner(device.getBleAddress());
+                        }
+                    }
                 }
             }
         });
-//        setConnectedNum();
         // Initializes list view adapter.
         if (mManager != null) {
             mLeDeviceListAdapter = new LeDeviceListAdapter(this);
@@ -324,7 +260,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemClic
 
     private void setConnectedNum() {
         if (mManager != null) {
-            mConnectedNum.setText(getString(R.string.lined_num) + mManager.getConnectedDevices().size());
+            mConnectedNum.setText(getString(R.string.lined_num) + mManager.getConnetedDevices().size());
         }
     }
 
@@ -340,8 +276,8 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemClic
             case R.id.menu_scan:
                 Logger.e("点击了扫描按钮");
                 if (mManager != null && !mManager.mScanning) {
-//                    mLeDeviceListAdapter.clear();
-//                    mManager.clear();
+                    mLeDeviceListAdapter.clear();
+                    mManager.clear();
                     mManager.scanLeDevice(true);
                 }
                 break;
@@ -363,13 +299,9 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemClic
             case R.id.menu_disconnect_all:
                 Logger.e("点击了断开全部设备按钮");
                 if (mManager != null) {
-//                    for (int i = 0; i < mManager.getScanBleDevice().size(); i++) {
-//                        BleDevice device = mManager.getBleDevice(i);
-//                        mManager.disconnect(device.getBleAddress());
-//                    }
-                    List<BluetoothDevice> list = mManager.getConnectedDevices();
-                    for(BluetoothDevice device : list){
-                        mManager.disconnect(device.getAddress());
+                    ArrayList<BleDevice> list = mManager.getConnetedDevices();
+                    for(BleDevice device : list){
+                        mManager.disconnect(device.getBleAddress());
                     }
                 }
                 break;
@@ -408,33 +340,4 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemClic
         }
     }
 
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//        if(position == 1){
-//            int currentMode = SPUtils.get(getApplication(),StaticValue.KEY_THEME,0);
-//            //切换主题颜色
-//            new AlertDialog.Builder(this).setTitle("选择主题")
-//                    .setSingleChoiceItems(new String[]{"标准模式", "夜间模式"}, currentMode, new DialogInterface.OnClickListener() {
-//                        @Override
-//                        public void onClick(DialogInterface dialog, int which) {
-//                            dialog.dismiss();
-//                            if(mManager != null){
-//                                mManager.unService();
-//                                mManager = null;
-//                            }
-//                            if(which == 0){
-//                            SPUtils.put(getApplication(), StaticValue.KEY_THEME,0);
-//                                //主题色  白黑 夜间模式
-//                                StaticValue.THEME_MODE = 0;
-//                                recreate();
-//                            }else {
-//                            SPUtils.put(getApplication(), StaticValue.KEY_THEME,1);
-//                                Log.e(TAG,"切换到了深色主题"+which);
-//                                StaticValue.THEME_MODE = 1;
-//                                recreate();
-//                            }
-//                        }
-//                    }).setNegativeButton("取消",null).show();
-//        }
-    }
 }

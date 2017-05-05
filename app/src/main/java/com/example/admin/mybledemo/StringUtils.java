@@ -1,7 +1,8 @@
 package com.example.admin.mybledemo;
 
 /**
- * Created by admin on 2016/11/29.
+ * Created by LiuLei on 2016/11/29.
+ *
  */
 
 public class StringUtils {

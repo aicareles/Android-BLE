@@ -26,8 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import cn.com.heaton.blelibrary.BleVO.BleDevice;
-
 
 @SuppressLint("NewApi")
 public class BluetoothLeService extends Service {
@@ -37,6 +35,11 @@ public class BluetoothLeService extends Service {
     private Handler mHandler;
     private BluetoothManager mBluetoothManager;
     private BluetoothAdapter mBluetoothAdapter;
+    private final Object mLocker = new Object();
+    private BluetoothGattCharacteristic mWriteCharacteristic;//可写的GattCharacteristic对象
+    private List<BluetoothGattCharacteristic> mNotifyCharacteristics = new ArrayList<>();//通知特性回调数组
+    private int mNotifyIndex = 0;//通知特性回调列表
+    private int mIndex = 0;//设备索引
 
     /**
      *  Multiple device connections must put the gatt object in the collection
@@ -68,9 +71,6 @@ public class BluetoothLeService extends Service {
 
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 mHandler.removeCallbacks(mConnectTimeout);
-//                bleDevice.setConnected(true);
-//                bleDevice.setConnectionState(BleConfig.CONNECTED);
-//                mBleLisenter.onConnectionChanged(gatt,bleDevice);
                 mHandler.obtainMessage(BleConfig.ConnectionChanged,1,0,device).sendToTarget();
                 Log.i(TAG, "Connected to GATT server.");
                 // Attempts to discover services after successful connection.
@@ -80,9 +80,6 @@ public class BluetoothLeService extends Service {
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 mHandler.removeCallbacks(mConnectTimeout);
                 Log.i(TAG, "Disconnected from GATT server.");
-//                bleDevice.setConnected(false);
-//                bleDevice.setConnectionState(BleConfig.DISCONNECT);
-//                mBleLisenter.onConnectionChanged(gatt,bleDevice);
                 mHandler.obtainMessage(BleConfig.ConnectionChanged,0,0,device).sendToTarget();
                 close(device.getAddress());
             }
@@ -91,8 +88,12 @@ public class BluetoothLeService extends Service {
         @Override
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
-//                mBleLisenter.onServicesDiscovered(gatt);
                 mHandler.obtainMessage(BleConfig.ServicesDiscovered,gatt).sendToTarget();
+                //清空通知特性列表
+                mNotifyCharacteristics.clear();
+                mNotifyIndex = 0;
+                //开始设置通知特性
+                displayGattServices(gatt.getDevice().getAddress(),getSupportedGattServices(gatt.getDevice().getAddress()));
             } else {
                 Log.w(TAG, "onServicesDiscovered received: " + status);
             }
@@ -134,8 +135,17 @@ public class BluetoothLeService extends Service {
             UUID uuid = descriptor.getCharacteristic().getUuid();
             Log.w(TAG,"onDescriptorWrite");
             Log.e(TAG,"descriptor_uuid:"+uuid);
-//            mBleLisenter.onDescriptorWriter(gatt);
-            mHandler.obtainMessage(BleConfig.DescriptorWriter,gatt).sendToTarget();
+            synchronized (mLocker){
+                if (BuildConfig.DEBUG) {
+                    Log.e(TAG,  " -- onDescriptorWrite: " + status);
+                }
+                if(status == BluetoothGatt.GATT_SUCCESS){
+                    if(mNotifyCharacteristics != null && mNotifyCharacteristics.size() > 0 && mNotifyIndex < mNotifyCharacteristics.size()){
+                        setCharacteristicNotification(gatt.getDevice().getAddress(),mNotifyCharacteristics.get(mNotifyIndex++), true);
+                    }
+                }
+                mHandler.obtainMessage(BleConfig.DescriptorWriter,gatt).sendToTarget();
+            }
         }
 
         @Override
@@ -176,6 +186,8 @@ public class BluetoothLeService extends Service {
         if (mBluetoothManager == null) return null;
         return mBluetoothManager.getConnectedDevices(BluetoothProfile.GATT);
     }
+
+
 
 
     public class LocalBinder extends Binder {
@@ -235,6 +247,7 @@ public class BluetoothLeService extends Service {
      * @return  Whether connect is successful
      */
     public boolean connect(final String address) {
+
         if (mConnectedAddressList == null) {
             mConnectedAddressList = new ArrayList<>();
         }
@@ -270,7 +283,8 @@ public class BluetoothLeService extends Service {
         }
         // We want to directly connect to the device, so we are setting the
         // autoConnect
-        // parameter to false.
+        // parameter to false
+        mHandler.obtainMessage(BleConfig.ConnectionChanged,2,0,device).sendToTarget();
         BluetoothGatt bluetoothGatt = device.connectGatt(this, false, mGattCallback);
         if (bluetoothGatt != null) {
             mBluetoothGattMap.put(address, bluetoothGatt);
@@ -321,19 +335,36 @@ public class BluetoothLeService extends Service {
     }
 
 
-    public boolean wirteCharacteristic(String address, BluetoothGattCharacteristic characteristic,byte[] value) {
+    /**
+     * 发送数据
+     * @param address  发送对象
+     * @param value 发送数据值
+     * @return  是否成功
+     */
+    public boolean wirteCharacteristic(String address,byte[] value) {
         if (mBluetoothAdapter == null || mBluetoothGattMap.get(address) == null) {
             Log.w(TAG, "BluetoothAdapter not initialized");
             return false;
         }
-        if(characteristic != null && BleConfig.UUID_CHARACTERISTIC.equals(characteristic.getUuid())){
-            characteristic.setValue(value);
-            boolean result = mBluetoothGattMap.get(address).writeCharacteristic(characteristic);
-            Log.d(TAG, address + " -- write data:" + Arrays.toString(value));
-            Log.d(TAG, address + " -- write result:" + result);
-            return result;
+        try {
+            if(mWriteCharacteristic != null && BleConfig.UUID_CHARACTERISTIC.equals(mWriteCharacteristic.getUuid())){
+                mWriteCharacteristic.setValue(value);
+                boolean result = mBluetoothGattMap.get(address).writeCharacteristic(mWriteCharacteristic);
+                Log.d(TAG, address + " -- write data:" + Arrays.toString(value));
+                Log.d(TAG, address + " -- write result:" + result);
+                return result;
+            }
+        }catch (Exception e){
+            e.printStackTrace();
         }
-        return true;
+//        if(characteristic != null && BleConfig.UUID_CHARACTERISTIC.equals(characteristic.getUuid())){
+//            characteristic.setValue(value);
+//            boolean result = mBluetoothGattMap.get(address).writeCharacteristic(characteristic);
+//            Log.d(TAG, address + " -- write data:" + Arrays.toString(value));
+//            Log.d(TAG, address + " -- write result:" + result);
+//            return result;
+//        }
+        return false;
 
     }
 
@@ -379,6 +410,54 @@ public class BluetoothLeService extends Service {
             }
         }
 
+    }
+
+    //设置通知数组
+    private void displayGattServices(String address,List<BluetoothGattService> gattServices) {
+        if (gattServices == null)
+            return;
+        String uuid = null;
+        // Loops through available GATT Services.
+        for (BluetoothGattService gattService : gattServices) {
+            uuid = gattService.getUuid().toString();
+            Log.d(TAG,"displayGattServices: " + uuid);
+            if (uuid.equals(BleConfig.UUID_SERVICE_TEXT)) {
+                Log.d(TAG,"service_uuid: " + uuid);
+                List<BluetoothGattCharacteristic> gattCharacteristics = gattService.getCharacteristics();
+                for (BluetoothGattCharacteristic gattCharacteristic : gattCharacteristics) {
+                    uuid = gattCharacteristic.getUuid().toString();
+                    if(uuid.equals(BleConfig.UUID_CHARACTERISTIC_TEXT)){
+                        mWriteCharacteristic = gattCharacteristic;
+                        //通知特性
+                    }else if(gattCharacteristic.getProperties() == BluetoothGattCharacteristic.PROPERTY_NOTIFY){
+                        mNotifyCharacteristics.add(gattCharacteristic);
+                    }
+                    if(mNotifyCharacteristics != null && mNotifyCharacteristics.size() > 0){
+                        setCharacteristicNotification(address,mNotifyCharacteristics.get(mNotifyIndex++), true);
+                    }
+//                    uuid = gattCharacteristic.getUuid().toString();
+//                    Log.e(TAG,"all_characteristic: " + uuid);
+//                    if (uuid.equals(BleConfig.UUID_NOTIFY_TEXT)) {
+//                        Log.e(TAG,"2gatt Characteristic: " + uuid);
+//                        setCharacteristicNotification(address, gattCharacteristic, true);
+////                        mBluetoothLeService.readCharacteristic(address,gattCharacteristic);//暂时注释
+//                    } else if (uuid.equals(BleConfig.UUID_CHARACTERISTIC_TEXT)) {
+//                        Log.e(TAG,"write_characteristic: " + uuid);
+//                    }
+
+                }
+            }
+        }
+    }
+
+    //获取可写的WriteCharacteristic对象
+    public BluetoothGattCharacteristic getWriteCharacteristic(){
+        synchronized (mLocker){
+            if(mWriteCharacteristic != null){
+                return mWriteCharacteristic;
+            }
+            return null;
+        }
     }
 
     /**

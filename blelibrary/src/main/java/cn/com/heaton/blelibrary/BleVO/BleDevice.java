@@ -1,14 +1,12 @@
 package cn.com.heaton.blelibrary.BleVO;
 
 import android.bluetooth.BluetoothDevice;
-
-import java.util.ArrayList;
-import java.util.List;
-
+import android.bluetooth.BluetoothProfile;
 import cn.com.heaton.blelibrary.BleConfig;
+import cn.com.heaton.blelibrary.BleManager;
 
 /**
- * Created by admin on 2016/11/26.
+ * Created by LiuLei on 2016/11/26.
  * If you need to set the Bluetooth object more properties and behavior can be inherited from the class     such as extends BleDevice
  */
 
@@ -20,6 +18,12 @@ public class BleDevice {
      * Is connected
      */
     private boolean isConnected = false;
+
+    /**
+     * is connectting
+     */
+    private boolean mConnecting = false;
+
     /**
      *  Connection Status:
      *  2503 Not Connected
@@ -27,7 +31,7 @@ public class BleDevice {
      *  2505 Connected
      *  2506 Disconnected
      */
-    private int mConnectionState = BleConfig.DISCONNECT;
+    private int mConnectionState = BluetoothProfile.STATE_DISCONNECTED;
 
     /**
      *   Bluetooth address
@@ -42,8 +46,6 @@ public class BleDevice {
      *   Bluetooth modified name
      */
     private String mBleAlias;
-    private List<BleDevice>mConnectedDevices = new ArrayList<>();
-
 
     public BleDevice(BluetoothDevice device) {
         this.mBleAddress = device.getAddress();
@@ -51,20 +53,23 @@ public class BleDevice {
     }
 
     public boolean isConnected() {
-        return isConnected;
+//        return mConnectionState == BluetoothProfile.STATE_CONNECTED;
+        return mConnectionState == BleConfig.CONNECTED;
     }
 
-    public void setConnected(boolean connected) {
-        isConnected = connected;
+    public boolean isConnectting() {
+//        return mConnectionState == BluetoothProfile.STATE_CONNECTING;
+        return mConnectionState == BleConfig.CONNECTING;
     }
 
     public int getConnectionState() {
         return mConnectionState;
     }
 
-    public void setConnectionState(int mConnectionState) {
-        this.mConnectionState = mConnectionState;
+    public void setConnectionState(int state){
+        mConnectionState = state;
     }
+
 
     public String getBleAddress() {
         return mBleAddress;

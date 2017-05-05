@@ -11,13 +11,15 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import cn.com.heaton.blelibrary.BleConfig;
 import cn.com.heaton.blelibrary.BleVO.BleDevice;
 
 /**
- * Created by admin on 2016/11/26.
+ *
+ * Created by LiuLei on 2016/11/26.
  */
 
-// Adapter for holding devices found through scanning.
+
 public class LeDeviceListAdapter extends BaseAdapter {
     private ArrayList<BleDevice> mLeDevices;
     private LayoutInflater mInflator;
@@ -76,10 +78,10 @@ public class LeDeviceListAdapter extends BaseAdapter {
         final BleDevice device = mLeDevices.get(i);
         final String deviceName = device.getmBleName();
         final String deviceRSSI = BluetoothDevice.EXTRA_RSSI;
-        if(device.getConnectionState() == 2504){
+        if(device.isConnectting()){
             viewHolder.deviceState.setText("正在连接中...");
         }
-        if(device.isConnected()){
+        else if(device.isConnected()){
             viewHolder.deviceState.setText("已连接");
         }else {
             viewHolder.deviceState.setText("未连接");
