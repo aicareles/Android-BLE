@@ -1,7 +1,7 @@
 # BleDemo
-android BLE蓝牙项目
-作者：liulei
-android蓝牙BLE库
+## android BLE蓝牙项目<br>
+### 作者：liulei<br>
+#### android蓝牙BLE库<br>
 
  BLE4.0蓝牙见解：api解读
  一、了解api及概念
