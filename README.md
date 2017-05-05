@@ -24,11 +24,11 @@
  BluetoothAdapter mBluetoothAdapter = bluetoothManager.getAdapter();
  ## 1.8 BluetoothGattCallback<br>
  已经连接上设备，对设备的某些操作后返回的结果。这里必须提醒下，已经连接上设备后的才可以返回，没有返回的认真看看有没有连接上设备。<br>
- private BluetoothGattCallback GattCallback = new BluetoothGattCallback() {
-     // 这里有9个要实现的方法，看情况要实现那些，用到那些就实现那些
-     public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState){};
-     public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status){};
- };
+ private BluetoothGattCallback GattCallback = new BluetoothGattCallback() {<br>
+     // 这里有9个要实现的方法，看情况要实现那些，用到那些就实现那些<br>
+     public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState){};<br>
+     public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status){};<br>
+ };<br>
  BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);<br>
  BluetoothGatt gatt = device.connectGatt(this, false, mGattCallback);<br>
 
