@@ -68,7 +68,8 @@
  if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {<br>
      Toast.makeText(this, "设备不支持蓝牙4.0", Toast.LENGTH_SHORT).show();<br>
      finish();<br>
- }
+ }<br>
+
  # 三、对蓝牙的启动关闭操作<br>
 
  ## 1、利用系统默认开启蓝牙对话框<br>
