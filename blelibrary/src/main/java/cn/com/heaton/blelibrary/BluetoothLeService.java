@@ -50,11 +50,18 @@ public class BluetoothLeService extends Service {
      */
     private List<String> mConnectedAddressList;
 
+    //当前正在连接的设备
+    private BluetoothDevice currentDevice = null;
+
     private Runnable                          mConnectTimeout        = new Runnable() { // 连接设备超时
         @Override
         public void run() {
             mHandler.sendEmptyMessage(BleConfig.ConnectTimeOut);
-            Toast.makeText(getApplication(),R.string.connect_timeout,Toast.LENGTH_SHORT).show();
+            if(currentDevice != null){
+                mHandler.obtainMessage(BleConfig.ConnectionChanged,0,0,currentDevice).sendToTarget();
+                close(currentDevice.getAddress());
+                disconnect(currentDevice.getAddress());
+            }
         }
     };
 
@@ -281,6 +288,7 @@ public class BluetoothLeService extends Service {
             Log.d(TAG, "no device");
             return false;
         }
+        currentDevice = device;
         // We want to directly connect to the device, so we are setting the
         // autoConnect
         // parameter to false

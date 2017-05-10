@@ -71,7 +71,15 @@ public class MainActivity extends BaseActivity{
         @Override
         public void onConnectTimeOut() {
             super.onConnectTimeOut();
-            Logger.e("设备连接超时");
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(getApplication(), R.string.connect_timeout,Toast.LENGTH_SHORT).show();
+                    synchronized (mManager.getLocker()){
+                        mLeDeviceListAdapter.notifyDataSetChanged();
+                    }
+                }
+            });
         }
 
         @Override
@@ -321,6 +329,16 @@ public class MainActivity extends BaseActivity{
             }
         }
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (mManager != null && !mManager.mScanning) {
+            mLeDeviceListAdapter.clear();
+            mManager.clear();
+            mManager.scanLeDevice(true);
+        }
     }
 
     @Override

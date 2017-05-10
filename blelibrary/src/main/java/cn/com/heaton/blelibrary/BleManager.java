@@ -60,10 +60,12 @@ public class BleManager<T extends BleDevice> {
                             //connect
                             device.setConnectionState(BleConfig.CONNECTED);
                             mConnetedDevices.add(device);
+                            Log.e("ConnectionChanged","添加了一个设备");
                         } else if (msg.arg1 == 0) {
                             //disconnect
                             device.setConnectionState(BleConfig.DISCONNECT);
                             mConnetedDevices.remove(device);
+                            Log.e("ConnectionChanged","移除了一个设备");
                         }else if(msg.arg1 == 2){
                             //connectting
                             device.setConnectionState(BleConfig.CONNECTING);
