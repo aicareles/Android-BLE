@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="AppSuperTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:dialogTheme">@style/DialogTheme.Default</item>
+        <item name="android:alertDialogTheme">@style/DialogTheme.Default</item>
+        <item name="alertDialogTheme">@style/DialogTheme.Default</item>
+        <item name="dialogTheme">@style/DialogTheme.Default</item>
+    </style>
+    <style name="DialogTheme.Default" parent="@style/Theme.AppCompat.Light.Dialog.Alert">
+        <item name="android:colorBackground">@android:color/transparent</item>
+        <item name="android:background">@null</item>
+        <item name="dialogTopMinHeight">54dip</item>
+        <item name="dialogButtonMinHeight">54dip</item>
+        <item name="dialogTopMarginTop">6dip</item>
+        <item name="dialogTopMarginBottom">9dip</item>
+        <item name="dialogTopMarginLeft">10dip</item>
+        <item name="dialogTopMarginRight">10dip</item>
+        <item name="dialogIconPaddingTop">6dip</item>
+        <item name="dialogIconPaddingBottom">0dip</item>
+        <item name="dialogIconPaddingRight">10dip</item>
+        <item name="dialogIconPaddingLeft">0dip</item>
+        <item name="dialogTitleDividerHeight">1dip</item>
+        <item name="dialogScrollPaddingTop">2dip</item>
+        <item name="dialogScrollPaddingBottom">2dip</item>
+        <item name="dialogScrollPaddingRight">10dip</item>
+        <item name="dialogScrollPaddingLeft">14dip</item>
+        <item name="dialogMessagePadding">5dip</item>
+        <item name="dialogTitleAppearance">@style/TextAppearance.AppCompat.Large</item>
+        <item name="dialogMessageAppearance">@style/TextAppearance.AppCompat.Medium</item>
+        <item name="dialogLeftButtonStyle">@style/DialogButton</item>
+        <item name="dialogCenterButtonStyle">@style/DialogButton</item>
+        <item name="dialogRightButtonStyle">@style/DialogButton</item>
+        <item name="dialogParent">@style/DialogStyle.Parent</item>
+        <item name="dialogUpdateAppearance">@style/TextAppearance.AppCompat.Medium</item>
+        <item name="dialogUpdateProgressBar">?android:attr/progressBarStyleHorizontal</item>
+    </style>
+    <style name="DialogButton" parent="@style/Widget.AppCompat.Button.ButtonBar.AlertDialog">
+        <item name="android:layout_width">0dip</item>
+        <item name="android:layout_weight">1.0</item>
+    </style>
+    <style name="DialogStyle">
+        <item name="android:background">@android:color/transparent</item>
+    </style>
+    <style name="DialogStyle.Parent">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:paddingTop">9dip</item>
+        <item name="android:paddingBottom">3dip</item>
+        <item name="android:paddingRight">1dip</item>
+        <item name="android:paddingLeft">3dip</item>
+    </style>
+</resources>

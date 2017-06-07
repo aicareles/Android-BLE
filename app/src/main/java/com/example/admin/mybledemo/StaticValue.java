@@ -18,4 +18,8 @@ public class StaticValue {
 	public static final String TOOL_COLOR = "tool_color";
 	public static int THEME_MODE = 0;//主题模式   默认是正常   1为夜间模式
 
+	public final static String OTA_OLD_PATH = "old_ota.bin";//需要更新老版本固件的本地路径
+	public final static String OTA_NEW_PATH = "new_ota.bin";//需要更新新版本固件的本地路径
+	public final static String IS_FIRST_RUN = "isFirst";//程序是否是第一次运行
+
 }

@@ -86,9 +86,6 @@ public class BleManager<T extends BleDevice> {
                     break;
                 case BleConfig.ServicesDiscovered:
                     mBleLisenter.onServicesDiscovered((BluetoothGatt) msg.obj);
-                    synchronized (mLocker){
-
-                    }
                     break;
                 case BleConfig.DescriptorRead:
                     mBleLisenter.onDescriptorRead((BluetoothGatt) msg.obj);
@@ -197,7 +194,9 @@ public class BleManager<T extends BleDevice> {
         public void onServiceConnected(ComponentName componentName,
                                        IBinder service) {
             mBluetoothLeService = ((BluetoothLeService.LocalBinder) service).getService();
-            mBluetoothLeService.setHandler(mHandler);
+            if(mHandler != null){
+                mBluetoothLeService.setHandler(mHandler);
+            }
             Log.e(TAG, "Service connection successful");
             if (!mBluetoothLeService.initialize()) {
                 Log.e(TAG, "Unable to initialize Bluetooth");
@@ -325,9 +324,6 @@ public class BleManager<T extends BleDevice> {
                 for (T bleDevice : mConnetedDevices) {
                     if (bleDevice.getBleAddress().equals(device.getAddress())) {
                         return bleDevice;
-                    } else {
-                        T newDevice = (T) new BleDevice(device);
-                        return newDevice;
                     }
                 }
             }
@@ -433,6 +429,8 @@ public class BleManager<T extends BleDevice> {
             return result;
         }
     }
+
+
 
     /**
      * 获取系统蓝牙管理器

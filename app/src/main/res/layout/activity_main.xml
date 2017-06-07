@@ -32,6 +32,14 @@
         android:layout_height="wrap_content"
         android:text="发送数据"/>
 
+    <Button
+        android:id="@+id/updateOta"
+        android:layout_below="@id/toolbar_main"
+        android:layout_toLeftOf="@+id/sendData"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="更新OTA"/>
+
     <ListView
         android:id="@+id/listView"
         android:layout_below="@id/sendData"

@@ -11,6 +11,7 @@
     <color name="window_background_dark">#212121</color>
     <color name="window_background_black">#000000</color>
     <color name="window_background">#FFFFFF</color>
+    <color name="white">@android:color/white</color>
 
 
     <color name="colorPrimaryBlack">#000000</color>

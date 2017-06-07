@@ -11,6 +11,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.util.Log;
@@ -29,9 +30,12 @@ import com.example.admin.mybledemo.Command;
 import com.example.admin.mybledemo.LeDeviceListAdapter;
 import com.example.admin.mybledemo.R;
 import com.example.admin.mybledemo.StaticValue;
+import com.example.admin.mybledemo.utils.FileUtils;
 import com.example.admin.mybledemo.utils.SPUtils;
 import com.orhanobut.logger.Logger;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -40,6 +44,7 @@ import cn.com.heaton.blelibrary.BleConfig;
 import cn.com.heaton.blelibrary.BleLisenter;
 import cn.com.heaton.blelibrary.BleManager;
 import cn.com.heaton.blelibrary.BleVO.BleDevice;
+import cn.com.heaton.blelibrary.ota.OtaManager;
 
 /**
  * Activity for scanning and displaying available Bluetooth LE devices.
@@ -52,7 +57,8 @@ public class MainActivity extends BaseActivity{
     private BleManager<BleDevice> mManager;
     private ListView mListView;
     private TextView mConnectedNum;
-    private Button mSend;
+    private Button mSend,mUpdateOta;
+    private String path;
 
     private BleLisenter mLisenter = new BleLisenter() {
         @Override
@@ -183,6 +189,57 @@ public class MainActivity extends BaseActivity{
         //初始化蓝牙
         initBle();
         initView();
+
+        requestPermission(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.READ_EXTERNAL_STORAGE},
+                "需要读写权限", new GrantedResult() {
+                    @Override
+                    public void onResult(boolean granted) {
+                        if(granted){
+                            new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    // 获取SD卡路径
+                                    path = Environment.getExternalStorageDirectory()
+                                            + "/aceDownload/";
+                                    File file = new File(path);
+                                    // 如果SD卡目录不存在创建
+                                    if (!file.exists()) {
+                                        file.mkdir();
+                                    }
+                                    CopyAssetsToSD();
+                                }
+                            }).start();
+                        }
+                    }
+                });
+    }
+
+    private void CopyAssetsToSD() {
+        if(!SPUtils.get(this,StaticValue.IS_FIRST_RUN,true)){//判断是否是第一次进入   默认第一次进入
+            return;
+        }
+        final File newFile = new File(path+StaticValue.OTA_NEW_PATH);
+        final File oldFile = new File(path+StaticValue.OTA_OLD_PATH);
+        requestPermission(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                "需要读写权限", new GrantedResult() {
+                    @Override
+                    public void onResult(boolean granted) {
+                        if(granted){
+                            new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    try {
+                                        FileUtils.copyBigDataToSD(MainActivity.this,StaticValue.OTA_NEW_PATH,newFile.getAbsolutePath());
+                                        FileUtils.copyBigDataToSD(MainActivity.this,StaticValue.OTA_OLD_PATH,oldFile.getAbsolutePath());
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }).start();
+                        }
+                    }
+                });
+                SPUtils.put(this,StaticValue.IS_FIRST_RUN, false);//设置程序非第一次进入
     }
 
     private void initBle() {
@@ -209,6 +266,9 @@ public class MainActivity extends BaseActivity{
             }
             if (!result) {
                 Logger.e("服务绑定失败");
+                if (mManager != null) {
+                    mManager.startService();
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -230,6 +290,7 @@ public class MainActivity extends BaseActivity{
         mListView = (ListView) findViewById(R.id.listView);
         mConnectedNum = (TextView) findViewById(R.id.connected_num);
         mSend = (Button) findViewById(R.id.sendData);
+        mUpdateOta = (Button) findViewById(R.id.updateOta);
         mSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -240,6 +301,19 @@ public class MainActivity extends BaseActivity{
                             changeLevelInner(device.getBleAddress());
                         }
                     }
+                }
+            }
+        });
+        mUpdateOta.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(mManager.getConnetedDevices().size() > 0){
+                    File file = new File(path + StaticValue.OTA_NEW_PATH);
+                    OtaManager mOtaManager = new OtaManager(MainActivity.this);
+                    boolean result = mOtaManager.startOtaUpdate(file, mManager.getConnetedDevices().get(0), mManager);
+                    Log.e("OTA升级结果:",result+"");
+                }else {
+                    Toast.makeText(MainActivity.this,"请先连接设备",Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -268,6 +342,10 @@ public class MainActivity extends BaseActivity{
 
     private void setConnectedNum() {
         if (mManager != null) {
+            Log.e("mConnectedNum","已连接的数量："+mManager.getConnetedDevices().size()+"");
+            for (BleDevice device : mManager.getConnetedDevices()){
+                Log.e("device","设备地址："+device.getBleAddress());
+            }
             mConnectedNum.setText(getString(R.string.lined_num) + mManager.getConnetedDevices().size());
         }
     }

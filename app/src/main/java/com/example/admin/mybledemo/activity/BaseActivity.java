@@ -46,7 +46,7 @@ public class BaseActivity extends AppCompatActivity {
             if (actionBar != null) {
                 actionBar.setDisplayShowTitleEnabled(false);
                 actionBar.setHomeButtonEnabled(true);
-                actionBar.setDisplayHomeAsUpEnabled(true);
+//                actionBar.setDisplayHomeAsUpEnabled(true);
             }
         }
     }
