@@ -1,4 +1,4 @@
-package com.example.admin.mybledemo;
+package com.example.admin.mybledemo.utils;
 
 /**
  * Created by LiuLei on 2016/11/29.

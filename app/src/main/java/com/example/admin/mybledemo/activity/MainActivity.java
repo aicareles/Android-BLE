@@ -49,7 +49,7 @@ import cn.com.heaton.blelibrary.ota.OtaManager;
 /**
  * Activity for scanning and displaying available Bluetooth LE devices.
  */
-public class MainActivity extends BaseActivity{
+public class MainActivity extends BaseActivity {
 
     private String TAG = MainActivity.class.getSimpleName();
 
@@ -57,7 +57,7 @@ public class MainActivity extends BaseActivity{
     private BleManager<BleDevice> mManager;
     private ListView mListView;
     private TextView mConnectedNum;
-    private Button mSend,mUpdateOta;
+    private Button mSend, mUpdateOta;
     private String path;
 
     private BleLisenter mLisenter = new BleLisenter() {
@@ -80,8 +80,8 @@ public class MainActivity extends BaseActivity{
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    Toast.makeText(getApplication(), R.string.connect_timeout,Toast.LENGTH_SHORT).show();
-                    synchronized (mManager.getLocker()){
+                    Toast.makeText(getApplication(), R.string.connect_timeout, Toast.LENGTH_SHORT).show();
+                    synchronized (mManager.getLocker()) {
                         mLeDeviceListAdapter.notifyDataSetChanged();
                     }
                 }
@@ -96,7 +96,7 @@ public class MainActivity extends BaseActivity{
 //                            if(!BleConfig.matchProduct(scanRecord)){
 //                                return;
 //                            }
-            synchronized (mManager.getLocker()){
+            synchronized (mManager.getLocker()) {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -119,15 +119,15 @@ public class MainActivity extends BaseActivity{
                             if (device.isConnected()) {
                                 mLeDeviceListAdapter.getDevice(i).setConnectionState(BleConfig.CONNECTED);
                                 Toast.makeText(MainActivity.this, R.string.line_success, Toast.LENGTH_SHORT).show();
-                            } else if(device.isConnectting()){
+                            } else if (device.isConnectting()) {
                                 mLeDeviceListAdapter.getDevice(i).setConnectionState(BleConfig.CONNECTING);
-                            } else{
+                            } else {
                                 mLeDeviceListAdapter.getDevice(i).setConnectionState(BleConfig.DISCONNECT);
                                 Toast.makeText(MainActivity.this, R.string.line_disconnect, Toast.LENGTH_SHORT).show();
                             }
                         }
                     }
-                    synchronized (mManager.getLocker()){
+                    synchronized (mManager.getLocker()) {
                         mLeDeviceListAdapter.notifyDataSetChanged();
                     }
                 }
@@ -137,16 +137,14 @@ public class MainActivity extends BaseActivity{
         @Override
         public void onServicesDiscovered(BluetoothGatt gatt) {
             super.onServicesDiscovered(gatt);
-            //可以选择性实现该方法   不需要则不用实现
-//                            if (QppApi.qppEnable(mBluetoothGatt, uuidQppService, uuidQppCharWrite)) {}
-            //设置notify
+            //可以选择性实现该方法   不需要则不用实现  库中已设置Notify
         }
 
         @Override
         public void onChanged(BluetoothGattCharacteristic characteristic) {
             Logger.e("data===" + Arrays.toString(characteristic.getValue()));
             //可以选择性实现该方法   不需要则不用实现
-//                            QppApi.updateValueForNotification(gatt, characteristic);
+            //硬件mcu 返回数据
         }
 
         @Override
@@ -165,7 +163,6 @@ public class MainActivity extends BaseActivity{
         public void onDescriptorWriter(BluetoothGatt gatt) {
             super.onDescriptorWriter(gatt);
             //可以选择性实现该方法   不需要则不用实现
-////                            QppApi.setQppNextNotify(gatt, true);
         }
     };
 
@@ -176,7 +173,7 @@ public class MainActivity extends BaseActivity{
 //        data[5] = (byte) ((color >> 8) & 0xff);
 //        data[6] = (byte) ((color >> 16) & 0xff);
 //        data[7] = (byte) ((color >> 24) & 0xff);
-        boolean result = mManager.sendData(address,sendData(1));
+        boolean result = mManager.sendData(address, sendData(1));
         Logger.e("result==" + result);
         return result;
     }
@@ -190,11 +187,12 @@ public class MainActivity extends BaseActivity{
         initBle();
         initView();
 
-        requestPermission(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.READ_EXTERNAL_STORAGE},
+        //此处为了方便把OTA升级文件直接放到assets文件夹下，拷贝到/aceDownload/文件夹中  以便使用
+        requestPermission(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE},
                 "需要读写权限", new GrantedResult() {
                     @Override
                     public void onResult(boolean granted) {
-                        if(granted){
+                        if (granted) {
                             new Thread(new Runnable() {
                                 @Override
                                 public void run() {
@@ -215,22 +213,23 @@ public class MainActivity extends BaseActivity{
     }
 
     private void CopyAssetsToSD() {
-        if(!SPUtils.get(this,StaticValue.IS_FIRST_RUN,true)){//判断是否是第一次进入   默认第一次进入
+        //判断是否是第一次进入   默认第一次进入
+        if (!SPUtils.get(this, StaticValue.IS_FIRST_RUN, true)) {
             return;
         }
-        final File newFile = new File(path+StaticValue.OTA_NEW_PATH);
-        final File oldFile = new File(path+StaticValue.OTA_OLD_PATH);
+        final File newFile = new File(path + StaticValue.OTA_NEW_PATH);
+        final File oldFile = new File(path + StaticValue.OTA_OLD_PATH);
         requestPermission(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                 "需要读写权限", new GrantedResult() {
                     @Override
                     public void onResult(boolean granted) {
-                        if(granted){
+                        if (granted) {
                             new Thread(new Runnable() {
                                 @Override
                                 public void run() {
                                     try {
-                                        FileUtils.copyBigDataToSD(MainActivity.this,StaticValue.OTA_NEW_PATH,newFile.getAbsolutePath());
-                                        FileUtils.copyBigDataToSD(MainActivity.this,StaticValue.OTA_OLD_PATH,oldFile.getAbsolutePath());
+                                        FileUtils.copyBigDataToSD(MainActivity.this, StaticValue.OTA_NEW_PATH, newFile.getAbsolutePath());
+                                        FileUtils.copyBigDataToSD(MainActivity.this, StaticValue.OTA_OLD_PATH, oldFile.getAbsolutePath());
                                     } catch (IOException e) {
                                         e.printStackTrace();
                                     }
@@ -239,7 +238,8 @@ public class MainActivity extends BaseActivity{
                         }
                     }
                 });
-                SPUtils.put(this,StaticValue.IS_FIRST_RUN, false);//设置程序非第一次进入
+        //设置程序非第一次进入
+        SPUtils.put(this, StaticValue.IS_FIRST_RUN, false);
     }
 
     private void initBle() {
@@ -296,8 +296,8 @@ public class MainActivity extends BaseActivity{
             public void onClick(View v) {
                 List<BleDevice> list = mManager.getConnetedDevices();
                 if (list.size() > 0) {
-                    synchronized (mManager.getLocker()){
-                        for (BleDevice device : list){
+                    synchronized (mManager.getLocker()) {
+                        for (BleDevice device : list) {
                             changeLevelInner(device.getBleAddress());
                         }
                     }
@@ -307,13 +307,13 @@ public class MainActivity extends BaseActivity{
         mUpdateOta.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(mManager.getConnetedDevices().size() > 0){
+                if (mManager.getConnetedDevices().size() > 0) {
                     File file = new File(path + StaticValue.OTA_NEW_PATH);
                     OtaManager mOtaManager = new OtaManager(MainActivity.this);
                     boolean result = mOtaManager.startOtaUpdate(file, mManager.getConnetedDevices().get(0), mManager);
-                    Log.e("OTA升级结果:",result+"");
-                }else {
-                    Toast.makeText(MainActivity.this,"请先连接设备",Toast.LENGTH_SHORT).show();
+                    Log.e("OTA升级结果:", result + "");
+                } else {
+                    Toast.makeText(MainActivity.this, "请先连接设备", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -342,9 +342,9 @@ public class MainActivity extends BaseActivity{
 
     private void setConnectedNum() {
         if (mManager != null) {
-            Log.e("mConnectedNum","已连接的数量："+mManager.getConnetedDevices().size()+"");
-            for (BleDevice device : mManager.getConnetedDevices()){
-                Log.e("device","设备地址："+device.getBleAddress());
+            Log.e("mConnectedNum", "已连接的数量：" + mManager.getConnetedDevices().size() + "");
+            for (BleDevice device : mManager.getConnetedDevices()) {
+                Log.e("device", "设备地址：" + device.getBleAddress());
             }
             mConnectedNum.setText(getString(R.string.lined_num) + mManager.getConnetedDevices().size());
         }
@@ -386,7 +386,7 @@ public class MainActivity extends BaseActivity{
                 Logger.e("点击了断开全部设备按钮");
                 if (mManager != null) {
                     ArrayList<BleDevice> list = mManager.getConnetedDevices();
-                    for(BleDevice device : list){
+                    for (BleDevice device : list) {
                         mManager.disconnect(device.getBleAddress());
                     }
                 }

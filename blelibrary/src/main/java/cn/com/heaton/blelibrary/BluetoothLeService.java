@@ -83,7 +83,6 @@ public class BluetoothLeService extends Service {
                                             int newState) {
             BluetoothDevice device = gatt.getDevice();
             //There is a problem here Every time a new object is generated that causes the same device to be disconnected and the connection produces two objects
-//            BleDevice bleDevice = new BleDevice(device);
 
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 mIndex++;
@@ -122,7 +121,6 @@ public class BluetoothLeService extends Service {
                                          BluetoothGattCharacteristic characteristic, int status) {
             Log.d(TAG, "onCharacteristicRead:" + status);
             if (status == BluetoothGatt.GATT_SUCCESS) {
-//                mBleLisenter.onRead(gatt.getDevice());
                 mHandler.obtainMessage(BleConfig.Read, gatt.getDevice()).sendToTarget();
             }
         }
@@ -131,7 +129,6 @@ public class BluetoothLeService extends Service {
         public void onCharacteristicWrite(BluetoothGatt gatt,
                                           BluetoothGattCharacteristic characteristic, int status) {
             System.out.println("--------write success----- status:" + status);
-//            mBleLisenter.onWrite(gatt,characteristic,status);
             synchronized (mLocker) {
                 if(BuildConfig.DEBUG){
                     Log.i(TAG, gatt.getDevice().getAddress() + " -- onCharacteristicWrite: " + status);
@@ -156,7 +153,6 @@ public class BluetoothLeService extends Service {
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt,
                                             BluetoothGattCharacteristic characteristic) {
-//            mBleLisenter.onChanged(gatt, characteristic);
             synchronized (mLocker) {
                 if(BuildConfig.DEBUG){
                     Log.i(TAG, gatt.getDevice().getAddress() + " -- onCharacteristicWrite: " + (characteristic.getValue() != null ? Arrays.toString(characteristic.getValue()) : ""));
@@ -196,7 +192,6 @@ public class BluetoothLeService extends Service {
             UUID uuid = descriptor.getCharacteristic().getUuid();
             Log.w(TAG, "onDescriptorRead");
             Log.e(TAG, "descriptor_uuid:" + uuid);
-//            mBleLisenter.onDescriptorRead(gatt);
             mHandler.obtainMessage(BleConfig.DescriptorRead, gatt).sendToTarget();
         }
 
