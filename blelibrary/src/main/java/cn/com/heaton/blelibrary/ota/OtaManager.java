@@ -272,13 +272,11 @@ public class OtaManager {
 			mUpdateDialog.setMessage("更新中，请稍后...");
 			mUpdateDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);//设置进度条对话框//样式（水平，旋转）
 //			mUpdateDialog.setMax(MAX_PROGRESS);
-			mUpdateDialog.show();
-			mUpdateDialog.setProgress(progress);
-
 		}
 		if (!mUpdateDialog.isShowing()) {
 			mUpdateDialog.show();
 		}
+		mUpdateDialog.setProgress(progress);
 //		if (mProgress != null) {
 //			mProgress.setProgress(progress);
 //		}
