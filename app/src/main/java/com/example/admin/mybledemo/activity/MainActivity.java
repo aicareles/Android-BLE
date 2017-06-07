@@ -117,12 +117,12 @@ public class MainActivity extends BaseActivity {
                     for (int i = 0; i < mLeDeviceListAdapter.getCount(); i++) {
                         if (device.getBleAddress().equals(mLeDeviceListAdapter.getDevice(i).getBleAddress())) {
                             if (device.isConnected()) {
-                                mLeDeviceListAdapter.getDevice(i).setConnectionState(BleConfig.CONNECTED);
+                                mLeDeviceListAdapter.getDevice(i).setConnectionState(BleConfig.BleStatus.CONNECTED);
                                 Toast.makeText(MainActivity.this, R.string.line_success, Toast.LENGTH_SHORT).show();
                             } else if (device.isConnectting()) {
-                                mLeDeviceListAdapter.getDevice(i).setConnectionState(BleConfig.CONNECTING);
+                                mLeDeviceListAdapter.getDevice(i).setConnectionState(BleConfig.BleStatus.CONNECTING);
                             } else {
-                                mLeDeviceListAdapter.getDevice(i).setConnectionState(BleConfig.DISCONNECT);
+                                mLeDeviceListAdapter.getDevice(i).setConnectionState(BleConfig.BleStatus.DISCONNECT);
                                 Toast.makeText(MainActivity.this, R.string.line_disconnect, Toast.LENGTH_SHORT).show();
                             }
                         }

@@ -1,7 +1,10 @@
 package cn.com.heaton.blelibrary;
 
+import android.support.annotation.IntDef;
 import android.text.TextUtils;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.UUID;
 
 /**
@@ -10,6 +13,58 @@ import java.util.UUID;
  */
 
 public class BleConfig {
+
+    public enum BleConstant{
+        CONNECTED,
+        CONNECTING,
+        DISCONNECT,
+        ConnectionChanged,
+        ServicesDiscovered,
+        Read,
+        Write,
+        Changed,
+        DescriptorWriter,
+        DescriptorRead,
+        Start,
+        Stop,
+        ConnectTimeOut
+    }
+
+    /**
+     *  注解   防止定义的常量值重复
+     */
+    @IntDef({
+            BleStatus.CONNECTED,
+            BleStatus.CONNECTING,
+            BleStatus.DISCONNECT,
+            BleStatus.ConnectionChanged,
+            BleStatus.ServicesDiscovered,
+            BleStatus.Read,
+            BleStatus.Write,
+            BleStatus.Changed,
+            BleStatus.DescriptorWriter,
+            BleStatus.DescriptorRead,
+            BleStatus.Start,
+            BleStatus.Stop,
+            BleStatus.ConnectTimeOut
+    })
+
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface BleStatus{
+        int CONNECTED = 2505;
+        int CONNECTING = 2504;
+        int DISCONNECT = 2503;
+        int ConnectionChanged = 2511;
+        int ServicesDiscovered = 2512;
+        int Read = 2513;
+        int Write = 2514;
+        int Changed = 2515;
+        int DescriptorWriter = 2516;
+        int DescriptorRead = 2517;
+        int Start = 2518;
+        int Stop = 2519;
+        int ConnectTimeOut = 2510;
+    }
     /**
      *  The default scan time
      */
@@ -18,33 +73,6 @@ public class BleConfig {
      *   Connection time-out limit
      */
     public final static int CONNECT_TIME_OUT         = 10 * 1000;
-
-    /**
-     *   Connection successful status
-     */
-    public final static int CONNECTED = 2505;
-    /**
-     *  The connection is in progress
-     */
-    public final static int CONNECTING = 2504;
-    /**
-     *  The disconnected state is a disconnected state
-     */
-    public final static int DISCONNECT = 2503;
-
-    /**
-     *  handler massage type
-     */
-    public final static int ConnectionChanged = 2511;
-    public final static int ServicesDiscovered = 2512;
-    public final static int Read = 2513;
-    public final static int Write = 2514;
-    public final static int Changed = 2515;
-    public final static int DescriptorWriter = 2516;
-    public final static int DescriptorRead = 2517;
-    public final static int Start = 2518;
-    public final static int Stop = 2519;
-    public final static int ConnectTimeOut = 2510;
 
     /**
      *    Broadcast corresponds to the product value

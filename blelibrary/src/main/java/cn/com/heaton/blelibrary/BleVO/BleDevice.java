@@ -31,7 +31,7 @@ public class BleDevice {
      *  2505 Connected
      *  2506 Disconnected
      */
-    private int mConnectionState = BluetoothProfile.STATE_DISCONNECTED;
+    private int mConnectionState = BleConfig.BleStatus.DISCONNECT;
 
     /**
      *   Bluetooth address
@@ -54,19 +54,19 @@ public class BleDevice {
 
     public boolean isConnected() {
 //        return mConnectionState == BluetoothProfile.STATE_CONNECTED;
-        return mConnectionState == BleConfig.CONNECTED;
+        return mConnectionState == BleConfig.BleStatus.CONNECTED;
     }
 
     public boolean isConnectting() {
 //        return mConnectionState == BluetoothProfile.STATE_CONNECTING;
-        return mConnectionState == BleConfig.CONNECTING;
+        return mConnectionState == BleConfig.BleStatus.CONNECTING;
     }
 
     public int getConnectionState() {
         return mConnectionState;
     }
 
-    public void setConnectionState(int state){
+    public void setConnectionState(@BleConfig.BleStatus int state){
         mConnectionState = state;
     }
 

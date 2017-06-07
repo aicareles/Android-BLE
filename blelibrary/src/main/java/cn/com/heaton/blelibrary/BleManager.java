@@ -49,45 +49,45 @@ public class BleManager<T extends BleDevice> {
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
-                case BleConfig.ConnectTimeOut:
+                case BleConfig.BleStatus.ConnectTimeOut:
                     mBleLisenter.onConnectTimeOut();
                     break;
-                case BleConfig.ConnectionChanged:
+                case BleConfig.BleStatus.ConnectionChanged:
                     T device = null;
                     try {
                         device = mBleFactory.create(BleManager.this,(BluetoothDevice) msg.obj);
                         if (msg.arg1 == 1) {
                             //connect
-                            device.setConnectionState(BleConfig.CONNECTED);
+                            device.setConnectionState(BleConfig.BleStatus.CONNECTED);
                             mConnetedDevices.add(device);
                             Log.e("ConnectionChanged","添加了一个设备");
                         } else if (msg.arg1 == 0) {
                             //disconnect
-                            device.setConnectionState(BleConfig.DISCONNECT);
+                            device.setConnectionState(BleConfig.BleStatus.DISCONNECT);
                             mConnetedDevices.remove(device);
                             Log.e("ConnectionChanged","移除了一个设备");
                         }else if(msg.arg1 == 2){
                             //connectting
-                            device.setConnectionState(BleConfig.CONNECTING);
+                            device.setConnectionState(BleConfig.BleStatus.CONNECTING);
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                     mBleLisenter.onConnectionChanged(device);
                     break;
-                case BleConfig.Changed:
+                case BleConfig.BleStatus.Changed:
                     mBleLisenter.onChanged((BluetoothGattCharacteristic) msg.obj);
                     break;
-                case BleConfig.Read:
+                case BleConfig.BleStatus.Read:
                     mBleLisenter.onRead((BluetoothDevice) msg.obj);
                     break;
-                case BleConfig.DescriptorWriter:
+                case BleConfig.BleStatus.DescriptorWriter:
                     mBleLisenter.onDescriptorWriter((BluetoothGatt) msg.obj);
                     break;
-                case BleConfig.ServicesDiscovered:
+                case BleConfig.BleStatus.ServicesDiscovered:
                     mBleLisenter.onServicesDiscovered((BluetoothGatt) msg.obj);
                     break;
-                case BleConfig.DescriptorRead:
+                case BleConfig.BleStatus.DescriptorRead:
                     mBleLisenter.onDescriptorRead((BluetoothGatt) msg.obj);
                     break;
             }
