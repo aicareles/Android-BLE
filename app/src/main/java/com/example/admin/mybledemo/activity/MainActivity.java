@@ -30,6 +30,8 @@ import com.example.admin.mybledemo.Command;
 import com.example.admin.mybledemo.LeDeviceListAdapter;
 import com.example.admin.mybledemo.R;
 import com.example.admin.mybledemo.StaticValue;
+import com.example.admin.mybledemo.annotation.LLAnnotation;
+import com.example.admin.mybledemo.annotation.ViewInit;
 import com.example.admin.mybledemo.utils.FileUtils;
 import com.example.admin.mybledemo.utils.SPUtils;
 import com.orhanobut.logger.Logger;
@@ -53,11 +55,16 @@ public class MainActivity extends BaseActivity {
 
     private String TAG = MainActivity.class.getSimpleName();
 
+    @ViewInit(R.id.sendData)
+    private Button mSend;
+    @ViewInit(R.id.updateOta)
+    private Button mUpdateOta;
+    @ViewInit(R.id.listView)
+    private ListView mListView;
+    @ViewInit(R.id.connected_num)
+    private TextView mConnectedNum;
     private LeDeviceListAdapter mLeDeviceListAdapter;
     private BleManager<BleDevice> mManager;
-    private ListView mListView;
-    private TextView mConnectedNum;
-    private Button mSend, mUpdateOta;
     private String path;
 
     private BleLisenter mLisenter = new BleLisenter() {
@@ -183,6 +190,8 @@ public class MainActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //初始化注解  替代findViewById
+        LLAnnotation.viewInit(this);
         //初始化蓝牙
         initBle();
         initView();
@@ -287,10 +296,7 @@ public class MainActivity extends BaseActivity {
 
     private void initView() {
         setTitle("扫描界面");
-        mListView = (ListView) findViewById(R.id.listView);
         mConnectedNum = (TextView) findViewById(R.id.connected_num);
-        mSend = (Button) findViewById(R.id.sendData);
-        mUpdateOta = (Button) findViewById(R.id.updateOta);
         mSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
