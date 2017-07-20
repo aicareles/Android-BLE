@@ -99,7 +99,7 @@ public class BleManager<T extends BleDevice> {
         }
     };
 
-    public BleManager(Context context) {
+    protected BleManager(Context context) {
         mContext = context;
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 //        Type superClass = getClass().getGenericSuperclass();
