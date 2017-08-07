@@ -39,7 +39,7 @@ public class BleManager<T extends BleDevice> {
     private Context mContext;
     private BluetoothLeService mBluetoothLeService;
     private static BleLisenter mBleLisenter;
-    public boolean mScanning;
+    private boolean mScanning;
     private BluetoothAdapter mBluetoothAdapter;
     private final ArrayList<T> mScanDevices = new ArrayList<>();
     private final ArrayList<T> mConnetedDevices = new ArrayList<>();
@@ -353,6 +353,13 @@ public class BleManager<T extends BleDevice> {
      */
     public Object getLocker() {
         return mLocker;
+    }
+
+    /**
+     * 是否正在扫描
+     */
+    public boolean isScanning(){
+        return mScanning;
     }
 
     /**

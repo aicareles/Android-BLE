@@ -333,7 +333,7 @@ public class MainActivity extends BaseActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 final BleDevice device = mLeDeviceListAdapter.getDevice(position);
                 if (device == null) return;
-                if (mManager.mScanning) {
+                if (mManager.isScanning()) {
                     mManager.scanLeDevice(false);
                 }
                 if (device.isConnected()) {
@@ -367,7 +367,7 @@ public class MainActivity extends BaseActivity {
         switch (item.getItemId()) {
             case R.id.menu_scan:
                 Logger.e("点击了扫描按钮");
-                if (mManager != null && !mManager.mScanning) {
+                if (mManager != null && !mManager.isScanning()) {
                     mLeDeviceListAdapter.clear();
                     mManager.clear();
                     mManager.scanLeDevice(true);
@@ -418,7 +418,7 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (mManager != null && !mManager.mScanning) {
+        if (mManager != null && !mManager.isScanning()) {
             mLeDeviceListAdapter.clear();
             mManager.clear();
             mManager.scanLeDevice(true);
