@@ -1,3 +1,4 @@
+# 对蓝牙4.0感兴趣可以加群进行相互讨论学习<br>
 # BleDemo
 ## android BLE蓝牙项目<br>
 ### 作者：liulei<br>

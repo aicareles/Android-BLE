@@ -159,7 +159,7 @@ public class BleManager<T extends BleDevice> {
      *
      * @return Whether to support Ble
      */
-    public boolean isSupportBle() {
+    private boolean isSupportBle() {
         return (mBluetoothAdapter != null && mContext.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE));
     }
 
