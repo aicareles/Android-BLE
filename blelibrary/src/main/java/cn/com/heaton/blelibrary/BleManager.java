@@ -38,7 +38,8 @@ public class BleManager<T extends BleDevice> {
     public static final int REQUEST_ENABLE_BT = 1;
     private Context mContext;
     private BluetoothLeService mBluetoothLeService;
-    private static BleLisenter mBleLisenter;
+//    private static BleLisenter mBleLisenter;
+    private static List<BleLisenter> mBleLisenters = new ArrayList<>();
     private boolean mScanning;
     private BluetoothAdapter mBluetoothAdapter;
     private final ArrayList<T> mScanDevices = new ArrayList<>();
@@ -55,7 +56,9 @@ public class BleManager<T extends BleDevice> {
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case BleConfig.BleStatus.ConnectTimeOut:
-                    mBleLisenter.onConnectTimeOut();
+                    for (BleLisenter bleLisenter : mBleLisenters){
+                        bleLisenter.onConnectTimeOut();
+                    }
                     break;
                 case BleConfig.BleStatus.ConnectionChanged:
                     T device = null;
@@ -78,22 +81,34 @@ public class BleManager<T extends BleDevice> {
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                    mBleLisenter.onConnectionChanged(device);
+                    for (BleLisenter bleLisenter : mBleLisenters){
+                        bleLisenter.onConnectionChanged(device);
+                    }
                     break;
                 case BleConfig.BleStatus.Changed:
-                    mBleLisenter.onChanged((BluetoothGattCharacteristic) msg.obj);
+                    for (BleLisenter bleLisenter : mBleLisenters){
+                        bleLisenter.onChanged((BluetoothGattCharacteristic) msg.obj);
+                    }
                     break;
                 case BleConfig.BleStatus.Read:
-                    mBleLisenter.onRead((BluetoothDevice) msg.obj);
+                    for (BleLisenter bleLisenter : mBleLisenters){
+                        bleLisenter.onRead((BluetoothDevice) msg.obj);
+                    }
                     break;
                 case BleConfig.BleStatus.DescriptorWriter:
-                    mBleLisenter.onDescriptorWriter((BluetoothGatt) msg.obj);
+                    for (BleLisenter bleLisenter : mBleLisenters){
+                        bleLisenter.onDescriptorWriter((BluetoothGatt) msg.obj);
+                    }
                     break;
                 case BleConfig.BleStatus.ServicesDiscovered:
-                    mBleLisenter.onServicesDiscovered((BluetoothGatt) msg.obj);
+                    for (BleLisenter bleLisenter : mBleLisenters){
+                        bleLisenter.onServicesDiscovered((BluetoothGatt) msg.obj);
+                    }
                     break;
                 case BleConfig.BleStatus.DescriptorRead:
-                    mBleLisenter.onDescriptorRead((BluetoothGatt) msg.obj);
+                    for (BleLisenter bleLisenter : mBleLisenters){
+                        bleLisenter.onDescriptorRead((BluetoothGatt) msg.obj);
+                    }
                     break;
             }
         }
@@ -102,6 +117,7 @@ public class BleManager<T extends BleDevice> {
     protected BleManager(Context context) {
         mContext = context;
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        mBleFactory = new BleFactory<>(context);
 //        Type superClass = getClass().getGenericSuperclass();
 //        Type type = ((ParameterizedType) superClass).getActualTypeArguments()[0];
 //        mDeviceClass = getClass(type,0);
@@ -137,13 +153,12 @@ public class BleManager<T extends BleDevice> {
         }
     }
 
-    public static <T extends BleDevice>BleManager<T> getInstance(Context context, BleLisenter bleLisenter) throws Exception {
-        mBleLisenter = bleLisenter;
+    public static <T extends BleDevice>BleManager<T> getInstance(Context context) throws Exception {
+//        mBleLisenter = bleLisenter;
         if (instance == null) {
             synchronized (BleManager.class) {
                 if (instance == null) {
                     instance = new BleManager(context);
-                    instance.mBleFactory = new BleFactory(context);
                 }
             }
         }
@@ -238,8 +253,11 @@ public class BleManager<T extends BleDevice> {
             Log.e(TAG, "Service connection successful");
             if (!mBluetoothLeService.initialize()) {
                 Log.e(TAG, "Unable to initialize Bluetooth");
-                if (mBleLisenter != null) {
-                    mBleLisenter.onInitFailed();
+//                if (mBleLisenter != null) {
+//                    mBleLisenter.onInitFailed();
+//                }
+                for (BleLisenter bleLisenter : mBleLisenters){
+                    bleLisenter.onInitFailed();
                 }
             }
             if (mBluetoothLeService != null) mHandler.sendEmptyMessage(1);
@@ -266,17 +284,23 @@ public class BleManager<T extends BleDevice> {
                 public void run() {
                     mScanning = false;
                     mBluetoothAdapter.stopLeScan(mLeScanCallback);
-                    mBleLisenter.onStop();
+                    for (BleLisenter bleLisenter : mBleLisenters){
+                        bleLisenter.onStop();
+                    }
                 }
             }, BleConfig.SCAN_PERIOD);
 
             mScanning = true;
             mBluetoothAdapter.startLeScan(mLeScanCallback);
-            mBleLisenter.onStart();
+            for (BleLisenter bleLisenter : mBleLisenters){
+                bleLisenter.onStart();
+            }
         } else {
             mScanning = false;
             mBluetoothAdapter.stopLeScan(mLeScanCallback);
-            mBleLisenter.onStop();
+            for (BleLisenter bleLisenter : mBleLisenters){
+                bleLisenter.onStop();
+            }
         }
     }
 
@@ -286,7 +310,9 @@ public class BleManager<T extends BleDevice> {
         public void onLeScan(final BluetoothDevice device, int rssi, final byte[] scanRecord) {
             if(!contains(device)){
                 T bleDevice = (T) new BleDevice(device);
-                mBleLisenter.onLeScan(bleDevice, rssi, scanRecord);
+                for (BleLisenter bleLisenter : mBleLisenters){
+                    bleLisenter.onLeScan(bleDevice, rssi, scanRecord);
+                }
                 mScanDevices.add(bleDevice);
             }
         }
@@ -310,6 +336,15 @@ public class BleManager<T extends BleDevice> {
         return mScanDevices.get(index);
     }
 
+
+    /**
+     * 获取监听器
+     *
+     * @return 监听器对象
+     */
+    public List<BleLisenter> getBleListeners() {
+        return mBleLisenters;
+    }
 
     /**
      * 获取设备类型  如BleDevice.class
@@ -382,6 +417,32 @@ public class BleManager<T extends BleDevice> {
             }
             T newDevice = (T) new BleDevice(device);
             return newDevice;
+        }
+    }
+
+    /**
+     * 注册监听事件
+     *
+     * @param bleListener 监听器
+     */
+    public void registerBleListener(BleLisenter bleListener) {
+        if (mBleLisenters.contains(bleListener)) {
+            return;
+        }
+        mBleLisenters.add(bleListener);
+    }
+
+    /**
+     * 取消注册事件
+     *
+     * @param bleListener 监听器
+     */
+    public void unRegisterBleListener(BleLisenter bleListener) {
+        if (bleListener == null) {
+            return;
+        }
+        if (mBleLisenters.contains(bleListener)) {
+            mBleLisenters.remove(bleListener);
         }
     }
 

@@ -3,8 +3,9 @@
     package="com.example.admin.mybledemo">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
     <application
         android:name=".MyApplication"
         android:allowBackup="true"
@@ -19,13 +20,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <activity android:name=".activity.BaseActivity"
-            android:theme="@android:style/Theme.Light.NoTitleBar"/>
-
+        <activity
+            android:name=".activity.BaseActivity"
+            android:theme="@android:style/Theme.Light.NoTitleBar" />
         <activity
             android:name=".activity.DeviceControlActivity"
             android:screenOrientation="portrait" />
+        <activity android:name=".activity.TestActivity"></activity>
     </application>
 
 </manifest>

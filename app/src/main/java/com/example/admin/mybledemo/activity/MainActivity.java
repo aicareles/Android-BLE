@@ -253,7 +253,8 @@ public class MainActivity extends BaseActivity {
 
     private void initBle() {
         try {
-            mManager = BleManager.getInstance(this, mLisenter);
+            mManager = BleManager.getInstance(this);
+            mManager.registerBleListener(mLisenter);
             boolean result = false;
             if (mManager != null) {
                 result = mManager.startService();
@@ -292,6 +293,10 @@ public class MainActivity extends BaseActivity {
         data[7] = (byte) play;
         Logger.e("data:" + Arrays.toString(data));
         return data;
+    }
+
+    public void junp(View view){
+        startActivity(new Intent(MainActivity.this,TestActivity.class));
     }
 
     private void initView() {
@@ -439,6 +444,7 @@ public class MainActivity extends BaseActivity {
         super.onDestroy();
         if (mManager != null) {
             mManager.unService();
+            mManager.unRegisterBleListener(mLisenter);
         }
     }
 

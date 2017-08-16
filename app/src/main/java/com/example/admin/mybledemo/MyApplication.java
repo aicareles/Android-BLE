@@ -4,6 +4,8 @@ import android.app.Application;
 
 import com.orhanobut.logger.Logger;
 
+import cn.com.heaton.blelibrary.BleManager;
+
 
 /**
  * 应用入口
@@ -40,8 +42,8 @@ public class MyApplication extends Application {
         mApplication = this;
         //修改打印的tag值
         Logger.init("LiuLei");
-    }
 
+    }
 
     public static MyApplication getInstance() {
         return mApplication;
