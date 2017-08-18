@@ -151,7 +151,7 @@ public class MainActivity extends BaseActivity {
         public void onReady(BluetoothDevice device) {
             super.onReady(device);
             Logger.e("onReady===+++++++可以写入数据了");
-            changeLevelInner(device.getAddress());
+//            changeLevelInner(device.getAddress());
         }
 
         @Override

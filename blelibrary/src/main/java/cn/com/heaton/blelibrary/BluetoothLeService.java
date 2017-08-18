@@ -479,7 +479,7 @@ public class BluetoothLeService extends Service {
     }
 
     //设置通知数组
-    private void displayGattServices(String address, List<BluetoothGattService> gattServices) {
+    private void displayGattServices(final String address, List<BluetoothGattService> gattServices) {
         if (gattServices == null)
             return;
         String uuid = null;
@@ -494,16 +494,11 @@ public class BluetoothLeService extends Service {
                     uuid = gattCharacteristic.getUuid().toString();
                     if (uuid.equals(BleConfig.UUID_CHARACTERISTIC_TEXT)) {
                         Log.e("mWriteCharacteristic", uuid);
-//                        mWriteCharacteristic = gattCharacteristic;
                         mWriteCharacteristicMap.put(address,gattCharacteristic);
                         //通知特性
                     } else if (gattCharacteristic.getProperties() == BluetoothGattCharacteristic.PROPERTY_NOTIFY) {
                         mNotifyCharacteristics.add(gattCharacteristic);
                         Log.e("mNotifyCharacteristics", "PROPERTY_NOTIFY");
-                    }
-                    if (mNotifyCharacteristics != null && mNotifyCharacteristics.size() > 0) {
-                        Log.e("setCharaNotification", "setCharaNotification");
-                        setCharacteristicNotification(address, mNotifyCharacteristics.get(mNotifyIndex++), true);
                     }
 //                    uuid = gattCharacteristic.getUuid().toString();
 //                    Log.e(TAG,"all_characteristic: " + uuid);
@@ -515,6 +510,11 @@ public class BluetoothLeService extends Service {
 //                        Log.e(TAG,"write_characteristic: " + uuid);
 //                    }
 
+                }
+                //真正设置通知
+                if (mNotifyCharacteristics != null && mNotifyCharacteristics.size() > 0) {
+                    Log.e("setCharaNotification", "setCharaNotification");
+                    setCharacteristicNotification(address, mNotifyCharacteristics.get(mNotifyIndex++), true);
                 }
             }
         }
