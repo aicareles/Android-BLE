@@ -46,7 +46,8 @@ public class BleConfig {
             BleStatus.DescriptorRead,
             BleStatus.Start,
             BleStatus.Stop,
-            BleStatus.ConnectTimeOut
+            BleStatus.ConnectTimeOut,
+            BleStatus.OnReady
     })
 
     @Retention(RetentionPolicy.SOURCE)
@@ -64,6 +65,7 @@ public class BleConfig {
         int Start = 2518;
         int Stop = 2519;
         int ConnectTimeOut = 2510;
+        int OnReady = 2520;
     }
     /**
      *  The default scan time

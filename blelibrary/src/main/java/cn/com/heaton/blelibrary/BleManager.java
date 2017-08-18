@@ -100,6 +100,11 @@ public class BleManager<T extends BleDevice> {
                         bleLisenter.onDescriptorWriter((BluetoothGatt) msg.obj);
                     }
                     break;
+                case BleConfig.BleStatus.OnReady:
+                    for (BleLisenter bleLisenter : mBleLisenters){
+                        bleLisenter.onReady((BluetoothDevice) msg.obj);
+                    }
+                    break;
                 case BleConfig.BleStatus.ServicesDiscovered:
                     for (BleLisenter bleLisenter : mBleLisenters){
                         bleLisenter.onServicesDiscovered((BluetoothGatt) msg.obj);

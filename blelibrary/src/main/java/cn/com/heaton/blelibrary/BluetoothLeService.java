@@ -180,6 +180,9 @@ public class BluetoothLeService extends Service {
                 if (status == BluetoothGatt.GATT_SUCCESS) {
                     if (mNotifyCharacteristics != null && mNotifyCharacteristics.size() > 0 && mNotifyIndex < mNotifyCharacteristics.size()) {
                         setCharacteristicNotification(gatt.getDevice().getAddress(), mNotifyCharacteristics.get(mNotifyIndex++), true);
+                    }else {
+                        Log.e(TAG, "====setCharacteristicNotification is true,ready to sendData===");
+                        mHandler.obtainMessage(BleConfig.BleStatus.OnReady, gatt.getDevice()).sendToTarget();
                     }
                 }
                 mHandler.obtainMessage(BleConfig.BleStatus.DescriptorWriter, gatt).sendToTarget();

@@ -148,6 +148,13 @@ public class MainActivity extends BaseActivity {
         }
 
         @Override
+        public void onReady(BluetoothDevice device) {
+            super.onReady(device);
+            Logger.e("onReady===+++++++可以写入数据了");
+            changeLevelInner(device.getAddress());
+        }
+
+        @Override
         public void onChanged(BluetoothGattCharacteristic characteristic) {
             Logger.e("data===" + Arrays.toString(characteristic.getValue()));
             //可以选择性实现该方法   不需要则不用实现
