@@ -6,7 +6,7 @@
 
 ## 本文的api介绍：（BleLib库）<br>
 #### 先来看张BleLib库的api之间的关系图：
-![BleLib库结构图.png](http://upload-images.jianshu.io/upload_images/3884117-2c5a0b95cda75158.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/340)
+![BleLib库结构图.png](http://upload-images.jianshu.io/upload_images/3884117-2c5a0b95cda75158.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/840)
 ##### 1、iQppCallback和QppApi这个两个类封装了完整的读写数据，设置通知等操作   此demo中并未用到这两个接口，此列出方便以后调用<br>
 ##### 2、BleDevice该类的主要是来描述并记录蓝牙的属性和状态，如记录蓝牙名称、蓝牙MAC地址、蓝牙别名（即修改之后的名称）、蓝牙连接状态等。<br>
 ##### 3、BleConfig该类是蓝牙配置类，里面包含了蓝牙服务的UUID、蓝牙特征的UUID、描述的UUID、以及蓝牙状态的静态常量值的标记等等，其中蓝牙相关的UUID的设置是对外提供了接口的，用的时候可以自行传入特定的UUID即可。
