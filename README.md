@@ -15,7 +15,7 @@
 ##### 6、BleManager该类提供了几乎所有你需要用到的方法，包括蓝牙扫描、连接、断开、蓝牙当前连接状态等等，管理了蓝牙操作的所有接口和方法。<br>
 
 ### 使用步骤：
-1.初始化蓝牙(判断设备是否支持BLE，蓝牙是否打开以及6.0动态授权蓝牙权限等)<br>
+#### 1.初始化蓝牙(判断设备是否支持BLE，蓝牙是否打开以及6.0动态授权蓝牙权限等)<br>
 
 
         private void initBle() {
@@ -53,12 +53,12 @@
                 }
             }
 
-2.设置各种状态及结果的回调监听<br>
+#### 2.设置各种状态及结果的回调监听<br>
 
 
         mManager.registerBleListener(mLisenter);
 
-3.拿到各状态的回调结果<br>
+#### 3.拿到各状态的回调结果<br>
 
 
          @Override
@@ -95,7 +95,7 @@
 
             ...
 
-4.Denmo效果演示图：<br>
+#### 4.Demo效果演示图：<br>
 
 ![Demo预览图.gif](http://upload-images.jianshu.io/upload_images/3884117-49f080ad44b60946.gif?imageMogr2/auto-orient/strip)
 
