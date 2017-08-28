@@ -1,101 +1,104 @@
 # 对蓝牙4.0感兴趣可以加群进行相互讨论学习<br>
 # QQ群：494309361<br>
-# BleDemo
-## android BLE蓝牙项目<br>
-### 作者：liulei<br>
-#### android蓝牙BLE库<br>
 
-## 本文的api介绍：（blelibrary库）<br>
+### 作者：liulei<br>
+#### Android蓝牙BLE库<br>
+
+## 本文的api介绍：（BleLib库）<br>
 #### 先来看张BleLib库的api之间的关系图：
 ![BleLib库结构图.png](http://upload-images.jianshu.io/upload_images/3884117-2c5a0b95cda75158.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 ##### 1、iQppCallback和QppApi这个两个类封装了完整的读写数据，设置通知等操作   此demo中并未用到这两个接口，此列出方便以后调用<br>
-##### 2、BleDevice类为蓝牙对象，其中可以设置蓝牙的基本属性，以及连接状态等（可以继承该类进行扩展）<br>
-##### 3、BleConfig类中主要是放置一些静态值，如连接超时时长、扫描时长、服务及特征的uuid和OTA升级服务、特征的uuid，以及验证硬件发送的广播包以便进行过滤扫描到的设备<br>
-##### 4、BleLisenter包含了ble蓝牙操作的所有接口   如开始扫描、停止扫描、扫描到设备、获取到服务、读取硬件返回的数据、向硬件写入数据、设置通知、蓝牙连接改变、蓝牙连接出错（在此处设置同时最多可连接多少设备）等回调<br>
-##### 5、BluetoothLeService实现所有的上述回调方法<br>
-##### 6、BleManager提供了所有的操作蓝牙对象的方法，最为重要的一个类<br>
+##### 2、BleDevice该类的主要是来描述并记录蓝牙的属性和状态，如记录蓝牙名称、蓝牙MAC地址、蓝牙别名（即修改之后的名称）、蓝牙连接状态等。<br>
+##### 3、BleConfig该类是蓝牙配置类，里面包含了蓝牙服务的UUID、蓝牙特征的UUID、描述的UUID、以及蓝牙状态的静态常量值的标记等等，其中蓝牙相关的UUID的设置是对外提供了接口的，
+##### 用的时候可以自行传入特定的UUID即可。
+##### 4、BleLisenter该类提供了蓝牙各个状态的接口，此处做成了抽象类，目的是为了可以让用户有条件的去实现想要实现的方法，
+##### 比如说客户想要在蓝牙扫描开始的时候添加一些动画效果，那么你就可以实现onStart()方法，然后在其中做你想做的事情，默认是不需要实现的，
+##### 如果你想要在蓝牙设备返回数据时做出反应，那就去实现onRead()方法，如果你想在蓝牙连接失败或者超时的情况下去做特殊的处理，你就去实现onError()或者onConnectTimeOut()方法等等。
+##### （如果各位有更好的方式可以留言提示，不胜感激）。<br>
+##### 5、BluetoothLeService该类是最重要的一个类，主要是蓝牙操作中用到的各个方法的实现类，是整个蓝牙的核心功能实现，BleManager是对外提供所有蓝牙操作接口的管理类，
+##### 当BluetoothLeService处理之后要把结果返回到BleManager中，然后再由BleManager对外提供接口<br>
+##### 6、BleManager该类提供了几乎所有你需要用到的方法，包括蓝牙扫描、连接、断开、蓝牙当前连接状态等等，管理了蓝牙操作的所有接口和方法。<br>
 
-### 使用：见DEMO
+### 使用步骤：
+1.初始化蓝牙(判断设备是否支持BLE，蓝牙是否打开以及6.0动态授权蓝牙权限等)
+        private void initBle() {
+                try {
+                    mManager = BleManager.getInstance(this);
+                    mManager.registerBleListener(mLisenter);
+                    boolean result = false;
+                    if (mManager != null) {
+                        result = mManager.startService();
+                        if (!mManager.isBleEnable()) {//蓝牙未打开
+                            mManager.turnOnBlueTooth(this);
+                        } else {//已打开
+                            requestPermission(new String[]{Manifest.permission.BLUETOOTH_ADMIN, Manifest.permission.ACCESS_COARSE_LOCATION},
+                             getString(R.string.ask_permission), new GrantedResult() {
+                                @Override
+                                public void onResult(boolean granted) {
+                                    if (!granted) {
+                                        finish();
+                                    } else {
+                                        //开始扫描
+                                        mManager.scanLeDevice(true);
+                                    }
+                                }
+                            });
+                        }
+                    }
+                    if (!result) {
+                        Logger.e("服务绑定失败");
+                        if (mManager != null) {
+                            mManager.startService();
+                        }
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+2.设置各种状态及结果的回调监听
+        mManager.registerBleListener(mLisenter);
+
+3.拿到各状态的回调结果
+         @Override
+            public void onStart() {
+                ...
+               //代表开始扫描的回调方法
+            }
+
+            @Override
+            public void onStop() {
+                ...
+              //代表结束扫描的回调方法
+            }
+
+            @Override
+            public void onLeScan(final BleDevice device, int rssi, byte[] scanRecord) {
+                ...
+                //代表扫描到设备的回调方法
+            }
+
+            @Override
+            public void onReady(BluetoothDevice device) {
+                  ...
+                //代表准备就绪，可以发送数据的回调方法
+                注：连接成功不代表可以立即发送数据（下面会讲解原因）
+            }
+
+             @Override
+            public void onChanged(BluetoothGattCharacteristic characteristic) {
+                Logger.e("data===" + Arrays.toString(characteristic.getValue()));
+                //可以选择性实现该方法   不需要则不用实现
+                //代表mcu返回数据的回调方法
+            }
+
+            ...
+
+4.Denmo效果演示图：
+
+        ![Demo预览图.gif](http://upload-images.jianshu.io/upload_images/3884117-49f080ad44b60946.gif?imageMogr2/auto-orient/strip)
 
 
- # BLE4.0蓝牙见解：api解读<br>
- # 一、了解api及概念
-
- ## 1.1 BluetoothGatt<br>
- 继承BluetoothProfile，通过BluetoothGatt可以连接设备（connect）,发现服务（discoverServices），并把相应地属性返回到BluetoothGattCallback
- ## 1.2 BluetoothGattCharacteristic<br>
- 相当于一个数据类型，它包括一个value和0~n个value的描述（BluetoothGattDescriptor）
- ## 1.3 BluetoothGattDescriptor<br>
- 描述符，对Characteristic的描述，包括范围、计量单位等
- ## 1.4 BluetoothGattService<br>
- 服务，Characteristic的集合。
- ## 1.5 BluetoothProfile<br>
-  一个通用的规范，按照这个规范来收发数据。
- ## 1.6 BluetoothManager<br>
-  通过BluetoothManager来获取BluetoothAdapter
- BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
- ## 1.7 BluetoothAdapter<br>
- 一个Android系统只有一个BluetoothAdapter ，通过BluetoothManager 获取
- BluetoothAdapter mBluetoothAdapter = bluetoothManager.getAdapter();
- ## 1.8 BluetoothGattCallback<br>
- 已经连接上设备，对设备的某些操作后返回的结果。这里必须提醒下，已经连接上设备后的才可以返回，没有返回的认真看看有没有连接上设备。<br>
- private BluetoothGattCallback GattCallback = new BluetoothGattCallback() {<br>
-     // 这里有9个要实现的方法，看情况要实现那些，用到那些就实现那些<br>
-     public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState){};<br>
-     public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status){};<br>
- };<br>
- BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);<br>
- BluetoothGatt gatt = device.connectGatt(this, false, mGattCallback);<br>
-
- ## 1.8.1:notification对应onCharacteristicChanged;<br>
- gatt.setCharacteristicNotification(characteristic, true);
-
- ## 1.8.2:readCharacteristic对应onCharacteristicRead;<br>
- gatt.readCharacteristic(characteristic);
-
- ## 1.8.3:writeCharacteristic对应onCharacteristicWrite;<br>
- gatt.wirteCharacteristic(mCurrentcharacteristic);
-
- ## 1.8.4:连接蓝牙或者断开蓝牙 对应 onConnectionStateChange;<br>
-
- ## 1.8.5:readDescriptor对应onDescriptorRead;<br>
-
- ## 1.8.6:writeDescriptor对应onDescriptorWrite;<br>
-
- gatt.writeDescriptor(descriptor);
-
- ## 1.8.7:readRemoteRssi对应onReadRemoteRssi;<br>
- gatt.readRemoteRssi()
-
- ## 1.8.8:executeReliableWrite对应onReliableWriteCompleted;<br>
-
- ## 1.8.9:discoverServices对应onServicesDiscovered<br>
- gatt.discoverServices()
-
- ## 1.9:BluetoothDevice<br>
- 扫描后发现可连接的设备，获取已经连接的设备
-
- # 二、开启蓝牙权限<br>
- <uses-permission android:name="android.permission.BLUETOOTH"/>
- <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
- <uses-feature android:name="android.hardware.bluetooth_le" android:required="true"/>
- 如果 android.hardware.bluetooth_le设置为false,可以安装在不支持的设备上使用，判断是否支持蓝牙4.0用以下代码就可以了<br>
- if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {<br>
-     Toast.makeText(this, "设备不支持蓝牙4.0", Toast.LENGTH_SHORT).show();<br>
-     finish();<br>
- }<br>
-
- # 三、对蓝牙的启动关闭操作<br>
-
- ## 1、利用系统默认开启蓝牙对话框<br>
- if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
-     Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-     startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
- }
- ## 2、后台打开蓝牙，不做任何提示，这个也可以用来自定义打开蓝牙对话框啦<br>
- mBluetoothAdapter.enable();<br>
- ## 3、后台关闭蓝牙<br>
- mBluetoothAdapter.disable();<br>
 
 
 
