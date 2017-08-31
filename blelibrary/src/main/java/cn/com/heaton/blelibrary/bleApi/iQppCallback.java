@@ -7,5 +7,7 @@ import android.bluetooth.BluetoothGatt;
  */
 
 public interface iQppCallback {
+
 	void onQppReceiveData(BluetoothGatt mBluetoothGatt, String qppUUIDForNotifyChar, byte[] qppData);
+
 }
