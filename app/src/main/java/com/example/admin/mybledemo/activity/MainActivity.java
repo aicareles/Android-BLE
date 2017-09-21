@@ -2,26 +2,18 @@ package com.example.admin.mybledemo.activity;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
-import android.bluetooth.BluetoothGattService;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.os.Environment;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -42,10 +34,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import cn.com.heaton.blelibrary.BleConfig;
-import cn.com.heaton.blelibrary.BleLisenter;
-import cn.com.heaton.blelibrary.BleManager;
-import cn.com.heaton.blelibrary.BleVO.BleDevice;
+import cn.com.heaton.blelibrary.ble.BleConfig;
+import cn.com.heaton.blelibrary.ble.BleLisenter;
+import cn.com.heaton.blelibrary.ble.BleManager;
+import cn.com.heaton.blelibrary.ble.BleDevice;
 import cn.com.heaton.blelibrary.ota.OtaManager;
 
 /**
@@ -103,6 +95,7 @@ public class MainActivity extends BaseActivity {
 //                            if(!BleConfig.matchProduct(scanRecord)){
 //                                return;
 //                            }
+            Toast.makeText(MainActivity.this,"ssss",Toast.LENGTH_SHORT).show();
             synchronized (mManager.getLocker()) {
                 runOnUiThread(new Runnable() {
                     @Override
@@ -117,10 +110,11 @@ public class MainActivity extends BaseActivity {
         @Override
         public void onConnectionChanged(final BleDevice device) {
             Logger.e("onConnectionChanged" + device.getConnectionState() + device.isConnected());
+            setConnectedNum();
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    setConnectedNum();
+
                     for (int i = 0; i < mLeDeviceListAdapter.getCount(); i++) {
                         if (device.getBleAddress().equals(mLeDeviceListAdapter.getDevice(i).getBleAddress())) {
                             if (device.isConnected()) {
@@ -157,6 +151,7 @@ public class MainActivity extends BaseActivity {
         @Override
         public void onChanged(BluetoothGattCharacteristic characteristic) {
             Logger.e("data===" + Arrays.toString(characteristic.getValue()));
+            Toast.makeText(MainActivity.this,"收到MCU返回数据："+Arrays.toString(characteristic.getValue()),Toast.LENGTH_SHORT).show();
             //可以选择性实现该方法   不需要则不用实现
             //硬件mcu 返回数据
         }
@@ -189,6 +184,7 @@ public class MainActivity extends BaseActivity {
 //        data[7] = (byte) ((color >> 24) & 0xff);
         boolean result = mManager.sendData(address, sendData(1));
         Logger.e("result==" + result);
+        Toast.makeText(MainActivity.this,"发送数据成功",Toast.LENGTH_SHORT).show();
         return result;
     }
 

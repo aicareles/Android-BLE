@@ -1,4 +1,4 @@
-package cn.com.heaton.blelibrary;
+package cn.com.heaton.blelibrary.ble;
 
 import android.support.annotation.IntDef;
 import android.text.TextUtils;
@@ -31,7 +31,8 @@ public class BleConfig {
     }
 
     /**
-     *  注解   防止定义的常量值重复
+     *  Annotations
+     *  prevent the defined constant values from being repeated
      */
     @IntDef({
             BleStatus.CONNECTED,

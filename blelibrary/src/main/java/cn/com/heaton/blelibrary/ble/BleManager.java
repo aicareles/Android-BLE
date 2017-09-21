@@ -1,4 +1,4 @@
-package cn.com.heaton.blelibrary;
+package cn.com.heaton.blelibrary.ble;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
@@ -23,9 +23,6 @@ import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-
-import cn.com.heaton.blelibrary.BleVO.BleDevice;
 
 /**
  * This class provides various APIs for Bluetooth operation
@@ -68,12 +65,12 @@ public class BleManager<T extends BleDevice> {
                             //connect
                             device.setConnectionState(BleConfig.BleStatus.CONNECTED);
                             mConnetedDevices.add(device);
-                            Log.e("ConnectionChanged","添加了一个设备");
+//                            Log.e("ConnectionChanged","Added a device");
                         } else if (msg.arg1 == 0) {
                             //disconnect
                             device.setConnectionState(BleConfig.BleStatus.DISCONNECT);
                             mConnetedDevices.remove(device);
-                            Log.e("ConnectionChanged","移除了一个设备");
+//                            Log.e("ConnectionChanged","Removed a device");
                         }else if(msg.arg1 == 2){
                             //connectting
                             device.setConnectionState(BleConfig.BleStatus.CONNECTING);
@@ -129,29 +126,29 @@ public class BleManager<T extends BleDevice> {
     }
 
     /**
-     * 获取类对象
+     * Get the class object
      *
-     * @param type 类型
-     * @param i    位置
-     * @return 类对象
+     * @param type TYPE
+     * @param i    LOCATION
+     * @return Object
      */
     private static Class getClass(Type type, int i) {
-        if (type instanceof ParameterizedType) { // 处理泛型类型
+        if (type instanceof ParameterizedType) { //Processing generic types
             return getGenericClass((ParameterizedType) type, i);
         } else if (type instanceof TypeVariable) {
-            return getClass(((TypeVariable) type).getBounds()[0], 0); // 处理泛型擦拭对象
-        } else {// class本身也是type，强制转型
+            return getClass(((TypeVariable) type).getBounds()[0], 0); // Handle the generic wipe object
+        } else {// Class itself is also type, forced transformation
             return (Class) type;
         }
     }
 
     private static Class getGenericClass(ParameterizedType parameterizedType, int i) {
         Object genericClass = parameterizedType.getActualTypeArguments()[i];
-        if (genericClass instanceof ParameterizedType) { // 处理多级泛型
+        if (genericClass instanceof ParameterizedType) { // Processing multistage generic
             return (Class) ((ParameterizedType) genericClass).getRawType();
-        } else if (genericClass instanceof GenericArrayType) { // 处理数组泛型
+        } else if (genericClass instanceof GenericArrayType) { // Processing array generics
             return (Class) ((GenericArrayType) genericClass).getGenericComponentType();
-        } else if (genericClass instanceof TypeVariable) { // 处理泛型擦拭对象
+        } else if (genericClass instanceof TypeVariable) { //Handle the generic wipe object
             return getClass(((TypeVariable) genericClass).getBounds()[0], 0);
         } else {
             return (Class) genericClass;
@@ -343,16 +340,16 @@ public class BleManager<T extends BleDevice> {
 
 
     /**
-     * 获取监听器
+     * Get the listener
      *
-     * @return 监听器对象
+     * @return Listener object
      */
     public List<BleLisenter> getBleListeners() {
         return mBleLisenters;
     }
 
     /**
-     * 获取设备类型  如BleDevice.class
+     *   Get the device type   for example: BleDevice.class
      * @return
      */
 //    public Class<T> getDeviceClass(){
@@ -389,21 +386,21 @@ public class BleManager<T extends BleDevice> {
     }
 
     /**
-     * 获取锁
+     * Get the lock
      */
     public Object getLocker() {
         return mLocker;
     }
 
     /**
-     * 是否正在扫描
+     * Whether it is scanning
      */
     public boolean isScanning(){
         return mScanning;
     }
 
     /**
-     * get bleDeive
+     * get BLE
      *
      * @param device blutoothdevice
      * @return bleDeive
@@ -426,9 +423,9 @@ public class BleManager<T extends BleDevice> {
     }
 
     /**
-     * 注册监听事件
+     * Register the listening event
      *
-     * @param bleListener 监听器
+     * @param bleListener Listener
      */
     public void registerBleListener(BleLisenter bleListener) {
         if (mBleLisenters.contains(bleListener)) {
@@ -438,9 +435,9 @@ public class BleManager<T extends BleDevice> {
     }
 
     /**
-     * 取消注册事件
+     * Cancel the registration event
      *
-     * @param bleListener 监听器
+     * @param bleListener Listener
      */
     public void unRegisterBleListener(BleLisenter bleListener) {
         if (bleListener == null) {
@@ -469,7 +466,7 @@ public class BleManager<T extends BleDevice> {
 
 
     /**
-     * 添加正在连接的设备
+     * Add the device being connected
      */
     public boolean addConnectingDevice(T device){
         if(device == null || mScanDevices.contains(device)){
@@ -485,7 +482,7 @@ public class BleManager<T extends BleDevice> {
     }
 
     /**
-     * 获取正在连接的设备
+     * Get the device being connected
      */
     public List<T> getConnectingDevices() {
         return mConnectingDevices;
@@ -552,9 +549,9 @@ public class BleManager<T extends BleDevice> {
 
 
     /**
-     * 获取系统蓝牙管理器
+     * Get the system Bluetooth manager
      *
-     * @return 管理器对象
+     * @return Manager object
      */
     public BluetoothManager getBluetoothManager() {
         if (mBluetoothManager == null) {
@@ -563,7 +560,7 @@ public class BleManager<T extends BleDevice> {
         return mBluetoothManager;
     }
 
-    //释放清空所有资源
+    //Release Empty all resources
     public void clear(){
         synchronized (mLocker){
             for (T bleDevice : mConnetedDevices){
@@ -576,9 +573,9 @@ public class BleManager<T extends BleDevice> {
     }
 
     /**
-     * 获取程序对象
+     * Get the Context object
      *
-     * @return 程序对象
+     * @return Context
      */
     public Context getContext() {
         return mContext;

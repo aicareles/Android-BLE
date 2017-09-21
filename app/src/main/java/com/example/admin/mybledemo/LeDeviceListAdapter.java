@@ -11,8 +11,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-import cn.com.heaton.blelibrary.BleConfig;
-import cn.com.heaton.blelibrary.BleVO.BleDevice;
+import cn.com.heaton.blelibrary.ble.BleDevice;
 
 /**
  *

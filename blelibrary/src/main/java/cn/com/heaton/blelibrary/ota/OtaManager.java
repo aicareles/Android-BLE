@@ -9,23 +9,21 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.util.SparseArray;
-import android.view.LayoutInflater;
-import android.view.View;
 import android.widget.ProgressBar;
-import android.widget.TextView;
+
 import java.io.File;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 
-import cn.com.heaton.blelibrary.BleConfig;
-import cn.com.heaton.blelibrary.BleManager;
-import cn.com.heaton.blelibrary.BleVO.BleDevice;
+import cn.com.heaton.blelibrary.ble.BleConfig;
+import cn.com.heaton.blelibrary.ble.BleManager;
+import cn.com.heaton.blelibrary.ble.BleDevice;
 import cn.com.heaton.blelibrary.BuildConfig;
 import cn.com.heaton.blelibrary.R;
 
 /**
- * OTA管理器
- * Created by DDL on 2016/3/8.
+ * OTA  Manager
+ * Created by LiuLei on 2016/3/8.
  */
 public class OtaManager {
 
@@ -65,13 +63,13 @@ public class OtaManager {
 					}
 				}
 				switch (msg.what) {
-					//准备更新
+					//Ready to update
 					case BleOtaUpdater.OTA_BEFORE:
 						if (otaManager.mUpdateListener != null) {
 							otaManager.mUpdateListener.onPreUpdate(bleDevice);
 						}
 						return;
-					//更新中
+					//updating
 					case BleOtaUpdater.OTA_UPDATE:
 						if (otaManager.mStopUpdate) {
 							return;
@@ -81,7 +79,7 @@ public class OtaManager {
 							otaManager.mUpdateListener.onUpdating(bleDevice, msg.arg1);
 						}
 						return;
-					//更新完成【成功】
+					//Update complete
 					case BleOtaUpdater.OTA_OVER:
 						if (otaManager.mUpdateDialog != null) {
 							otaManager.mUpdateDialog.dismiss();
@@ -93,14 +91,14 @@ public class OtaManager {
 							otaManager.mUpdateListener.onUpdateComplete(bleDevice);
 						}
 						return;
-					//更新失败
+					//Update failed
 					case BleOtaUpdater.OTA_FAIL:
 						if (otaManager.mUpdateDialog != null) {
 							otaManager.mUpdateDialog.dismiss();
 
 							AlertDialog.Builder builder = new AlertDialog.Builder(otaManager.mContext);
 							builder.setTitle("硬件更新");
-							builder.setMessage(otaManager.mContext.getResources().getString(R.string.ota_error, bleDevice != null ? "【" + bleDevice.getmBleName() + "】" : ""));
+							builder.setMessage(otaManager.mContext.getResources().getString(R.string.ota_error, bleDevice != null ? "[" + bleDevice.getmBleName() + "]" : ""));
 							final BleOtaUpdater otaUpdater = updater;
 							builder.setPositiveButton(R.string.update_retry, new DialogInterface.OnClickListener() {
 								@Override
@@ -146,9 +144,9 @@ public class OtaManager {
 	}
 
 	/**
-	 * 设置是否单条ota更新
+	 * Set whether or not a single ota is updated
 	 *
-	 * @param single true为单条更新
+	 * @param single True for a single update
 	 */
 	public void setSingle(boolean single) {
 		mSingle = single;
@@ -163,9 +161,9 @@ public class OtaManager {
 	}
 
 	/**
-	 * 重试ota更新
+	 * Retry ota update
 	 *
-	 * @param otaUpdater 更新对象
+	 * @param otaUpdater Update the object
 	 */
 	private void retryUpdate(BleOtaUpdater otaUpdater) {
 		if (mStopUpdate) {
@@ -179,11 +177,11 @@ public class OtaManager {
 	}
 
 	/**
-	 * 开始ota更新
+	 * Start ota update
 	 *
-	 * @param file      更新文件
-	 * @param bleManager 设备管理类
-	 * @return 是否正确执行更新
+	 * @param file      Update the file
+	 * @param bleManager Device management class
+	 * @return Whether the update is performed correctly
 	 */
 	public boolean startOtaUpdate(File file, BleDevice bleDevice, BleManager bleManager) {
 		if (bleManager == null || file == null || !file.exists() || !file.canRead()) {
@@ -212,7 +210,7 @@ public class OtaManager {
 	}
 
 	/**
-	 * 停止所有ota更新
+	 * Stop all ota updates
 	 */
 	public void stopAll() {
 		if (mStopUpdate) {
@@ -231,9 +229,9 @@ public class OtaManager {
 	}
 
 	/**
-	 * 展示进度条，单条ota更新有效
+	 * Show progress bar, single ota update valid
 	 *
-	 * @param progress 进度
+	 * @param progress progress
 	 */
 	private void showProgress(int progress) {
 		if (!mSingle) {
@@ -268,9 +266,9 @@ public class OtaManager {
 //				return;
 //			}
 			mUpdateDialog = new ProgressDialog(mContext);
-			mUpdateDialog.setTitle(R.string.ota_title);
-			mUpdateDialog.setMessage("更新中，请稍后...");
-			mUpdateDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);//设置进度条对话框//样式（水平，旋转）
+			mUpdateDialog.setTitle(R.string.update_cancel);
+			mUpdateDialog.setMessage(mContext.getString(R.string.updating));
+			mUpdateDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);//Set the progress bar dialog box style (horizontal, rotate)
 //			mUpdateDialog.setMax(MAX_PROGRESS);
 		}
 		if (!mUpdateDialog.isShowing()) {

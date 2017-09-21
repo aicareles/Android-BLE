@@ -1,9 +1,6 @@
-package cn.com.heaton.blelibrary.BleVO;
+package cn.com.heaton.blelibrary.ble;
 
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothProfile;
-import cn.com.heaton.blelibrary.BleConfig;
-import cn.com.heaton.blelibrary.BleManager;
 
 /**
  * Created by LiuLei on 2016/11/26.

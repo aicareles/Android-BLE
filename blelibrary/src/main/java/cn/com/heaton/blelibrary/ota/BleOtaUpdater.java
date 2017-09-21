@@ -9,33 +9,33 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.concurrent.Semaphore;
 
-import cn.com.heaton.blelibrary.BleConfig;
-import cn.com.heaton.blelibrary.BleManager;
-import cn.com.heaton.blelibrary.BleVO.BleDevice;
+import cn.com.heaton.blelibrary.ble.BleConfig;
+import cn.com.heaton.blelibrary.ble.BleManager;
+import cn.com.heaton.blelibrary.ble.BleDevice;
 import cn.com.heaton.blelibrary.BuildConfig;
 
 /**
- * OTA更新管理器
- * Created by DDL on 2016/5/17.
+ * OTA Update Manager
+ * Created by LiuLei on 2016/5/17.
  */
 public class BleOtaUpdater implements OtaListener {
 	private static final String TAG = BleOtaUpdater.class.getSimpleName();
 	private BleDevice mBleDevice;
 	private BleManager mBleManager;
-	private       int       mStartOffset = 0;//文件读取位置偏移量
-	private       int       mPercent     = 0;//文件读取百分比
-	private final int       mTimeout     = 12;//写入超时时间（秒）
-	private final int       mPacketSize  = 256;//数据包大小
-	private       boolean   mShouldStop  = false;//是否停止
-	private Handler mHandler;//主线程对象
-	private String mFilePath    = null;//文件路径
-	private int    mByteRate    = 0;//传输速率
-	private int    mElapsedTime = 0;//每次发包耗时
+	private       int       mStartOffset = 0;//The file reads the position offset
+	private       int       mPercent     = 0;//File read percentage
+	private final int       mTimeout     = 12;//Write timeout (seconds)
+	private final int       mPacketSize  = 256;//Packet size
+	private       boolean   mShouldStop  = false;//Whether to stop
+	private Handler mHandler;//Main thread object
+	private String mFilePath    = null;//file path
+	private int    mByteRate    = 0;//Transmission rate
+	private int    mElapsedTime = 0;//Every time the package is time consuming
 	private Thread                       mUpdateThread;
-	private Semaphore                    semp;//发送锁
-	private BleConfig.OtaResult mRetValue;//返回值
-	private Runnable                     mUpdateRunnable;//执行线程
-	private int mIndex = 0;//执行索引
+	private Semaphore                    semp;//Send lock
+	private BleConfig.OtaResult mRetValue;//return value
+	private Runnable                     mUpdateRunnable;//Execute thread
+	private int mIndex = 0;//Execute the index
 
 	public static final int OTA_UPDATE = 1;
 	public static final int OTA_OVER   = 2;
@@ -45,7 +45,7 @@ public class BleOtaUpdater implements OtaListener {
 	public BleOtaUpdater(Handler handler) {
 		mHandler = handler;
 		this.mRetValue = BleConfig.OtaResult.OTA_RESULT_SUCCESS;
-		// 初始化线程
+		// Initialize the thread
 		this.mUpdateRunnable = new Runnable() {
 			public void run() {
 				BleOtaUpdater.this.otaUpdateProcess(BleOtaUpdater.this.mFilePath);
@@ -123,46 +123,46 @@ public class BleOtaUpdater implements OtaListener {
 	}
 
 	/**
-	 * 发送数据
-	 * @param data 数据
-	 * @return 是否写入成功
+	 * send data
+	 * @param data data
+	 * @return Whether to write success
 	 * @throws InterruptedException
 	 */
 	private boolean otaWrite(byte[] data) throws InterruptedException {
-		// 是否停止更新
+		// Whether to stop updating
 		if (this.shouldStopUpdate()) {
 			if(BuildConfig.DEBUG) {
 				Log.e(TAG, "otaWrite:Stopped for some reason");
 			}
 			return false;
-		} else if (!this.mBleManager.getBleService().writeOtaData(mBleDevice.getBleAddress(),data)) {//是否写入失败
+		} else if (!this.mBleManager.getBleService().writeOtaData(mBleDevice.getBleAddress(),data)) {//Whether to write failed
 			if(BuildConfig.DEBUG) {
 				Log.e(TAG, "Failed to write characteristic");
 			}
 			return false;
 		} else {
-			return this.waitWriteDataCompleted();//写入完成
+			return this.waitWriteDataCompleted();//Write done
 		}
 	}
 
 	/**
-	 * 发送数据包
-	 * @param cmd 发送的命令
-	 * @param checksum 效验值
-	 * @param data 数据
-	 * @param dataLength 数据长度
-	 * @return 是否发送成功
+	 * Send a packet
+	 * @param cmd Send the command
+	 * @param checksum Check the value
+	 * @param data data
+	 * @param dataLength Data length
+	 * @return Whether to send successfully
 	 */
 	private boolean otaSendPacket(BleConfig.OtaCmd cmd, short checksum, byte[] data, int dataLength) {
-		// 获取命令字节
+		// Get the command byte
 		byte cmdVal = this.cmdToValue(cmd);
-		// 转换效验长度为字节 （高低位）
+		// Conversion check length is byte (high and low)
 		byte[] checksumBytes = new byte[]{(byte) checksum, (byte) (checksum >> 8)};
-		// 初始化发送头
+		// Initialize the send header
 		byte[] head = new byte[3];
-		int packetLength;// 发送包大小
-		byte[] dataPacket; // 发送的数据
-		// 打包发送数据
+		int packetLength;// Send packet size
+		byte[] dataPacket; // Sent data
+		// Package to send data
 		switch (cmd) {
 			case OTA_CMD_META_DATA:
 			case OTA_CMD_BRICK_DATA:
@@ -195,7 +195,7 @@ public class BleOtaUpdater implements OtaListener {
 		int left = packetLength;
 
 		int tempLen;
-		// 遍历并发送数据包，每次最大20字节
+		// Traverse and send packets at a maximum of 20 bytes each time
 		for (byte BytesEachTime = 20; left > 0; left -= tempLen) {
 			if (left > BytesEachTime) {
 				tempLen = BytesEachTime;
@@ -207,7 +207,7 @@ public class BleOtaUpdater implements OtaListener {
 			System.arraycopy(dataPacket, packetLength - left, tempPacket, 0, tempLen);
 
 			try {
-				// 开始发送数据
+				// Start sending data
 				if (!this.otaWrite(tempPacket)) {
 					return false;
 				}
@@ -220,27 +220,27 @@ public class BleOtaUpdater implements OtaListener {
 	}
 
 	/**
-	 * 发送元信息数据
-	 * @param fin 数据读入流
-	 * @return 发送的大小
+	 * Send meta information data
+	 * @param fin Data read in stream
+	 * @return The size of the send
 	 * @throws IOException
 	 */
 	private int otaSendMetaData(FileInputStream fin) throws IOException {
-		// 读取文件中的2个字节
+		// Read 2 bytes in the file
 		byte[] metaLen = new byte[2];
 		fin.read(metaLen);
-		// 转化为数据总长度（高低位）
+		// Converted to total data length (high and low)
 		short dataLength = (short) (((metaLen[1] & 255) << 8) + (metaLen[0] & 255));
 		byte[] data = new byte[dataLength];
-		// 读取元数据
+		// Read metadata
 		int readLength = fin.read(data);
 		if (readLength < 0) {
 			return -1;
 		} else {
-			// 获取Meta的每字节的效验大小
+			// Gets the check size of each byte of Meta
 			short checksum = this.cmdToValue(BleConfig.OtaCmd.OTA_CMD_META_DATA);
 
-			// 统计整个meta的效验大小
+			// Statistics the size of the entire meta check
 			for (int i = 0; i < readLength; ++i) {
 				checksum = (short) (checksum + (data[i] & 255));
 			}
@@ -249,17 +249,17 @@ public class BleOtaUpdater implements OtaListener {
 	}
 
 	/**
-	 * 发送数据块
-	 * @param fin 文件读取流
-	 * @param dataLength 数据块大小
-	 * @return 发送大小
+	 * Send data block
+	 * @param fin File read stream
+	 * @param dataLength Data block size
+	 * @return Send size
 	 * @throws IOException
 	 */
 	private int otaSendBrickData(FileInputStream fin, int dataLength) throws IOException {
 		byte[] data = new byte[dataLength];
-		// 读取数据块
+		// Read the data block
 		int readLength = fin.read(data);
-		if (readLength <= 0) {// 读取失败
+		if (readLength <= 0) {// Reading failed
 			if(BuildConfig.DEBUG) {
 				Log.w(TAG, "otaSendBrickData:No data read from file");
 			}
@@ -268,15 +268,15 @@ public class BleOtaUpdater implements OtaListener {
 			if (readLength < dataLength) {
 				dataLength = readLength;
 			}
-			// 获取每字节效验值大小
+			// Get the size of each byte
 			short checksum = this.cmdToValue(BleConfig.OtaCmd.OTA_CMD_BRICK_DATA);
 
-			// 统计数据块的效验值大小
+			// The size of the checksum of the statistics block
 			for (int i = 0; i < dataLength; ++i) {
 				checksum = (short) (checksum + (data[i] & 255));
 			}
 
-			// 发送数据包
+			// Send a packet
 			if (this.otaSendPacket(BleConfig.OtaCmd.OTA_CMD_BRICK_DATA, checksum, data, dataLength)) {
 				return readLength;
 			} else {
@@ -289,8 +289,8 @@ public class BleOtaUpdater implements OtaListener {
 	}
 
 	/**
-	 * 发送验证数据包命令
-	 * @return 是否成功
+	 * Send the authentication packet command
+	 * @return whether succeed
 	 */
 	private boolean otaSendVerifyCmd() {
 		byte checksum = this.cmdToValue(BleConfig.OtaCmd.OTA_CMD_DATA_VERIFY);
@@ -298,7 +298,7 @@ public class BleOtaUpdater implements OtaListener {
 	}
 
 	/**
-	 * 发送重置服务命令
+	 * Send a reset service command
 	 */
 	private void otaSendResetCmd() {
 		byte checksum = this.cmdToValue(BleConfig.OtaCmd.OTA_CMD_EXECUTION_NEW_CODE);
@@ -310,9 +310,9 @@ public class BleOtaUpdater implements OtaListener {
 	}
 
 	/**
-	 * 等待锁释放
-	 * @param semp 锁对象
-	 * @return 是否超时
+	 * Wait for the lock to release
+	 * @param semp Lock object
+	 * @return Whether it is overtime
 	 */
 	private boolean waitSemaphore(Semaphore semp) {
 		int i = 0;
@@ -335,14 +335,14 @@ public class BleOtaUpdater implements OtaListener {
 				}
 				return true;
 			}
-		} while (!this.shouldStopUpdate());//是否已停止更新
+		} while (!this.shouldStopUpdate());//Has stopped updating
 
 		return false;
 	}
 
 	/**
-	 * 设置文件偏移量
-	 * @param offset 偏移量
+	 * Set the file offset
+	 * @param offset offset
 	 */
 	private void setOffset(int offset) {
 		this.mStartOffset = offset;
@@ -366,8 +366,8 @@ public class BleOtaUpdater implements OtaListener {
 	}
 
 	/**
-	 * 等待锁释放
-	 * @return 锁是否释放成功
+	 * Wait for the lock to release
+	 * @return Whether the lock was released successfully
 	 */
 	private boolean waitWriteDataCompleted() {
 		return this.waitSemaphore(this.semp);
@@ -382,8 +382,8 @@ public class BleOtaUpdater implements OtaListener {
 	}
 
 	/**
-	 * 获取更新结果
-	 * @param notify_data 结果对象
+	 * Get update results
+	 * @param notify_data Result object
 	 */
 	public void otaGetResult(byte[] notify_data) {
 		BleConfig.OtaCmd cmdType = this.valueToCmd(notify_data[2] & 255);
@@ -449,8 +449,8 @@ public class BleOtaUpdater implements OtaListener {
 	}
 
 	/**
-	 * 是否已停止更新
-	 * @return 是否停止更新
+	 * Has stopped updating
+	 * @return Whether to stop updating
 	 */
 	private boolean shouldStopUpdate() {
 		return this.mShouldStop;
@@ -461,11 +461,11 @@ public class BleOtaUpdater implements OtaListener {
 	}
 
 	/**
-	 * 开始更新
-	 * @param file 文件路径
-	 * @param bleDevice 设备对象
-	 * @param bleManager 设备管理类
-	 * @return 更新结果
+	 * Start Update
+	 * @param file file path
+	 * @param bleDevice Device object
+	 * @param bleManager Device management class
+	 * @return Update the results
 	 */
 	public BleConfig.OtaResult otaStart(String file,BleDevice bleDevice, BleManager bleManager) {
 		if (!file.isEmpty() && bleManager != null) {
@@ -478,9 +478,9 @@ public class BleOtaUpdater implements OtaListener {
 			this.mByteRate = 0;
 			this.mElapsedTime = 0;
 			this.semp = new Semaphore(0);
-			// 更新线程
+			// Update thread
 			mUpdateThread = new Thread(this.mUpdateRunnable);
-			// 开始更新
+			// Start Update
 			mUpdateThread.start();
 			return BleConfig.OtaResult.OTA_RESULT_SUCCESS;
 		} else {
@@ -492,20 +492,20 @@ public class BleOtaUpdater implements OtaListener {
 	}
 
 	/**
-	 * 开始更新
-	 * @param filePath 文件路径
+	 * Start Update
+	 * @param filePath file path
 	 */
 	private void otaUpdateProcess(String filePath) {
 		try {
-			// 发送开始更新回调消息
+			// Send starts to update the callback message
 			if (mHandler != null) {
 				mHandler.obtainMessage(OTA_BEFORE, mIndex).sendToTarget();
 			}
-			// 获取文件读入流
+			// Get the file into the stream
 			FileInputStream fileInputStream = new FileInputStream(filePath);
-			// 获取文件大小
+			// Get the file size
 			int fileSize = fileInputStream.available();
-			if (fileSize == 0 || mShouldStop) {// 文件大小为0，结束更新
+			if (fileSize == 0 || mShouldStop) {// The file size is 0, ending the update
 				fileInputStream.close();
 				this.serErrorCode(BleConfig.OtaResult.OTA_RESULT_FW_SIZE_ERROR);
 				if (mHandler != null) {
@@ -514,9 +514,9 @@ public class BleOtaUpdater implements OtaListener {
 				return;
 			}
 
-			// 发送元信息数据
+			// Send meta information data
 			int metaSize = this.otaSendMetaData(fileInputStream);
-			if (metaSize < 0 || mShouldStop) {// 发送元数据出错
+			if (metaSize < 0 || mShouldStop) {// Sending metadata error
 				fileInputStream.close();
 				this.serErrorCode(BleConfig.OtaResult.OTA_RESULT_SEND_META_ERROR);
 				if (mHandler != null) {
@@ -525,9 +525,9 @@ public class BleOtaUpdater implements OtaListener {
 				return;
 			}
 
-			// 获取当前发送的偏移量
+			// Gets the currently sent offset
 			int offset1 = this.getOffset();
-			if (offset1 < 0 || mShouldStop) {// 偏移量有误
+			if (offset1 < 0 || mShouldStop) {// The offset is incorrect
 				if(BuildConfig.DEBUG) {
 					Log.e(TAG, "wait cmd OTA_CMD_META_DATA timeout");
 				}
@@ -539,12 +539,12 @@ public class BleOtaUpdater implements OtaListener {
 				return;
 			}
 
-			// 偏移量大于0
-			if (offset1 > 0) {//过度已发送的偏移量
+			// Offset is greater than 0
+			if (offset1 > 0) {//Excessive sent offset
 				fileInputStream.skip((long) offset1);
 			}
 
-			// 剩余数据块大小
+			// Remaining data block size
 			int brickDataSize = fileSize - metaSize;
 			int transfereedSize = 0;
 			if(BuildConfig.DEBUG) {
@@ -552,10 +552,10 @@ public class BleOtaUpdater implements OtaListener {
 			}
 			long begin = Calendar.getInstance().getTimeInMillis();
 
-			do {// 遍历读取文件 每次发送 mPacketSize 个字节
-				// 发送数据块
+			do {// Traverse the read file every time you send mPacketSize bytes
+				// Send data block
 				int ret1 = this.otaSendBrickData(fileInputStream, mPacketSize);
-				// 发送数据块有错
+				// The sending data block is wrong
 				if (ret1 < 0 || mShouldStop) {
 					fileInputStream.close();
 					if(BuildConfig.DEBUG) {
@@ -568,8 +568,8 @@ public class BleOtaUpdater implements OtaListener {
 					return;
 				}
 
-				// 等待数据读取锁
-				if (!this.waitReadDataCompleted() || mShouldStop) {// 出现错误
+				// Wait for data to read the lock
+				if (!this.waitReadDataCompleted() || mShouldStop) {// An error occurred
 					if(BuildConfig.DEBUG) {
 						Log.e(TAG, "waitReadDataCompleted timeout");
 					}
@@ -580,25 +580,25 @@ public class BleOtaUpdater implements OtaListener {
 					return;
 				}
 
-				// 增加数据已发送的偏移量
+				// Increase the offset of data sent
 				offset1 += ret1;
-				// 记录已发送的百分比
+				// Record the percentage of sent
 				this.mPercent = offset1 * 100 / fileSize;
 
 				if (mHandler != null) {
 					mHandler.obtainMessage(OTA_UPDATE, mPercent, 0, mIndex).sendToTarget();
 				}
 
-				// 记录已发送的数据块
+				// Record the sent data block
 				transfereedSize += mPacketSize;
 				long now = Calendar.getInstance().getTimeInMillis();
-				// 记录总数据块发送时间
+				// Record the total data block transmission time
 				this.mElapsedTime = (int) ((now - begin) / 1000L);
-				// 计算传输速率
+				// Calculate the transfer rate
 				this.mByteRate = (int) ((long) (transfereedSize * 1000) / (now - begin));
 			} while (offset1 < brickDataSize);
 
-			// 发送服务端验证数据包命令
+			// Send the server to verify the packet command
 			if (!this.otaSendVerifyCmd() || mShouldStop) {
 				fileInputStream.close();
 				this.serErrorCode(BleConfig.OtaResult.OTA_RESULT_FW_VERIFY_ERROR);
@@ -608,9 +608,9 @@ public class BleOtaUpdater implements OtaListener {
 				return;
 			}
 
-			// 写入百分比100
+			// Write percentage 100
 			this.mPercent = 100;
-			// 发送重置服务命令
+			// Send a reset service command
 			this.otaSendResetCmd();
 			fileInputStream.close();
 		} catch (Exception e) {
@@ -627,7 +627,7 @@ public class BleOtaUpdater implements OtaListener {
 		if(BuildConfig.DEBUG) {
 			Log.i(TAG, "otaUpdateProcess Exit");
 		}
-		// 发送回调成功
+		// Send callback successful
 		if (mHandler != null) {
 			mHandler.obtainMessage(OTA_OVER, mIndex).sendToTarget();
 		}
@@ -635,9 +635,9 @@ public class BleOtaUpdater implements OtaListener {
 	}
 
 	/**
-	 * 获取更新进度
-	 * @param extra 更新进度
-	 * @return 数据结果
+	 * Get update progress
+	 * @param extra Update progress
+	 * @return Data results
 	 */
 	public BleConfig.OtaResult otaGetProcess(int[] extra) {
 		if (extra.length < 8) {
@@ -655,7 +655,7 @@ public class BleOtaUpdater implements OtaListener {
 	}
 
 	/**
-	 * 停止更新
+	 * Stop updating
 	 */
 	public void otaStop() {
 		this.mShouldStop = true;

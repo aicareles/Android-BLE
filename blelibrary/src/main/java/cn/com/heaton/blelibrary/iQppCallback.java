@@ -1,4 +1,4 @@
-package cn.com.heaton.blelibrary.bleApi;
+package cn.com.heaton.blelibrary;
 
 import android.bluetooth.BluetoothGatt;
 

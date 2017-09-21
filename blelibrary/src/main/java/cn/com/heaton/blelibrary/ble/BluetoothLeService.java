@@ -1,4 +1,4 @@
-package cn.com.heaton.blelibrary;
+package cn.com.heaton.blelibrary.ble;
 
 import android.annotation.SuppressLint;
 import android.app.Service;
@@ -17,7 +17,6 @@ import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import cn.com.heaton.blelibrary.BleVO.BleDevice;
+import cn.com.heaton.blelibrary.BuildConfig;
 import cn.com.heaton.blelibrary.ota.OtaListener;
 
 
@@ -39,12 +38,12 @@ public class BluetoothLeService extends Service {
     private BluetoothManager mBluetoothManager;
     private BluetoothAdapter mBluetoothAdapter;
     private final Object mLocker = new Object();
-//    private BluetoothGattCharacteristic mWriteCharacteristic;//可写的GattCharacteristic对象
-    private List<BluetoothGattCharacteristic> mNotifyCharacteristics = new ArrayList<>();//通知特性回调数组
-    private int mNotifyIndex = 0;//通知特性回调列表
-    private int mIndex = 0;//设备索引
-    private BluetoothGattCharacteristic mOtaWriteCharacteristic;//ota ble发送对象
-    private boolean mOtaUpdating = false;//是否OTA更新
+//    private BluetoothGattCharacteristic mWriteCharacteristic;//Writable GattCharacteristic object
+    private List<BluetoothGattCharacteristic> mNotifyCharacteristics = new ArrayList<>();//Notification attribute callback array
+    private int mNotifyIndex = 0;//Notification feature callback list
+    private int mIndex = 0;//Device index
+    private BluetoothGattCharacteristic mOtaWriteCharacteristic;//Ota ble send the object
+    private boolean mOtaUpdating = false;//Whether the OTA is updated
 
     private Map<String, BluetoothGattCharacteristic> mWriteCharacteristicMap = new HashMap<>();
 
@@ -57,10 +56,10 @@ public class BluetoothLeService extends Service {
      */
     private List<String> mConnectedAddressList;
 
-    //当前正在连接的设备
+    //The device is currently connected
     private BluetoothDevice currentDevice = null;
 
-    private OtaListener mOtaListener;//ota更新操作监听器
+    private OtaListener mOtaListener;//Ota update operation listener
 
     private Runnable mConnectTimeout = new Runnable() { // 连接设备超时
         @Override
@@ -86,7 +85,7 @@ public class BluetoothLeService extends Service {
 
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 mIndex++;
-                mConnectedAddressList.add(device.getAddress());//连接成功之后  添加
+                mConnectedAddressList.add(device.getAddress());
                 mHandler.removeCallbacks(mConnectTimeout);
                 mHandler.obtainMessage(BleConfig.BleStatus.ConnectionChanged, 1, 0, device).sendToTarget();
                 Log.i(TAG, "Connected to GATT server.");
@@ -106,10 +105,10 @@ public class BluetoothLeService extends Service {
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 mHandler.obtainMessage(BleConfig.BleStatus.ServicesDiscovered, gatt).sendToTarget();
-                //清空通知特性列表
+                //Empty the notification attribute list
                 mNotifyCharacteristics.clear();
                 mNotifyIndex = 0;
-                //开始设置通知特性
+                //Start setting notification feature
                 displayGattServices(gatt.getDevice().getAddress(), getSupportedGattServices(gatt.getDevice().getAddress()));
             } else {
                 Log.w(TAG, "onServicesDiscovered received: " + status);
@@ -287,7 +286,7 @@ public class BluetoothLeService extends Service {
      * @param address ble address
      * @return Whether connect is successful
      */
-    // TODO: 2017/6/6  连接设备 
+    // TODO: 2017/6/6  connect
     public boolean connect(final String address) {
 
         if (mConnectedAddressList == null) {
@@ -345,7 +344,7 @@ public class BluetoothLeService extends Service {
      */
     public void disconnect(final String address) {
         if (mBluetoothAdapter == null || mBluetoothGattMap.get(address) == null) {
-            Log.e(TAG, mBluetoothGattMap.get(address).getDevice().getAddress());
+//            Log.e(TAG, mBluetoothGattMap.get(address).getDevice().getAddress());
             Log.w(TAG, "BluetoothAdapter not initialized");
             return;
         }
@@ -387,11 +386,11 @@ public class BluetoothLeService extends Service {
 
 
     /**
-     * 发送数据
+     * send data
      *
-     * @param address 发送对象
-     * @param value   发送数据值
-     * @return 是否成功
+     * @param address ble address
+     * @param value   Send data values
+     * @return whether succeed
      */
     public boolean wirteCharacteristic(String address, byte[] value) {
         if (mBluetoothAdapter == null || mBluetoothGattMap.get(address) == null) {
@@ -478,7 +477,7 @@ public class BluetoothLeService extends Service {
 
     }
 
-    //设置通知数组
+    //Set the notification array
     private void displayGattServices(final String address, List<BluetoothGattService> gattServices) {
         if (gattServices == null)
             return;
@@ -495,7 +494,7 @@ public class BluetoothLeService extends Service {
                     if (uuid.equals(BleConfig.UUID_CHARACTERISTIC_TEXT)) {
                         Log.e("mWriteCharacteristic", uuid);
                         mWriteCharacteristicMap.put(address,gattCharacteristic);
-                        //通知特性
+                        //Notification feature
                     } else if (gattCharacteristic.getProperties() == BluetoothGattCharacteristic.PROPERTY_NOTIFY) {
                         mNotifyCharacteristics.add(gattCharacteristic);
                         Log.e("mNotifyCharacteristics", "PROPERTY_NOTIFY");
@@ -505,13 +504,13 @@ public class BluetoothLeService extends Service {
 //                    if (uuid.equals(BleConfig.UUID_NOTIFY_TEXT)) {
 //                        Log.e(TAG,"2gatt Characteristic: " + uuid);
 //                        setCharacteristicNotification(address, gattCharacteristic, true);
-////                        mBluetoothLeService.readCharacteristic(address,gattCharacteristic);//暂时注释
+////                        mBluetoothLeService.readCharacteristic(address,gattCharacteristic);
 //                    } else if (uuid.equals(BleConfig.UUID_CHARACTERISTIC_TEXT)) {
 //                        Log.e(TAG,"write_characteristic: " + uuid);
 //                    }
 
                 }
-                //真正设置通知
+                //Really set up notifications
                 if (mNotifyCharacteristics != null && mNotifyCharacteristics.size() > 0) {
                     Log.e("setCharaNotification", "setCharaNotification");
                     setCharacteristicNotification(address, mNotifyCharacteristics.get(mNotifyIndex++), true);
@@ -520,7 +519,7 @@ public class BluetoothLeService extends Service {
         }
     }
 
-    //获取可写的WriteCharacteristic对象
+    //Get a writable WriteCharacteristic object
     public BluetoothGattCharacteristic getWriteCharacteristic(String address) {
         synchronized (mLocker) {
             if (mWriteCharacteristicMap != null) {
@@ -559,11 +558,11 @@ public class BluetoothLeService extends Service {
     }
 
     /**
-     * 发送ota数据
+     * Send ota data
      *
-     * @param address 设备地址
-     * @param value   数据对象
-     * @return 发送结果
+     * @param address Device address
+     * @param value  Send data values
+     * @return whether succeed
      */
     public boolean writeOtaData(String address, byte[] value) {
         if (mBluetoothAdapter == null || mBluetoothGattMap.get(address) == null) {
@@ -606,7 +605,7 @@ public class BluetoothLeService extends Service {
         }
     }
 
-    //写入数据的基本方法
+    //The basic method of writing data
     public boolean writeCharacteristic(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
         synchronized (mLocker) {
             if (gatt == null || characteristic == null) {
@@ -617,25 +616,25 @@ public class BluetoothLeService extends Service {
     }
 
     /**
-     * 更新完成
+     * update completed
      */
     public void otaUpdateComplete() {
         mOtaUpdating = false;
     }
 
     /**
-     * 设置是否ota更新
+     * Set whether ota is updated
      *
-     * @param updating 更新状态
+     * @param updating update status
      */
     public void setOtaUpdating(boolean updating) {
         mOtaUpdating = updating;
     }
 
     /**
-     * OTA设置监听器
+     * OTA sets the listener
      *
-     * @param otaListener 监听器对象
+     * @param otaListener Listener
      */
     public void setOtaListener(OtaListener otaListener) {
         mOtaListener = otaListener;

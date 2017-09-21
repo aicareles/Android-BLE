@@ -7,7 +7,7 @@
  * @author Quintic Zhang Fuquan
  *
  */
-package cn.com.heaton.blelibrary.bleApi;
+package cn.com.heaton.blelibrary;
 
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothGatt;
@@ -19,6 +19,7 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
 /**This class is un_used current
  * Created by LiuLei on 2016/11/29.
  */
@@ -39,8 +40,8 @@ public class QppApi {
 	private static final String UUIDDes="00002902-0000-1000-8000-00805f9b34fb";
 	private static String TAG =QppApi.class.getSimpleName();
 	
-	private static iQppCallback iQppCallback;
-	public static void setCallback(iQppCallback mCb){  
+	private static cn.com.heaton.blelibrary.iQppCallback iQppCallback;
+	public static void setCallback(cn.com.heaton.blelibrary.iQppCallback mCb){
 	    iQppCallback= mCb;      
 	}  
     public static void  updateValueForNotification(BluetoothGatt bluetoothGatt, BluetoothGattCharacteristic characteristic){

@@ -1,13 +1,11 @@
-package cn.com.heaton.blelibrary;
+package cn.com.heaton.blelibrary.ble;
 
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 
-import cn.com.heaton.blelibrary.BleVO.BleDevice;
-
 /**
  * Created by LiuLei on 2017/5/3.
- * 蓝牙工厂类
+ * Bluetooth factory
  */
 
 public class BleFactory<T extends BleDevice>{

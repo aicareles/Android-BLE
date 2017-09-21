@@ -4,8 +4,6 @@ import android.app.Application;
 
 import com.orhanobut.logger.Logger;
 
-import cn.com.heaton.blelibrary.BleManager;
-
 
 /**
  * 应用入口

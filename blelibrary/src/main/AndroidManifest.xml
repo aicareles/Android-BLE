@@ -10,7 +10,7 @@
     <application android:allowBackup="true" android:label="@string/app_name"
         android:supportsRtl="true">
 
-        <service android:name="cn.com.heaton.blelibrary.BluetoothLeService"/>
+        <service android:name="cn.com.heaton.blelibrary.ble.BluetoothLeService"/>
 
     </application>
 

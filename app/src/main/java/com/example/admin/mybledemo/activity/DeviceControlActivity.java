@@ -24,7 +24,7 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import cn.com.heaton.blelibrary.BluetoothLeService;
+import cn.com.heaton.blelibrary.ble.BluetoothLeService;
 
 @SuppressLint("NewApi")
 public class DeviceControlActivity extends Activity {

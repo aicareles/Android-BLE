@@ -18,10 +18,10 @@ import com.orhanobut.logger.Logger;
 
 import java.util.Arrays;
 
-import cn.com.heaton.blelibrary.BleConfig;
-import cn.com.heaton.blelibrary.BleLisenter;
-import cn.com.heaton.blelibrary.BleManager;
-import cn.com.heaton.blelibrary.BleVO.BleDevice;
+import cn.com.heaton.blelibrary.ble.BleConfig;
+import cn.com.heaton.blelibrary.ble.BleLisenter;
+import cn.com.heaton.blelibrary.ble.BleManager;
+import cn.com.heaton.blelibrary.ble.BleDevice;
 
 public class TestActivity extends AppCompatActivity {
 
