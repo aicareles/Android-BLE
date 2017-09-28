@@ -86,8 +86,8 @@ mManager.registerBleListener(mLisenter);
 
 #### 3.拿到各状态的回调结果
 ```
- @Override
-             public void onStart() {
+@Override
+public void onStart() {
                  ...
                 //代表开始扫描的回调方法
              }
@@ -118,7 +118,7 @@ mManager.registerBleListener(mLisenter);
                  //代表mcu返回数据的回调方法
              }
              
-             ...
+             ...   
 ```
 
 #### 4.Demo效果演示图：
