@@ -20,13 +20,28 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
             android:name=".activity.BaseActivity"
             android:theme="@android:style/Theme.Light.NoTitleBar" />
+
+        <activity android:name=".activity.BleActivity"
+            android:screenOrientation="portrait"/>
+
+        <activity android:name=".activity.SppActivity"
+            android:screenOrientation="portrait"/>
+
         <activity
             android:name=".activity.DeviceControlActivity"
             android:screenOrientation="portrait" />
-        <activity android:name=".activity.TestActivity"></activity>
+
+        <activity android:name=".activity.TestActivity"/>
+
+        <receiver android:name="BluetoothConnectReceiver" >
+            <intent-filter>
+                <action android:name="android.bluetooth.device.action.PAIRING_REQUEST" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>
