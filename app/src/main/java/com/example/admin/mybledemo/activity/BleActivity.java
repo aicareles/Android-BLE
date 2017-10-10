@@ -255,6 +255,16 @@ public class BleActivity extends BaseActivity {
     }
 
     private void initBle() {
+        //设置主服务、写入特征、设置通知的描述uuid等（根据你自己需求加  比如单个设备可能有多个服务  如电池服务等  此处只添加一个主服务）
+
+        //设置主服务uuid
+        BleConfig.setUuidServiceText("0000fee9-0000-1000-8000-00805f9b34fb");
+        //设置写入特征uuid
+        BleConfig.setUuidCharacteristicText("d44bc439-abfd-45a2-b575-925416129600");
+        //设置通知uuid（此处由于库中进行遍历  即获取所有的通知进行设置 所以可以不用写）
+        BleConfig.setUuidNotifyText("");
+        //设置写入通知的描述uuid（其实也可以不用写  库中并没有进行遍历所有的描述   所以此处用于进行过滤）
+        BleConfig.setUuidDescriptorText("00002902-0000-1000-8000-00805f9b34fb");
         try {
             mManager = BleManager.getInstance(this);
             mManager.registerBleListener(mLisenter);
