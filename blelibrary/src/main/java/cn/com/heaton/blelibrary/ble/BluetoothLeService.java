@@ -466,8 +466,7 @@ public class BluetoothLeService extends Service {
         //If the number of descriptors in the eigenvalue of the notification is greater than zero
         if (characteristic.getDescriptors().size() > 0) {
             //Filter descriptors based on the uuid of the descriptor
-            BluetoothGattDescriptor descriptor = characteristic.getDescriptor(UUID
-                    .fromString(BleConfig.UUID_DESCRIPTOR_TEXT));
+            BluetoothGattDescriptor descriptor = characteristic.getDescriptor(BleConfig.getUuidDescriptor());
             if (descriptor != null) {
                 //Write the description value
                 descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
@@ -486,12 +485,12 @@ public class BluetoothLeService extends Service {
         for (BluetoothGattService gattService : gattServices) {
             uuid = gattService.getUuid().toString();
             Log.d(TAG, "displayGattServices: " + uuid);
-            if (uuid.equals(BleConfig.UUID_SERVICE_TEXT)) {
+            if (uuid.equals(BleConfig.getUuidService().toString())) {
                 Log.d(TAG, "service_uuid: " + uuid);
                 List<BluetoothGattCharacteristic> gattCharacteristics = gattService.getCharacteristics();
                 for (BluetoothGattCharacteristic gattCharacteristic : gattCharacteristics) {
                     uuid = gattCharacteristic.getUuid().toString();
-                    if (uuid.equals(BleConfig.UUID_CHARACTERISTIC_TEXT)) {
+                    if (uuid.equals(BleConfig.getUuidCharacteristic().toString())) {
                         Log.e("mWriteCharacteristic", uuid);
                         mWriteCharacteristicMap.put(address,gattCharacteristic);
                         //Notification feature
