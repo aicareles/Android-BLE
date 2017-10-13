@@ -78,6 +78,11 @@ public class BleConfig {
     public final static int CONNECT_TIME_OUT         = 10 * 1000;
 
     /**
+     * 是否自动连接    默认为false
+     */
+    public  static boolean isAutoConnect         = false;
+
+    /**
      *    Broadcast corresponds to the product value
      */
     public static final byte[] BROADCAST_SPECIFIC_PRODUCT                       = {'T', 'R', 0, 1};

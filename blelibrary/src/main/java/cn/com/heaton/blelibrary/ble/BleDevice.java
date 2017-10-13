@@ -44,6 +44,8 @@ public class BleDevice {
      */
     private String mBleAlias;
 
+    private boolean mAutoConnect = true;//默认自动连接
+
     public BleDevice(BluetoothDevice device) {
         this.mBleAddress = device.getAddress();
         this.mBleName = device.getName();
@@ -57,6 +59,14 @@ public class BleDevice {
     public boolean isConnectting() {
 //        return mConnectionState == BluetoothProfile.STATE_CONNECTING;
         return mConnectionState == BleConfig.BleStatus.CONNECTING;
+    }
+
+    public boolean isAutoConnect() {
+        return mAutoConnect;
+    }
+
+    public void setAutoConnect(boolean mAutoConnect) {
+        this.mAutoConnect = mAutoConnect;
     }
 
     public int getConnectionState() {

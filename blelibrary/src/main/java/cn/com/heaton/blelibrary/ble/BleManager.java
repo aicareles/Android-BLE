@@ -15,6 +15,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
+import android.os.SystemClock;
 import android.util.Log;
 
 import java.lang.reflect.GenericArrayType;
@@ -23,6 +24,7 @@ import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * This class provides various APIs for Bluetooth operation
@@ -35,80 +37,106 @@ public class BleManager<T extends BleDevice> {
     public static final int REQUEST_ENABLE_BT = 1;
     private Context mContext;
     private BluetoothLeService mBluetoothLeService;
-//    private static BleLisenter mBleLisenter;
+    //    private static BleLisenter mBleLisenter;
     private static List<BleLisenter> mBleLisenters = new ArrayList<>();
     private boolean mScanning;
     private BluetoothAdapter mBluetoothAdapter;
     private final ArrayList<T> mScanDevices = new ArrayList<>();
     private final ArrayList<T> mConnetedDevices = new ArrayList<>();
+    private final ArrayList<T> mAutoDevices = new ArrayList<>();
     private ArrayList<T> mConnectingDevices = new ArrayList<>();
     private final Object mLocker = new Object();
     private static BleManager instance;
     private BluetoothManager mBluetoothManager;//蓝牙管理服务
     private BleFactory<T> mBleFactory;
-//    private final Class<T> mDeviceClass;
+
+    //    private final Class<T> mDeviceClass;
+    private class AutoConThread extends Thread {
+        @Override
+        public void run() {
+            while (true){
+                if(mAutoDevices.size() > 0){
+                    //开启循环扫描
+                    if(!mScanning){
+                        Log.e(TAG, "run: "+"线程开始扫描++++");
+                        scanLeDevice(true);
+                    }
+                }
+                SystemClock.sleep(2*1000);
+            }
+        }
+
+    }
+
 
     private Handler mHandler = new Handler(Looper.getMainLooper()) {
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case BleConfig.BleStatus.ConnectTimeOut:
-                    for (BleLisenter bleLisenter : mBleLisenters){
+                    for (BleLisenter bleLisenter : mBleLisenters) {
                         bleLisenter.onConnectTimeOut();
                     }
                     break;
                 case BleConfig.BleStatus.ConnectionChanged:
                     T device = null;
                     try {
-                        device = mBleFactory.create(BleManager.this,(BluetoothDevice) msg.obj);
+                        device = mBleFactory.create(BleManager.this, (BluetoothDevice) msg.obj);
                         if (msg.arg1 == 1) {
                             //connect
                             device.setConnectionState(BleConfig.BleStatus.CONNECTED);
                             mConnetedDevices.add(device);
+                            //如果是自动连接的设备  则从自动连接池中移除
+                            removeAutoPool(device);
+//                            if (BleConfig.isAutoConnect) {
+//                                mAutoDevices.add(device);
+//                                device.setAutoConnect(true);
+//                            }
 //                            Log.e("ConnectionChanged","Added a device");
                         } else if (msg.arg1 == 0) {
                             //disconnect
                             device.setConnectionState(BleConfig.BleStatus.DISCONNECT);
                             mConnetedDevices.remove(device);
+                            addAutoPool(device);
 //                            Log.e("ConnectionChanged","Removed a device");
-                        }else if(msg.arg1 == 2){
+                        } else if (msg.arg1 == 2) {
                             //connectting
                             device.setConnectionState(BleConfig.BleStatus.CONNECTING);
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                    for (BleLisenter bleLisenter : mBleLisenters){
+                    for (BleLisenter bleLisenter : mBleLisenters) {
                         bleLisenter.onConnectionChanged(device);
                     }
                     break;
                 case BleConfig.BleStatus.Changed:
-                    for (BleLisenter bleLisenter : mBleLisenters){
+                    for (BleLisenter bleLisenter : mBleLisenters) {
                         bleLisenter.onChanged((BluetoothGattCharacteristic) msg.obj);
                     }
                     break;
                 case BleConfig.BleStatus.Read:
-                    for (BleLisenter bleLisenter : mBleLisenters){
+                    for (BleLisenter bleLisenter : mBleLisenters) {
                         bleLisenter.onRead((BluetoothDevice) msg.obj);
                     }
                     break;
                 case BleConfig.BleStatus.DescriptorWriter:
-                    for (BleLisenter bleLisenter : mBleLisenters){
+                    for (BleLisenter bleLisenter : mBleLisenters) {
                         bleLisenter.onDescriptorWriter((BluetoothGatt) msg.obj);
                     }
                     break;
                 case BleConfig.BleStatus.OnReady:
-                    for (BleLisenter bleLisenter : mBleLisenters){
+                    for (BleLisenter bleLisenter : mBleLisenters) {
                         bleLisenter.onReady((BluetoothDevice) msg.obj);
                     }
                     break;
                 case BleConfig.BleStatus.ServicesDiscovered:
-                    for (BleLisenter bleLisenter : mBleLisenters){
+                    for (BleLisenter bleLisenter : mBleLisenters) {
                         bleLisenter.onServicesDiscovered((BluetoothGatt) msg.obj);
                     }
                     break;
                 case BleConfig.BleStatus.DescriptorRead:
-                    for (BleLisenter bleLisenter : mBleLisenters){
+                    for (BleLisenter bleLisenter : mBleLisenters) {
                         bleLisenter.onDescriptorRead((BluetoothGatt) msg.obj);
                     }
                     break;
@@ -116,10 +144,29 @@ public class BleManager<T extends BleDevice> {
         }
     };
 
+    //如果是自动连接的设备  则从自动连接池中移除
+    private void removeAutoPool(T device) {
+        for (int i = 0; i < mAutoDevices.size(); i++) {
+            if (device.getBleAddress().equals(mAutoDevices.get(i).getBleAddress())) {
+                Log.e(TAG, "removeAuto: " + "移除自动连接的设备");
+                mAutoDevices.remove(i);
+            }
+        }
+    }
+
+    //将断开设备添加到自动连接池中
+    private void addAutoPool(T device) {
+        if(device.isAutoConnect() && !mAutoDevices.contains(device)){
+            Log.e(TAG, "addAutoPool: " + "添加自动连接的设备");
+            mAutoDevices.add(device);
+        }
+    }
+
     protected BleManager(Context context) {
         mContext = context;
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         mBleFactory = new BleFactory<>(context);
+        new AutoConThread().start();
 //        Type superClass = getClass().getGenericSuperclass();
 //        Type type = ((ParameterizedType) superClass).getActualTypeArguments()[0];
 //        mDeviceClass = getClass(type,0);
@@ -155,7 +202,7 @@ public class BleManager<T extends BleDevice> {
         }
     }
 
-    public static <T extends BleDevice>BleManager<T> getInstance(Context context) throws Exception {
+    public static <T extends BleDevice> BleManager<T> getInstance(Context context) throws Exception {
 //        mBleLisenter = bleLisenter;
         if (instance == null) {
             synchronized (BleManager.class) {
@@ -249,7 +296,7 @@ public class BleManager<T extends BleDevice> {
         public void onServiceConnected(ComponentName componentName,
                                        IBinder service) {
             mBluetoothLeService = ((BluetoothLeService.LocalBinder) service).getService();
-            if(mHandler != null){
+            if (mHandler != null) {
                 mBluetoothLeService.setHandler(mHandler);
             }
             Log.e(TAG, "Service connection successful");
@@ -258,7 +305,7 @@ public class BleManager<T extends BleDevice> {
 //                if (mBleLisenter != null) {
 //                    mBleLisenter.onInitFailed();
 //                }
-                for (BleLisenter bleLisenter : mBleLisenters){
+                for (BleLisenter bleLisenter : mBleLisenters) {
                     bleLisenter.onInitFailed();
                 }
             }
@@ -286,7 +333,7 @@ public class BleManager<T extends BleDevice> {
                 public void run() {
                     mScanning = false;
                     mBluetoothAdapter.stopLeScan(mLeScanCallback);
-                    for (BleLisenter bleLisenter : mBleLisenters){
+                    for (BleLisenter bleLisenter : mBleLisenters) {
                         bleLisenter.onStop();
                     }
                 }
@@ -294,13 +341,13 @@ public class BleManager<T extends BleDevice> {
 
             mScanning = true;
             mBluetoothAdapter.startLeScan(mLeScanCallback);
-            for (BleLisenter bleLisenter : mBleLisenters){
+            for (BleLisenter bleLisenter : mBleLisenters) {
                 bleLisenter.onStart();
             }
         } else {
             mScanning = false;
             mBluetoothAdapter.stopLeScan(mLeScanCallback);
-            for (BleLisenter bleLisenter : mBleLisenters){
+            for (BleLisenter bleLisenter : mBleLisenters) {
                 bleLisenter.onStop();
             }
         }
@@ -310,12 +357,24 @@ public class BleManager<T extends BleDevice> {
 
         @Override
         public void onLeScan(final BluetoothDevice device, int rssi, final byte[] scanRecord) {
-            if(!contains(device)){
+            if (device == null) return;
+            if (!contains(device)) {
                 T bleDevice = (T) new BleDevice(device);
-                for (BleLisenter bleLisenter : mBleLisenters){
+                for (BleLisenter bleLisenter : mBleLisenters) {
                     bleLisenter.onLeScan(bleDevice, rssi, scanRecord);
                 }
                 mScanDevices.add(bleDevice);
+            } else {
+                for (T autoDevice : mAutoDevices) {
+                    Log.e(TAG, "onLeScan: " + "进来了..." + device.getName());
+                    if (device.getAddress().equals(autoDevice.getBleAddress())) {
+                        //说明非主动断开设备   理论上需要自动重新连接（前提是连接时设置自动连接属性为true）
+                        if (!autoDevice.isConnected() && autoDevice.isAutoConnect()) {
+                            Log.e(TAG, "onLeScan: " + "正在重连设备...");
+                            connect(autoDevice);
+                        }
+                    }
+                }
             }
         }
     };
@@ -329,12 +388,12 @@ public class BleManager<T extends BleDevice> {
         return mScanDevices;
     }
 
-    public int getScanBleSize(){
+    public int getScanBleSize() {
         return mScanDevices.size();
     }
 
 
-    public T getBleDevice(int index){
+    public T getBleDevice(int index) {
         return mScanDevices.get(index);
     }
 
@@ -355,16 +414,18 @@ public class BleManager<T extends BleDevice> {
 //    public Class<T> getDeviceClass(){
 //        return mDeviceClass;
 //    }
+
     /**
      * Add Scanned BleDevice
+     *
      * @param device BleDevice
      */
-    public void addBleDevice(T device){
-        if(device == null){
+    public void addBleDevice(T device) {
+        if (device == null) {
             return;
         }
-        synchronized (mScanDevices){
-            if(mScanDevices.contains(device)){
+        synchronized (mScanDevices) {
+            if (mScanDevices.contains(device)) {
                 return;
             }
             mScanDevices.add(device);
@@ -375,9 +436,10 @@ public class BleManager<T extends BleDevice> {
         if (device == null) {
             return false;
         }
-        synchronized (mScanDevices){
+        synchronized (mScanDevices) {
             for (T bleDevice : mScanDevices) {
                 if (bleDevice.getBleAddress().equals(device.getAddress())) {
+                    Log.e(TAG, "contains: " + "扫描列表已存在" + device.getName());
                     return true;
                 }
             }
@@ -395,7 +457,7 @@ public class BleManager<T extends BleDevice> {
     /**
      * Whether it is scanning
      */
-    public boolean isScanning(){
+    public boolean isScanning() {
         return mScanning;
     }
 
@@ -409,8 +471,8 @@ public class BleManager<T extends BleDevice> {
         if (device == null) {
             return null;
         }
-        synchronized (mConnetedDevices){
-            if(mConnetedDevices.size() > 0){
+        synchronized (mConnetedDevices) {
+            if (mConnetedDevices.size() > 0) {
                 for (T bleDevice : mConnetedDevices) {
                     if (bleDevice.getBleAddress().equals(device.getAddress())) {
                         return bleDevice;
@@ -454,7 +516,7 @@ public class BleManager<T extends BleDevice> {
      * @return connected device
      */
 
-    public ArrayList<T> getConnetedDevices(){
+    public ArrayList<T> getConnetedDevices() {
         return mConnetedDevices;
     }
 //    public List<BluetoothDevice> getConnectedDevices() {
@@ -468,12 +530,12 @@ public class BleManager<T extends BleDevice> {
     /**
      * Add the device being connected
      */
-    public boolean addConnectingDevice(T device){
-        if(device == null || mScanDevices.contains(device)){
+    public boolean addConnectingDevice(T device) {
+        if (device == null || mScanDevices.contains(device)) {
             return false;
         }
-        synchronized (mLocker){
-            if(!mConnectingDevices.contains(device)){
+        synchronized (mLocker) {
+            if (!mConnectingDevices.contains(device)) {
                 return false;
             }
             mConnectingDevices.add(device);
@@ -491,13 +553,13 @@ public class BleManager<T extends BleDevice> {
     /**
      * connecte bleDevice
      *
-     * @param address ble address
+     * @param device ble device
      */
-    public boolean connect(String address) {
-        synchronized (mLocker){
+    public boolean connect(T device) {
+        synchronized (mLocker) {
             boolean result = false;
             if (mBluetoothLeService != null) {
-                result = mBluetoothLeService.connect(address);
+                result = mBluetoothLeService.connect(device.getBleAddress());
             }
             return result;
         }
@@ -506,12 +568,17 @@ public class BleManager<T extends BleDevice> {
     /**
      * disconnect device
      *
-     * @param address ble address
+     * @param device ble device
      */
-    public void disconnect(String address) {
-        synchronized (mLocker){
+    public void disconnect(T device) {
+        synchronized (mLocker) {
             if (mBluetoothLeService != null) {
-                mBluetoothLeService.disconnect(address);
+                for (T bleDevice : mConnetedDevices) {
+                    if (bleDevice.getBleAddress().equals(device.getBleAddress())) {
+                        bleDevice.setAutoConnect(false);
+                    }
+                }
+                mBluetoothLeService.disconnect(device.getBleAddress());
             }
         }
     }
@@ -532,20 +599,19 @@ public class BleManager<T extends BleDevice> {
     /**
      * send data
      *
-     * @param address        ble address
-     * @param data           data
+     * @param address ble address
+     * @param data    data
      * @return Whether send success
      */
     public boolean sendData(String address, byte[] data) {
         boolean result = false;
-        synchronized (mLocker){
+        synchronized (mLocker) {
             if (mBluetoothLeService != null) {
                 result = mBluetoothLeService.wirteCharacteristic(address, data);
             }
             return result;
         }
     }
-
 
 
     /**
@@ -561,10 +627,10 @@ public class BleManager<T extends BleDevice> {
     }
 
     //Release Empty all resources
-    public void clear(){
-        synchronized (mLocker){
-            for (T bleDevice : mConnetedDevices){
-                disconnect(bleDevice.getBleAddress());
+    public void clear() {
+        synchronized (mLocker) {
+            for (T bleDevice : mConnetedDevices) {
+                disconnect(bleDevice);
             }
             mConnetedDevices.clear();
             mConnectingDevices.clear();

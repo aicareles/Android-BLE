@@ -66,9 +66,9 @@ public class TestActivity extends AppCompatActivity {
                     mManager.scanLeDevice(false);
                 }
                 if (device.isConnected()) {
-                    mManager.disconnect(device.getBleAddress());
+                    mManager.disconnect(device);
                 } else {
-                    mManager.connect(device.getBleAddress());
+                    mManager.connect(device);
                 }
             }
         });

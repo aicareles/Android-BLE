@@ -255,6 +255,8 @@ public class BleActivity extends BaseActivity {
     }
 
     private void initBle() {
+        //配置设备可自动重连
+        BleConfig.isAutoConnect = true;
         //设置主服务、写入特征、设置通知的描述uuid等（根据你自己需求加  比如单个设备可能有多个服务  如电池服务等  此处只添加一个主服务）
 
         //设置主服务uuid
@@ -355,9 +357,9 @@ public class BleActivity extends BaseActivity {
                     mManager.scanLeDevice(false);
                 }
                 if (device.isConnected()) {
-                    mManager.disconnect(device.getBleAddress());
+                    mManager.disconnect(device);
                 } else {
-                    mManager.connect(device.getBleAddress());
+                    mManager.connect(device);
                 }
             }
         });
@@ -402,7 +404,7 @@ public class BleActivity extends BaseActivity {
                 if (mManager != null) {
                     for (int i = 0; i < mLeDeviceListAdapter.getCount(); i++) {
                         BleDevice device = mLeDeviceListAdapter.getDevice(i);
-                        mManager.connect(device.getBleAddress());
+                        mManager.connect(device);
                     }
                 }
                 break;
@@ -411,7 +413,7 @@ public class BleActivity extends BaseActivity {
                 if (mManager != null) {
                     ArrayList<BleDevice> list = mManager.getConnetedDevices();
                     for (BleDevice device : list) {
-                        mManager.disconnect(device.getBleAddress());
+                        mManager.disconnect(device);
                     }
                 }
                 break;
