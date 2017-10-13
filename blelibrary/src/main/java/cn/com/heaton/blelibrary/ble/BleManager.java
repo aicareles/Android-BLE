@@ -88,10 +88,6 @@ public class BleManager<T extends BleDevice> {
                             mConnetedDevices.add(device);
                             //如果是自动连接的设备  则从自动连接池中移除
                             removeAutoPool(device);
-//                            if (BleConfig.isAutoConnect) {
-//                                mAutoDevices.add(device);
-//                                device.setAutoConnect(true);
-//                            }
 //                            Log.e("ConnectionChanged","Added a device");
                         } else if (msg.arg1 == 0) {
                             //disconnect
