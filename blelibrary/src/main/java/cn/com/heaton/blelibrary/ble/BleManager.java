@@ -370,7 +370,6 @@ public class BleManager<T extends BleDevice> {
             } else {
                 synchronized (BleManager.class){
                     for (T autoDevice : mAutoDevices) {
-                        Log.e(TAG, "onLeScan: " + "进来了..." + device.getName());
                         if (device.getAddress().equals(autoDevice.getBleAddress())) {
                             //说明非主动断开设备   理论上需要自动重新连接（前提是连接时设置自动连接属性为true）
                             if (!autoDevice.isConnected() && !autoDevice.isConnectting() && autoDevice.isAutoConnect()) {
