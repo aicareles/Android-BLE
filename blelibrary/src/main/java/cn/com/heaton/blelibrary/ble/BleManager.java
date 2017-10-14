@@ -54,7 +54,7 @@ public class BleManager<T extends BleDevice> {
     private class AutoConThread extends Thread {
         @Override
         public void run() {
-            while (true){
+            while (BleConfig.isAutoConnect){
                 if(mAutoDevices.size() > 0){
                     //开启循环扫描
                     if(!mScanning){
