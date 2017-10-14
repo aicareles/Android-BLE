@@ -572,7 +572,7 @@ public class BleManager<T extends BleDevice> {
     }
 
     /**
-     * 重连设备
+     * 重连设备  后期会添加重连次数
      * @param device  设备对象
      * @return 是否连接成功
      */
