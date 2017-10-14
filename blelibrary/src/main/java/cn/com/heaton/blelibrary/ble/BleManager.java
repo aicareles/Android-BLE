@@ -85,6 +85,8 @@ public class BleManager<T extends BleDevice> {
                         if (msg.arg1 == 1) {
                             //connect
                             device.setConnectionState(BleConfig.BleStatus.CONNECTED);
+                            //连接成功后 才能被认为可以自动重连
+                            device.setAutoConnect(true);
                             mConnetedDevices.add(device);
                             //如果是自动连接的设备  则从自动连接池中移除
                             removeAutoPool(device);
@@ -152,7 +154,12 @@ public class BleManager<T extends BleDevice> {
 
     //将断开设备添加到自动连接池中
     private void addAutoPool(T device) {
-        if(device.isAutoConnect() && !mAutoDevices.contains(device)){
+        for(int i = 0; i < mAutoDevices.size(); i++){
+            if(device.getBleAddress().equals(mAutoDevices.get(i).getBleAddress())){
+                return;
+            }
+        }
+        if(device.isAutoConnect()){
             Log.e(TAG, "addAutoPool: " + "添加自动连接的设备");
             mAutoDevices.add(device);
         }
@@ -361,13 +368,16 @@ public class BleManager<T extends BleDevice> {
                 }
                 mScanDevices.add(bleDevice);
             } else {
-                for (T autoDevice : mAutoDevices) {
-                    Log.e(TAG, "onLeScan: " + "进来了..." + device.getName());
-                    if (device.getAddress().equals(autoDevice.getBleAddress())) {
-                        //说明非主动断开设备   理论上需要自动重新连接（前提是连接时设置自动连接属性为true）
-                        if (!autoDevice.isConnected() && autoDevice.isAutoConnect()) {
-                            Log.e(TAG, "onLeScan: " + "正在重连设备...");
-                            connect(autoDevice);
+                synchronized (BleManager.class){
+                    for (T autoDevice : mAutoDevices) {
+                        Log.e(TAG, "onLeScan: " + "进来了..." + device.getName());
+                        if (device.getAddress().equals(autoDevice.getBleAddress())) {
+                            //说明非主动断开设备   理论上需要自动重新连接（前提是连接时设置自动连接属性为true）
+                            if (!autoDevice.isConnected() && !autoDevice.isConnectting() && autoDevice.isAutoConnect()) {
+                                Log.e(TAG, "onLeScan: " + "正在重连设备...");
+                                reconnect(autoDevice);
+                                mAutoDevices.remove(autoDevice);
+                            }
                         }
                     }
                 }
@@ -471,6 +481,7 @@ public class BleManager<T extends BleDevice> {
             if (mConnetedDevices.size() > 0) {
                 for (T bleDevice : mConnetedDevices) {
                     if (bleDevice.getBleAddress().equals(device.getAddress())) {
+                        Log.e(TAG, "getBleDevice: "+"这是已有的蓝牙");
                         return bleDevice;
                     }
                 }
@@ -562,6 +573,21 @@ public class BleManager<T extends BleDevice> {
     }
 
     /**
+     * 重连设备
+     * @param device  设备对象
+     * @return 是否连接成功
+     */
+    private boolean reconnect(T device) {
+        synchronized (mLocker) {
+            boolean result = false;
+            if (mBluetoothLeService != null) {
+                result = mBluetoothLeService.connect(device.getBleAddress());
+            }
+            return result;
+        }
+    }
+
+    /**
      * disconnect device
      *
      * @param device ble device
@@ -569,11 +595,14 @@ public class BleManager<T extends BleDevice> {
     public void disconnect(T device) {
         synchronized (mLocker) {
             if (mBluetoothLeService != null) {
+                //遍历已连接设备集合  主动断开则取消自动连接
                 for (T bleDevice : mConnetedDevices) {
                     if (bleDevice.getBleAddress().equals(device.getBleAddress())) {
+                        Log.e(TAG, "disconnect: "+"设置自动连接false");
                         bleDevice.setAutoConnect(false);
                     }
                 }
+                Log.e(TAG, "disconnect: "+"断开链接"+device.getmBleName());
                 mBluetoothLeService.disconnect(device.getBleAddress());
             }
         }

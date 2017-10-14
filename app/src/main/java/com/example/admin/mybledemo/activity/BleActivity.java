@@ -358,9 +358,10 @@ public class BleActivity extends BaseActivity {
                 }
                 if (device.isConnected()) {
                     mManager.disconnect(device);
-                } else {
+                } else if(!device.isConnectting()){
                     mManager.connect(device);
                 }
+
             }
         });
     }
@@ -389,7 +390,10 @@ public class BleActivity extends BaseActivity {
                 Logger.e("点击了扫描按钮");
                 if (mManager != null && !mManager.isScanning()) {
                     mLeDeviceListAdapter.clear();
-                    mManager.clear();
+                    for(BleDevice device : mManager.getConnetedDevices()){
+                        mLeDeviceListAdapter.addDevice(device);
+                    }
+                    mManager.getScanBleDevice().clear();
                     mManager.scanLeDevice(true);
                 }
                 break;

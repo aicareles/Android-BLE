@@ -44,7 +44,7 @@ public class BleDevice {
      */
     private String mBleAlias;
 
-    private boolean mAutoConnect = true;//默认自动连接
+    private boolean mAutoConnect = false;//默认自动连接
 
     public BleDevice(BluetoothDevice device) {
         this.mBleAddress = device.getAddress();
