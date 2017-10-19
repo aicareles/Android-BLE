@@ -87,19 +87,20 @@ public abstract class BleLisenter {
     /**
      *  When the callback when the error, such as app can only connect four devices
      *  at the same time forcing the user to connect more than four devices will call back the method
+     *  @param device ble device object
      * @param errorCode errorCode
      */
-    public void onError(int errorCode){};
+    public void onConnectException(BleDevice device,int errorCode){};
 
     /**
      *  device connect timeout
      */
-    public void onConnectTimeOut(BleDevice device){}
+//    public void onConnectTimeOut(BleDevice device){}
 
-    /**
-     *  device connect failed
-     */
-    public void onConnectFailed(BleDevice device){}
+//    /**
+//     *  device connect failed
+//     */
+//    public void onConnectFailed(BleDevice device){}
 
     /**
      *  Unable to initialize Bluetooth

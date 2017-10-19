@@ -5,6 +5,7 @@ import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -22,9 +23,11 @@ import cn.com.heaton.blelibrary.ble.BleConfig;
 import cn.com.heaton.blelibrary.ble.BleLisenter;
 import cn.com.heaton.blelibrary.ble.BleManager;
 import cn.com.heaton.blelibrary.ble.BleDevice;
+import cn.com.heaton.blelibrary.ble.BleStates;
 
 public class TestActivity extends AppCompatActivity {
 
+    private static final String TAG = "TestActivity";
     @ViewInit(R.id.lv_scan)
     private ListView mListView;
     private LeDeviceListAdapter mLeDeviceListAdapter;
@@ -66,9 +69,9 @@ public class TestActivity extends AppCompatActivity {
                     mManager.scanLeDevice(false);
                 }
                 if (device.isConnected()) {
-                    mManager.disconnect(device.getBleAddress());
+                    mManager.disconnect(device);
                 } else {
-                    mManager.connect(device.getBleAddress());
+                    mManager.connect(device);
                 }
             }
         });
@@ -91,12 +94,13 @@ public class TestActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onConnectTimeOut(BleDevice device) {
-            super.onConnectTimeOut(device);
+        public void onConnectException(final BleDevice device, final int errorCode) {
+            super.onConnectException(device,errorCode);
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    Toast.makeText(getApplication(), R.string.connect_timeout, Toast.LENGTH_SHORT).show();
+                    Log.i(TAG, "errorCode: "+errorCode+"--------蓝牙名称："+device.getmBleName());
+                    Toast.makeText(getApplication(), errorCode+"", Toast.LENGTH_SHORT).show();
                     synchronized (mManager.getLocker()) {
                         mLeDeviceListAdapter.notifyDataSetChanged();
                     }
@@ -132,12 +136,9 @@ public class TestActivity extends AppCompatActivity {
                     for (int i = 0; i < mLeDeviceListAdapter.getCount(); i++) {
                         if (device.getBleAddress().equals(mLeDeviceListAdapter.getDevice(i).getBleAddress())) {
                             if (device.isConnected()) {
-                                mLeDeviceListAdapter.getDevice(i).setConnectionState(BleConfig.BleStatus.CONNECTED);
-                                Toast.makeText(TestActivity.this, R.string.line_success, Toast.LENGTH_SHORT).show();
+                                mLeDeviceListAdapter.getDevice(i).setConnectionState(BleStates.BleStatus.CONNECTED);
                             } else if (device.isConnectting()) {
-                                mLeDeviceListAdapter.getDevice(i).setConnectionState(BleConfig.BleStatus.CONNECTING);
                             } else {
-                                mLeDeviceListAdapter.getDevice(i).setConnectionState(BleConfig.BleStatus.DISCONNECT);
                                 Toast.makeText(TestActivity.this, R.string.line_disconnect, Toast.LENGTH_SHORT).show();
                             }
                         }

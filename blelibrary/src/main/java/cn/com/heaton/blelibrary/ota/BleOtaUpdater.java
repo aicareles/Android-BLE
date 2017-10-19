@@ -33,7 +33,7 @@ public class BleOtaUpdater implements OtaListener {
 	private int    mElapsedTime = 0;//Every time the package is time consuming
 	private Thread                       mUpdateThread;
 	private Semaphore                    semp;//Send lock
-	private BleConfig.OtaResult mRetValue;//return value
+	private OtaStatus.OtaResult mRetValue;//return value
 	private Runnable                     mUpdateRunnable;//Execute thread
 	private int mIndex = 0;//Execute the index
 
@@ -44,7 +44,7 @@ public class BleOtaUpdater implements OtaListener {
 
 	public BleOtaUpdater(Handler handler) {
 		mHandler = handler;
-		this.mRetValue = BleConfig.OtaResult.OTA_RESULT_SUCCESS;
+		this.mRetValue = OtaStatus.OtaResult.OTA_RESULT_SUCCESS;
 		// Initialize the thread
 		this.mUpdateRunnable = new Runnable() {
 			public void run() {
@@ -92,7 +92,7 @@ public class BleOtaUpdater implements OtaListener {
 		}
 	}
 
-	private byte cmdToValue(BleConfig.OtaCmd cmd) {
+	private byte cmdToValue(OtaStatus.OtaCmd cmd) {
 		switch (cmd) {
 			case OTA_CMD_META_DATA:
 				return (byte) 1;
@@ -107,16 +107,16 @@ public class BleOtaUpdater implements OtaListener {
 		}
 	}
 
-	private BleConfig.OtaCmd valueToCmd(int val) {
+	private OtaStatus.OtaCmd valueToCmd(int val) {
 		switch (val & 255) {
 			case 1:
-				return BleConfig.OtaCmd.OTA_CMD_META_DATA;
+				return OtaStatus.OtaCmd.OTA_CMD_META_DATA;
 			case 2:
-				return BleConfig.OtaCmd.OTA_CMD_BRICK_DATA;
+				return OtaStatus.OtaCmd.OTA_CMD_BRICK_DATA;
 			case 3:
-				return BleConfig.OtaCmd.OTA_CMD_DATA_VERIFY;
+				return OtaStatus.OtaCmd.OTA_CMD_DATA_VERIFY;
 			case 4:
-				return BleConfig.OtaCmd.OTA_CMD_EXECUTION_NEW_CODE;
+				return OtaStatus.OtaCmd.OTA_CMD_EXECUTION_NEW_CODE;
 			default:
 				return null;
 		}
@@ -153,7 +153,7 @@ public class BleOtaUpdater implements OtaListener {
 	 * @param dataLength Data length
 	 * @return Whether to send successfully
 	 */
-	private boolean otaSendPacket(BleConfig.OtaCmd cmd, short checksum, byte[] data, int dataLength) {
+	private boolean otaSendPacket(OtaStatus.OtaCmd cmd, short checksum, byte[] data, int dataLength) {
 		// Get the command byte
 		byte cmdVal = this.cmdToValue(cmd);
 		// Conversion check length is byte (high and low)
@@ -238,13 +238,13 @@ public class BleOtaUpdater implements OtaListener {
 			return -1;
 		} else {
 			// Gets the check size of each byte of Meta
-			short checksum = this.cmdToValue(BleConfig.OtaCmd.OTA_CMD_META_DATA);
+			short checksum = this.cmdToValue(OtaStatus.OtaCmd.OTA_CMD_META_DATA);
 
 			// Statistics the size of the entire meta check
 			for (int i = 0; i < readLength; ++i) {
 				checksum = (short) (checksum + (data[i] & 255));
 			}
-			return this.otaSendPacket(BleConfig.OtaCmd.OTA_CMD_META_DATA, checksum, data, dataLength) ? readLength + 2 : -1;
+			return this.otaSendPacket(OtaStatus.OtaCmd.OTA_CMD_META_DATA, checksum, data, dataLength) ? readLength + 2 : -1;
 		}
 	}
 
@@ -269,7 +269,7 @@ public class BleOtaUpdater implements OtaListener {
 				dataLength = readLength;
 			}
 			// Get the size of each byte
-			short checksum = this.cmdToValue(BleConfig.OtaCmd.OTA_CMD_BRICK_DATA);
+			short checksum = this.cmdToValue(OtaStatus.OtaCmd.OTA_CMD_BRICK_DATA);
 
 			// The size of the checksum of the statistics block
 			for (int i = 0; i < dataLength; ++i) {
@@ -277,7 +277,7 @@ public class BleOtaUpdater implements OtaListener {
 			}
 
 			// Send a packet
-			if (this.otaSendPacket(BleConfig.OtaCmd.OTA_CMD_BRICK_DATA, checksum, data, dataLength)) {
+			if (this.otaSendPacket(OtaStatus.OtaCmd.OTA_CMD_BRICK_DATA, checksum, data, dataLength)) {
 				return readLength;
 			} else {
 				if(BuildConfig.DEBUG) {
@@ -293,16 +293,16 @@ public class BleOtaUpdater implements OtaListener {
 	 * @return whether succeed
 	 */
 	private boolean otaSendVerifyCmd() {
-		byte checksum = this.cmdToValue(BleConfig.OtaCmd.OTA_CMD_DATA_VERIFY);
-		return this.otaSendPacket(BleConfig.OtaCmd.OTA_CMD_DATA_VERIFY, checksum, null, 0) && this.waitVerifyCmdDone();
+		byte checksum = this.cmdToValue(OtaStatus.OtaCmd.OTA_CMD_DATA_VERIFY);
+		return this.otaSendPacket(OtaStatus.OtaCmd.OTA_CMD_DATA_VERIFY, checksum, null, 0) && this.waitVerifyCmdDone();
 	}
 
 	/**
 	 * Send a reset service command
 	 */
 	private void otaSendResetCmd() {
-		byte checksum = this.cmdToValue(BleConfig.OtaCmd.OTA_CMD_EXECUTION_NEW_CODE);
-		this.otaSendPacket(BleConfig.OtaCmd.OTA_CMD_EXECUTION_NEW_CODE, checksum, null, 0);
+		byte checksum = this.cmdToValue(OtaStatus.OtaCmd.OTA_CMD_EXECUTION_NEW_CODE);
+		this.otaSendPacket(OtaStatus.OtaCmd.OTA_CMD_EXECUTION_NEW_CODE, checksum, null, 0);
 	}
 
 	private void releaseSemaphore(Semaphore semp) {
@@ -386,35 +386,35 @@ public class BleOtaUpdater implements OtaListener {
 	 * @param notify_data Result object
 	 */
 	public void otaGetResult(byte[] notify_data) {
-		BleConfig.OtaCmd cmdType = this.valueToCmd(notify_data[2] & 255);
+		OtaStatus.OtaCmd cmdType = this.valueToCmd(notify_data[2] & 255);
 		if (cmdType == null) {
 			this.otaPrintBytes(notify_data, "Notify data: ");
-			this.serErrorCode(BleConfig.OtaResult.OTA_RESULT_RECEIVED_INVALID_PACKET);
+			this.serErrorCode(OtaStatus.OtaResult.OTA_RESULT_RECEIVED_INVALID_PACKET);
 		} else {
 			switch (notify_data[3]) {
 				case 0:
-					this.serErrorCode(BleConfig.OtaResult.OTA_RESULT_SUCCESS);
+					this.serErrorCode(OtaStatus.OtaResult.OTA_RESULT_SUCCESS);
 					break;
 				case 1:
-					this.serErrorCode(BleConfig.OtaResult.OTA_RESULT_PKT_CHECKSUM_ERROR);
+					this.serErrorCode(OtaStatus.OtaResult.OTA_RESULT_PKT_CHECKSUM_ERROR);
 					break;
 				case 2:
-					this.serErrorCode(BleConfig.OtaResult.OTA_RESULT_PKT_LEN_ERROR);
+					this.serErrorCode(OtaStatus.OtaResult.OTA_RESULT_PKT_LEN_ERROR);
 					break;
 				case 3:
-					this.serErrorCode(BleConfig.OtaResult.OTA_RESULT_DEVICE_NOT_SUPPORT_OTA);
+					this.serErrorCode(OtaStatus.OtaResult.OTA_RESULT_DEVICE_NOT_SUPPORT_OTA);
 					break;
 				case 4:
-					this.serErrorCode(BleConfig.OtaResult.OTA_RESULT_FW_SIZE_ERROR);
+					this.serErrorCode(OtaStatus.OtaResult.OTA_RESULT_FW_SIZE_ERROR);
 					break;
 				case 5:
-					this.serErrorCode(BleConfig.OtaResult.OTA_RESULT_FW_VERIFY_ERROR);
+					this.serErrorCode(OtaStatus.OtaResult.OTA_RESULT_FW_VERIFY_ERROR);
 					break;
 				default:
-					this.serErrorCode(BleConfig.OtaResult.OTA_RESULT_INVALID_ARGUMENT);
+					this.serErrorCode(OtaStatus.OtaResult.OTA_RESULT_INVALID_ARGUMENT);
 			}
 
-			if (this.mRetValue != BleConfig.OtaResult.OTA_RESULT_SUCCESS) {
+			if (this.mRetValue != OtaStatus.OtaResult.OTA_RESULT_SUCCESS) {
 				this.otaPrintBytes(notify_data, "Notify data: ");
 			} else {
 				switch (cmdType) {
@@ -441,7 +441,7 @@ public class BleOtaUpdater implements OtaListener {
 						if(BuildConfig.DEBUG) {
 							Log.i(TAG, "Exit " + (notify_data[2] & 255));
 						}
-						this.serErrorCode(BleConfig.OtaResult.OTA_RESULT_INVALID_ARGUMENT);
+						this.serErrorCode(OtaStatus.OtaResult.OTA_RESULT_INVALID_ARGUMENT);
 				}
 
 			}
@@ -456,7 +456,7 @@ public class BleOtaUpdater implements OtaListener {
 		return this.mShouldStop;
 	}
 
-	private void serErrorCode(BleConfig.OtaResult ret) {
+	private void serErrorCode(OtaStatus.OtaResult ret) {
 		this.mRetValue = ret;
 	}
 
@@ -467,7 +467,7 @@ public class BleOtaUpdater implements OtaListener {
 	 * @param bleManager Device management class
 	 * @return Update the results
 	 */
-	public BleConfig.OtaResult otaStart(String file,BleDevice bleDevice, BleManager bleManager) {
+	public OtaStatus.OtaResult otaStart(String file,BleDevice bleDevice, BleManager bleManager) {
 		if (!file.isEmpty() && bleManager != null) {
 			this.mFilePath = file;
 			this.mBleDevice = bleDevice;
@@ -482,12 +482,12 @@ public class BleOtaUpdater implements OtaListener {
 			mUpdateThread = new Thread(this.mUpdateRunnable);
 			// Start Update
 			mUpdateThread.start();
-			return BleConfig.OtaResult.OTA_RESULT_SUCCESS;
+			return OtaStatus.OtaResult.OTA_RESULT_SUCCESS;
 		} else {
 			if(BuildConfig.DEBUG) {
 				Log.e(TAG, "otaUpdateInit:argument invalid");
 			}
-			return BleConfig.OtaResult.OTA_RESULT_INVALID_ARGUMENT;
+			return OtaStatus.OtaResult.OTA_RESULT_INVALID_ARGUMENT;
 		}
 	}
 
@@ -507,7 +507,7 @@ public class BleOtaUpdater implements OtaListener {
 			int fileSize = fileInputStream.available();
 			if (fileSize == 0 || mShouldStop) {// The file size is 0, ending the update
 				fileInputStream.close();
-				this.serErrorCode(BleConfig.OtaResult.OTA_RESULT_FW_SIZE_ERROR);
+				this.serErrorCode(OtaStatus.OtaResult.OTA_RESULT_FW_SIZE_ERROR);
 				if (mHandler != null) {
 					mHandler.obtainMessage(OTA_FAIL, mIndex).sendToTarget();
 				}
@@ -518,7 +518,7 @@ public class BleOtaUpdater implements OtaListener {
 			int metaSize = this.otaSendMetaData(fileInputStream);
 			if (metaSize < 0 || mShouldStop) {// Sending metadata error
 				fileInputStream.close();
-				this.serErrorCode(BleConfig.OtaResult.OTA_RESULT_SEND_META_ERROR);
+				this.serErrorCode(OtaStatus.OtaResult.OTA_RESULT_SEND_META_ERROR);
 				if (mHandler != null) {
 					mHandler.obtainMessage(OTA_FAIL, mIndex).sendToTarget();
 				}
@@ -532,7 +532,7 @@ public class BleOtaUpdater implements OtaListener {
 					Log.e(TAG, "wait cmd OTA_CMD_META_DATA timeout");
 				}
 				fileInputStream.close();
-				this.serErrorCode(BleConfig.OtaResult.OTA_RESULT_META_RESPONSE_TIMEOUT);
+				this.serErrorCode(OtaStatus.OtaResult.OTA_RESULT_META_RESPONSE_TIMEOUT);
 				if (mHandler != null) {
 					mHandler.obtainMessage(OTA_FAIL, mIndex).sendToTarget();
 				}
@@ -561,7 +561,7 @@ public class BleOtaUpdater implements OtaListener {
 					if(BuildConfig.DEBUG) {
 						Log.e(TAG, "otaUpdateProcess Exit for some transfer issue");
 					}
-					this.serErrorCode(BleConfig.OtaResult.OTA_RESULT_DATA_RESPONSE_TIMEOUT);
+					this.serErrorCode(OtaStatus.OtaResult.OTA_RESULT_DATA_RESPONSE_TIMEOUT);
 					if (mHandler != null) {
 						mHandler.obtainMessage(OTA_FAIL, mIndex).sendToTarget();
 					}
@@ -573,7 +573,7 @@ public class BleOtaUpdater implements OtaListener {
 					if(BuildConfig.DEBUG) {
 						Log.e(TAG, "waitReadDataCompleted timeout");
 					}
-					this.serErrorCode(BleConfig.OtaResult.OTA_RESULT_DATA_RESPONSE_TIMEOUT);
+					this.serErrorCode(OtaStatus.OtaResult.OTA_RESULT_DATA_RESPONSE_TIMEOUT);
 					if (mHandler != null) {
 						mHandler.obtainMessage(OTA_FAIL, mIndex).sendToTarget();
 					}
@@ -601,7 +601,7 @@ public class BleOtaUpdater implements OtaListener {
 			// Send the server to verify the packet command
 			if (!this.otaSendVerifyCmd() || mShouldStop) {
 				fileInputStream.close();
-				this.serErrorCode(BleConfig.OtaResult.OTA_RESULT_FW_VERIFY_ERROR);
+				this.serErrorCode(OtaStatus.OtaResult.OTA_RESULT_FW_VERIFY_ERROR);
 				if (mHandler != null) {
 					mHandler.obtainMessage(OTA_FAIL, mIndex).sendToTarget();
 				}
@@ -617,7 +617,7 @@ public class BleOtaUpdater implements OtaListener {
 			if(BuildConfig.DEBUG) {
 				Log.e(TAG, "send ota update error",e);
 			}
-			this.serErrorCode(BleConfig.OtaResult.OTA_RESULT_DATA_RESPONSE_TIMEOUT);
+			this.serErrorCode(OtaStatus.OtaResult.OTA_RESULT_DATA_RESPONSE_TIMEOUT);
 			if (mHandler != null) {
 				mHandler.obtainMessage(OTA_FAIL, mIndex).sendToTarget();
 			}
@@ -631,7 +631,7 @@ public class BleOtaUpdater implements OtaListener {
 		if (mHandler != null) {
 			mHandler.obtainMessage(OTA_OVER, mIndex).sendToTarget();
 		}
-		this.serErrorCode(BleConfig.OtaResult.OTA_RESULT_SUCCESS);
+		this.serErrorCode(OtaStatus.OtaResult.OTA_RESULT_SUCCESS);
 	}
 
 	/**
@@ -639,12 +639,12 @@ public class BleOtaUpdater implements OtaListener {
 	 * @param extra Update progress
 	 * @return Data results
 	 */
-	public BleConfig.OtaResult otaGetProcess(int[] extra) {
+	public OtaStatus.OtaResult otaGetProcess(int[] extra) {
 		if (extra.length < 8) {
 			if(BuildConfig.DEBUG) {
 				Log.e(TAG, "buffer is too small,at least 8 intgent");
 			}
-			return BleConfig.OtaResult.OTA_RESULT_INVALID_ARGUMENT;
+			return OtaStatus.OtaResult.OTA_RESULT_INVALID_ARGUMENT;
 		} else {
 			Arrays.fill(extra, 0);
 			extra[0] = this.mPercent;

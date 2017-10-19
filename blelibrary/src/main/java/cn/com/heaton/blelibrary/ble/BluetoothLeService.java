@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import cn.com.heaton.blelibrary.BuildConfig;
+import cn.com.heaton.blelibrary.ble.exception.BleNotSupportException;
 import cn.com.heaton.blelibrary.ota.OtaListener;
 
 
@@ -36,10 +37,11 @@ public class BluetoothLeService extends Service {
     private final static String TAG = BluetoothLeService.class.getSimpleName();
 
     private Handler mHandler;
+    private BleManager mBleManager;
     private BluetoothManager mBluetoothManager;
     private BluetoothAdapter mBluetoothAdapter;
     private final Object mLocker = new Object();
-//    private BluetoothGattCharacteristic mWriteCharacteristic;//Writable GattCharacteristic object
+    //    private BluetoothGattCharacteristic mWriteCharacteristic;//Writable GattCharacteristic object
     private List<BluetoothGattCharacteristic> mNotifyCharacteristics = new ArrayList<>();//Notification attribute callback array
     private int mNotifyIndex = 0;//Notification feature callback list
     private int mIndex = 0;//Device index
@@ -69,13 +71,13 @@ public class BluetoothLeService extends Service {
                                             int newState) {
             BluetoothDevice device = gatt.getDevice();
             //There is a problem here Every time a new object is generated that causes the same device to be disconnected and the connection produces two objects
-//            if(status == BluetoothGatt.GATT_SUCCESS){
+            if (status == BluetoothGatt.GATT_SUCCESS) {
                 if (newState == BluetoothProfile.STATE_CONNECTED) {
                     mIndex++;
                     mConnectedAddressList.add(device.getAddress());
 ///                    mHandler.removeCallbacks(mConnectTimeout);
-                    mHandler.removeMessages(BleConfig.BleStatus.ConnectTimeOut);
-                    mHandler.obtainMessage(BleConfig.BleStatus.ConnectionChanged, 1, 0, device).sendToTarget();
+                    mHandler.removeMessages(BleStates.BleStatus.ConnectException);
+                    mHandler.obtainMessage(BleStates.BleStatus.ConnectionChanged, 1, 0, device).sendToTarget();
                     Log.i(TAG, "Connected to GATT server.");
                     // Attempts to discover services after successful connection.
                     Log.i(TAG, "Attempting to start service discovery:"
@@ -83,24 +85,38 @@ public class BluetoothLeService extends Service {
 
                 } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
 ///                    mHandler.removeCallbacks(mConnectTimeout);
-                    mHandler.removeMessages(BleConfig.BleStatus.ConnectTimeOut);
+                    mHandler.removeMessages(BleStates.BleStatus.ConnectException);
                     Log.i(TAG, "Disconnected from GATT server.");
-                    mHandler.obtainMessage(BleConfig.BleStatus.ConnectionChanged, 0, 0, device).sendToTarget();
+                    mHandler.obtainMessage(BleStates.BleStatus.ConnectionChanged, 0, 0, device).sendToTarget();
                     close(device.getAddress());
                 }
-//            }else {
-//                //出现133或者257  19等  值不为0：由于协议栈原因导致连接建立失败
-//                Log.e(TAG, "onConnectionStateChange+++: "+"连接状态异常"+status);
-//                mHandler.removeMessages(BleConfig.BleStatus.ConnectTimeOut);
-//                mHandler.obtainMessage(BleConfig.BleStatus.ConnectFailed, device).sendToTarget();
-//            }
+            } else {
+                //出现133或者257  19等  值不为0：由于协议栈原因导致连接建立失败
+                mHandler.removeMessages(BleStates.BleStatus.ConnectException);
+                Log.e(TAG, "onConnectionStateChange+++: " + "连接状态异常" + status);
+                BleDevice d = (BleDevice)getBleManager().getBleDevice(device);
+                int errorCode = BleStates.BleStatus.ConnectFailed;
+                if(d.isConnected()){
+                    //Mcu连接断开  或者是信号弱等原因断开
+                    errorCode = BleStates.BleStatus.ConnectException;
+                }else if(d.isConnectting()){
+                    //连接失败
+                    errorCode = BleStates.BleStatus.ConnectFailed;
+                }else {
+                    //状态异常  ( 理论上不存在这种情况 )
+                    errorCode = BleStates.BleStatus.ConnectError;
+                }
+//                disconnect(d.getBleAddress());
+                close(d.getBleAddress());
+                mHandler.obtainMessage(BleStates.BleStatus.ConnectException, errorCode, 0, device).sendToTarget();
+            }
 
         }
 
         @Override
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                mHandler.obtainMessage(BleConfig.BleStatus.ServicesDiscovered, gatt).sendToTarget();
+                mHandler.obtainMessage(BleStates.BleStatus.ServicesDiscovered, gatt).sendToTarget();
                 //Empty the notification attribute list
                 mNotifyCharacteristics.clear();
                 mNotifyIndex = 0;
@@ -116,7 +132,7 @@ public class BluetoothLeService extends Service {
                                          BluetoothGattCharacteristic characteristic, int status) {
             Log.d(TAG, "onCharacteristicRead:" + status);
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                mHandler.obtainMessage(BleConfig.BleStatus.Read, gatt.getDevice()).sendToTarget();
+                mHandler.obtainMessage(BleStates.BleStatus.Read, gatt.getDevice()).sendToTarget();
             }
         }
 
@@ -125,7 +141,7 @@ public class BluetoothLeService extends Service {
                                           BluetoothGattCharacteristic characteristic, int status) {
             System.out.println("--------write success----- status:" + status);
             synchronized (mLocker) {
-                if(BuildConfig.DEBUG){
+                if (BuildConfig.DEBUG) {
                     Log.i(TAG, gatt.getDevice().getAddress() + " -- onCharacteristicWrite: " + status);
                 }
                 if (status == BluetoothGatt.GATT_SUCCESS) {
@@ -135,7 +151,7 @@ public class BluetoothLeService extends Service {
                         }
                         return;
                     }
-                    mHandler.obtainMessage(BleConfig.BleStatus.Write, gatt).sendToTarget();
+                    mHandler.obtainMessage(BleStates.BleStatus.Write, gatt).sendToTarget();
                 }
             }
         }
@@ -149,7 +165,7 @@ public class BluetoothLeService extends Service {
         public void onCharacteristicChanged(BluetoothGatt gatt,
                                             BluetoothGattCharacteristic characteristic) {
             synchronized (mLocker) {
-                if(BuildConfig.DEBUG){
+                if (BuildConfig.DEBUG) {
                     Log.i(TAG, gatt.getDevice().getAddress() + " -- onCharacteristicWrite: " + (characteristic.getValue() != null ? Arrays.toString(characteristic.getValue()) : ""));
                 }
                 if (BleConfig.UUID_OTA_WRITE_CHARACTERISTIC.equals(characteristic.getUuid()) || BleConfig.UUID_OTA_NOTIFY_CHARACTERISTIC.equals(characteristic.getUuid())) {
@@ -158,7 +174,7 @@ public class BluetoothLeService extends Service {
                     }
                     return;
                 }
-                mHandler.obtainMessage(BleConfig.BleStatus.Changed, characteristic).sendToTarget();
+                mHandler.obtainMessage(BleStates.BleStatus.Changed, characteristic).sendToTarget();
             }
         }
 
@@ -175,12 +191,12 @@ public class BluetoothLeService extends Service {
                 if (status == BluetoothGatt.GATT_SUCCESS) {
                     if (mNotifyCharacteristics != null && mNotifyCharacteristics.size() > 0 && mNotifyIndex < mNotifyCharacteristics.size()) {
                         setCharacteristicNotification(gatt.getDevice().getAddress(), mNotifyCharacteristics.get(mNotifyIndex++), true);
-                    }else {
+                    } else {
                         Log.e(TAG, "====setCharacteristicNotification is true,ready to sendData===");
-                        mHandler.obtainMessage(BleConfig.BleStatus.OnReady, gatt.getDevice()).sendToTarget();
+                        mHandler.obtainMessage(BleStates.BleStatus.OnReady, gatt.getDevice()).sendToTarget();
                     }
                 }
-                mHandler.obtainMessage(BleConfig.BleStatus.DescriptorWriter, gatt).sendToTarget();
+                mHandler.obtainMessage(BleStates.BleStatus.DescriptorWriter, gatt).sendToTarget();
             }
         }
 
@@ -190,7 +206,7 @@ public class BluetoothLeService extends Service {
             UUID uuid = descriptor.getCharacteristic().getUuid();
             Log.w(TAG, "onDescriptorRead");
             Log.e(TAG, "descriptor_uuid:" + uuid);
-            mHandler.obtainMessage(BleConfig.BleStatus.DescriptorRead, gatt).sendToTarget();
+            mHandler.obtainMessage(BleStates.BleStatus.DescriptorRead, gatt).sendToTarget();
         }
 
         @Override
@@ -249,6 +265,21 @@ public class BluetoothLeService extends Service {
 
     public Handler getHandler() {
         return mHandler;
+    }
+
+    private BleManager getBleManager() {
+        if(mBleManager == null){
+            try {
+                BleManager.getInstance(this);
+            } catch (BleNotSupportException e) {
+                e.printStackTrace();
+            }
+        }
+        return mBleManager;
+    }
+
+    public void setBleManager(BleManager bleManager) {
+        this.mBleManager = bleManager;
     }
 
     /**
@@ -310,13 +341,14 @@ public class BluetoothLeService extends Service {
         }
         //10s after the timeout prompt
         Message msg = Message.obtain();
-        msg.what = BleConfig.BleStatus.ConnectTimeOut;
+        msg.what = BleStates.BleStatus.ConnectException;
+        msg.arg1 = BleStates.BleStatus.ConnectTimeOut;
         msg.obj = device;
         mHandler.sendMessageDelayed(msg, BleConfig.getConnectTimeOut());
         // We want to directly connect to the device, so we are setting the
         // autoConnect
         // parameter to false
-        mHandler.obtainMessage(BleConfig.BleStatus.ConnectionChanged, 2, 0, device).sendToTarget();
+        mHandler.obtainMessage(BleStates.BleStatus.ConnectionChanged, 2, 0, device).sendToTarget();
         BluetoothGatt bluetoothGatt = device.connectGatt(this, false, mGattCallback);
         if (bluetoothGatt != null) {
             mBluetoothGattMap.put(address, bluetoothGatt);
@@ -385,7 +417,7 @@ public class BluetoothLeService extends Service {
             return false;
         }
         BluetoothGattCharacteristic gattCharacteristic = mWriteCharacteristicMap.get(address);
-        if(gattCharacteristic != null){
+        if (gattCharacteristic != null) {
             try {
                 if (BleConfig.UUID_CHARACTERISTIC.equals(gattCharacteristic.getUuid())) {
                     gattCharacteristic.setValue(value);
@@ -463,7 +495,7 @@ public class BluetoothLeService extends Service {
                     uuid = gattCharacteristic.getUuid().toString();
                     if (uuid.equals(BleConfig.getUuidCharacteristic().toString())) {
                         Log.e("mWriteCharacteristic", uuid);
-                        mWriteCharacteristicMap.put(address,gattCharacteristic);
+                        mWriteCharacteristicMap.put(address, gattCharacteristic);
                         //Notification feature
                     } else if (gattCharacteristic.getProperties() == BluetoothGattCharacteristic.PROPERTY_NOTIFY) {
                         mNotifyCharacteristics.add(gattCharacteristic);
@@ -493,7 +525,7 @@ public class BluetoothLeService extends Service {
     public BluetoothGattCharacteristic getWriteCharacteristic(String address) {
         synchronized (mLocker) {
             if (mWriteCharacteristicMap != null) {
-                return  mWriteCharacteristicMap.get(address);
+                return mWriteCharacteristicMap.get(address);
             }
             return null;
         }
@@ -531,7 +563,7 @@ public class BluetoothLeService extends Service {
      * Send ota data
      *
      * @param address Device address
-     * @param value  Send data values
+     * @param value   Send data values
      * @return whether succeed
      */
     public boolean writeOtaData(String address, byte[] value) {

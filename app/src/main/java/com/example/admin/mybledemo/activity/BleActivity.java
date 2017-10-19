@@ -38,6 +38,10 @@ import cn.com.heaton.blelibrary.ble.BleConfig;
 import cn.com.heaton.blelibrary.ble.BleLisenter;
 import cn.com.heaton.blelibrary.ble.BleManager;
 import cn.com.heaton.blelibrary.ble.BleDevice;
+import cn.com.heaton.blelibrary.ble.BleStates;
+import cn.com.heaton.blelibrary.ble.exception.BleNotSupportException;
+import cn.com.heaton.blelibrary.ble.exception.BlePermissionException;
+import cn.com.heaton.blelibrary.ble.exception.BleServiceException;
 import cn.com.heaton.blelibrary.ota.OtaManager;
 
 /**
@@ -74,13 +78,13 @@ public class BleActivity extends BaseActivity {
         }
 
         @Override
-        public void onConnectTimeOut(final BleDevice device) {
-            super.onConnectTimeOut(device);
+        public void onConnectException(final BleDevice device, final int errorCode) {
+            super.onConnectException(device,errorCode);
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    Log.i(TAG, "onConnectTimeOut: "+device.getmBleName());
-                    Toast.makeText(getApplication(), R.string.connect_timeout, Toast.LENGTH_SHORT).show();
+                    Log.i(TAG, "errorCode: "+errorCode+"--------蓝牙名称："+device.getmBleName());
+                    Toast.makeText(getApplication(), "连接错误码："+errorCode, Toast.LENGTH_SHORT).show();
                     synchronized (mManager.getLocker()) {
                         mLeDeviceListAdapter.notifyDataSetChanged();
                     }
@@ -110,6 +114,7 @@ public class BleActivity extends BaseActivity {
 
         @Override
         public void onConnectionChanged(final BleDevice device) {
+            if(device == null)return;
             Logger.e("onConnectionChanged" + device.getConnectionState() + device.isConnected());
             setConnectedNum();
             runOnUiThread(new Runnable() {
@@ -119,12 +124,12 @@ public class BleActivity extends BaseActivity {
                     for (int i = 0; i < mLeDeviceListAdapter.getCount(); i++) {
                         if (device.getBleAddress().equals(mLeDeviceListAdapter.getDevice(i).getBleAddress())) {
                             if (device.isConnected()) {
-                                mLeDeviceListAdapter.getDevice(i).setConnectionState(BleConfig.BleStatus.CONNECTED);
+//                                mLeDeviceListAdapter.getDevice(i).setConnectionState(BleStates.BleStatus.CONNECTED);
                                 Toast.makeText(BleActivity.this, R.string.line_success, Toast.LENGTH_SHORT).show();
                             } else if (device.isConnectting()) {
-                                mLeDeviceListAdapter.getDevice(i).setConnectionState(BleConfig.BleStatus.CONNECTING);
+//                                mLeDeviceListAdapter.getDevice(i).setConnectionState(BleStates.BleStatus.CONNECTING);
                             } else {
-                                mLeDeviceListAdapter.getDevice(i).setConnectionState(BleConfig.BleStatus.DISCONNECT);
+//                                mLeDeviceListAdapter.getDevice(i).setConnectionState(BleStates.BleStatus.DISCONNECT);
                                 Toast.makeText(BleActivity.this, R.string.line_disconnect, Toast.LENGTH_SHORT).show();
                             }
                         }
@@ -255,7 +260,7 @@ public class BleActivity extends BaseActivity {
         SPUtils.put(this, StaticValue.IS_FIRST_RUN, false);
     }
 
-    private void initBle() {
+    private void initBle(){
         //配置设备可自动重连
         BleConfig.isAutoConnect = true;
         //设置超时时间
@@ -273,15 +278,14 @@ public class BleActivity extends BaseActivity {
         try {
             mManager = BleManager.getInstance(this);
             mManager.registerBleListener(mLisenter);
-            boolean result = false;
             if (mManager != null) {
-                result = mManager.startService();
+                mManager.startService();
                 if (!mManager.isBleEnable()) {//蓝牙未打开
                     mManager.turnOnBlueTooth(this);
                 } else {//已打开
                     requestPermission(new String[]{Manifest.permission.BLUETOOTH_ADMIN, Manifest.permission.ACCESS_COARSE_LOCATION}, getString(R.string.ask_permission), new GrantedResult() {
                         @Override
-                        public void onResult(boolean granted) {
+                        public void onResult(boolean granted){
                             if (!granted) {
                                 finish();
                             } else {
@@ -292,14 +296,9 @@ public class BleActivity extends BaseActivity {
                     });
                 }
             }
-            if (!result) {
-                Logger.e("服务绑定失败");
-                if (mManager != null) {
-                    mManager.startService();
-                }
-            }
-        } catch (Exception e) {
+        } catch (BleNotSupportException e) {
             e.printStackTrace();
+            finish();
         }
     }
 
@@ -362,9 +361,9 @@ public class BleActivity extends BaseActivity {
                     mManager.scanLeDevice(false);
                 }
                 if (device.isConnected()) {
-                    mManager.disconnect(device.getBleAddress());
+                    mManager.disconnect(device);
                 } else if(!device.isConnectting()){
-                    mManager.connect(device.getBleAddress());
+                    mManager.connect(device);
                 }
 
             }
@@ -406,7 +405,7 @@ public class BleActivity extends BaseActivity {
                 if (mManager != null) {
                     for (int i = 0; i < mLeDeviceListAdapter.getCount(); i++) {
                         BleDevice device = mLeDeviceListAdapter.getDevice(i);
-                        mManager.connect(device.getBleAddress());
+                        mManager.connect(device);
                     }
                 }
                 break;
@@ -415,9 +414,12 @@ public class BleActivity extends BaseActivity {
                 if (mManager != null) {
                     ArrayList<BleDevice> list = mManager.getConnetedDevices();
                     for (BleDevice device : list) {
-                        mManager.disconnect(device.getBleAddress());
+                        mManager.disconnect(device);
                     }
                 }
+                break;
+            case R.id.menu_introduced:
+                startActivity(new Intent(BleActivity.this,IntroducedActivity.class));
                 break;
         }
         return super.onOptionsItemSelected(item);

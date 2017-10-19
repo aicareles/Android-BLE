@@ -16,6 +16,8 @@ import android.widget.TextView;
 
 import com.example.admin.mybledemo.R;
 
+import cn.com.heaton.blelibrary.ble.exception.BlePermissionException;
+
 public class BaseActivity extends AppCompatActivity {
 
     protected final String TAG = this.getClass().getSimpleName();

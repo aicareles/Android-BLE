@@ -14,61 +14,7 @@ import java.util.UUID;
 
 public class BleConfig {
 
-    public enum BleConstant{
-        CONNECTED,
-        CONNECTING,
-        DISCONNECT,
-        ConnectionChanged,
-        ServicesDiscovered,
-        Read,
-        Write,
-        Changed,
-        DescriptorWriter,
-        DescriptorRead,
-        Start,
-        Stop,
-        ConnectTimeOut
-    }
 
-    /**
-     *  Annotations
-     *  prevent the defined constant values from being repeated
-     */
-    @IntDef({
-            BleStatus.CONNECTED,
-            BleStatus.CONNECTING,
-            BleStatus.DISCONNECT,
-            BleStatus.ConnectionChanged,
-            BleStatus.ServicesDiscovered,
-            BleStatus.Read,
-            BleStatus.Write,
-            BleStatus.Changed,
-            BleStatus.DescriptorWriter,
-            BleStatus.DescriptorRead,
-            BleStatus.Start,
-            BleStatus.Stop,
-            BleStatus.ConnectTimeOut,
-            BleStatus.OnReady
-    })
-
-    @Retention(RetentionPolicy.SOURCE)
-    public @interface BleStatus{
-        int CONNECTED = 2505;
-        int CONNECTING = 2504;
-        int DISCONNECT = 2503;
-        int ConnectionChanged = 2511;
-        int ServicesDiscovered = 2512;
-        int Read = 2513;
-        int Write = 2514;
-        int Changed = 2515;
-        int DescriptorWriter = 2516;
-        int DescriptorRead = 2517;
-        int Start = 2518;
-        int Stop = 2519;
-        int ConnectTimeOut = 2510;
-        int OnReady = 2520;
-        int ConnectFailed = 2521;
-    }
     /**
      *  The default scan time
      */
@@ -208,7 +154,7 @@ public class BleConfig {
      * @param data Parameter data
      * @return Whether the match
      */
-    public static boolean matchProduct(byte[] data) {
+    /*public static boolean matchProduct(byte[] data) {
         if (data == null || data.length <= 0) {
             return false;
         }
@@ -239,27 +185,7 @@ public class BleConfig {
 
         } while (i < data.length);
         return false;
-    }
+    }*/
 
-    public enum OtaCmd {
-        OTA_CMD_META_DATA,
-        OTA_CMD_BRICK_DATA,
-        OTA_CMD_DATA_VERIFY,
-        OTA_CMD_EXECUTION_NEW_CODE
-    }
 
-    public enum OtaResult {
-        OTA_RESULT_SUCCESS,
-        OTA_RESULT_PKT_CHECKSUM_ERROR,
-        OTA_RESULT_PKT_LEN_ERROR,
-        OTA_RESULT_DEVICE_NOT_SUPPORT_OTA,
-        OTA_RESULT_FW_SIZE_ERROR,
-        OTA_RESULT_FW_VERIFY_ERROR,
-        OTA_RESULT_INVALID_ARGUMENT,
-        OTA_RESULT_OPEN_FIRMWAREFILE_ERROR,
-        OTA_RESULT_SEND_META_ERROR,
-        OTA_RESULT_RECEIVED_INVALID_PACKET,
-        OTA_RESULT_META_RESPONSE_TIMEOUT,
-        OTA_RESULT_DATA_RESPONSE_TIMEOUT;
-    }
 }

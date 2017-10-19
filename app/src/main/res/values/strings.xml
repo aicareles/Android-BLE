@@ -17,6 +17,7 @@
 
 
     <!-- Menu items -->
+    <string name="menu_introduced">Developers Introduced</string>
     <string name="menu_disconnect_all">DisConnect_All</string>
     <string name="menu_connect_all">Connect_All</string>
     <string name="menu_disconnect">Disconnect</string>

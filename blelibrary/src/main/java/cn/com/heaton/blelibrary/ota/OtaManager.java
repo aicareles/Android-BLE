@@ -198,7 +198,7 @@ public class OtaManager {
 			mOtaFile = file;
 			String mFilePath = file.getCanonicalPath();
 			mStopUpdate = false;
-			if (mBleOtaUpdater.otaStart(mFilePath, bleDevice, bleManager) == BleConfig.OtaResult.OTA_RESULT_SUCCESS) {
+			if (mBleOtaUpdater.otaStart(mFilePath, bleDevice, bleManager) == OtaStatus.OtaResult.OTA_RESULT_SUCCESS) {
 				return true;
 			}
 		} catch (IOException e) {
