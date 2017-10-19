@@ -10,8 +10,8 @@ android {
     defaultConfig {
         minSdkVersion 18
         targetSdkVersion 24
-        versionCode 1
-        versionName "1.0"
+        versionCode 4
+        versionName "1.2.0"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
@@ -42,7 +42,7 @@ tasks.withType(JavaCompile) {
     options.encoding = "UTF-8"
 }
 
-version = "1.0.4"       //这个是版本号，必须填写
+version = "1.2.0"       //这个是版本号，必须填写
 def siteUrl = 'https://github.com/Alex-Jerry/BleDemo'      // 项目的主页   这个是说明，可随便填
 def gitUrl = 'https://github.com/Alex-Jerry/BleDemo'      // Git仓库的url  这个是说明，可随便填
 //compile 'com.arshowbaby:mylibrary:1.0.0'中的com.arshowbaby

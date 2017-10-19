@@ -46,18 +46,22 @@ public class BleDevice {
 
     private boolean mAutoConnect = false;//默认自动连接
 
+    /**
+     * Use the address and name of the BluetoothDevice object
+     * to construct the address and name of the {@code BleDevice} object
+     *
+     * @param device BleDevice
+     */
     public BleDevice(BluetoothDevice device) {
         this.mBleAddress = device.getAddress();
         this.mBleName = device.getName();
     }
 
     public boolean isConnected() {
-//        return mConnectionState == BluetoothProfile.STATE_CONNECTED;
         return mConnectionState == BleConfig.BleStatus.CONNECTED;
     }
 
     public boolean isConnectting() {
-//        return mConnectionState == BluetoothProfile.STATE_CONNECTING;
         return mConnectionState == BleConfig.BleStatus.CONNECTING;
     }
 

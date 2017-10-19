@@ -74,11 +74,12 @@ public class BleActivity extends BaseActivity {
         }
 
         @Override
-        public void onConnectTimeOut() {
-            super.onConnectTimeOut();
+        public void onConnectTimeOut(final BleDevice device) {
+            super.onConnectTimeOut(device);
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    Log.i(TAG, "onConnectTimeOut: "+device.getmBleName());
                     Toast.makeText(getApplication(), R.string.connect_timeout, Toast.LENGTH_SHORT).show();
                     synchronized (mManager.getLocker()) {
                         mLeDeviceListAdapter.notifyDataSetChanged();
@@ -142,7 +143,7 @@ public class BleActivity extends BaseActivity {
         }
 
         @Override
-        public void onReady(BluetoothDevice device) {
+        public void onReady(BleDevice device) {
             super.onReady(device);
             Logger.e("onReady===+++++++可以写入数据了");
 //            changeLevelInner(device.getAddress());
@@ -162,7 +163,7 @@ public class BleActivity extends BaseActivity {
         }
 
         @Override
-        public void onRead(BluetoothDevice device) {
+        public void onRead(BleDevice device) {
             super.onRead(device);
             //可以选择性实现该方法   不需要则不用实现
             Logger.e("onRead");
@@ -257,6 +258,8 @@ public class BleActivity extends BaseActivity {
     private void initBle() {
         //配置设备可自动重连
         BleConfig.isAutoConnect = true;
+        //设置超时时间
+        BleConfig.setConnectTimeOut(10*1000);
         //设置主服务、写入特征、设置通知的描述uuid等（根据你自己需求加  比如单个设备可能有多个服务  如电池服务等  此处只添加一个主服务）
 
         //设置主服务uuid
@@ -327,6 +330,8 @@ public class BleActivity extends BaseActivity {
                             changeLevelInner(device.getBleAddress());
                         }
                     }
+                }else {
+                    Toast.makeText(BleActivity.this, "请先连接设备", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -357,9 +362,9 @@ public class BleActivity extends BaseActivity {
                     mManager.scanLeDevice(false);
                 }
                 if (device.isConnected()) {
-                    mManager.disconnect(device);
+                    mManager.disconnect(device.getBleAddress());
                 } else if(!device.isConnectting()){
-                    mManager.connect(device);
+                    mManager.connect(device.getBleAddress());
                 }
 
             }
@@ -388,14 +393,7 @@ public class BleActivity extends BaseActivity {
         switch (item.getItemId()) {
             case R.id.menu_scan:
                 Logger.e("点击了扫描按钮");
-                if (mManager != null && !mManager.isScanning()) {
-                    mLeDeviceListAdapter.clear();
-                    for(BleDevice device : mManager.getConnetedDevices()){
-                        mLeDeviceListAdapter.addDevice(device);
-                    }
-                    mManager.getScanBleDevice().clear();
-                    mManager.scanLeDevice(true);
-                }
+                reScan();
                 break;
             case R.id.menu_stop:
                 Logger.e("点击了停止扫描按钮");
@@ -408,7 +406,7 @@ public class BleActivity extends BaseActivity {
                 if (mManager != null) {
                     for (int i = 0; i < mLeDeviceListAdapter.getCount(); i++) {
                         BleDevice device = mLeDeviceListAdapter.getDevice(i);
-                        mManager.connect(device);
+                        mManager.connect(device.getBleAddress());
                     }
                 }
                 break;
@@ -417,12 +415,24 @@ public class BleActivity extends BaseActivity {
                 if (mManager != null) {
                     ArrayList<BleDevice> list = mManager.getConnetedDevices();
                     for (BleDevice device : list) {
-                        mManager.disconnect(device);
+                        mManager.disconnect(device.getBleAddress());
                     }
                 }
                 break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    //重新扫描
+    private void reScan() {
+        if (mManager != null) {
+            mLeDeviceListAdapter.clear();
+            for(BleDevice device : mManager.getConnetedDevices()){
+                mLeDeviceListAdapter.addDevice(device);
+            }
+            mManager.getScanBleDevice().clear();
+            mManager.scanLeDevice(true);
+        }
     }
 
     @Override
@@ -442,20 +452,7 @@ public class BleActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (mManager != null && !mManager.isScanning()) {
-            mLeDeviceListAdapter.clear();
-            mManager.clear();
-            mManager.scanLeDevice(true);
-        }
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        if (mManager != null) {
-            mManager.scanLeDevice(false);
-        }
-        mLeDeviceListAdapter.clear();
+        reScan();
     }
 
     @Override

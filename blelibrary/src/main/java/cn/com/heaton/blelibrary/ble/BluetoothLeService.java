@@ -16,6 +16,7 @@ import android.content.Intent;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -56,22 +57,8 @@ public class BluetoothLeService extends Service {
      */
     private List<String> mConnectedAddressList;
 
-    //The device is currently connected
-    private BluetoothDevice currentDevice = null;
 
     private OtaListener mOtaListener;//Ota update operation listener
-
-    private Runnable mConnectTimeout = new Runnable() { // 连接设备超时
-        @Override
-        public void run() {
-            mHandler.sendEmptyMessage(BleConfig.BleStatus.ConnectTimeOut);
-            if (currentDevice != null) {
-                disconnect(currentDevice.getAddress());
-                close(currentDevice.getAddress());
-                mHandler.obtainMessage(BleConfig.BleStatus.ConnectionChanged, 0, 0, currentDevice).sendToTarget();
-            }
-        }
-    };
 
     /**
      * Connection changes or services were found in a variety of state callbacks
@@ -82,23 +69,32 @@ public class BluetoothLeService extends Service {
                                             int newState) {
             BluetoothDevice device = gatt.getDevice();
             //There is a problem here Every time a new object is generated that causes the same device to be disconnected and the connection produces two objects
+//            if(status == BluetoothGatt.GATT_SUCCESS){
+                if (newState == BluetoothProfile.STATE_CONNECTED) {
+                    mIndex++;
+                    mConnectedAddressList.add(device.getAddress());
+///                    mHandler.removeCallbacks(mConnectTimeout);
+                    mHandler.removeMessages(BleConfig.BleStatus.ConnectTimeOut);
+                    mHandler.obtainMessage(BleConfig.BleStatus.ConnectionChanged, 1, 0, device).sendToTarget();
+                    Log.i(TAG, "Connected to GATT server.");
+                    // Attempts to discover services after successful connection.
+                    Log.i(TAG, "Attempting to start service discovery:"
+                            + mBluetoothGattMap.get(device.getAddress()).discoverServices());
 
-            if (newState == BluetoothProfile.STATE_CONNECTED) {
-                mIndex++;
-                mConnectedAddressList.add(device.getAddress());
-                mHandler.removeCallbacks(mConnectTimeout);
-                mHandler.obtainMessage(BleConfig.BleStatus.ConnectionChanged, 1, 0, device).sendToTarget();
-                Log.i(TAG, "Connected to GATT server.");
-                // Attempts to discover services after successful connection.
-                Log.i(TAG, "Attempting to start service discovery:"
-                        + mBluetoothGattMap.get(device.getAddress()).discoverServices());
+                } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
+///                    mHandler.removeCallbacks(mConnectTimeout);
+                    mHandler.removeMessages(BleConfig.BleStatus.ConnectTimeOut);
+                    Log.i(TAG, "Disconnected from GATT server.");
+                    mHandler.obtainMessage(BleConfig.BleStatus.ConnectionChanged, 0, 0, device).sendToTarget();
+                    close(device.getAddress());
+                }
+//            }else {
+//                //出现133或者257  19等  值不为0：由于协议栈原因导致连接建立失败
+//                Log.e(TAG, "onConnectionStateChange+++: "+"连接状态异常"+status);
+//                mHandler.removeMessages(BleConfig.BleStatus.ConnectTimeOut);
+//                mHandler.obtainMessage(BleConfig.BleStatus.ConnectFailed, device).sendToTarget();
+//            }
 
-            } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-                mHandler.removeCallbacks(mConnectTimeout);
-                Log.i(TAG, "Disconnected from GATT server.");
-                mHandler.obtainMessage(BleConfig.BleStatus.ConnectionChanged, 0, 0, device).sendToTarget();
-                close(device.getAddress());
-            }
         }
 
         @Override
@@ -288,7 +284,6 @@ public class BluetoothLeService extends Service {
      */
     // TODO: 2017/6/6  connect
     public boolean connect(final String address) {
-
         if (mConnectedAddressList == null) {
             mConnectedAddressList = new ArrayList<>();
         }
@@ -306,15 +301,6 @@ public class BluetoothLeService extends Service {
         if (mBluetoothGattMap == null) {
             mBluetoothGattMap = new HashMap<>();
         }
-        //10s after the timeout prompt
-        mHandler.postDelayed(mConnectTimeout, BleConfig.CONNECT_TIME_OUT);
-//        if (mBluetoothGattMap.get(address) != null && mConnectedAddressList.contains(address)) {
-//            if (mBluetoothGattMap.get(address).connect()) {
-//                return true;
-//            } else {
-//                return false;
-//            }
-//        }
 
         final BluetoothDevice device = mBluetoothAdapter
                 .getRemoteDevice(address);
@@ -322,7 +308,11 @@ public class BluetoothLeService extends Service {
             Log.d(TAG, "no device");
             return false;
         }
-        currentDevice = device;
+        //10s after the timeout prompt
+        Message msg = Message.obtain();
+        msg.what = BleConfig.BleStatus.ConnectTimeOut;
+        msg.obj = device;
+        mHandler.sendMessageDelayed(msg, BleConfig.getConnectTimeOut());
         // We want to directly connect to the device, so we are setting the
         // autoConnect
         // parameter to false
@@ -331,7 +321,6 @@ public class BluetoothLeService extends Service {
         if (bluetoothGatt != null) {
             mBluetoothGattMap.put(address, bluetoothGatt);
             Log.d(TAG, "Trying to create a new connection.");
-//            mConnectedAddressList.add(address);//暂时注释
             return true;
         }
         return false;
@@ -344,14 +333,12 @@ public class BluetoothLeService extends Service {
      */
     public void disconnect(final String address) {
         if (mBluetoothAdapter == null || mBluetoothGattMap.get(address) == null) {
-//            Log.e(TAG, mBluetoothGattMap.get(address).getDevice().getAddress());
             Log.w(TAG, "BluetoothAdapter not initialized");
             return;
         }
         mNotifyIndex = 0;
         mBluetoothGattMap.get(address).disconnect();
         mNotifyCharacteristics.clear();
-//        mWriteCharacteristic = null;
         mWriteCharacteristicMap.remove(address);
         mOtaWriteCharacteristic = null;
     }
@@ -397,15 +384,6 @@ public class BluetoothLeService extends Service {
             Log.w(TAG, "BluetoothAdapter not initialized");
             return false;
         }
-//        try {
-//            if (mWriteCharacteristic != null && BleConfig.UUID_CHARACTERISTIC.equals(mWriteCharacteristic.getUuid())) {
-//                mWriteCharacteristic.setValue(value);
-//                boolean result = mBluetoothGattMap.get(address).writeCharacteristic(mWriteCharacteristic);
-//                Log.d(TAG, address + " -- write data:" + Arrays.toString(value));
-//                Log.d(TAG, address + " -- write result:" + result);
-//                return result;
-//            }
-//        }
         BluetoothGattCharacteristic gattCharacteristic = mWriteCharacteristicMap.get(address);
         if(gattCharacteristic != null){
             try {
@@ -420,13 +398,6 @@ public class BluetoothLeService extends Service {
                 e.printStackTrace();
             }
         }
-//        if(characteristic != null && BleConfig.UUID_CHARACTERISTIC.equals(characteristic.getUuid())){
-//            characteristic.setValue(value);
-//            boolean result = mBluetoothGattMap.get(address).writeCharacteristic(characteristic);
-//            Log.d(TAG, address + " -- write data:" + Arrays.toString(value));
-//            Log.d(TAG, address + " -- write result:" + result);
-//            return result;
-//        }
         return false;
 
     }

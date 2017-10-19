@@ -67,6 +67,7 @@ public class BleConfig {
         int Stop = 2519;
         int ConnectTimeOut = 2510;
         int OnReady = 2520;
+        int ConnectFailed = 2521;
     }
     /**
      *  The default scan time
@@ -75,7 +76,7 @@ public class BleConfig {
     /**
      *   Connection time-out limit
      */
-    public final static int CONNECT_TIME_OUT         = 10 * 1000;
+    private static int CONNECT_TIME_OUT         = 10 * 1000;
 
     /**
      * 是否自动连接    默认为false
@@ -188,6 +189,18 @@ public class BleConfig {
 
     public static String getNotifyText(){
         return UUID_NOTIFY_TEXT;
+    }
+
+    public static int getConnectTimeOut() {
+        return CONNECT_TIME_OUT;
+    }
+
+    /**
+     * 设置自定义超时时间（如设置10s  则表示10s内没有连接成功  则认为连接超时，断开连接）
+     * @param connectTimeOut  超时时间
+     */
+    public static void setConnectTimeOut(int connectTimeOut) {
+        CONNECT_TIME_OUT = connectTimeOut;
     }
 
     /**

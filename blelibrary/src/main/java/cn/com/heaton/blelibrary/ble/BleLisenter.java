@@ -46,7 +46,7 @@ public abstract class BleLisenter {
      *  When the MCU returns the data read
      * @param device ble device object
      */
-    public void onRead(BluetoothDevice device){};
+    public void onRead(BleDevice device){};
 
     /**
      *  MCU data sent to the app when the data callback call is setNotify
@@ -58,7 +58,7 @@ public abstract class BleLisenter {
      *  Set the notification feature to be successful and can send data
      * @param device ble device object
      */
-    public void onReady(BluetoothDevice device){};
+    public void onReady(BleDevice device){};
 
     /**
      *  Set the notification here when the service finds a callback       setNotify
@@ -94,7 +94,12 @@ public abstract class BleLisenter {
     /**
      *  device connect timeout
      */
-    public void onConnectTimeOut(){}
+    public void onConnectTimeOut(BleDevice device){}
+
+    /**
+     *  device connect failed
+     */
+    public void onConnectFailed(BleDevice device){}
 
     /**
      *  Unable to initialize Bluetooth

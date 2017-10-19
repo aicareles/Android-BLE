@@ -48,11 +48,11 @@ public class TestActivity extends AppCompatActivity {
         initView();
     }
 
-    public void scan(View view){
-        if(mManager != null && !mManager.isScanning()){
-            mManager.scanLeDevice(true);
-        }
-    }
+//    public void scan(View view){
+//        if(mManager != null && !mManager.isScanning()){
+//            mManager.scanLeDevice(true);
+//        }
+//    }
 
     private void initView() {
         mLeDeviceListAdapter = new LeDeviceListAdapter(this);
@@ -66,9 +66,9 @@ public class TestActivity extends AppCompatActivity {
                     mManager.scanLeDevice(false);
                 }
                 if (device.isConnected()) {
-                    mManager.disconnect(device);
+                    mManager.disconnect(device.getBleAddress());
                 } else {
-                    mManager.connect(device);
+                    mManager.connect(device.getBleAddress());
                 }
             }
         });
@@ -91,8 +91,8 @@ public class TestActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onConnectTimeOut() {
-            super.onConnectTimeOut();
+        public void onConnectTimeOut(BleDevice device) {
+            super.onConnectTimeOut(device);
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -168,7 +168,7 @@ public class TestActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onRead(BluetoothDevice device) {
+        public void onRead(BleDevice device) {
             super.onRead(device);
             //可以选择性实现该方法   不需要则不用实现
             Logger.e("onRead");
