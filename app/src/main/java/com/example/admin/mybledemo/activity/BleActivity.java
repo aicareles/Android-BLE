@@ -2,9 +2,11 @@ package com.example.admin.mybledemo.activity;
 
 import android.Manifest;
 import android.app.Activity;
+import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -71,12 +73,20 @@ public class BleActivity extends BaseActivity implements View.OnClickListener, A
 
     @Override
     protected void onInitView() {
-        //初始化蓝牙
-        initBle();
+        requestPermission(new String[]{Manifest.permission.BLUETOOTH_ADMIN,
+                Manifest.permission.ACCESS_COARSE_LOCATION},
+                "请求蓝牙相关权限", new GrantedResult() {
+            @Override
+            public void onResult(boolean granted) {
+                if(granted){
+                    //初始化蓝牙
+                    initBle();
+                }else {
+                    finish();
+                }
+            }
+        });
         initView();
-
-        //此处为了方便把OTA升级文件直接放到assets文件夹下，拷贝到/aceDownload/文件夹中  以便使用
-        CopyAssetsToSD();
     }
 
     @Override
@@ -120,6 +130,19 @@ public class BleActivity extends BaseActivity implements View.OnClickListener, A
                 }
                 break;
             case R.id.updateOta:
+                //此处为了方便把OTA升级文件直接放到assets文件夹下，拷贝到/aceDownload/文件夹中  以便使用
+                requestPermission(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,
+                                Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        "读写SD卡相关权限", new GrantedResult() {
+                            @Override
+                            public void onResult(boolean granted) {
+                                if(granted){
+                                    CopyAssetsToSD();
+                                }else {
+                                    Toast.makeText(BleActivity.this, "读写SD卡权限被拒绝,将会影响OTA升级功能哦！", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
                 File file = new File(path + StaticValue.OTA_NEW_PATH);
                 OtaManager mOtaManager = new OtaManager(BleActivity.this);
                 boolean result = mOtaManager.startOtaUpdate(file, (BleDevice) mBle.getConnetedDevices().get(0), mBle);
@@ -154,7 +177,32 @@ public class BleActivity extends BaseActivity implements View.OnClickListener, A
         options.uuid_write_cha = UUID.fromString("d44bc439-abfd-45a2-b575-925416129600");//设置可写特征的uuid
         mBle.init(getApplicationContext(), options);
 
+        checkBle();
+
         mBle.startScan(scanCallback);
+    }
+
+    /*检查蓝牙是否支持及打开*/
+    private void checkBle() {
+        // 检查设备是否支持BLE4.0
+        if (!mBle.isSupportBle(this)) {
+            Toast.makeText(this, R.string.ble_not_supported, Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+        BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
+        // 初始化蓝牙适配器. API版本必须是18以上, 通过 BluetoothManager 获取到BLE的适配器.
+
+        // 检查当前的蓝牙设别是否支持.
+        if (adapter == null) {
+            Toast.makeText(this, R.string.ble_not_supported, Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+        if (!mBle.isBleEnable()) {
+            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enableBtIntent, Ble.REQUEST_ENABLE_BT);
+        }
     }
 
     /*发送数据*/
@@ -255,6 +303,10 @@ public class BleActivity extends BaseActivity implements View.OnClickListener, A
 
     /*拷贝OTA升级文件到SD卡*/
     private void CopyAssetsToSD() {
+        //判断是否是第一次进入   默认第一次进入
+        if (!SPUtils.get(BleActivity.this, StaticValue.IS_FIRST_RUN, true)) {
+            return;
+        }
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -267,10 +319,6 @@ public class BleActivity extends BaseActivity implements View.OnClickListener, A
                     file.mkdir();
                 }
 
-                //判断是否是第一次进入   默认第一次进入
-                if (!SPUtils.get(BleActivity.this, StaticValue.IS_FIRST_RUN, true)) {
-                    return;
-                }
                 final File newFile = new File(path + StaticValue.OTA_NEW_PATH);
                 final File oldFile = new File(path + StaticValue.OTA_OLD_PATH);
                 try {
