@@ -35,7 +35,8 @@ public class BleStates {
             BleStatus.OnReady,
             BleStatus.ConnectFailed,
             BleStatus.ConnectError,
-            BleStatus.ConnectException
+            BleStatus.ConnectException,
+            BleStatus.ReadRssi
     })
 
     @Retention(RetentionPolicy.SOURCE)
@@ -57,6 +58,8 @@ public class BleStates {
         int ConnectFailed = 2521;
         int ConnectError = 2522;
         int ConnectException = 2523;
+        int ReadRssi = 2524;
+        int NotifySuccess = 2525;
     }
 
     @Retention(RetentionPolicy.SOURCE)

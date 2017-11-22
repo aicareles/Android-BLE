@@ -1,6 +1,17 @@
 package cn.com.heaton.blelibrary.ble;
 
+import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothGatt;
+import android.bluetooth.BluetoothGattCharacteristic;
+import android.os.Handler;
+import android.os.Looper;
+import android.text.TextUtils;
+import android.util.Log;
+
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import cn.com.heaton.blelibrary.ota.OtaListener;
 
 /**
  * Created by LiuLei on 2016/11/26.
@@ -10,16 +21,6 @@ import android.bluetooth.BluetoothDevice;
 public class BleDevice {
 
     public final static String          TAG                      = BleDevice.class.getSimpleName();
-
-    /**
-     * Is connected
-     */
-    private boolean isConnected = false;
-
-    /**
-     * is connectting
-     */
-    private boolean mConnecting = false;
 
     /**
      *  Connection Status:
@@ -34,6 +35,8 @@ public class BleDevice {
      *   Bluetooth address
      */
     private String mBleAddress;
+
+
 
     /**
      *  Bluetooth name
@@ -105,4 +108,5 @@ public class BleDevice {
     public void setBleAlias(String mBleAlias) {
         this.mBleAlias = mBleAlias;
     }
+
 }

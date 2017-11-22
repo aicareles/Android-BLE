@@ -41,6 +41,14 @@
         android:text="更新OTA"/>
 
     <Button
+        android:id="@+id/readRssi"
+        android:layout_below="@id/toolbar_main"
+        android:layout_toLeftOf="@+id/updateOta"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="读取RSSI"/>
+
+    <Button
         android:id="@+id/jump"
         android:layout_below="@id/toolbar_main"
         android:layout_toLeftOf="@+id/updateOta"

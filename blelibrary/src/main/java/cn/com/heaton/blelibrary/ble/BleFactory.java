@@ -1,25 +1,19 @@
 package cn.com.heaton.blelibrary.ble;
 
 import android.bluetooth.BluetoothDevice;
-import android.content.Context;
 
 /**
  * Created by LiuLei on 2017/5/3.
  * Bluetooth factory
  */
 
-public class BleFactory<T extends BleDevice>{
-    private Context mContext;
+public class BleFactory{
 
-    public BleFactory(Context context){
-        mContext = context;
+    public BleFactory(){
     }
 
-    public T create(BleManager<T> bleManager,BluetoothDevice device) throws Exception{
+    public BleDevice create(Ble bleManager, BluetoothDevice device){
         return bleManager.getBleDevice(device);
     }
 
-    public Context getContext() {
-        return mContext;
-    }
 }

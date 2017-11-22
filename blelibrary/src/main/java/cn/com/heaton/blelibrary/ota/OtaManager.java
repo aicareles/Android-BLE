@@ -15,8 +15,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 
-import cn.com.heaton.blelibrary.ble.BleConfig;
-import cn.com.heaton.blelibrary.ble.BleManager;
+import cn.com.heaton.blelibrary.ble.Ble;
 import cn.com.heaton.blelibrary.ble.BleDevice;
 import cn.com.heaton.blelibrary.BuildConfig;
 import cn.com.heaton.blelibrary.R;
@@ -183,7 +182,7 @@ public class OtaManager {
 	 * @param bleManager Device management class
 	 * @return Whether the update is performed correctly
 	 */
-	public boolean startOtaUpdate(File file, BleDevice bleDevice, BleManager bleManager) {
+	public boolean startOtaUpdate(File file, BleDevice bleDevice, Ble bleManager) {
 		if (bleManager == null || file == null || !file.exists() || !file.canRead()) {
 			return false;
 		}

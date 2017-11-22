@@ -9,8 +9,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.concurrent.Semaphore;
 
-import cn.com.heaton.blelibrary.ble.BleConfig;
-import cn.com.heaton.blelibrary.ble.BleManager;
+import cn.com.heaton.blelibrary.ble.Ble;
 import cn.com.heaton.blelibrary.ble.BleDevice;
 import cn.com.heaton.blelibrary.BuildConfig;
 
@@ -21,7 +20,7 @@ import cn.com.heaton.blelibrary.BuildConfig;
 public class BleOtaUpdater implements OtaListener {
 	private static final String TAG = BleOtaUpdater.class.getSimpleName();
 	private BleDevice mBleDevice;
-	private BleManager mBleManager;
+	private Ble mBleManager;
 	private       int       mStartOffset = 0;//The file reads the position offset
 	private       int       mPercent     = 0;//File read percentage
 	private final int       mTimeout     = 12;//Write timeout (seconds)
@@ -75,7 +74,7 @@ public class BleOtaUpdater implements OtaListener {
 		return mBleDevice;
 	}
 
-	public BleManager getBleManager(){
+	public Ble getBleManager(){
 		return mBleManager;
 	}
 
@@ -467,7 +466,7 @@ public class BleOtaUpdater implements OtaListener {
 	 * @param bleManager Device management class
 	 * @return Update the results
 	 */
-	public OtaStatus.OtaResult otaStart(String file,BleDevice bleDevice, BleManager bleManager) {
+	public OtaStatus.OtaResult otaStart(String file,BleDevice bleDevice, Ble bleManager) {
 		if (!file.isEmpty() && bleManager != null) {
 			this.mFilePath = file;
 			this.mBleDevice = bleDevice;

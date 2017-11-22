@@ -15,10 +15,9 @@ import android.util.SparseArray;
 import android.widget.TextView;
 
 import com.example.admin.mybledemo.R;
+import com.example.admin.mybledemo.annotation.LLAnnotation;
 
-import cn.com.heaton.blelibrary.ble.exception.BlePermissionException;
-
-public class BaseActivity extends AppCompatActivity {
+public abstract class BaseActivity extends AppCompatActivity {
 
     protected final String TAG = this.getClass().getSimpleName();
     public Toolbar toolbar;
@@ -27,7 +26,21 @@ public class BaseActivity extends AppCompatActivity {
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         initToolBar();
+
+        setContentView(getLayoutResource());
+
+        //初始化注解  替代findViewById
+        LLAnnotation.viewInit(this);
+
+        onInitView();
+        initLinsenter();
     }
+
+    protected abstract int getLayoutResource();
+
+    protected abstract void onInitView();
+
+    protected abstract void initLinsenter();
 
     @Override
     protected void onTitleChanged(CharSequence title, int color) {

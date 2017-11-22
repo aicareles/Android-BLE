@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 
 import java.util.ArrayList;
+import java.util.List;
 
 import cn.com.heaton.blelibrary.ble.BleDevice;
 
@@ -32,6 +33,15 @@ public class LeDeviceListAdapter extends BaseAdapter {
     public void addDevice(BleDevice device) {
         if (!mLeDevices.contains(device)) {
             mLeDevices.add(device);
+        }
+    }
+
+
+    public void addDevices(List<BleDevice> devices){
+        for(BleDevice device : devices){
+            if(!mLeDevices.contains(device)){
+                mLeDevices.add(device);
+            }
         }
     }
 

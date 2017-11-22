@@ -13,25 +13,20 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.admin.mybledemo.BtDeviceAdapter;
-import com.example.admin.mybledemo.Command;
-import com.example.admin.mybledemo.LeDeviceListAdapter;
 import com.example.admin.mybledemo.R;
 import com.example.admin.mybledemo.annotation.LLAnnotation;
 import com.example.admin.mybledemo.annotation.ViewInit;
 import com.orhanobut.logger.Logger;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
-import cn.com.heaton.blelibrary.ble.BleDevice;
 import cn.com.heaton.blelibrary.spp.BtDevice;
 import cn.com.heaton.blelibrary.spp.BtManager;
-import cn.com.heaton.blelibrary.spp.BtUtils;
 
 /**
  * Activity for scanning and displaying available Bluetooth devices.
  */
-public class SppActivity extends BaseActivity {
+public class SppActivity extends BaseActivity implements AdapterView.OnItemClickListener {
 
     private String TAG = SppActivity.class.getSimpleName();
     public final static int OPEN_BLUETH = 0x89;//请求打开蓝牙
@@ -43,18 +38,39 @@ public class SppActivity extends BaseActivity {
     private BtDeviceAdapter mBtAdapter;
     private BtManager mBtManager;
     private boolean isScanning = false;//是否正在扫描
+    //播放音乐
+    boolean lock = false;//默认关
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_spp);
+    protected int getLayoutResource() {
+        return R.layout.activity_spp;
+    }
 
-        //初始化注解  替代findViewById
-        LLAnnotation.viewInit(this);
-        //初始化蓝牙
+    @Override
+    protected void onInitView() {
         initBle();
         initView();
+    }
 
+    @Override
+    protected void initLinsenter() {
+        mListView.setOnItemClickListener(this);
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        final BtDevice device = mBtAdapter.getDevice(position);
+        if (device == null) return;
+        if (isScanning) {
+            mBtManager.cancelDiscovery();
+        }
+        if (device.isConnected()) {
+            device.close();
+        } else {
+            mBtManager.addDevice(device);
+//                    BtUtils.pair(device);
+            mBtManager.connect(device);
+        }
     }
 
     private void initBle() {
@@ -123,8 +139,6 @@ public class SppActivity extends BaseActivity {
         }
     };
 
-    //播放音乐
-    boolean lock = false;//默认关
     public void sendData(View view) {
         if (mBtManager.getConnectedDevices().size() == 0) {//若当前没有连接设备则直接返回
             Toast.makeText(SppActivity.this,"请连接设备后重试",Toast.LENGTH_SHORT).show();
@@ -156,23 +170,6 @@ public class SppActivity extends BaseActivity {
             mBtAdapter = new BtDeviceAdapter(this);
         }
         mListView.setAdapter(mBtAdapter);
-        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                final BtDevice device = mBtAdapter.getDevice(position);
-                if (device == null) return;
-                if (isScanning) {
-                    mBtManager.cancelDiscovery();
-                }
-                if (device.isConnected()) {
-                    device.close();
-                } else {
-                    mBtManager.addDevice(device);
-//                    BtUtils.pair(device);
-                    mBtManager.connect(device);
-                }
-            }
-        });
     }
 
 
