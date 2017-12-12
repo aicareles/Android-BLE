@@ -43,85 +43,117 @@ onConnectTimeOut()方法等等。（如果各位有更好的方式可以留言�
 #### 1.初始化蓝牙(判断设备是否支持BLE，蓝牙是否打开以及6.0动态授权蓝牙权限等)<br>
 
 ```
- private void initBle() {
-                try {
-                    mManager = BleManager.getInstance(this);
-                    mManager.registerBleListener(mLisenter);
-                    boolean result = false;
-                    if (mManager != null) {
-                        result = mManager.startService();
-                        if (!mManager.isBleEnable()) {//蓝牙未打开
-                            mManager.turnOnBlueTooth(this);
-                        } else {//已打开
-                            requestPermission(new String[]{Manifest.permission.BLUETOOTH_ADMIN, Manifest.permission.ACCESS_COARSE_LOCATION},
-                             getString(R.string.ask_permission), new GrantedResult() {
-                                @Override
-                                public void onResult(boolean granted) {
-                                    if (!granted) {
-                                        finish();
-                                    } else {
-                                        //开始扫描
-                                        mManager.scanLeDevice(true);
-                                    }
-                                }
-                            });
-                        }
+  private void initBle() {
+         mBle = Ble.getInstance();
+         Ble.Options options = new Ble.Options();
+         options.logBleExceptions = true;//设置是否输出打印蓝牙日志
+         options.throwBleException = true;//设置是否抛出蓝牙异常
+         options.autoConnect = false;//设置是否自动连接
+         options.scanPeriod = 12 * 1000;//设置扫描时长
+         options.connectTimeout = 10 * 1000;//设置连接超时时长
+         options.uuid_service = UUID.fromString("0000fee9-0000-1000-8000-00805f9b34fb");//设置主服务的uuid
+         options.uuid_write_cha = UUID.fromString("d44bc439-abfd-45a2-b575-925416129600");//设置可写特征的uuid
+         mBle.init(getApplicationContext(), options);
+     } 
+```
+
+#### 2.开始扫描
+```
+mBle.startScan(scanCallback);
+```
+### 扫描的回调
+```
+BleScanCallback<BleDevice> scanCallback = new BleScanCallback<BleDevice>() {
+        @Override
+        public void onLeScan(final BleDevice device, int rssi, byte[] scanRecord) {
+            Toast.makeText(BleActivity.this, "ssss", Toast.LENGTH_SHORT).show();
+            synchronized (mBle.getLocker()) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mLeDeviceListAdapter.addDevice(device);
+                        mLeDeviceListAdapter.notifyDataSetChanged();
                     }
-                    if (!result) {
-                        Logger.e("服务绑定失败");
-                        if (mManager != null) {
-                            mManager.startService();
-                        }
+                });
+            }
+        }
+    };
+```
+#### 3.开始连接
+```
+mBle.connect(device, connectCallback);               
+```
+#### 连接的回调
+```
+ private BleConnCallback<BleDevice> connectCallback = new BleConnCallback<BleDevice>() {
+        @Override
+        public void onConnectionChanged(BleDevice device) {
+            if (device.isConnected()) {
+                setNotify(device);
+            }
+            Log.e(TAG, "onConnectionChanged: " + device.isConnected());
+            mLeDeviceListAdapter.notifyDataSetChanged();
+            setConnectedNum();
+        }
+
+        @Override
+        public void onConnectException(BleDevice device, int errorCode) {
+            super.onConnectException(device, errorCode);
+            Toast.makeText(BleActivity.this, "连接异常，异常状态码:" + errorCode, Toast.LENGTH_SHORT).show();
+        }
+    };
+```
+#### 4.设置通知及回调
+```
+private void setNotify(BleDevice device) {
+         /*连接成功后，设置通知*/
+        mBle.startNotify(device, new BleNotiftCallback<BleDevice>() {
+            @Override
+            public void onChanged(BluetoothGattCharacteristic characteristic) {
+                Log.e(TAG, "onChanged: " + Arrays.toString(characteristic.getValue()));
+            }
+
+            @Override
+            public void onReady(BleDevice device) {
+                Log.e(TAG, "onReady: ");
+            }
+
+            @Override
+            public void onServicesDiscovered(BluetoothGatt gatt) {
+                Log.e(TAG, "onServicesDiscovered is success ");
+            }
+
+            @Override
+            public void onNotifySuccess(BluetoothGatt gatt) {
+                Log.e(TAG, "onNotifySuccess is success ");
+            }
+        });
+    }
+```
+#### 5.读取远程Rssi
+```
+mBle.readRssi(mBle.getConnetedDevices().get(0), new BleReadRssiCallback<BleDevice>() {
+                    @Override
+                    public void onReadRssiSuccess(int rssi) {
+                        super.onReadRssiSuccess(rssi);
+                        Log.e(TAG, "onReadRssiSuccess: " + rssi);
+                        Toast.makeText(BleActivity.this, "onReadRssiSuccess:"+ rssi, Toast.LENGTH_SHORT).show();
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }       
+                });
 ```
-
-#### 2.设置各种状态及结果的回调监听
+#### 5.写入数据
 ```
-mManager.registerBleListener(mLisenter);
+boolean result = mBle.write(device, changeLevelInner(), new BleWriteCallback<BleDevice>() {
+            @Override
+            public void onWriteSuccess(BluetoothGattCharacteristic characteristic) {
+                Toast.makeText(BleActivity.this, "发送数据成功", Toast.LENGTH_SHORT).show();
+            }
+        });
+        if (!result) {
+            Log.e(TAG, "changeLevelInner: " + "发送数据失败!");
+        }
 ```
-
-#### 3.拿到各状态的回调结果
-```
-@Override
-public void onStart() {
-                 ...
-                //代表开始扫描的回调方法
-             }
- 
-             @Override
-             public void onStop() {
-                 ...
-               //代表结束扫描的回调方法
-             }
- 
-             @Override
-             public void onLeScan(final BleDevice device, int rssi, byte[] scanRecord) {
-                 ...
-                 //代表扫描到设备的回调方法
-             }
- 
-             @Override
-             public void onReady(BluetoothDevice device) {
-                   ...
-                 //代表准备就绪，可以发送数据的回调方法
-                 注：连接成功不代表可以立即发送数据（下面会讲解原因）
-             }
- 
-              @Override
-             public void onChanged(BluetoothGattCharacteristic characteristic) {
-                 Logger.e("data===" + Arrays.toString(characteristic.getValue()));
-                 //可以选择性实现该方法   不需要则不用实现
-                 //代表mcu返回数据的回调方法
-             }
-             
-             ...   
-```
-
-#### 4.Demo效果演示图：
+#### 6.Demo效果演示图：
 
 ![Demo预览图.gif](http://upload-images.jianshu.io/upload_images/3884117-49f080ad44b60946.gif?imageMogr2/auto-orient/strip)
 
