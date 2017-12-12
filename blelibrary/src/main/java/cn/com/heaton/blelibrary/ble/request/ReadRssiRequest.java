@@ -14,12 +14,12 @@ import cn.com.heaton.blelibrary.ble.callback.BleReadRssiCallback;
  * Created by LiuLei on 2017/10/23.
  */
 
-public class ReadRssiRequest<T> implements BleHandler.ReceiveMessage {
+public class ReadRssiRequest<T extends BleDevice> implements BleHandler.ReceiveMessage {
 
-    private BleReadRssiCallback<BleDevice> mBleLisenter;
+    private BleReadRssiCallback<T> mBleLisenter;
 
     private static volatile ReadRssiRequest instance;
-    public static ReadRssiRequest getInstance(){
+    public static <T extends BleDevice> ReadRssiRequest<T> getInstance(){
         if (instance == null) {
             synchronized (ReadRequest.class) {
                 if (instance == null) {
@@ -35,7 +35,7 @@ public class ReadRssiRequest<T> implements BleHandler.ReceiveMessage {
         handler.setHandlerCallback(this);
     }
 
-    public boolean readRssi(BleDevice device, BleReadRssiCallback<BleDevice> lisenter){
+    public boolean readRssi(T device, BleReadRssiCallback<T> lisenter){
         this.mBleLisenter = lisenter;
         boolean result = false;
         BluetoothLeService service = Ble.getInstance().getBleService();

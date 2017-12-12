@@ -1,6 +1,7 @@
 package com.example.admin.mybledemo.annotation;
 
 import android.app.Activity;
+import android.view.View;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -13,8 +14,10 @@ import java.lang.reflect.Method;
 
 public class LLAnnotation {
 
-    public static void viewInit(Activity activity){
+    public static void viewInit(final Activity activity){
         Class<?> cls = activity.getClass();
+
+        // 遍历属性
         Field[] fields = cls.getDeclaredFields();
         if(fields != null && fields.length > 0){
             for (Field field : fields){
@@ -41,6 +44,30 @@ public class LLAnnotation {
                         }
                     }
                 }
+            }
+        }
+
+        //遍历方法
+        Method[] methods = cls.getDeclaredMethods();
+        for(final Method method : methods){
+            //找到有OnClick注解的方法
+            OnClick onClick = method.getAnnotation(OnClick.class);
+            if(onClick != null){
+                //通过id获取到View，再对view设置点击事件
+                activity.findViewById(onClick.value()).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        try {
+                            method.setAccessible(true);
+                            //调用这个被OnClick注解的方法
+                            method.invoke(activity);
+                        } catch (IllegalAccessException e) {
+                            e.printStackTrace();
+                        } catch (InvocationTargetException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
             }
         }
     }

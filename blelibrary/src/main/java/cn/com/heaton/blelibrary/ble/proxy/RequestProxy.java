@@ -23,11 +23,11 @@ public class RequestProxy implements InvocationHandler{
         return instance;
     }
 
-    //绑定委托对象，并返回代理类
+    //Bind the delegate object and return the proxy class
     public Object bindProxy(Object tar){
         this.tar = tar;
         //绑定委托对象，并返回代理类
-        Log.e(TAG, "bindProxy: "+"绑定代理成功");
+        Log.e(TAG, "bindProxy: "+"Binding agent successfully");
         return Proxy.newProxyInstance(
                 tar.getClass().getClassLoader(),
                 tar.getClass().getInterfaces(),

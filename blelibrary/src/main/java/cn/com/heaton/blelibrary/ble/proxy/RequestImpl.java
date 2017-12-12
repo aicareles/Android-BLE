@@ -33,7 +33,7 @@ public class RequestImpl<T extends BleDevice> implements RequestLisenter<T>{
 
     @Override
     public void startScan(BleScanCallback<T> callback) {
-        ScanRequest request = ScanRequest.getInstance();
+        ScanRequest<T> request = ScanRequest.getInstance();
         request.startScan(callback, options.scanPeriod);
     }
 
@@ -45,13 +45,13 @@ public class RequestImpl<T extends BleDevice> implements RequestLisenter<T>{
 
     @Override
     public boolean connect(T device, BleConnCallback<T> callback) {
-        ConnectRequest request = ConnectRequest.getInstance();
+        ConnectRequest<T> request = ConnectRequest.getInstance();
         return request.connect(device, callback);
     }
 
     @Override
     public void notify(T device, BleNotiftCallback<T> callback) {
-        NotifyRequest request = NotifyRequest.getInstance();
+        NotifyRequest<T> request = NotifyRequest.getInstance();
         request.notify(device, callback);
     }
 
@@ -64,19 +64,19 @@ public class RequestImpl<T extends BleDevice> implements RequestLisenter<T>{
 
     @Override
     public void read(T device, BleReadCallback<T> callback) {
-        ReadRequest request = ReadRequest.getInstance();
+        ReadRequest<T> request = ReadRequest.getInstance();
         request.read(device, callback);
     }
 
     @Override
     public void readRssi(T device, BleReadRssiCallback<T> callback) {
-        ReadRssiRequest request = ReadRssiRequest.getInstance();
+        ReadRssiRequest<T> request = ReadRssiRequest.getInstance();
         request.readRssi(device, callback);
     }
 
     @Override
     public boolean write(T device, byte[] data, BleWriteCallback<T> callback) {
-        WriteRequest request = WriteRequest.getInstance();
+        WriteRequest<T> request = WriteRequest.getInstance();
         return request.write(device, data, callback);
     }
 }

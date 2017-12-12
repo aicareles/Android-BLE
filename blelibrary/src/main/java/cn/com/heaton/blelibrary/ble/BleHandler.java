@@ -14,7 +14,7 @@ import java.util.ArrayList;
 
 public class BleHandler extends Handler {
     private static final String TAG = "BleHandler";
-    private static BleHandler sHandler;//用于操作Ble状态的handler
+    private static BleHandler sHandler;//Handler for manipulating the Ble state
 
     private ArrayList<ReceiveMessage> receiveMessages = new ArrayList<>();
 

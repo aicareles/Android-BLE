@@ -15,12 +15,12 @@ import cn.com.heaton.blelibrary.ble.callback.BleReadCallback;
  * Created by LiuLei on 2017/10/23.
  */
 
-public class ReadRequest<T> implements BleHandler.ReceiveMessage {
+public class ReadRequest<T extends BleDevice> implements BleHandler.ReceiveMessage {
 
-    private BleReadCallback<BleDevice> mBleLisenter;
+    private BleReadCallback<T> mBleLisenter;
 
     private static volatile ReadRequest instance;
-    public static ReadRequest getInstance(){
+    public static <T extends BleDevice> ReadRequest<T> getInstance(){
         if (instance == null) {
             synchronized (ReadRequest.class) {
                 if (instance == null) {
@@ -36,7 +36,7 @@ public class ReadRequest<T> implements BleHandler.ReceiveMessage {
         handler.setHandlerCallback(this);
     }
 
-    public boolean read(BleDevice device, BleReadCallback<BleDevice> lisenter){
+    public boolean read(T device, BleReadCallback<T> lisenter){
         this.mBleLisenter = lisenter;
         boolean result = false;
         BluetoothLeService service = Ble.getInstance().getBleService();

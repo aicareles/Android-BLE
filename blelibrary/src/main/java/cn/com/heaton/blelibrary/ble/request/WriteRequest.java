@@ -15,12 +15,12 @@ import cn.com.heaton.blelibrary.ble.callback.BleWriteCallback;
  * Created by LiuLei on 2017/10/23.
  */
 
-public class WriteRequest<T> implements BleHandler.ReceiveMessage {
+public class WriteRequest<T extends BleDevice> implements BleHandler.ReceiveMessage {
 
-    private BleWriteCallback<BleDevice> mBleLisenter;
+    private BleWriteCallback<T> mBleLisenter;
 
     private static volatile WriteRequest instance;
-    public static WriteRequest getInstance(){
+    public static <T extends BleDevice> WriteRequest<T> getInstance(){
         if (instance == null) {
             synchronized (WriteRequest.class) {
                 if (instance == null) {
@@ -36,7 +36,7 @@ public class WriteRequest<T> implements BleHandler.ReceiveMessage {
         handler.setHandlerCallback(this);
     }
 
-    public boolean write(BleDevice device,byte[]data, BleWriteCallback<BleDevice> lisenter){
+    public boolean write(T device,byte[]data, BleWriteCallback<T> lisenter){
         this.mBleLisenter = lisenter;
         boolean result = false;
         BluetoothLeService service = Ble.getInstance().getBleService();

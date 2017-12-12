@@ -21,7 +21,7 @@ public abstract class BleNotiftCallback<T> {
      *  Set the notification feature to be successful and can send data
      * @param device ble device object
      */
-    public void onReady(BleDevice device){};
+    public void onReady(T device){};
 
     /**
      *  Set the notification here when the service finds a callback       setNotify

@@ -47,7 +47,7 @@ public class BleDevice {
      */
     private String mBleAlias;
 
-    private boolean mAutoConnect = false;//默认自动连接
+    private boolean mAutoConnect = false;//The default is not automatic connection
 
     /**
      * Use the address and name of the BluetoothDevice object
@@ -55,7 +55,7 @@ public class BleDevice {
      *
      * @param device BleDevice
      */
-    public BleDevice(BluetoothDevice device) {
+    protected BleDevice(BluetoothDevice device) {
         this.mBleAddress = device.getAddress();
         this.mBleName = device.getName();
     }

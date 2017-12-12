@@ -5,7 +5,10 @@ import android.bluetooth.BluetoothDevice;
 import android.text.TextUtils;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
+import cn.com.heaton.blelibrary.ble.Ble;
+import cn.com.heaton.blelibrary.ble.BleFactory;
 import cn.com.heaton.blelibrary.ble.BleHandler;
 import cn.com.heaton.blelibrary.ble.callback.BleScanCallback;
 import cn.com.heaton.blelibrary.ble.BleDevice;
@@ -15,16 +18,16 @@ import cn.com.heaton.blelibrary.ble.BleDevice;
  * Created by LiuLei on 2017/10/21.
  */
 
-public class ScanRequest<T> {
+public class ScanRequest<T extends BleDevice> {
 
     private boolean mScanning;
     private BluetoothAdapter mBluetoothAdapter;
-    private BleScanCallback<BleDevice> mScanCallback;
+    private BleScanCallback<T> mScanCallback;
     //    private AtomicBoolean isContains = new AtomicBoolean(false);
-    private ArrayList<BleDevice> mScanDevices = new ArrayList<>();
+    private ArrayList<T> mScanDevices = new ArrayList<>();
     private static volatile ScanRequest instance;
 
-    public static ScanRequest getInstance(){
+    public static <T extends BleDevice> ScanRequest<T> getInstance(){
         if (instance == null) {
             synchronized (ScanRequest.class) {
                 if (instance == null) {
@@ -40,7 +43,7 @@ public class ScanRequest<T> {
     }
 
 
-    public void startScan(BleScanCallback<BleDevice> callback, int scanPeriod) {
+    public void startScan(BleScanCallback<T> callback, int scanPeriod) {
         mScanCallback = callback;
         // Stops scanning after a pre-defined scan period.
         BleHandler.getHandler().postDelayed(new Runnable() {
@@ -76,7 +79,7 @@ public class ScanRequest<T> {
             if (device == null) return;
             if (TextUtils.isEmpty(device.getName())) return;
             if (!constans(device.getAddress())) {
-                BleDevice bleDevice = new BleDevice(device);
+                T bleDevice = (T) BleFactory.create(BleDevice.class,  Ble.getInstance(), device);
                 mScanCallback.onLeScan(bleDevice, rssi, scanRecord);
                 mScanDevices.add(bleDevice);
             }
@@ -90,7 +93,7 @@ public class ScanRequest<T> {
 //                synchronized (mLocker) {
 //                    for (T autoDevice : mAutoDevices) {
 //                        if (device.getAddress().equals(autoDevice.getBleAddress())) {
-//                            //说明非主动断开设备   理论上需要自动重新连接（前提是连接时设置自动连接属性为true）
+//                            //Note non-active disconnect device in theory need to re-connect automatically (provided the connection is set to automatically connect property is true)
 //                            if (!autoDevice.isConnected() && !autoDevice.isConnectting() && autoDevice.isAutoConnect()) {
 //                                Log.e(TAG, "onLeScan: " + "正在重连设备...");
 //                                reconnect(autoDevice);
@@ -104,7 +107,7 @@ public class ScanRequest<T> {
     };
 
     private boolean constans(String address) {
-        for (BleDevice device : mScanDevices) {
+        for (T device : mScanDevices) {
             if (device.getBleAddress().equals(address)) {
                 return true;
             }

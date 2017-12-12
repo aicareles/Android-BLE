@@ -82,7 +82,7 @@ public class BluetoothLeService extends Service {
                     mHandler.obtainMessage(BleStates.BleStatus.ConnectionChanged, 1, 0, device).sendToTarget();
                     BleLog.i(TAG, "Connected to GATT server.");
                     // Attempts to discover services after successful connection.
-                    BleLog.i(TAG, "Attempting to start service discovery:"
+                    Log.i(TAG, "Attempting to start service discovery:"
                             + mBluetoothGattMap.get(device.getAddress()).discoverServices());
 
                 } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
@@ -93,19 +93,19 @@ public class BluetoothLeService extends Service {
                     close(device.getAddress());
                 }
             } else {
-                //出现133或者257  19等  值不为0：由于协议栈原因导致连接建立失败
+                //Occurrence 133 or 257 19 Equal value is not 0: Connection establishment failed due to protocol stack
                 mHandler.removeMessages(BleStates.BleStatus.ConnectException);
-                BleLog.e(TAG, "onConnectionStateChange+++: " + "连接状态异常" + status);
+                BleLog.e(TAG, "onConnectionStateChange+++: " + "Connection status is abnormal:" + status);
                 BleDevice d = mBleManager.getBleDevice(device);
                 int errorCode = BleStates.BleStatus.ConnectFailed;
                 if (d.isConnected()) {
-                    //Mcu连接断开  或者是信号弱等原因断开
+                    //Mcu connection is broken or the signal is weak and other reasons disconnect
                     errorCode = BleStates.BleStatus.ConnectException;
                 } else if (d.isConnectting()) {
-                    //连接失败
+                    //Connection failed
                     errorCode = BleStates.BleStatus.ConnectFailed;
                 } else {
-                    //状态异常  ( 理论上不存在这种情况 )
+                    //Abnormal state (in theory, there is no such situation)
                     errorCode = BleStates.BleStatus.ConnectError;
                 }
 //                disconnect(d.getBleAddress());
@@ -519,15 +519,15 @@ public class BluetoothLeService extends Service {
                 for (BluetoothGattCharacteristic gattCharacteristic : gattCharacteristics) {
 //                    int charaProp = gattCharacteristic.getProperties();
 //                    if ((charaProp | BluetoothGattCharacteristic.PROPERTY_READ) > 0) {
-//                        Log.e(TAG, "gattCharacteristic的可读UUID为:" + gattCharacteristic.getUuid());
+//                        Log.e(TAG, "The readable UUID for gattCharacteristic is:" + gattCharacteristic.getUuid());
 //                        mReadCharacteristicMap.put(address, gattCharacteristic);
 //                    }
 //                    if ((charaProp | BluetoothGattCharacteristic.PROPERTY_WRITE) > 0) {
-//                        Log.e(TAG, "gattCharacteristic的可写UUID为:" + gattCharacteristic.getUuid());
+//                        Log.e(TAG, "The writable UUID for gattCharacteristic is:" + gattCharacteristic.getUuid());
 //                        mWriteCharacteristicMap.put(address, gattCharacteristic);
 //                    }
 //                    if ((charaProp | BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
-//                        Log.e(TAG, "gattCharacteristic的特征UUID为:" + gattCharacteristic.getUuid());
+//                        Log.e(TAG, "The characteristics of gattCharacteristic are UUID:" + gattCharacteristic.getUuid());
 //                        mNotifyCharacteristics.add(gattCharacteristic);
 //                    }
                     uuid = gattCharacteristic.getUuid().toString();

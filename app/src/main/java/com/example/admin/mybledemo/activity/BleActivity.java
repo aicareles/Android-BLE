@@ -207,7 +207,7 @@ public class BleActivity extends BaseActivity implements View.OnClickListener, A
 
     /*发送数据*/
     public void sendData(BleDevice device) {
-        boolean result = mBle.write(device, changeLevelInner(1), new BleWriteCallback<BleDevice>() {
+        boolean result = mBle.write(device, changeLevelInner(), new BleWriteCallback<BleDevice>() {
             @Override
             public void onWriteSuccess(BluetoothGattCharacteristic characteristic) {
                 Toast.makeText(BleActivity.this, "发送数据成功", Toast.LENGTH_SHORT).show();
@@ -218,15 +218,27 @@ public class BleActivity extends BaseActivity implements View.OnClickListener, A
         }
     }
 
-    //播放音乐
-    public byte[] changeLevelInner(int play) {
-        byte[] data = new byte[Command.qppDataSend.length];
-        System.arraycopy(Command.qppDataSend, 0, data, 0, data.length);
-        data[6] = 0x03;
-        data[7] = (byte) play;
+//    //播放音乐
+//    public byte[] changeLevelInner(int play) {
+//        byte[] data = new byte[Command.qppDataSend.length];
+//        System.arraycopy(Command.qppDataSend, 0, data, 0, data.length);
+//        data[6] = 0x03;
+//        data[7] = (byte) play;
+//        Logger.e("data:" + Arrays.toString(data));
+//        return data;
+//    }
+
+//    播放音乐
+    public byte[] changeLevelInner() {
+        int var = 0xAA51;
+        byte[] data = new byte[2];
+        data[1] =  (byte)(var & 0xff);
+        data[0] =  (byte)((var>>8) & 0xff);
         Logger.e("data:" + Arrays.toString(data));
+        Logger.e("data11:" + Integer.toHexString(var));
         return data;
     }
+
 
     //扫描的回调
     BleScanCallback<BleDevice> scanCallback = new BleScanCallback<BleDevice>() {

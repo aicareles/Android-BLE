@@ -16,14 +16,14 @@ import cn.com.heaton.blelibrary.ble.callback.BleNotiftCallback;
  * Created by LiuLei on 2017/10/23.
  */
 
-public class NotifyRequest<T> implements BleHandler.ReceiveMessage {
+public class NotifyRequest<T extends BleDevice> implements BleHandler.ReceiveMessage {
 
     private static final String TAG = "NotifyRequest";
 
-    private BleNotiftCallback<BleDevice> mBleLisenter;
+    private BleNotiftCallback<T> mBleLisenter;
     private static volatile NotifyRequest instance;
 
-    public static NotifyRequest getInstance(){
+    public static <T extends BleDevice> NotifyRequest<T> getInstance(){
         if (instance == null) {
             synchronized (NotifyRequest.class) {
                 if (instance == null) {
@@ -40,7 +40,7 @@ public class NotifyRequest<T> implements BleHandler.ReceiveMessage {
         BleLog.e(TAG, "NotifyRequest: ++++");
     }
 
-    public void notify(BleDevice device, BleNotiftCallback<BleDevice> callback){
+    public void notify(T device, BleNotiftCallback<T> callback){
         this.mBleLisenter = callback;
     }
 

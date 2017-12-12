@@ -20,19 +20,19 @@ import cn.com.heaton.blelibrary.ble.callback.BleConnCallback;
  * Created by LiuLei on 2017/10/21.
  */
 
-public class ConnectRequest<T> implements BleHandler.ReceiveMessage {
+public class ConnectRequest<T extends BleDevice> implements BleHandler.ReceiveMessage {
 
     private static final String TAG = "ConnectRequest";
-    private BleFactory mBleFactory;
-    private BleConnCallback<BleDevice> mBleLisenter;
+    private BleFactory<T> mBleFactory;
+    private BleConnCallback<T> mBleLisenter;
     private BleHandler mHandler;
 
-    private ArrayList<BleDevice> mDevices = new ArrayList<>();
-    private ArrayList<BleDevice> mConnetedDevices = new ArrayList<>();
+    private ArrayList<T> mDevices = new ArrayList<>();
+    private ArrayList<T> mConnetedDevices = new ArrayList<>();
 
     private static volatile ConnectRequest instance;
 
-    public static ConnectRequest getInstance() {
+    public static <T extends BleDevice> ConnectRequest<T> getInstance() {
         if (instance == null) {
             synchronized (ConnectRequest.class) {
                 if (instance == null) {
@@ -44,12 +44,12 @@ public class ConnectRequest<T> implements BleHandler.ReceiveMessage {
     }
 
     private ConnectRequest() {
-        mBleFactory = new BleFactory();
+        mBleFactory = new BleFactory<T>();
         mHandler = BleHandler.getHandler();
         mHandler.setHandlerCallback(this);
     }
 
-    public boolean connect(BleDevice device, BleConnCallback<BleDevice> lisenter) {
+    public boolean connect(T device, BleConnCallback<T> lisenter) {
         if (!addBleDevice(device)) {
             return false;
         }
@@ -72,16 +72,15 @@ public class ConnectRequest<T> implements BleHandler.ReceiveMessage {
     @Override
     public void handleMessage(Message msg) {
         BleLog.e(TAG, "handleMessage: "+msg.arg1);
-        BleDevice t = null;
+        T t = null;
         if (msg.obj instanceof BluetoothDevice) {
-            t = mBleFactory.create(Ble.getInstance(), (BluetoothDevice) msg.obj);
+            t = getBleDevice((BluetoothDevice) msg.obj);
         }
         if (t == null) return;
-
         switch (msg.what) {
             case BleStates.BleStatus.ConnectException:
                 int errorCode = msg.arg1;
-                //断开并清除连接
+                //Disconnect and clear the connection
                 mBleLisenter.onConnectException(t, errorCode);
                 mHandler.obtainMessage(BleStates.BleStatus.ConnectionChanged, 0, 0, msg.obj).sendToTarget();
                 break;
@@ -91,9 +90,9 @@ public class ConnectRequest<T> implements BleHandler.ReceiveMessage {
                     t.setConnectionState(BleStates.BleStatus.CONNECTED);
                     mConnetedDevices.add(t);
                     BleLog.e(TAG, "handleMessage:++++CONNECTED ");
-//                        //连接成功后 才能被认为可以自动重连
+//                        //After the success of the connection can be considered automatically reconnect
 //                        device.setAutoConnect(true);
-//                        //如果是自动连接的设备  则从自动连接池中移除
+//                        //If it is automatically connected device is removed from the automatic connection pool
 //                        removeAutoPool(device);
                 } else if (msg.arg1 == 0) {
                     //disconnect
@@ -101,7 +100,7 @@ public class ConnectRequest<T> implements BleHandler.ReceiveMessage {
                     mConnetedDevices.remove(t);
                     mDevices.remove(t);
                     BleLog.e(TAG, "handleMessage:++++DISCONNECT ");
-////                    Log.i(TAG, "mDevices数量: " + mDevices.size());
+////                    Log.i(TAG, "mDevices quantity: " + mDevices.size());
 //                    addAutoPool(device);
                 } else if (msg.arg1 == 2) {
                     //connectting
@@ -114,17 +113,17 @@ public class ConnectRequest<T> implements BleHandler.ReceiveMessage {
         }
     }
 
-    private boolean addBleDevice(BleDevice device) {
+    private boolean addBleDevice(T device) {
         if (device == null || mDevices.contains(device)) {
-            BleLog.i(TAG, "addBleDevice" + "已经包含了该设备");
+            BleLog.i(TAG, "addBleDevice" + "Already contains the device");
             return false;
         }
         mDevices.add(device);
-        BleLog.i(TAG, "addBleDevice" + "添加了一个设备到设备池");
+        BleLog.i(TAG, "addBleDevice" + "Added a device to the device pool");
         return true;
     }
 
-    public BleDevice getBleDevice(int index) {
+    public T getBleDevice(int index) {
         return mDevices.get(index);
     }
 
@@ -134,21 +133,21 @@ public class ConnectRequest<T> implements BleHandler.ReceiveMessage {
      * @param device blutoothdevice
      * @return bleDeive
      */
-    public BleDevice getBleDevice(BluetoothDevice device) {
+    public T getBleDevice(BluetoothDevice device) {
         if (device == null) {
             BleLog.w(TAG, "getBleDevice: " + "device is null");
             return null;
         }
         synchronized (mDevices) {
             if (mDevices.size() > 0) {
-                for (BleDevice bleDevice : mDevices) {
+                for (T bleDevice : mDevices) {
                     if (bleDevice.getBleAddress().equals(device.getAddress())) {
                         BleLog.w(TAG, "getBleDevice: " + "device is exist");
                         return bleDevice;
                     }
                 }
             }
-            BleDevice newDevice = new BleDevice(device);
+            T newDevice = (T) BleFactory.create(BleDevice.class, Ble.getInstance(), device);
             BleLog.w(TAG, "getBleDevice: " + "device is new");
             return newDevice;
         }
@@ -160,7 +159,7 @@ public class ConnectRequest<T> implements BleHandler.ReceiveMessage {
      * @return connected device
      */
 
-    public ArrayList<BleDevice> getConnetedDevices() {
+    public ArrayList<T> getConnetedDevices() {
         return mConnetedDevices;
     }
 

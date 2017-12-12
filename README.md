@@ -39,7 +39,7 @@ onConnectTimeOut()方法等等。（如果各位有更好的方式可以留言�
 
 ### 使用步骤：
 
-#### AndroidStudio最新版本依赖地址：compile 'cn.com.superLei:blelibrary:1.0.4'
+#### AndroidStudio最新版本依赖地址：compile 'cn.com.superLei:blelibrary:2.0.0'
 #### 1.初始化蓝牙(判断设备是否支持BLE，蓝牙是否打开以及6.0动态授权蓝牙权限等)<br>
 
 ```

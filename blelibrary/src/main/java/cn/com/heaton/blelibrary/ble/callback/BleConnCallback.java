@@ -11,7 +11,7 @@ public abstract class BleConnCallback<T> {
      *  The callback is disconnected or connected when the connection is changed
      * @param device ble device object
      */
-    public abstract void onConnectionChanged(BleDevice device);
+    public abstract void onConnectionChanged(T device);
 
     /**
      *  When the callback when the error, such as app can only connect four devices
@@ -19,5 +19,5 @@ public abstract class BleConnCallback<T> {
      *  @param device ble device object
      * @param errorCode errorCode
      */
-    public void onConnectException(BleDevice device,int errorCode){};
+    public void onConnectException(T device,int errorCode){};
 }

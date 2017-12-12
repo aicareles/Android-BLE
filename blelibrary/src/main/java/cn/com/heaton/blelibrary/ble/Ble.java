@@ -36,7 +36,7 @@ import cn.com.heaton.blelibrary.ble.request.ScanRequest;
  * Created by liulei on 2016/12/7.
  */
 
-public class Ble<T extends BleDevice>{
+public class Ble<T extends BleDevice> implements BleLisenter<T>{
 
     /** Log tag, apps may override it. */
     private final static String TAG = "Ble";
@@ -57,7 +57,7 @@ public class Ble<T extends BleDevice>{
 
     private BluetoothAdapter mBluetoothAdapter;
 
-    private final ArrayList<BleDevice> mAutoDevices = new ArrayList<>();
+    private final ArrayList<T> mAutoDevices = new ArrayList<>();
 
     /**
      * Initializes a newly created {@code BleManager} object so that it represents
@@ -66,7 +66,7 @@ public class Ble<T extends BleDevice>{
      */
     private Ble() {
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        ///暂时注释掉该段代码   后期维护可能会重新使用该段代码
+        ///Temporarily comment out the code post-maintenance may re-use the code
        /* Type superClass = getClass().getGenericSuperclass();
         Type type = ((ParameterizedType) superClass).getActualTypeArguments()[0];
         mDeviceClass = getClass(type,0);*/
@@ -78,7 +78,7 @@ public class Ble<T extends BleDevice>{
         }
         mOptions = opts;
         BleLog.init(opts);
-        //设置动态代理
+        //Set up a dynamic proxy
         mRequest = (RequestLisenter) RequestProxy
                 .getInstance()
                 .bindProxy(RequestImpl.getInstance(opts));
@@ -109,12 +109,12 @@ public class Ble<T extends BleDevice>{
     }
 
     /**
-     * 重连设备
+     * Reconnection equipment
      * <p>
-     * TODO 后期会添加重连次数
+     * TODO Later will add reconnection times
      *
-     * @param device 设备
-     * @return 是否连接成功
+     * @param device device
+     * @return Whether the connection is successful
      */
 //    private boolean reconnect(T device) {
 //        // TODO: 2017/10/16 auth:Alex-Jerry  [2017/11/16]
@@ -130,7 +130,7 @@ public class Ble<T extends BleDevice>{
         mRequest.disconnect(device);
 //        synchronized (mLocker) {
 //            if (mBluetoothLeService != null) {
-//                //遍历已连接设备集合  主动断开则取消自动连接
+//                //Traverse the connected device collection to disconnect automatically cancel the automatic connection
 //                for (T bleDevice : mConnetedDevices) {
 //                    if (bleDevice.getBleAddress().equals(device.getBleAddress())) {
 //                        Log.e(TAG, "disconnect: " + "设置自动连接false");
@@ -158,6 +158,11 @@ public class Ble<T extends BleDevice>{
         return mRequest.write(device, data, callback);
     }
 
+    public Class<T> getClassType(){
+        Type genType = this.getClass().getGenericSuperclass();
+        Class<T> entityClass = (Class<T>)((ParameterizedType)genType).getActualTypeArguments()[0];
+        return entityClass;
+    }
 
     /**
      * Get the class object
@@ -189,7 +194,7 @@ public class Ble<T extends BleDevice>{
         }
     }
 
-    public static Ble<BleDevice> getInstance(){
+    public static <T extends BleDevice> Ble<T> getInstance(){
         if (instance == null) {
             synchronized (Ble.class) {
                 if (instance == null) {
@@ -264,30 +269,30 @@ public class Ble<T extends BleDevice>{
         }
     };
 
-    public BleDevice getBleDevice(int index) {
+    public T getBleDevice(int index) {
         ConnectRequest request = ConnectRequest.getInstance();
         if(request != null){
-            return request.getBleDevice(index);
+            return (T) request.getBleDevice(index);
         }
         return null;
     }
 
-    public BleDevice getBleDevice(BluetoothDevice device) {
+    public T getBleDevice(BluetoothDevice device) {
         ConnectRequest request = ConnectRequest.getInstance();
         if(request != null){
-            return request.getBleDevice(device);
+            return (T) request.getBleDevice(device);
         }
         return null;
     }
 
     /**
      *   Get the device type   for example: BleDevice.class
-     * @return
+     * @return device type
      */
-    ///暂时注释掉该段代码   后期维护可能会重新使用该段代码
-    /*public Class<T> getDeviceClass(){
-        return mDeviceClass;
-    }*/
+    //Temporarily comment out the code post-maintenance may re-use the code
+//    public Class<T> getDeviceClass(){
+//        return mDeviceClass;
+//    }
 
     /**
      * Get the lock
@@ -310,7 +315,7 @@ public class Ble<T extends BleDevice>{
      * @return connected device
      */
 
-    public ArrayList<BleDevice> getConnetedDevices() {
+    public ArrayList<T> getConnetedDevices() {
         ConnectRequest request = ConnectRequest.getInstance();
         if(request != null){
             return request.getConnetedDevices();
@@ -323,9 +328,9 @@ public class Ble<T extends BleDevice>{
 //        public void run() {
 //            while (true) {
 //                if (mAutoDevices.size() > 0) {
-//                    //开启循环扫描
+//                    //Turn on cyclic scan
 //                    if (!mScanning) {
-//                        Log.e(TAG, "run: " + "线程开始扫描++++");
+//                        Log.e(TAG, "run: " + "Thread began scanning...");
 ////                        scanLeDevice(true);
 //                    }
 //                }
@@ -336,13 +341,13 @@ public class Ble<T extends BleDevice>{
 //    }
 
     /**
-     * 如果是自动连接的设备则从自动连接池中移除
+     * If it is automatically connected device is removed from the automatic connection pool
      *
-     * @param device 设备对象
+     * @param device Device object
      */
     private void removeAutoPool(BleDevice device) {
         if (device == null) return;
-        Iterator<BleDevice> iterator = mAutoDevices.iterator();
+        Iterator<T> iterator = mAutoDevices.iterator();
         while (iterator.hasNext()) {
             BleDevice item = iterator.next();
             if (device.getBleAddress().equals(item.getBleAddress())) {
@@ -352,11 +357,11 @@ public class Ble<T extends BleDevice>{
     }
 
     /**
-     * 将断开设备添加到自动连接池中
+     * Add a disconnected device to the autouppool
      *
-     * @param device 设备对象
+     * @param device Device object
      */
-    private void addAutoPool(BleDevice device) {
+    private void addAutoPool(T device) {
         if (device == null) return;
         for (BleDevice item : mAutoDevices) {
             if (device.getBleAddress().equals(item.getBleAddress())) {
@@ -364,7 +369,7 @@ public class Ble<T extends BleDevice>{
             }
         }
         if (device.isAutoConnect()) {
-            BleLog.w(TAG, "addAutoPool: "+"添加自动连接设备到连接池");
+            BleLog.w(TAG, "addAutoPool: "+"Add automatic connection device to the connection pool");
             mAutoDevices.add(device);
         }
     }
