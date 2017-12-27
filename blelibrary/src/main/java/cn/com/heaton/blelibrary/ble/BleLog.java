@@ -3,6 +3,7 @@ package cn.com.heaton.blelibrary.ble;
 import android.util.Log;
 
 /**
+ * 蓝牙日志类
  * Created by LiuLei on 2017/5/16.
  */
 

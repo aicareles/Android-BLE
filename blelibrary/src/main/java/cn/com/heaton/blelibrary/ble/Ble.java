@@ -53,6 +53,9 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
 
     private BluetoothLeService mBluetoothLeService;
 
+    /**
+     * 打开蓝牙标志位
+     */
     public static final int REQUEST_ENABLE_BT = 1;
 
     private BluetoothAdapter mBluetoothAdapter;
@@ -66,19 +69,25 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
      */
     private Ble() {
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        ///Temporarily comment out the code post-maintenance may re-use the code
+        ///暂时注销代码后维护可能会重新使用代码
        /* Type superClass = getClass().getGenericSuperclass();
         Type type = ((ParameterizedType) superClass).getActualTypeArguments()[0];
         mDeviceClass = getClass(type,0);*/
     }
 
+    /**
+     *  蓝牙初始化
+     * @param context 上下文对象
+     * @param opts 蓝牙相关参数
+     * @return 初始化是否成功
+     */
     public boolean init(Context context,Options opts){
         if(opts == null){
             opts = new Options();
         }
         mOptions = opts;
         BleLog.init(opts);
-        //Set up a dynamic proxy
+        /*设置动态代理*/
         mRequest = (RequestLisenter) RequestProxy
                 .getInstance()
                 .bindProxy(RequestImpl.getInstance(opts));
@@ -88,23 +97,27 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
         return result;
     }
 
+    /**
+     * 开始扫描
+     * @param callback 扫描回调
+     */
     public void startScan(BleScanCallback<T> callback){
         mRequest.startScan(callback);
     }
 
+    /*停止扫描*/
     public void stopScan(){
         mRequest.stopScan();
     }
 
     /**
-     * connecte bleDevice
+     * 连接蓝牙
      *
-     * @param device
-     * @return
+     * @param device 蓝牙设备对象
      */
-    public boolean connect(T device, BleConnCallback<T> callback) {
+    public void connect(T device, BleConnCallback<T> callback) {
         synchronized (mLocker) {
-            return mRequest.connect(device, callback);
+            mRequest.connect(device, callback);
         }
     }
 
@@ -122,9 +135,9 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
 //    }
 
     /**
-     * disconnect device
+     * 断开蓝牙
      *
-     * @param device ble address
+     * @param device 蓝牙设备对象
      */
     public void disconnect(T device) {
         mRequest.disconnect(device);
@@ -142,22 +155,45 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
 //        }
     }
 
+    /**
+     * 连接成功后，开始设置通知
+     * @param device 蓝牙设备对象
+     * @param callback 通知回调
+     */
     public void startNotify(T device, BleNotiftCallback<T> callback){
         mRequest.notify(device, callback);
     }
 
-    public void read(T device, BleReadCallback<T> callback){
-        mRequest.read(device, callback);
+    /**
+     * 读取数据
+     * @param device 蓝牙设备对象
+     * @param callback 读取结果回调
+     */
+    public boolean read(T device, BleReadCallback<T> callback){
+        return mRequest.read(device, callback);
     }
 
+    /**
+     * 读取远程RSSI
+     * @param device 蓝牙设备对象
+     * @param callback 读取远程RSSI结果回调
+     */
     public void readRssi(T device, BleReadRssiCallback<T> callback){
         mRequest.readRssi(device, callback);
     }
 
+    /**
+     * 写入数据
+     * @param device 蓝牙设备对象
+     * @param data 写入数据字节数组
+     * @param callback 写入结果回调
+     * @return 写入是否成功
+     */
     public boolean write(T device, byte[]data, BleWriteCallback<T> callback){
         return mRequest.write(device, data, callback);
     }
 
+    /*获取当前类的类型*/
     public Class<T> getClassType(){
         Type genType = this.getClass().getGenericSuperclass();
         Class<T> entityClass = (Class<T>)((ParameterizedType)genType).getActualTypeArguments()[0];
@@ -205,14 +241,18 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
         return instance;
     }
 
+    /**
+     * 获取自定义蓝牙服务对象
+     * @return 自定义蓝牙服务对象
+     */
     public BluetoothLeService getBleService() {
         return mBluetoothLeService;
     }
 
     /**
-     * start bind service
+     * 开始绑定服务
      *
-     * @return Whether the service is successfully bound
+     * @return 绑定蓝牙服务是否成功
      */
     private boolean startService(Context context) {
         Intent gattServiceIntent = new Intent(context, BluetoothLeService.class);
@@ -234,7 +274,7 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
     }
 
     /**
-     * unbind service
+     * 解绑蓝牙服务
      */
     public void unService(Context context) {
         if (context != null) {
@@ -269,6 +309,11 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
         }
     };
 
+    /**
+     * 获取指定位置的蓝牙对象
+     * @param index 指定位置
+     * @return 指定位置蓝牙对象
+     */
     public T getBleDevice(int index) {
         ConnectRequest request = ConnectRequest.getInstance();
         if(request != null){
@@ -277,6 +322,11 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
         return null;
     }
 
+    /**
+     * 获取对应蓝牙对象
+     * @param device 原生蓝牙对象
+     * @return 对应蓝牙对象
+     */
     public T getBleDevice(BluetoothDevice device) {
         ConnectRequest request = ConnectRequest.getInstance();
         if(request != null){
@@ -295,14 +345,14 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
 //    }
 
     /**
-     * Get the lock
+     * 获取对应锁对象
      */
     public Object getLocker() {
         return mLocker;
     }
 
     /**
-     * Whether it is scanning
+     * 是否正在扫描
      */
     public boolean isScanning() {
         ScanRequest request = ScanRequest.getInstance();
@@ -310,9 +360,8 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
     }
 
     /**
-     * Gets the connected device
      *
-     * @return connected device
+     * @return 已经连接的设备集合
      */
 
     public ArrayList<T> getConnetedDevices() {
@@ -375,7 +424,10 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
     }
 
 
-    //when application has onDestory, release all resources
+    /**
+     * 当Application退出时，释放所有资源
+     * @param context 上下文对象
+     */
     public void destory(Context context){
         unService(context);
     }
@@ -394,27 +446,25 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
 //    }
 
     /**
-     * Whether to support Bluetooth
      *
-     * @return Whether to support Ble
+     * @return 是否支持蓝牙
      */
     public boolean isSupportBle(Context context) {
         return (mBluetoothAdapter != null && context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE));
     }
 
     /**
-     * Bluetooth is turned on
      *
-     * @return true  Bluetooth is turned on
+     * @return 蓝牙是否打开
      */
     public boolean isBleEnable() {
         return mBluetoothAdapter.isEnabled();
     }
 
     /**
-     * open ble
+     * 打开蓝牙
      *
-     * @param activity The context object
+     * @param activity 上下文对象
      */
     public void turnOnBlueTooth(Activity activity) {
         // Ensures Bluetooth is enabled on the device.  If Bluetooth is not currently enabled,
@@ -426,19 +476,43 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
     }
 
     /**
-     * close ble
+     * 关闭蓝牙
      */
     public boolean turnOffBlueTooth() {
         return !mBluetoothAdapter.isEnabled() || mBluetoothAdapter.disable();
     }
 
+    /**
+     * 蓝牙相关参数配置类
+     */
     public static class Options extends BluetoothLeService.Options{
+        /**
+         * 是否打印蓝牙日志
+         */
         public boolean logBleExceptions = true;
+        /**
+         * 是否抛出蓝牙异常
+         */
         public boolean throwBleException = true;
+        /**
+         * 是否在蓝牙异常断开时自动连接
+         */
         public boolean autoConnect = false;
+        /**
+         * 蓝牙连接超时时长
+         */
         public int connectTimeout = 10 * 1000;
+        /**
+         * 蓝牙扫描周期时长
+         */
         public int scanPeriod = 10 * 1000;
+        /**
+         * 服务绑定失败重试次数
+         */
         public int serviceBindFailedRetryCount = 3;
+        /**
+         * 蓝牙连接失败重试次数
+         */
         public int connectFailedRetryCount = 3;
 
     }

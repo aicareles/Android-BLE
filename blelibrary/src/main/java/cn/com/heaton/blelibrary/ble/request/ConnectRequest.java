@@ -128,10 +128,10 @@ public class ConnectRequest<T extends BleDevice> implements BleHandler.ReceiveMe
     }
 
     /**
-     * get BLE
+     * 获取蓝牙对象
      *
-     * @param device blutoothdevice
-     * @return bleDeive
+     * @param device 原生蓝牙对象
+     * @return 蓝牙对象
      */
     public T getBleDevice(BluetoothDevice device) {
         if (device == null) {
@@ -154,9 +154,8 @@ public class ConnectRequest<T extends BleDevice> implements BleHandler.ReceiveMe
     }
 
     /**
-     * Gets the connected device
      *
-     * @return connected device
+     * @return 已经连接的蓝牙设备集合
      */
 
     public ArrayList<T> getConnetedDevices() {

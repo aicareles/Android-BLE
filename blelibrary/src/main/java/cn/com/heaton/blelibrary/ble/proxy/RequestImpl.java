@@ -63,15 +63,15 @@ public class RequestImpl<T extends BleDevice> implements RequestLisenter<T>{
     }
 
     @Override
-    public void read(T device, BleReadCallback<T> callback) {
+    public boolean read(T device, BleReadCallback<T> callback) {
         ReadRequest<T> request = ReadRequest.getInstance();
-        request.read(device, callback);
+        return request.read(device, callback);
     }
 
     @Override
-    public void readRssi(T device, BleReadRssiCallback<T> callback) {
+    public boolean readRssi(T device, BleReadRssiCallback<T> callback) {
         ReadRssiRequest<T> request = ReadRssiRequest.getInstance();
-        request.readRssi(device, callback);
+        return request.readRssi(device, callback);
     }
 
     @Override

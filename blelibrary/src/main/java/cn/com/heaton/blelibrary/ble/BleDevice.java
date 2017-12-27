@@ -14,8 +14,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import cn.com.heaton.blelibrary.ota.OtaListener;
 
 /**
+ *
  * Created by LiuLei on 2016/11/26.
- * If you need to set the Bluetooth object more properties and behavior can be inherited from the class     such as extends BleDevice
  */
 
 public class BleDevice {
@@ -23,30 +23,23 @@ public class BleDevice {
     public final static String          TAG                      = BleDevice.class.getSimpleName();
 
     /**
-     *  Connection Status:
-     *  2503 Not Connected
-     *  2504 Connected
-     *  2505 Connected
-     *  2506 Disconnected
+     *  连接状态
+     *  2503 未连接状态
+     *  2504 正在连接
+     *  2505 连接成功
      */
     private int mConnectionState = BleStates.BleStatus.DISCONNECT;
 
-    /**
-     *   Bluetooth address
-     */
+    /*蓝牙地址*/
     private String mBleAddress;
 
-
-
-    /**
-     *  Bluetooth name
-     */
+    /*蓝牙名称*/
     private String mBleName;
-    /**
-     *   Bluetooth modified name
-     */
+
+    /*蓝牙重命名名称（别名）*/
     private String mBleAlias;
 
+    /*是否自动连接*/
     private boolean mAutoConnect = false;//The default is not automatic connection
 
     /**

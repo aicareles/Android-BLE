@@ -65,7 +65,7 @@ public class BluetoothLeService extends Service {
     private OtaListener mOtaListener;//Ota update operation listener
 
     /**
-     * Connection changes or services were found in a variety of state callbacks
+     * 在各种状态回调中发现连接更改或服务
      */
     private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
         @Override
@@ -158,10 +158,11 @@ public class BluetoothLeService extends Service {
             }
         }
 
-
-        /*
-         * when connected successfully will callback this method , this method can dealwith send password or data analyze
-         * When setnotify (true) is set, the method is called back if the data on the MCU (device side) changes.
+        /**
+         * 当连接成功的时候会回调这个方法，这个方法可以处理发送密码或者数据分析
+         * 当setnotify（true）被设置时，如果MCU（设备端）上的数据改变，则该方法被回调。
+         * @param gatt 蓝牙gatt对象
+         * @param characteristic 蓝牙通知特征对象
          */
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt,
@@ -220,9 +221,8 @@ public class BluetoothLeService extends Service {
     }
 
     /**
-     * Gets the connected device
      *
-     * @return connected device
+     * @return 已经连接的设备集合
      */
     public List<BluetoothDevice> getConnectedDevices() {
         if (mBluetoothManager == null) return null;
@@ -249,16 +249,16 @@ public class BluetoothLeService extends Service {
 
     private final IBinder mBinder = new LocalBinder();
 
-    public void setBleManager(Ble bleManager, Ble.Options options) {
-        this.mBleManager = bleManager;
+    public void setBleManager(Ble ble, Ble.Options options) {
+        this.mBleManager = ble;
         this.mHandler = BleHandler.getHandler();
         this.mOptions = options;
     }
 
     /**
-     * Initializes the ble Bluetooth device
+     * 初始化蓝牙
      *
-     * @return Whether the initialization is successful
+     * @return 是否初始化成功
      */
     public boolean initialize() {
         // For API level 18 and above, get a reference to BluetoothAdapter
@@ -281,10 +281,10 @@ public class BluetoothLeService extends Service {
     }
 
     /**
-     * Connects to a specified Bluetooth device
+     * 连接蓝牙
      *
-     * @param address ble address
-     * @return Whether connect is successful
+     * @param address 蓝牙地址
+     * @return 是否连接成功
      */
     // TODO: 2017/6/6  connect
     public boolean connect(final String address) {
@@ -332,9 +332,9 @@ public class BluetoothLeService extends Service {
     }
 
     /**
-     * Disconnects the specified Bluetooth blinking device
+     * 断开蓝牙
      *
-     * @param address ble address
+     * @param address 蓝牙地址
      */
     public void disconnect(final String address) {
         if (mBluetoothAdapter == null || mBluetoothGattMap.get(address) == null) {
@@ -350,9 +350,9 @@ public class BluetoothLeService extends Service {
     }
 
     /**
-     * Clear the specified Bluetooth address of the Bluetooth bluetooth connection device
+     * 清除蓝牙蓝牙连接设备的指定蓝牙地址
      *
-     * @param address ble address
+     * @param address 蓝牙地址
      */
     public void close(String address) {
         mConnectedAddressList.remove(address);
@@ -363,7 +363,7 @@ public class BluetoothLeService extends Service {
     }
 
     /**
-     * Clear all ble connected devices
+     * 清除所有可连接的设备
      */
     public void close() {
         if (mConnectedAddressList == null) return;
@@ -379,11 +379,11 @@ public class BluetoothLeService extends Service {
 
 
     /**
-     * send data
+     * 写入数据
      *
-     * @param address ble address
-     * @param value   Send data values
-     * @return whether succeed
+     * @param address 蓝牙地址
+     * @param value   发送的字节数组
+     * @return 写入是否成功(这个是客户端的主观认为)
      */
     public boolean wirteCharacteristic(String address, byte[] value) {
         if (mBluetoothAdapter == null || mBluetoothGattMap.get(address) == null) {
@@ -409,10 +409,10 @@ public class BluetoothLeService extends Service {
     }
 
     /**
-     * read data
+     * 读取数据
      *
-     * @param address ble address
-     * @return whether succeed
+     * @param address 蓝牙地址
+     * @return 读取是否成功(这个是客户端的主观认为)
      */
     public boolean readCharacteristic(String address) {
         if (mBluetoothAdapter == null || mBluetoothGattMap.get(address) == null) {
@@ -435,6 +435,11 @@ public class BluetoothLeService extends Service {
 
     }
 
+    /**
+     * 读取远程RSSI
+     * @param address 蓝牙地址
+     * @return 是否读取RSSI成功(这个是客户端的主观认为)
+     */
     public boolean readRssi(String address) {
         if (mBluetoothAdapter == null || mBluetoothGattMap.get(address) == null) {
             BleLog.w(TAG, "BluetoothAdapter not initialized");
@@ -457,13 +462,9 @@ public class BluetoothLeService extends Service {
     }
 
     /**
-     * Request a read on a given {@code BluetoothGattCharacteristic}. The read
-     * result is reported asynchronously through the
-     * {@code BluetoothGattCallback#onCharacteristicRead(android.bluetooth.BluetoothGatt, android.bluetooth.BluetoothGattCharacteristic, int)}
-     * callback.
-     *
-     * @param address        ble address
-     * @param characteristic The characteristic to read from.
+     * 读取数据
+     * @param address   蓝牙地址
+     * @param characteristic 蓝牙特征对象
      */
     public void readCharacteristic(String address, BluetoothGattCharacteristic characteristic) {
         BleLog.d(TAG, "readCharacteristic: " + characteristic.getProperties());
@@ -475,11 +476,11 @@ public class BluetoothLeService extends Service {
     }
 
     /**
-     * Enables or disables notification on a give characteristic.
+     * 启用或禁用给定特征的通知
      *
-     * @param address        ble address
-     * @param characteristic Characteristic to act on.
-     * @param enabled        If true, enable notification. False otherwise.
+     * @param address        蓝牙地址
+     * @param characteristic 通知特征对象
+     * @param enabled   是否设置通知使能
      */
     public void setCharacteristicNotification(String address,
                                               BluetoothGattCharacteristic characteristic, boolean enabled) {
@@ -504,7 +505,11 @@ public class BluetoothLeService extends Service {
 
     }
 
-    //Set the notification array
+    /**
+     * 设置通知数组
+     * @param address 蓝牙地址
+     * @param gattServices 蓝牙服务集合
+     */
     private void displayGattServices(final String address, List<BluetoothGattService> gattServices) {
         if (gattServices == null)
             return;
@@ -553,7 +558,11 @@ public class BluetoothLeService extends Service {
         }
     }
 
-    //Get a writable WriteCharacteristic object
+    /**
+     * 获取可写特征对象
+     * @param address 蓝牙地址
+     * @return  可写特征对象
+     */
     public BluetoothGattCharacteristic getWriteCharacteristic(String address) {
         synchronized (mLocker) {
             if (mWriteCharacteristicMap != null) {
@@ -563,6 +572,11 @@ public class BluetoothLeService extends Service {
         }
     }
 
+    /**
+     * 获取可读特征对象
+     * @param address 蓝牙地址
+     * @return  可读特征对象
+     */
     public BluetoothGattCharacteristic getReadCharacteristic(String address) {
         synchronized (mLocker) {
             if (mReadCharacteristicMap != null) {
@@ -588,10 +602,10 @@ public class BluetoothLeService extends Service {
     }
 
     /**
-     * Read the RSSI for a connected remote device.
+     * .读取连接的远程设备的RSSI
      *
-     * @param address ble address
-     * @return Whether get rssi values is successful
+     * @param address 蓝牙地址
+     * @return 读取RSSI是否成功
      */
     public boolean getRssiVal(String address) {
         if (mBluetoothGattMap.get(address) == null)
@@ -601,11 +615,11 @@ public class BluetoothLeService extends Service {
     }
 
     /**
-     * Send ota data
+     * 写入OTA数据
      *
-     * @param address Device address
-     * @param value   Send data values
-     * @return whether succeed
+     * @param address 蓝牙地址
+     * @param value   发送字节数组
+     * @return 写入是否成功
      */
     public boolean writeOtaData(String address, byte[] value) {
         if (mBluetoothAdapter == null || mBluetoothGattMap.get(address) == null) {
@@ -652,31 +666,34 @@ public class BluetoothLeService extends Service {
     }
 
     /**
-     * update completed
+     * OTA升级完成
      */
     public void otaUpdateComplete() {
         mOtaUpdating = false;
     }
 
     /**
-     * Set whether ota is updated
+     * 设置OTA是否正在升级
      *
-     * @param updating update status
+     * @param updating 升级状态
      */
     public void setOtaUpdating(boolean updating) {
         mOtaUpdating = updating;
     }
 
     /**
-     * OTA sets the listener
+     * 设置OTA更新状态监听
      *
-     * @param otaListener Listener
+     * @param otaListener 监听对象
      */
     public void setOtaListener(OtaListener otaListener) {
         mOtaListener = otaListener;
     }
 
 
+    /**
+     * 蓝牙相关参数配置基类
+     */
     public static class Options {
 
         public UUID uuid_service = UUID.fromString("0000fee9-0000-1000-8000-00805f9b34fb");

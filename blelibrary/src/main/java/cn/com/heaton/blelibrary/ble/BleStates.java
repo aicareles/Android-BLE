@@ -15,8 +15,8 @@ import java.util.UUID;
 public class BleStates {
 
     /**
-     *  Annotations
-     *  prevent the defined constant values from being repeated
+     *  注释
+     *  防止重复定义的常量值
      */
     @IntDef({
             BleStatus.CONNECTED,

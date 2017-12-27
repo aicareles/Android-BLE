@@ -40,6 +40,7 @@ import cn.com.heaton.blelibrary.ble.Ble;
 import cn.com.heaton.blelibrary.ble.BleDevice;
 import cn.com.heaton.blelibrary.ble.callback.BleConnCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleNotiftCallback;
+import cn.com.heaton.blelibrary.ble.callback.BleReadCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleReadRssiCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleScanCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleWriteCallback;
@@ -175,6 +176,7 @@ public class BleActivity extends BaseActivity implements View.OnClickListener, A
         options.connectTimeout = 10 * 1000;//设置连接超时时长
         options.uuid_service = UUID.fromString("0000fee9-0000-1000-8000-00805f9b34fb");//设置主服务的uuid
         options.uuid_write_cha = UUID.fromString("d44bc439-abfd-45a2-b575-925416129600");//设置可写特征的uuid
+        options.uuid_read_cha = UUID.fromString("d44bc439-abfd-45a2-b575-925416129601");//设置可读特征的uuid
         mBle.init(getApplicationContext(), options);
 
         checkBle();
@@ -186,15 +188,6 @@ public class BleActivity extends BaseActivity implements View.OnClickListener, A
     private void checkBle() {
         // 检查设备是否支持BLE4.0
         if (!mBle.isSupportBle(this)) {
-            Toast.makeText(this, R.string.ble_not_supported, Toast.LENGTH_SHORT).show();
-            finish();
-            return;
-        }
-        BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
-        // 初始化蓝牙适配器. API版本必须是18以上, 通过 BluetoothManager 获取到BLE的适配器.
-
-        // 检查当前的蓝牙设别是否支持.
-        if (adapter == null) {
             Toast.makeText(this, R.string.ble_not_supported, Toast.LENGTH_SHORT).show();
             finish();
             return;
@@ -217,6 +210,21 @@ public class BleActivity extends BaseActivity implements View.OnClickListener, A
             Log.e(TAG, "changeLevelInner: " + "发送数据失败!");
         }
     }
+    
+    /*主动读取数据*/
+    public void read(BleDevice device){
+        boolean result = mBle.read(device, new BleReadCallback<BleDevice>() {
+            @Override
+            public void onReadSuccess(BluetoothGattCharacteristic characteristic) {
+                super.onReadSuccess(characteristic);
+                byte[] data = characteristic.getValue();
+                Log.w(TAG, "onReadSuccess: "+Arrays.toString(data));
+            }
+        });
+        if(!result){
+            Log.d(TAG, "读取数据失败!");
+        }
+    }
 
 //    //播放音乐
 //    public byte[] changeLevelInner(int play) {
@@ -230,10 +238,10 @@ public class BleActivity extends BaseActivity implements View.OnClickListener, A
 
 //    播放音乐
     public byte[] changeLevelInner() {
-        int var = 0xAA51;
+        int var = 0xAA51;//左邊是高位  右邊是低位
         byte[] data = new byte[2];
-        data[1] =  (byte)(var & 0xff);
         data[0] =  (byte)((var>>8) & 0xff);
+        data[1] =  (byte)(var & 0xff);
         Logger.e("data:" + Arrays.toString(data));
         Logger.e("data11:" + Integer.toHexString(var));
         return data;
@@ -276,13 +284,21 @@ public class BleActivity extends BaseActivity implements View.OnClickListener, A
         }
     };
 
+    //这里是全局的
+    byte[] mBuff = new byte[4096];
+    int mReadCount = 0;
+
     /*设置通知的回调*/
     private void setNotify(BleDevice device) {
          /*连接成功后，设置通知*/
         mBle.startNotify(device, new BleNotiftCallback<BleDevice>() {
             @Override
             public void onChanged(BluetoothGattCharacteristic characteristic) {
+                UUID uuid = characteristic.getUuid();
                 Log.e(TAG, "onChanged: " + Arrays.toString(characteristic.getValue()));
+                byte[] data = characteristic.getValue();
+                System.arraycopy(data, 0, mBuff, mReadCount, data.length);
+                mReadCount += data.length;
             }
 
             @Override

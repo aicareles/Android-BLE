@@ -10,20 +10,51 @@ android {
         }
     }
     compileSdkVersion 25
-    buildToolsVersion "25.0.2"
+    buildToolsVersion "25.0.3"
     defaultConfig {
         applicationId "com.example.admin.mybledemo"
         minSdkVersion 18
-        targetSdkVersion 24
+        targetSdkVersion 25
         versionCode 1
-        versionName "1.0"
+        versionName "2.0.0"
+        versionNameSuffix 'b'
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.config
         }
+        debug {
+            signingConfig signingConfigs.config
+            jniDebuggable true
+        }
+    }
+
+    /*android.applicationVariants.all { variant ->
+        variant.outputs.each { output ->
+            output.outputFile = new File(output.outputFile.parent, output.outputFile.name.replace(".apk", "-" + defaultConfig.versionName + defaultConfig.versionNameSuffix + ".apk"));
+        }
+    }*/
+    applicationVariants.all { variant ->
+        variant.outputs.each { output ->
+            def outputFile = output.outputFile
+            if (outputFile != null && outputFile.name.endsWith('.apk')) {
+                // 这里添加productFlavors的名字，输出apk名称为BLE-v2.0.0b-beat.apk
+                def fileName = "BLE-v${defaultConfig.versionName}$defaultConfig.versionNameSuffix-${variant.productFlavors[0].name}.apk"
+                output.outputFile = new File(outputFile.parent, fileName)
+            }
+        }
+    }
+
+    productFlavors {
+        beat {}
+        google {}
+    }
+
+    productFlavors.all {
+        flavor -> flavor.manifestPlaceholders = [NAME_VALUE : name]
     }
 }
 
@@ -34,8 +65,8 @@ dependencies {
     })
     compile project(':blelibrary')
 //    compile 'cn.com.superLei:blelibrary:1.0.1'
-    compile 'com.android.support:appcompat-v7:25.1.0'
-    compile 'com.android.support:design:25.1.0'
+    compile 'com.android.support:appcompat-v7:25.3.1'
+    compile 'com.android.support:design:25.3.1'
     compile 'com.orhanobut:logger:1.15'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     testCompile 'junit:junit:4.12'

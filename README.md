@@ -5,6 +5,10 @@
 #### Android蓝牙BLE库
 
 ## 本文的api介绍：（BleLib库）
+
+### AndroidStudio最新版本依赖地址：compile 'cn.com.superLei:blelibrary:2.0.0'
+
+
 #### 先来看张BleLib库的api之间的关系图：
 ![BleLib库结构图.png](http://upload-images.jianshu.io/upload_images/3884117-2c5a0b95cda75158.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/840)
 ### 1、iQppCallback、QppApi
@@ -39,7 +43,7 @@ onConnectTimeOut()方法等等。（如果各位有更好的方式可以留言�
 
 ### 使用步骤：
 
-#### AndroidStudio最新版本依赖地址：compile 'cn.com.superLei:blelibrary:2.0.0'
+#### 首先buidl.gradle中添加依赖：compile 'cn.com.superLei:blelibrary:2.0.0'
 #### 1.初始化蓝牙(判断设备是否支持BLE，蓝牙是否打开以及6.0动态授权蓝牙权限等)<br>
 
 ```

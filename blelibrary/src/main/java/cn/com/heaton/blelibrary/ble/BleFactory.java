@@ -6,8 +6,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 /**
+ * 蓝牙工厂类
  * Created by LiuLei on 2017/5/3.
- * Bluetooth factory
  */
 
 public class BleFactory<T extends BleDevice> {
