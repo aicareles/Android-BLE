@@ -16,7 +16,7 @@ import cn.com.heaton.blelibrary.ble.callback.BleNotiftCallback;
  * Created by LiuLei on 2017/10/23.
  */
 
-public class NotifyRequest<T extends BleDevice> implements BleHandler.ReceiveMessage {
+public class NotifyRequest<T extends BleDevice> implements IRequest {
 
     private static final String TAG = "NotifyRequest";
 
@@ -34,7 +34,7 @@ public class NotifyRequest<T extends BleDevice> implements BleHandler.ReceiveMes
         return instance;
     }
 
-    private NotifyRequest() {
+    protected NotifyRequest() {
         BleHandler handler = BleHandler.getHandler();
         handler.setHandlerCallback(this);
         BleLog.e(TAG, "NotifyRequest: ++++");

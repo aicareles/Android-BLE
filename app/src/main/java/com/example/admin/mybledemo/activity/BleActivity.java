@@ -176,7 +176,7 @@ public class BleActivity extends BaseActivity implements View.OnClickListener, A
         options.connectTimeout = 10 * 1000;//设置连接超时时长
         options.uuid_service = UUID.fromString("0000fee9-0000-1000-8000-00805f9b34fb");//设置主服务的uuid
         options.uuid_write_cha = UUID.fromString("d44bc439-abfd-45a2-b575-925416129600");//设置可写特征的uuid
-        options.uuid_read_cha = UUID.fromString("d44bc439-abfd-45a2-b575-925416129601");//设置可读特征的uuid
+//        options.uuid_read_cha = UUID.fromString("d44bc439-abfd-45a2-b575-925416129601");//设置可读特征的uuid
         mBle.init(getApplicationContext(), options);
 
         checkBle();
@@ -246,7 +246,6 @@ public class BleActivity extends BaseActivity implements View.OnClickListener, A
         Logger.e("data11:" + Integer.toHexString(var));
         return data;
     }
-
 
     //扫描的回调
     BleScanCallback<BleDevice> scanCallback = new BleScanCallback<BleDevice>() {

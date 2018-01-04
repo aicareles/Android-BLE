@@ -33,6 +33,12 @@ public class RequestImpl<T extends BleDevice> implements RequestLisenter<T>{
 
     @Override
     public void startScan(BleScanCallback<T> callback) {
+//        try {
+//            ScanRequest request = RequestFactory.newInstance().generateRequest(ScanRequest.class);
+//            request.startScan(callback, options.scanPeriod);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
         ScanRequest<T> request = ScanRequest.getInstance();
         request.startScan(callback, options.scanPeriod);
     }
@@ -45,6 +51,13 @@ public class RequestImpl<T extends BleDevice> implements RequestLisenter<T>{
 
     @Override
     public boolean connect(T device, BleConnCallback<T> callback) {
+//        try {
+//            ConnectRequest request = RequestFactory.newInstance().generateRequest(ConnectRequest.class);
+//            return request.connect(device, callback);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return false;
+//        }
         ConnectRequest<T> request = ConnectRequest.getInstance();
         return request.connect(device, callback);
     }

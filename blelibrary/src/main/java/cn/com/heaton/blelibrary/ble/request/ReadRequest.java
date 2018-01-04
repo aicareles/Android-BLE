@@ -15,7 +15,7 @@ import cn.com.heaton.blelibrary.ble.callback.BleReadCallback;
  * Created by LiuLei on 2017/10/23.
  */
 
-public class ReadRequest<T extends BleDevice> implements BleHandler.ReceiveMessage {
+public class ReadRequest<T extends BleDevice> implements IRequest {
 
     private BleReadCallback<T> mBleLisenter;
 
@@ -31,7 +31,7 @@ public class ReadRequest<T extends BleDevice> implements BleHandler.ReceiveMessa
         return instance;
     }
 
-    private ReadRequest() {
+    protected ReadRequest() {
         BleHandler handler = BleHandler.getHandler();
         handler.setHandlerCallback(this);
     }

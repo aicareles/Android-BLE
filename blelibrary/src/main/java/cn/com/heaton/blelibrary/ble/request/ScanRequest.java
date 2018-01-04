@@ -2,6 +2,7 @@ package cn.com.heaton.blelibrary.ble.request;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.os.Message;
 import android.text.TextUtils;
 
 import java.util.ArrayList;
@@ -18,7 +19,7 @@ import cn.com.heaton.blelibrary.ble.BleDevice;
  * Created by LiuLei on 2017/10/21.
  */
 
-public class ScanRequest<T extends BleDevice> {
+public class ScanRequest<T extends BleDevice> implements IRequest{
 
     private boolean mScanning;
     private BluetoothAdapter mBluetoothAdapter;
@@ -38,7 +39,7 @@ public class ScanRequest<T extends BleDevice> {
         return instance;
     }
 
-    private ScanRequest() {
+    protected ScanRequest() {
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
     }
 
@@ -113,5 +114,10 @@ public class ScanRequest<T extends BleDevice> {
             }
         }
         return false;
+    }
+
+    @Override
+    public void handleMessage(Message msg) {
+
     }
 }

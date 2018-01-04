@@ -15,7 +15,7 @@ import cn.com.heaton.blelibrary.ble.callback.BleWriteCallback;
  * Created by LiuLei on 2017/10/23.
  */
 
-public class WriteRequest<T extends BleDevice> implements BleHandler.ReceiveMessage {
+public class WriteRequest<T extends BleDevice> implements IRequest {
 
     private BleWriteCallback<T> mBleLisenter;
 
@@ -31,7 +31,7 @@ public class WriteRequest<T extends BleDevice> implements BleHandler.ReceiveMess
         return instance;
     }
 
-    private WriteRequest() {
+    protected WriteRequest() {
         BleHandler handler = BleHandler.getHandler();
         handler.setHandlerCallback(this);
     }

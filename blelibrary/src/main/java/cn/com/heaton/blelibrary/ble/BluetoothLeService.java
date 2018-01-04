@@ -497,7 +497,11 @@ public class BluetoothLeService extends Service {
             for(BluetoothGattDescriptor descriptor : descriptors){
                 if (descriptor != null) {
                     //Write the description value
-                    descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+                    if((characteristic.getProperties() & BluetoothGattCharacteristic.PROPERTY_NOTIFY) != 0){
+                        descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+                    }else if((characteristic.getProperties() & BluetoothGattCharacteristic.PROPERTY_INDICATE) != 0){
+                        descriptor.setValue(BluetoothGattDescriptor.ENABLE_INDICATION_VALUE);
+                    }
                     mBluetoothGattMap.get(address).writeDescriptor(descriptor);
                 }
             }
@@ -540,11 +544,11 @@ public class BluetoothLeService extends Service {
                         BleLog.e("mWriteCharacteristic", uuid);
                         mWriteCharacteristicMap.put(address, gattCharacteristic);
                         //Notification feature
-                    }else if (uuid.equals(mOptions.uuid_read_cha.toString())) {
+                    } if (uuid.equals(mOptions.uuid_read_cha.toString())) {
                         BleLog.e("mReadCharacteristic", uuid);
                         mReadCharacteristicMap.put(address, gattCharacteristic);
                         //Notification feature
-                    } else if ((gattCharacteristic.getProperties() & BluetoothGattCharacteristic.PROPERTY_NOTIFY) != 0) {
+                    } if ((gattCharacteristic.getProperties() & BluetoothGattCharacteristic.PROPERTY_NOTIFY) != 0) {
                         mNotifyCharacteristics.add(gattCharacteristic);
                         BleLog.e("mNotifyCharacteristics", "PROPERTY_NOTIFY");
                     }

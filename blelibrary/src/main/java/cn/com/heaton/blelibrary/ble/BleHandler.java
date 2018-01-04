@@ -6,6 +6,9 @@ import android.os.Looper;
 import android.os.Message;
 
 import java.util.ArrayList;
+import java.util.List;
+
+import cn.com.heaton.blelibrary.ble.request.IRequest;
 
 /**
  *
@@ -16,9 +19,9 @@ public class BleHandler extends Handler {
     private static final String TAG = "BleHandler";
     private static BleHandler sHandler;//Handler for manipulating the Ble state
 
-    private ArrayList<ReceiveMessage> receiveMessages = new ArrayList<>();
+    private List<IRequest> receiveMessages = new ArrayList<>();
 
-    public void setHandlerCallback(ReceiveMessage receiveMessage){
+    public void setHandlerCallback(IRequest receiveMessage){
         if(!receiveMessages.contains(receiveMessage)){
             receiveMessages.add(receiveMessage);
         }
@@ -41,13 +44,9 @@ public class BleHandler extends Handler {
 
     @Override
     public void handleMessage(Message msg) {
-        for(ReceiveMessage receiveMessage : receiveMessages){
+        for(IRequest receiveMessage : receiveMessages){
             receiveMessage.handleMessage(msg);
         }
-    }
-
-    public interface ReceiveMessage{
-        void handleMessage(Message msg);
     }
 
 }

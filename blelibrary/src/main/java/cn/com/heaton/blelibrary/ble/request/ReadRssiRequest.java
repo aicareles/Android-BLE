@@ -14,7 +14,7 @@ import cn.com.heaton.blelibrary.ble.callback.BleReadRssiCallback;
  * Created by LiuLei on 2017/10/23.
  */
 
-public class ReadRssiRequest<T extends BleDevice> implements BleHandler.ReceiveMessage {
+public class ReadRssiRequest<T extends BleDevice> implements IRequest {
 
     private BleReadRssiCallback<T> mBleLisenter;
 
@@ -30,7 +30,7 @@ public class ReadRssiRequest<T extends BleDevice> implements BleHandler.ReceiveM
         return instance;
     }
 
-    private ReadRssiRequest() {
+    protected ReadRssiRequest() {
         BleHandler handler = BleHandler.getHandler();
         handler.setHandlerCallback(this);
     }

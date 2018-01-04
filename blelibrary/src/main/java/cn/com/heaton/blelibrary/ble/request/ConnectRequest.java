@@ -5,7 +5,6 @@ import android.os.Message;
 import android.util.Log;
 
 import java.util.ArrayList;
-
 import cn.com.heaton.blelibrary.ble.BleHandler;
 import cn.com.heaton.blelibrary.ble.BleDevice;
 import cn.com.heaton.blelibrary.ble.BleFactory;
@@ -20,7 +19,7 @@ import cn.com.heaton.blelibrary.ble.callback.BleConnCallback;
  * Created by LiuLei on 2017/10/21.
  */
 
-public class ConnectRequest<T extends BleDevice> implements BleHandler.ReceiveMessage {
+public class ConnectRequest<T extends BleDevice> implements IRequest {
 
     private static final String TAG = "ConnectRequest";
     private BleFactory<T> mBleFactory;
@@ -43,7 +42,7 @@ public class ConnectRequest<T extends BleDevice> implements BleHandler.ReceiveMe
         return instance;
     }
 
-    private ConnectRequest() {
+    protected ConnectRequest() {
         mBleFactory = new BleFactory<T>();
         mHandler = BleHandler.getHandler();
         mHandler.setHandlerCallback(this);
