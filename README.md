@@ -31,28 +31,28 @@ onConnectTimeOut()方法等等。（如果各位有更好的方式可以留言�
 ```
 
 ### 历史版本介绍：
-[![Download](https://api.bintray.com/packages/superliu/maven/BleLib/images/download.svg)](https://bintray.com/superliu/maven/BleLib/2.0.4)
+[![Version](https://img.shields.io/badge/BleLib-v2.0.4-blue.svg)](https://bintray.com/superliu/maven/BleLib/2.0.4)
 ```
 该版本修复读、写、通知特征uuid相同的情况下，出现无法设置通知的BUG
 ```
-[![Download](https://api.bintray.com/packages/superliu/maven/BleLib/images/download.svg)](https://bintray.com/superliu/maven/BleLib/2.0.3)
+[![Version](https://img.shields.io/badge/BleLib-v2.0.3-blue.svg)](https://bintray.com/superliu/maven/BleLib/2.0.3)
 ```
 该版本优化内部api结构，但并不影响外部接口调用
 ```
-[![Download](https://api.bintray.com/packages/superliu/maven/BleLib/images/download.svg)](https://bintray.com/superliu/maven/BleLib/2.0.2)
+[![Version](https://img.shields.io/badge/BleLib-v2.0.2-blue.svg)](https://bintray.com/superliu/maven/BleLib/2.0.2)
 ```
 该版本增加主动读取数据以及读取远程RSSI值的接口
 ```
-[![Download](https://api.bintray.com/packages/superliu/maven/BleLib/images/download.svg)](https://bintray.com/superliu/maven/BleLib/2.0.0)
+[![Version](https://img.shields.io/badge/BleLib-v2.0.0-blue.svg)](https://bintray.com/superliu/maven/BleLib/2.0.0)
 ```
 该版本重构V 1.x版本，作为全新升级版本，重大类、接口进行重命名，使各个接口完成单一功能，并使之得到单一功能的回调。
 注：至此V 2.0.0版本以后不再维护1.x版本
 ```
-[![Download](https://api.bintray.com/packages/superliu/maven/BleLib/images/download.svg)](https://bintray.com/superliu/maven/BleLib/1.0.4)
+[![Version](https://img.shields.io/badge/BleLib-v1.0.4-blue.svg)](https://bintray.com/superliu/maven/BleLib/1.0.4)
 ```
 增加了自动连接的接口
 ```
-[![Download](https://api.bintray.com/packages/superliu/maven/BleLib/images/download.svg)](https://bintray.com/superliu/maven/BleLib/1.0.0)
+[![Version](https://img.shields.io/badge/BleLib-v1.0.0-blue.svg)](https://bintray.com/superliu/maven/BleLib/1.0.0)
 ```
 初始版本，可完成基本的BLE蓝牙一系列操作（扫描、连接、断开、设置通知、发送数据等等）
 ```
