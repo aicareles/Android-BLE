@@ -1,6 +1,6 @@
-# 对蓝牙4.0感兴趣可以加群进行相互讨论学习(QQ：494309361)
+# 对蓝牙感兴趣可以加群讨论学习(QQ：494309361)
 
-#### 先来看张BleLib库的api之间的关系图：
+#### 一、先来看张BleLib库的api之间的关系图：
 ![BleLib库结构图.png](http://upload-images.jianshu.io/upload_images/3884117-2c5a0b95cda75158.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/840)
 
 ### 1、BleDevice
@@ -29,7 +29,7 @@ onConnectTimeOut()方法等等。（如果各位有更好的方式可以留言�
 该类提供了几乎所有你需要用到的方法，包括蓝牙扫描、连接、断开、蓝牙当前连接状态等等，管理了蓝牙操作的所有接口和方法。
 ```
 
-### 历史版本介绍：
+### 二、历史版本介绍：
 [![Version](https://img.shields.io/badge/BleLib-v2.0.4-blue.svg)](https://bintray.com/superliu/maven/BleLib/2.0.4)
 ```
 该版本修复读、写、通知特征uuid相同的情况下，出现无法设置通知的BUG
@@ -56,7 +56,7 @@ onConnectTimeOut()方法等等。（如果各位有更好的方式可以留言�
 初始版本，可完成基本的BLE蓝牙一系列操作（扫描、连接、断开、设置通知、发送数据等等）
 ```
 
-### 使用步骤：
+### 三、使用步骤：
 
 #### 首先buidl.gradle中添加依赖：
 [![License](https://img.shields.io/badge/license-Apache%202-green.svg)](https://www.apache.org/licenses/LICENSE-2.0)
@@ -178,7 +178,7 @@ boolean result = mBle.write(device, changeLevelInner(), new BleWriteCallback<Ble
             Log.e(TAG, "changeLevelInner: " + "发送数据失败!");
         }
 ```
-#### 6.Demo效果演示图：
+### 四、Demo效果演示图：
 
 ![Demo预览图.gif](http://upload-images.jianshu.io/upload_images/3884117-49f080ad44b60946.gif?imageMogr2/auto-orient/strip)
 
