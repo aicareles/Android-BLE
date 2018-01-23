@@ -59,7 +59,9 @@ onConnectTimeOut()方法等等。（如果各位有更好的方式可以留言�
 
 ### 使用步骤：
 
-#### 首先buidl.gradle中添加依赖：[![Download](https://api.bintray.com/packages/superliu/maven/BleLib/images/download.svg)](https://bintray.com/superliu/maven/BleLib/_latestVersion)
+#### 首先buidl.gradle中添加依赖：
+[![License](https://img.shields.io/badge/license-Apache%202-green.svg)](https://www.apache.org/licenses/LICENSE-2.0)
+[![Download](https://api.bintray.com/packages/superliu/maven/BleLib/images/download.svg)](https://bintray.com/superliu/maven/BleLib/_latestVersion)
 ```groovy
 compile 'cn.com.superLei:blelibrary:2.0.4'
 ```
