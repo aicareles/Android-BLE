@@ -6,7 +6,6 @@ import android.os.Message;
 import android.text.TextUtils;
 
 import java.util.ArrayList;
-import java.util.UUID;
 
 import cn.com.heaton.blelibrary.ble.Ble;
 import cn.com.heaton.blelibrary.ble.BleFactory;
@@ -18,26 +17,14 @@ import cn.com.heaton.blelibrary.ble.BleDevice;
  *
  * Created by LiuLei on 2017/10/21.
  */
-
-public class ScanRequest<T extends BleDevice> implements IRequest{
+@Implement(ScanRequest.class)
+public class ScanRequest<T extends BleDevice> implements IMessage {
 
     private boolean mScanning;
     private BluetoothAdapter mBluetoothAdapter;
     private BleScanCallback<T> mScanCallback;
     //    private AtomicBoolean isContains = new AtomicBoolean(false);
     private ArrayList<T> mScanDevices = new ArrayList<>();
-    private static volatile ScanRequest instance;
-
-    public static <T extends BleDevice> ScanRequest<T> getInstance(){
-        if (instance == null) {
-            synchronized (ScanRequest.class) {
-                if (instance == null) {
-                    instance = new ScanRequest();
-                }
-            }
-        }
-        return instance;
-    }
 
     protected ScanRequest() {
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();

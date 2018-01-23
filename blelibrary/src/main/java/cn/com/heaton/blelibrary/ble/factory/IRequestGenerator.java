@@ -1,6 +1,6 @@
 package cn.com.heaton.blelibrary.ble.factory;
 
-import cn.com.heaton.blelibrary.ble.request.IRequest;
+import cn.com.heaton.blelibrary.ble.request.IMessage;
 
 /**
  *
@@ -8,5 +8,5 @@ import cn.com.heaton.blelibrary.ble.request.IRequest;
  */
 
 public abstract class IRequestGenerator {
-    public abstract <R extends IRequest>IRequest generateRequest(Class<R> clazz) throws Exception;
+    public abstract <R extends IMessage>IMessage generateRequest(Class<R> clazz) throws Exception;
 }

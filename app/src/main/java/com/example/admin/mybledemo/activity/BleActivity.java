@@ -262,6 +262,11 @@ public class BleActivity extends BaseActivity implements View.OnClickListener, A
                 });
             }
         }
+
+        @Override
+        public void onStop() {
+            super.onStop();
+        }
     };
 
     /*连接的回调*/

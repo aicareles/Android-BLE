@@ -14,22 +14,10 @@ import cn.com.heaton.blelibrary.ble.callback.BleReadCallback;
  *
  * Created by LiuLei on 2017/10/23.
  */
-
-public class ReadRequest<T extends BleDevice> implements IRequest {
+@Implement(ReadRequest.class)
+public class ReadRequest<T extends BleDevice> implements IMessage {
 
     private BleReadCallback<T> mBleLisenter;
-
-    private static volatile ReadRequest instance;
-    public static <T extends BleDevice> ReadRequest<T> getInstance(){
-        if (instance == null) {
-            synchronized (ReadRequest.class) {
-                if (instance == null) {
-                    instance = new ReadRequest();
-                }
-            }
-        }
-        return instance;
-    }
 
     protected ReadRequest() {
         BleHandler handler = BleHandler.getHandler();

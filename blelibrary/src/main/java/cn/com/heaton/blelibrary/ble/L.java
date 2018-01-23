@@ -7,7 +7,7 @@ import android.util.Log;
  * Created by LiuLei on 2017/5/16.
  */
 
-public class BleLog {
+public class L {
 
     public static boolean isDebug;
 

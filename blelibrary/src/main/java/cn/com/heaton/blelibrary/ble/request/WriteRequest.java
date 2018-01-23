@@ -14,22 +14,10 @@ import cn.com.heaton.blelibrary.ble.callback.BleWriteCallback;
  *
  * Created by LiuLei on 2017/10/23.
  */
-
-public class WriteRequest<T extends BleDevice> implements IRequest {
+@Implement(WriteRequest.class)
+public class WriteRequest<T extends BleDevice> implements IMessage {
 
     private BleWriteCallback<T> mBleLisenter;
-
-    private static volatile WriteRequest instance;
-    public static <T extends BleDevice> WriteRequest<T> getInstance(){
-        if (instance == null) {
-            synchronized (WriteRequest.class) {
-                if (instance == null) {
-                    instance = new WriteRequest();
-                }
-            }
-        }
-        return instance;
-    }
 
     protected WriteRequest() {
         BleHandler handler = BleHandler.getHandler();

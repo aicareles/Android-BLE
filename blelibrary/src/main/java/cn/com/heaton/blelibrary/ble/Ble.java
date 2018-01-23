@@ -9,7 +9,6 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.os.IBinder;
-import android.util.Log;
 
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
@@ -29,6 +28,7 @@ import cn.com.heaton.blelibrary.ble.exception.BleServiceException;
 import cn.com.heaton.blelibrary.ble.proxy.RequestImpl;
 import cn.com.heaton.blelibrary.ble.proxy.RequestLisenter;
 import cn.com.heaton.blelibrary.ble.proxy.RequestProxy;
+import cn.com.heaton.blelibrary.ble.request.Rproxy;
 import cn.com.heaton.blelibrary.ble.request.ScanRequest;
 
 /**
@@ -86,14 +86,14 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
             opts = new Options();
         }
         mOptions = opts;
-        BleLog.init(opts);
+        L.init(opts);
         /*设置动态代理*/
         mRequest = (RequestLisenter) RequestProxy
                 .getInstance()
                 .bindProxy(RequestImpl.getInstance(opts));
 
         boolean result = instance.startService(context);
-        BleLog.w(TAG, "bind service result is"+ result);
+        L.w(TAG, "bind service result is"+ result);
         return result;
     }
 
@@ -261,7 +261,7 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
             bll = context.bindService(gattServiceIntent, mServiceConnection, Context.BIND_AUTO_CREATE);
         }
         if (bll) {
-            BleLog.i(TAG, "service bind succseed!!!");
+            L.i(TAG, "service bind succseed!!!");
         } else if(mOptions.throwBleException){
             try {
                 throw new BleServiceException("Bluetooth service binding failed," +
@@ -292,9 +292,9 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
             if(instance != null)
                 mBluetoothLeService.setBleManager(instance, mOptions);
 
-            BleLog.e(TAG, "Service connection successful");
+            L.e(TAG, "Service connection successful");
             if (!mBluetoothLeService.initialize()) {
-                BleLog.e(TAG, "Unable to initialize Bluetooth");
+                L.e(TAG, "Unable to initialize Bluetooth");
 //                for (BleLisenter bleLisenter : mBleLisenters) {
 //                    bleLisenter.onInitFailed();
 //                }
@@ -315,7 +315,7 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
      * @return 指定位置蓝牙对象
      */
     public T getBleDevice(int index) {
-        ConnectRequest request = ConnectRequest.getInstance();
+        ConnectRequest request = Rproxy.getInstance().getRequest(ConnectRequest.class);
         if(request != null){
             return (T) request.getBleDevice(index);
         }
@@ -328,7 +328,7 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
      * @return 对应蓝牙对象
      */
     public T getBleDevice(BluetoothDevice device) {
-        ConnectRequest request = ConnectRequest.getInstance();
+        ConnectRequest request = Rproxy.getInstance().getRequest(ConnectRequest.class);
         if(request != null){
             return (T) request.getBleDevice(device);
         }
@@ -355,7 +355,7 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
      * 是否正在扫描
      */
     public boolean isScanning() {
-        ScanRequest request = ScanRequest.getInstance();
+        ScanRequest request = Rproxy.getInstance().getRequest(ScanRequest.class);
         return request.isScanning();
     }
 
@@ -365,7 +365,7 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
      */
 
     public ArrayList<T> getConnetedDevices() {
-        ConnectRequest request = ConnectRequest.getInstance();
+        ConnectRequest request = Rproxy.getInstance().getRequest(ConnectRequest.class);
         if(request != null){
             return request.getConnetedDevices();
         }
@@ -418,7 +418,7 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
             }
         }
         if (device.isAutoConnect()) {
-            BleLog.w(TAG, "addAutoPool: "+"Add automatic connection device to the connection pool");
+            L.w(TAG, "addAutoPool: "+"Add automatic connection device to the connection pool");
             mAutoDevices.add(device);
         }
     }
