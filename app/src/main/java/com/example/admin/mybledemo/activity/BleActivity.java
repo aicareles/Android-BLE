@@ -87,6 +87,7 @@ public class BleActivity extends BaseActivity implements View.OnClickListener, A
                 }
             }
         });
+
         initView();
     }
 
