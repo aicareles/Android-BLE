@@ -23,7 +23,7 @@
 ```
 
 ### 二、历史版本介绍：
-[![Version](https://img.shields.io/badge/BleLib-v2.0.4-blue.svg)](https://bintray.com/superliu/maven/BleLib/2.0.5)
+[![Version](https://img.shields.io/badge/BleLib-v2.0.5-blue.svg)](https://bintray.com/superliu/maven/BleLib/2.0.5)
 ```
 该版本添加根据蓝牙地址获取蓝牙对象的接口
 ```
