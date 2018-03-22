@@ -323,6 +323,19 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
     }
 
     /**
+     * 根据蓝牙地址获取蓝牙对象
+     * @param address 蓝牙地址
+     * @return 对应的蓝牙对象
+     */
+    public T getBleDevice(String address){
+        ConnectRequest request = Rproxy.getInstance().getRequest(ConnectRequest.class);
+        if(request != null){
+            return (T) request.getBleDevice(address);
+        }
+        return null;
+    }
+
+    /**
      * 获取对应蓝牙对象
      * @param device 原生蓝牙对象
      * @return 对应蓝牙对象

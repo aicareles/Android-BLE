@@ -102,4 +102,14 @@ public class BleDevice {
         this.mBleAlias = mBleAlias;
     }
 
+    @Override
+    public String toString() {
+        return "BleDevice{" +
+                "mConnectionState=" + mConnectionState +
+                ", mBleAddress='" + mBleAddress + '\'' +
+                ", mBleName='" + mBleName + '\'' +
+                ", mBleAlias='" + mBleAlias + '\'' +
+                ", mAutoConnect=" + mAutoConnect +
+                '}';
+    }
 }

@@ -112,6 +112,26 @@ public class ConnectRequest<T extends BleDevice> implements IMessage {
         return mDevices.get(index);
     }
 
+    public T getBleDevice(String address) {
+        if(address == null){
+            L.w(TAG,"By address to get BleDevice but address is null");
+            return null;
+        }
+        synchronized (mDevices){
+            if(mDevices.size() > 0){
+                for (T bleDevice : mDevices){
+                    if(bleDevice.getBleAddress().equals(address)){
+                        L.e(TAG,"By address to get BleDevice and BleDevice is exist");
+                        return bleDevice;
+                    }
+                }
+            }
+            L.w(TAG,"By address to get BleDevice and BleDevice isn't exist");
+            return null;
+        }
+
+    }
+
     /**
      * 获取蓝牙对象
      *
@@ -120,20 +140,20 @@ public class ConnectRequest<T extends BleDevice> implements IMessage {
      */
     public T getBleDevice(BluetoothDevice device) {
         if (device == null) {
-            L.w(TAG, "getBleDevice: " + "device is null");
+            L.w(TAG, "By BluetoothDevice to get BleDevice but BluetoothDevice is null");
             return null;
         }
         synchronized (mDevices) {
             if (mDevices.size() > 0) {
                 for (T bleDevice : mDevices) {
                     if (bleDevice.getBleAddress().equals(device.getAddress())) {
-                        L.w(TAG, "getBleDevice: " + "device is exist");
+                        L.e(TAG, "By BluetoothDevice to get BleDevice and device is exist");
                         return bleDevice;
                     }
                 }
             }
             T newDevice = (T) BleFactory.create(BleDevice.class, Ble.getInstance(), device);
-            L.w(TAG, "getBleDevice: " + "device is new");
+            L.e(TAG, "By BluetoothDevice to get BleDevice and device is new");
             return newDevice;
         }
     }

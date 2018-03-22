@@ -21,9 +21,9 @@
             </intent-filter>
         </activity>
 
-        <activity
-            android:name=".activity.BaseActivity"
-            android:theme="@android:style/Theme.Light.NoTitleBar" />
+        <!--<activity-->
+            <!--android:name=".activity.BaseActivity"-->
+            <!--android:theme="@android:style/Theme.Light.NoTitleBar" />-->
 
         <activity
             android:name=".activity.BleActivity"
@@ -37,9 +37,9 @@
             android:name=".activity.DeviceControlActivity"
             android:screenOrientation="portrait" />
 
-        <activity
-            android:name=".activity.TestActivity"
-            android:screenOrientation="portrait" />
+        <!--<activity-->
+            <!--android:name=".activity.TestActivity"-->
+            <!--android:screenOrientation="portrait" />-->
 
         <activity
             android:name=".activity.IntroducedActivity"
