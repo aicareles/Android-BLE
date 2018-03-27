@@ -23,6 +23,10 @@
 ```
 
 ### 二、历史版本介绍：
+[![Version](https://img.shields.io/badge/BleLib-v2.1.0-blue.svg)](https://bintray.com/superliu/maven/BleLib/2.1.0)
+```
+该版本添加跳转到其他界面，操作该蓝牙对象的扫描、连接、断开、通知等回调的接口（任意界面都可以随心所欲的操作或者拿到mcu返回的数据）
+```
 [![Version](https://img.shields.io/badge/BleLib-v2.0.5-blue.svg)](https://bintray.com/superliu/maven/BleLib/2.0.5)
 ```
 该版本添加根据蓝牙地址获取蓝牙对象的接口
@@ -59,7 +63,7 @@
 [![License](https://img.shields.io/badge/license-Apache%202-green.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 [![Download](https://api.bintray.com/packages/superliu/maven/BleLib/images/download.svg)](https://bintray.com/superliu/maven/BleLib/_latestVersion)
 ```groovy
-compile 'cn.com.superLei:blelibrary:2.0.5'
+compile 'cn.com.jerry:blelibrary:2.1.0'
 ```
 
 #### 1.初始化蓝牙(判断设备是否支持BLE，蓝牙是否打开以及6.0动态授权蓝牙权限等)<br>
