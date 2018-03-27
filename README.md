@@ -26,6 +26,39 @@
 [![Version](https://img.shields.io/badge/BleLib-v2.1.0-blue.svg)](https://bintray.com/superliu/maven/BleLib/2.1.0)
 ```
 该版本添加跳转到其他界面，操作该蓝牙对象的扫描、连接、断开、通知等回调的接口（任意界面都可以随心所欲的操作或者拿到mcu返回的数据）
+1、在其他界面你也想拿到蓝牙设备传过来的数据，你可以这样做：（重要）
+    //测试通知
+    public void testNotify(BleDevice device) {
+        if(device != null){
+            mNotifyStatus.setText("设置通知监听成功！！！");
+            mBle.startNotify(device, new BleNotiftCallback<BleDevice>() {
+                @Override
+                public void onChanged(BluetoothGattCharacteristic characteristic) {
+                    Log.e(TAG, "onChanged: " + Arrays.toString(characteristic.getValue()));
+                    mNotifyValue.setText("收到MCU通知值:\n"+Arrays.toString(characteristic.getValue()));
+                }
+            });
+        }
+    }
+2、在其他界面也想连接或者断开上个界面的设备对象，你可以这么做：
+    mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                //测试连接或断开
+                final BleDevice device = mLeDeviceListAdapter.getDevice(position);
+                if (device == null) return;
+                if (mBle.isScanning()) {
+                    mBle.stopScan();
+                }
+                if (device.isConnected()) {
+                    //2.1.0版本新增接口（mBle.disconnect(device)接口仍可正常使用）
+                    mBle.disconnect(device, connectCallback);
+                } else if (!device.isConnectting()) {
+                    mBle.connect(device, connectCallback);
+                }
+            }
+        });
+3、扫描、发送数据、读取数据等接口都可如上正常使用（与之前版本一样）
 ```
 [![Version](https://img.shields.io/badge/BleLib-v2.0.5-blue.svg)](https://bintray.com/superliu/maven/BleLib/2.0.5)
 ```

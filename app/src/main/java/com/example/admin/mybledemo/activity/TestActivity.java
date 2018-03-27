@@ -76,7 +76,6 @@ public class TestActivity extends AppCompatActivity {
                 public void onChanged(BluetoothGattCharacteristic characteristic) {
                     Log.e(TAG, "onChanged: " + Arrays.toString(characteristic.getValue()));
                     mNotifyValue.setText("收到MCU通知值:\n"+Arrays.toString(characteristic.getValue()));
-//                    Toast.makeText(TestActivity.this, Arrays.toString(characteristic.getValue()),Toast.LENGTH_SHORT).show();
                 }
             });
         }
