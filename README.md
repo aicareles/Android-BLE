@@ -25,7 +25,7 @@
 ### 二、历史版本介绍：
 [![Version](https://img.shields.io/badge/BleLib-v2.1.0-blue.svg)](https://bintray.com/superliu/maven/BleLib/2.1.0)
 ```
-该版本添加跳转到其他界面，操作该蓝牙对象的扫描、连接、断开、通知等回调的接口（任意界面都可以随心所欲的操作或者拿到mcu返回的数据）
+该版本添加跳转到测试界面（先连接设备），在测试界面操作该蓝牙对象的扫描、连接、断开、通知等回调的接口（任意界面都可以随心所欲的操作或者拿到mcu返回的数据）
 1、在其他界面你也想拿到蓝牙设备传过来的数据，你可以这样做：（重要）
     //测试通知
     public void testNotify(BleDevice device) {
