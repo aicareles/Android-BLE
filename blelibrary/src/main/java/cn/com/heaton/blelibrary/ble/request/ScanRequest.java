@@ -32,20 +32,19 @@ public class ScanRequest<T extends BleDevice> implements IMessage {
 
 
     public void startScan(BleScanCallback<T> callback, int scanPeriod) {
-        mScanCallback = callback;
-        // Stops scanning after a pre-defined scan period.
-        BleHandler.getHandler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                mScanning = false;
-                mBluetoothAdapter.stopLeScan(mLeScanCallback);
-                mScanCallback.onStop();
-            }
-        }, scanPeriod);
-
-        mScanning = true;
-        mBluetoothAdapter.startLeScan(mLeScanCallback);
-        mScanCallback.onStart();
+        if(!mScanning){
+            mScanCallback = callback;
+            // Stops scanning after a pre-defined scan period.
+            BleHandler.getHandler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    stopScan();
+                }
+            }, scanPeriod);
+            mScanning = true;
+            mBluetoothAdapter.startLeScan(mLeScanCallback);
+            mScanCallback.onStart();
+        }
     }
 
     public void stopScan() {

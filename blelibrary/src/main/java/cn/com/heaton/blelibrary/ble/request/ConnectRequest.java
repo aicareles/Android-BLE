@@ -4,6 +4,8 @@ import android.bluetooth.BluetoothDevice;
 import android.os.Message;
 
 import java.util.ArrayList;
+import java.util.List;
+
 import cn.com.heaton.blelibrary.ble.BleHandler;
 import cn.com.heaton.blelibrary.ble.BleDevice;
 import cn.com.heaton.blelibrary.ble.BleFactory;
@@ -22,7 +24,8 @@ public class ConnectRequest<T extends BleDevice> implements IMessage {
 
     private static final String TAG = "ConnectRequest";
     private BleFactory<T> mBleFactory;
-    private BleConnCallback<T> mBleLisenter;
+//    private BleConnCallback<T> mBleLisenter;
+    private List<BleConnCallback<T>> mConnectCallbacks = new ArrayList<>();
     private BleHandler mHandler;
 
     private ArrayList<T> mDevices = new ArrayList<>();
@@ -38,7 +41,10 @@ public class ConnectRequest<T extends BleDevice> implements IMessage {
         if (!addBleDevice(device)) {
             return false;
         }
-        this.mBleLisenter = lisenter;
+//        this.mBleLisenter = lisenter;
+        if(!mConnectCallbacks.contains(lisenter)){
+            this.mConnectCallbacks.add(lisenter);
+        }
         boolean result = false;
         BluetoothLeService service = Ble.getInstance().getBleService();
         if (service != null) {
@@ -47,7 +53,25 @@ public class ConnectRequest<T extends BleDevice> implements IMessage {
         return result;
     }
 
+    /**
+     * 无回调的断开
+     * @param device 设备对象
+     */
     public void disconnect(BleDevice device) {
+        BluetoothLeService service = Ble.getInstance().getBleService();
+        if (service != null) {
+            service.disconnect(device.getBleAddress());
+        }
+    }
+
+    /**
+     * 带回调的断开
+     * @param device 设备对象
+     */
+    public void disconnect(BleDevice device, BleConnCallback<T> lisenter) {
+        if(!mConnectCallbacks.contains(lisenter)){
+            this.mConnectCallbacks.add(lisenter);
+        }
         BluetoothLeService service = Ble.getInstance().getBleService();
         if (service != null) {
             service.disconnect(device.getBleAddress());
@@ -66,7 +90,10 @@ public class ConnectRequest<T extends BleDevice> implements IMessage {
             case BleStates.BleStatus.ConnectException:
                 int errorCode = msg.arg1;
                 //Disconnect and clear the connection
-                mBleLisenter.onConnectException(t, errorCode);
+//                mBleLisenter.onConnectException(t, errorCode);
+                for (BleConnCallback<T> callback : mConnectCallbacks){
+                    callback.onConnectException(t, errorCode);
+                }
                 mHandler.obtainMessage(BleStates.BleStatus.ConnectionChanged, 0, 0, msg.obj).sendToTarget();
                 break;
             case BleStates.BleStatus.ConnectionChanged:
@@ -91,7 +118,10 @@ public class ConnectRequest<T extends BleDevice> implements IMessage {
                     //connectting
                     t.setConnectionState(BleStates.BleStatus.CONNECTING);
                 }
-                mBleLisenter.onConnectionChanged(t);
+//                mBleLisenter.onConnectionChanged(t);
+                for (BleConnCallback<T> callback : mConnectCallbacks){
+                    callback.onConnectionChanged(t);
+                }
                 break;
             default:
                 break;

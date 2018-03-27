@@ -65,6 +65,12 @@ public class RequestImpl<T extends BleDevice> implements RequestLisenter<T>{
     }
 
     @Override
+    public void disconnect(T device, BleConnCallback<T> callback) {
+        ConnectRequest<T> request = Rproxy.getInstance().getRequest(ConnectRequest.class);
+        request.disconnect(device, callback);
+    }
+
+    @Override
     public boolean read(T device, BleReadCallback<T> callback) {
         ReadRequest<T> request = Rproxy.getInstance().getRequest(ReadRequest.class);
         return request.read(device, callback);

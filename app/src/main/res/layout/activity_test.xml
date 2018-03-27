@@ -1,20 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:layout_height="match_parent">
+
+    <Button
+        android:id="@+id/notify"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="设置通知"
+        android:onClick="testNotify"/>
 
     <Button
         android:id="@+id/scan"
-        android:layout_alignParentRight="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/notify"
         android:text="开始扫描"
-        android:onClick="scan"/>
+        android:onClick="testScan"/>
+
+    <Button
+        android:id="@+id/send"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/scan"
+        android:text="发送数据"
+        android:onClick="testSend"/>
+
+    <Button
+        android:id="@+id/rssi"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/send"
+        android:text="读取RSSI"
+        android:onClick="testRssi"/>
+
+    <TextView
+        android:id="@+id/notify_statue"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/notify"
+        android:layout_margin="10dp"
+        android:textColor="@color/colorAccent"
+        android:text="请设置通知！"/>
+
+    <TextView
+        android:id="@+id/notify_value"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/notify_statue"
+        android:layout_margin="10dp"
+        android:textColor="@color/colorAccent"
+        android:text="收到MCU通知值:"/>
 
     <ListView
         android:id="@+id/lv_scan"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:layout_below="@+id/notify_value"/>
 
-</LinearLayout>
+</RelativeLayout>

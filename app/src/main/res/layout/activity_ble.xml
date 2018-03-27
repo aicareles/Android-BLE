@@ -18,7 +18,7 @@
         <!--android:layout_height="match_parent"/>-->
     <TextView
         android:id="@+id/connected_num"
-        android:layout_below="@id/toolbar_main"
+        android:layout_below="@+id/sendData"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="10dp"
@@ -30,7 +30,7 @@
         android:layout_alignParentRight="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="发送数据"/>
+        android:text="发送"/>
 
     <Button
         android:id="@+id/updateOta"
@@ -49,20 +49,19 @@
         android:text="读取RSSI"/>
 
     <Button
-        android:id="@+id/jump"
+        android:id="@+id/test"
         android:layout_below="@id/toolbar_main"
-        android:layout_toLeftOf="@+id/updateOta"
+        android:layout_toLeftOf="@+id/readRssi"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:onClick="junp"
-        android:visibility="gone"
-        android:text="跳转到其他页面"/>
+
+        android:text="测试页面"/>
 
     <ListView
         android:id="@+id/listView"
-        android:layout_below="@id/sendData"
+        android:layout_below="@id/connected_num"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent" />
 
     <!--<FrameLayout-->
         <!--android:layout_below="@id/toolbar_main"-->

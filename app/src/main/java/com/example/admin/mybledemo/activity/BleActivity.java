@@ -53,6 +53,8 @@ public class BleActivity extends BaseActivity implements View.OnClickListener, A
 
     private String TAG = BleActivity.class.getSimpleName();
 
+    @ViewInit(R.id.test)
+    private Button mTest;
     @ViewInit(R.id.readRssi)
     private Button mReadRssi;
     @ViewInit(R.id.sendData)
@@ -93,6 +95,7 @@ public class BleActivity extends BaseActivity implements View.OnClickListener, A
 
     @Override
     protected void initLinsenter() {
+        mTest.setOnClickListener(this);
         mReadRssi.setOnClickListener(this);
         mSend.setOnClickListener(this);
         mUpdateOta.setOnClickListener(this);
@@ -114,6 +117,14 @@ public class BleActivity extends BaseActivity implements View.OnClickListener, A
             return;
         }
         switch (v.getId()) {
+            case R.id.test:
+                if(mBle.isScanning()){
+                    mBle.stopScan();
+                }
+                //根据自身需求传入需要在其他界面操作的蓝牙对象  这里测试取第一个设备对象
+                BleDevice d = mBle.getConnetedDevices().get(0);
+                startActivity(new Intent(BleActivity.this,TestActivity.class).putExtra("device",d));
+                break;
             case R.id.readRssi:
                 mBle.readRssi(mBle.getConnetedDevices().get(0), new BleReadRssiCallback<BleDevice>() {
                     @Override
@@ -161,7 +172,7 @@ public class BleActivity extends BaseActivity implements View.OnClickListener, A
             mBle.stopScan();
         }
         if (device.isConnected()) {
-            mBle.disconnect(device);
+            mBle.disconnect(device, connectCallback);
         } else if (!device.isConnectting()) {
             mBle.connect(device, connectCallback);
         }
@@ -252,7 +263,6 @@ public class BleActivity extends BaseActivity implements View.OnClickListener, A
     BleScanCallback<BleDevice> scanCallback = new BleScanCallback<BleDevice>() {
         @Override
         public void onLeScan(final BleDevice device, int rssi, byte[] scanRecord) {
-            Toast.makeText(BleActivity.this, "ssss", Toast.LENGTH_SHORT).show();
             synchronized (mBle.getLocker()) {
                 runOnUiThread(new Runnable() {
                     @Override
@@ -302,9 +312,6 @@ public class BleActivity extends BaseActivity implements View.OnClickListener, A
                 UUID uuid = characteristic.getUuid();
                 Log.e(TAG, "onChanged: "+uuid.toString());
                 Log.e(TAG, "onChanged: " + Arrays.toString(characteristic.getValue()));
-                byte[] data = characteristic.getValue();
-                System.arraycopy(data, 0, mBuff, mReadCount, data.length);
-                mReadCount += data.length;
             }
 
             @Override
@@ -413,7 +420,7 @@ public class BleActivity extends BaseActivity implements View.OnClickListener, A
 
     //重新扫描
     private void reScan() {
-        if (mBle != null) {
+        if (mBle != null && !mBle.isScanning()) {
             mLeDeviceListAdapter.clear();
             mLeDeviceListAdapter.addDevices(mBle.getConnetedDevices());
             mBle.startScan(scanCallback);

@@ -135,7 +135,7 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
 //    }
 
     /**
-     * 断开蓝牙
+     * 断开蓝牙  无回调
      *
      * @param device 蓝牙设备对象
      */
@@ -153,6 +153,15 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
 //                mBluetoothLeService.disconnect(device.getBleAddress());
 //            RequestManager.executeDisConnectRequest(device);
 //        }
+    }
+
+    /**
+     * 断开蓝牙  有回调
+     *
+     * @param device 蓝牙设备对象
+     */
+    public void disconnect(T device, BleConnCallback<T> callback) {
+        mRequest.disconnect(device, callback);
     }
 
     /**

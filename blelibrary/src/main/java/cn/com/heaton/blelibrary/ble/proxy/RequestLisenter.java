@@ -23,6 +23,8 @@ public interface RequestLisenter<T> {
 
     void disconnect(T device);
 
+    void disconnect(T device, BleConnCallback<T> callback);
+
     boolean read(T device, BleReadCallback<T> callback);
 
     boolean readRssi(T device, BleReadRssiCallback<T> callback);
