@@ -64,7 +64,7 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     compile project(':blelibrary')
-//    compile 'cn.com.superLei:blelibrary:1.0.1'
+//    compile 'cn.com.jerry:blelibrary:2.1.0'
     compile 'com.android.support:appcompat-v7:25.3.1'
     compile 'com.android.support:design:25.3.1'
     compile 'com.orhanobut:logger:1.15'
