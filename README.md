@@ -212,6 +212,15 @@ boolean result = mBle.write(device, changeLevelInner(), new BleWriteCallback<Ble
             Log.e(TAG, "changeLevelInner: " + "发送数据失败!");
         }
 ```
+#### 6.OTA升级
+```
+//找到你需要升级文件的路径(一般情况都是保存再服务器上，一旦有更新会自动提示，然后APP下载并保存到本地，生成对应的file对象)
+File file = new File(...);
+//读写SD卡权限，此处略（6.0及以上需添加)
+OtaManager mOtaManager = new OtaManager(BleActivity.this);
+boolean result = mOtaManager.startOtaUpdate(file, (BleDevice) mBle.getConnetedDevices().get(0), mBle);
+Log.e("OTA升级结果:", result + "");
+```
 ### 四、Demo效果演示图：
 
 ![Demo预览图.gif](http://upload-images.jianshu.io/upload_images/3884117-49f080ad44b60946.gif?imageMogr2/auto-orient/strip)
