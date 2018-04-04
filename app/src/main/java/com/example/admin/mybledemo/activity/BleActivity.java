@@ -77,18 +77,18 @@ public class BleActivity extends BaseActivity implements View.OnClickListener, A
     @Override
     protected void onInitView() {
         requestPermission(new String[]{Manifest.permission.BLUETOOTH_ADMIN,
-                Manifest.permission.ACCESS_COARSE_LOCATION},
+                        Manifest.permission.ACCESS_COARSE_LOCATION},
                 "请求蓝牙相关权限", new GrantedResult() {
-            @Override
-            public void onResult(boolean granted) {
-                if(granted){
-                    //初始化蓝牙
-                    initBle();
-                }else {
-                    finish();
-                }
-            }
-        });
+                    @Override
+                    public void onResult(boolean granted) {
+                        if (granted) {
+                            //初始化蓝牙
+                            initBle();
+                        } else {
+                            finish();
+                        }
+                    }
+                });
 
         initView();
     }
@@ -118,12 +118,12 @@ public class BleActivity extends BaseActivity implements View.OnClickListener, A
         }
         switch (v.getId()) {
             case R.id.test:
-                if(mBle.isScanning()){
+                if (mBle.isScanning()) {
                     mBle.stopScan();
                 }
                 //根据自身需求传入需要在其他界面操作的蓝牙对象  这里测试取第一个设备对象
                 BleDevice d = mBle.getConnetedDevices().get(0);
-                startActivity(new Intent(BleActivity.this,TestActivity.class).putExtra("device",d));
+                startActivity(new Intent(BleActivity.this, TestActivity.class).putExtra("device", d));
                 break;
             case R.id.readRssi:
                 mBle.readRssi(mBle.getConnetedDevices().get(0), new BleReadRssiCallback<BleDevice>() {
@@ -131,7 +131,7 @@ public class BleActivity extends BaseActivity implements View.OnClickListener, A
                     public void onReadRssiSuccess(int rssi) {
                         super.onReadRssiSuccess(rssi);
                         Log.e(TAG, "onReadRssiSuccess: " + rssi);
-                        Toast.makeText(BleActivity.this, "onReadRssiSuccess:"+ rssi, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(BleActivity.this, "onReadRssiSuccess:" + rssi, Toast.LENGTH_SHORT).show();
                     }
                 });
                 break;
@@ -149,9 +149,9 @@ public class BleActivity extends BaseActivity implements View.OnClickListener, A
                         "读写SD卡相关权限", new GrantedResult() {
                             @Override
                             public void onResult(boolean granted) {
-                                if(granted){
+                                if (granted) {
                                     CopyAssetsToSD();
-                                }else {
+                                } else {
                                     Toast.makeText(BleActivity.this, "读写SD卡权限被拒绝,将会影响OTA升级功能哦！", Toast.LENGTH_SHORT).show();
                                 }
                             }
@@ -222,18 +222,18 @@ public class BleActivity extends BaseActivity implements View.OnClickListener, A
             Log.e(TAG, "changeLevelInner: " + "发送数据失败!");
         }
     }
-    
+
     /*主动读取数据*/
-    public void read(BleDevice device){
+    public void read(BleDevice device) {
         boolean result = mBle.read(device, new BleReadCallback<BleDevice>() {
             @Override
             public void onReadSuccess(BluetoothGattCharacteristic characteristic) {
                 super.onReadSuccess(characteristic);
                 byte[] data = characteristic.getValue();
-                Log.w(TAG, "onReadSuccess: "+Arrays.toString(data));
+                Log.w(TAG, "onReadSuccess: " + Arrays.toString(data));
             }
         });
-        if(!result){
+        if (!result) {
             Log.d(TAG, "读取数据失败!");
         }
     }
@@ -310,7 +310,7 @@ public class BleActivity extends BaseActivity implements View.OnClickListener, A
             @Override
             public void onChanged(BluetoothGattCharacteristic characteristic) {
                 UUID uuid = characteristic.getUuid();
-                Log.e(TAG, "onChanged: "+uuid.toString());
+                Log.e(TAG, "onChanged: " + uuid.toString());
                 Log.e(TAG, "onChanged: " + Arrays.toString(characteristic.getValue()));
             }
 
