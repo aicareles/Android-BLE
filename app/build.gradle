@@ -63,8 +63,10 @@ dependencies {
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    compile project(':blelibrary')
-//    compile 'cn.com.jerry:blelibrary:2.1.0'
+//    compile project(':blelibrary')
+//    compile 'cn.com.superLei:blelibrary:2.0.1'
+//    compile 'cn.com.jerry:blelibrary:2.0.5'
+    compile 'cn.com.superLei:blelibrary:2.1.2'
     compile 'com.android.support:appcompat-v7:25.3.1'
     compile 'com.android.support:design:25.3.1'
     compile 'com.orhanobut:logger:1.15'

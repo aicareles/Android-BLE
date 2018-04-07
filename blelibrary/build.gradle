@@ -10,8 +10,8 @@ android {
     defaultConfig {
         minSdkVersion 18
         targetSdkVersion 25
-        versionCode 26
-        versionName "2.1.1"
+        versionCode 27
+        versionName "2.1.2"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
@@ -42,11 +42,11 @@ tasks.withType(JavaCompile) {
     options.encoding = "UTF-8"
 }
 
-version = "2.1.1"       //这个是版本号，必须填写
-def siteUrl = 'https://github.com/Alex-Jerry/BleDemo'      // 项目的主页   这个是说明，可随便填
-def gitUrl = 'https://github.com/Alex-Jerry/BleDemo'      // Git仓库的url  这个是说明，可随便填
+version = "2.1.2"       //这个是版本号，必须填写
+def siteUrl = 'https://github.com/Alex-Jerry/Android-BLE'      // 项目的主页   这个是说明，可随便填
+def gitUrl = 'https://github.com/Alex-Jerry/Android-BLE'      // Git仓库的url  这个是说明，可随便填
 //compile 'com.arshowbaby:mylibrary:1.0.0'中的com.arshowbaby
-group = "cn.com.jerry"    // 这里是groupId ,必须填写  一般填你唯一的包名
+group = "cn.com.superLei"    // 这里是groupId ,必须填写  一般填你唯一的包名
 
 install {
     repositories.mavenInstaller {
@@ -68,7 +68,7 @@ install {
                 developers {
                     developer {
                         id 'liulei'        //填写开发者的一些基本信息
-                        name 'jerry'    //填写开发者的一些基本信息
+                        name 'liulei'    //填写开发者的一些基本信息
                         email 'superliu0911@gmail.com'   //填写开发者的一些基本信息
                     }
                 }

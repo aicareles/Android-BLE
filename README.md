@@ -23,6 +23,11 @@
 ```
 
 ### 二、历史版本介绍：
+[![Version](https://img.shields.io/badge/BleLib-v2.1.2-blue.svg)](https://bintray.com/superliu/maven/BleLib/2.1.2)
+```
+1、修复上个版本依赖地址变化，导致依赖时出现问题。
+2、添加清理蓝牙缓存接口
+```
 [![Version](https://img.shields.io/badge/BleLib-v2.1.1-blue.svg)](https://bintray.com/superliu/maven/BleLib/2.1.1)
 ```
 适配更新5.0以上版本手机扫描的API
