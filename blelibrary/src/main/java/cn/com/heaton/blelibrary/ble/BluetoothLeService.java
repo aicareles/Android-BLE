@@ -19,6 +19,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.util.Log;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -375,6 +376,27 @@ public class BluetoothLeService extends Service {
         }
         mBluetoothGattMap.clear();
         mConnectedAddressList.clear();
+    }
+
+    /**
+     * 清理蓝牙缓存
+     */
+    public boolean refreshDeviceCache(String address) {
+        BluetoothGatt gatt = mBluetoothGattMap.get(address);
+        if (gatt != null) {
+            try {
+                Method localMethod = gatt.getClass().getMethod(
+                        "refresh", new Class[0]);
+                if (localMethod != null) {
+                    boolean bool = ((Boolean) localMethod.invoke(
+                            gatt, new Object[0])).booleanValue();
+                    return bool;
+                }
+            } catch (Exception localException) {
+                Log.i(TAG, "An exception occured while refreshing device");
+            }
+        }
+        return false;
     }
 
 

@@ -3,6 +3,7 @@ package cn.com.heaton.blelibrary.ble;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothGatt;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -11,6 +12,7 @@ import android.content.pm.PackageManager;
 import android.os.IBinder;
 
 import java.lang.reflect.GenericArrayType;
+import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
@@ -502,6 +504,18 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
      */
     public boolean turnOffBlueTooth() {
         return !mBluetoothAdapter.isEnabled() || mBluetoothAdapter.disable();
+    }
+
+    /**
+     * 清理蓝牙缓存
+     * @param address 蓝牙设备地址
+     * @return 是否清理成功
+     */
+    public boolean refreshDeviceCache(String address) {
+        if (mBluetoothLeService != null) {
+            mBluetoothLeService.refreshDeviceCache(address);
+        }
+        return false;
     }
 
     /**
