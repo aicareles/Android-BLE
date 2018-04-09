@@ -393,7 +393,7 @@ public class BluetoothLeService extends Service {
                     return bool;
                 }
             } catch (Exception localException) {
-                Log.i(TAG, "An exception occured while refreshing device");
+                L.i(TAG, "An exception occured while refreshing device");
             }
         }
         return false;
@@ -549,16 +549,20 @@ public class BluetoothLeService extends Service {
                 List<BluetoothGattCharacteristic> gattCharacteristics = gattService.getCharacteristics();
                 for (BluetoothGattCharacteristic gattCharacteristic : gattCharacteristics) {
 //                    int charaProp = gattCharacteristic.getProperties();
-//                    if ((charaProp | BluetoothGattCharacteristic.PROPERTY_READ) > 0) {
+//                    if ((charaProp & BluetoothGattCharacteristic.PROPERTY_READ) != 0) {
 //                        Log.e(TAG, "The readable UUID for gattCharacteristic is:" + gattCharacteristic.getUuid());
 //                        mReadCharacteristicMap.put(address, gattCharacteristic);
 //                    }
-//                    if ((charaProp | BluetoothGattCharacteristic.PROPERTY_WRITE) > 0) {
+//                    if ((charaProp & BluetoothGattCharacteristic.PROPERTY_WRITE) != 0) {
 //                        Log.e(TAG, "The writable UUID for gattCharacteristic is:" + gattCharacteristic.getUuid());
 //                        mWriteCharacteristicMap.put(address, gattCharacteristic);
 //                    }
-//                    if ((charaProp | BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
-//                        Log.e(TAG, "The characteristics of gattCharacteristic are UUID:" + gattCharacteristic.getUuid());
+//                    if ((charaProp & BluetoothGattCharacteristic.PROPERTY_NOTIFY) != 0) {
+//                        Log.e(TAG, "The PROPERTY_NOTIFY characteristic's UUID:" + gattCharacteristic.getUuid());
+//                        mNotifyCharacteristics.add(gattCharacteristic);
+//                    }
+//                    if((charaProp & BluetoothGattCharacteristic.PROPERTY_INDICATE) != 0){
+//                        Log.e(TAG, "The PROPERTY_INDICATE characteristic's UUID:" + gattCharacteristic.getUuid());
 //                        mNotifyCharacteristics.add(gattCharacteristic);
 //                    }
                     uuid = gattCharacteristic.getUuid().toString();
