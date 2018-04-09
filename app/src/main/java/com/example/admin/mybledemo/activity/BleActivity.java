@@ -76,8 +76,48 @@ public class BleActivity extends BaseActivity implements View.OnClickListener, A
 
     @Override
     protected void onInitView() {
-        requestPermission(new String[]{Manifest.permission.BLUETOOTH_ADMIN,
-                        Manifest.permission.ACCESS_COARSE_LOCATION},
+        initView();
+        mBle = Ble.getInstance();
+        //检测蓝牙是否支持BLE以及是否打开
+        checkBle();
+    }
+
+    //初始化蓝牙
+    private void initBle() {
+        Ble.Options options = new Ble.Options();
+        options.logBleExceptions = true;//设置是否输出打印蓝牙日志
+        options.throwBleException = true;//设置是否抛出蓝牙异常
+        options.autoConnect = false;//设置是否自动连接
+        options.scanPeriod = 12 * 1000;//设置扫描时长
+        options.connectTimeout = 10 * 1000;//设置连接超时时长
+        options.uuid_service = UUID.fromString("0000fee9-0000-1000-8000-00805f9b34fb");//设置主服务的uuid
+        options.uuid_write_cha = UUID.fromString("d44bc439-abfd-45a2-b575-925416129600");//设置可写特征的uuid
+//        options.uuid_read_cha = UUID.fromString("d44bc439-abfd-45a2-b575-925416129601");//设置可读特征的uuid
+        mBle.init(getApplicationContext(), options);
+        //开始扫描
+        mBle.startScan(scanCallback);
+    }
+
+    //检查蓝牙是否支持及打开
+    private void checkBle() {
+        // 检查设备是否支持BLE4.0
+        if (!mBle.isSupportBle(this)) {
+            Toast.makeText(this, R.string.ble_not_supported, Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+        if (!mBle.isBleEnable()) {
+            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enableBtIntent, Ble.REQUEST_ENABLE_BT);
+        }else {
+            //请求权限
+            requestPermission();
+        }
+    }
+
+    //请求权限
+    private void requestPermission(){
+        requestPermission(new String[]{Manifest.permission.BLUETOOTH_ADMIN,Manifest.permission.ACCESS_COARSE_LOCATION},
                 "请求蓝牙相关权限", new GrantedResult() {
                     @Override
                     public void onResult(boolean granted) {
@@ -89,8 +129,6 @@ public class BleActivity extends BaseActivity implements View.OnClickListener, A
                         }
                     }
                 });
-
-        initView();
     }
 
     @Override
@@ -175,38 +213,6 @@ public class BleActivity extends BaseActivity implements View.OnClickListener, A
             mBle.disconnect(device, connectCallback);
         } else if (!device.isConnectting()) {
             mBle.connect(device, connectCallback);
-        }
-    }
-
-    private void initBle() {
-        mBle = Ble.getInstance();
-        Ble.Options options = new Ble.Options();
-        options.logBleExceptions = true;//设置是否输出打印蓝牙日志
-        options.throwBleException = true;//设置是否抛出蓝牙异常
-        options.autoConnect = false;//设置是否自动连接
-        options.scanPeriod = 12 * 1000;//设置扫描时长
-        options.connectTimeout = 10 * 1000;//设置连接超时时长
-        options.uuid_service = UUID.fromString("0000fee9-0000-1000-8000-00805f9b34fb");//设置主服务的uuid
-        options.uuid_write_cha = UUID.fromString("d44bc439-abfd-45a2-b575-925416129600");//设置可写特征的uuid
-//        options.uuid_read_cha = UUID.fromString("d44bc439-abfd-45a2-b575-925416129601");//设置可读特征的uuid
-        mBle.init(getApplicationContext(), options);
-
-        checkBle();
-
-        mBle.startScan(scanCallback);
-    }
-
-    /*检查蓝牙是否支持及打开*/
-    private void checkBle() {
-        // 检查设备是否支持BLE4.0
-        if (!mBle.isSupportBle(this)) {
-            Toast.makeText(this, R.string.ble_not_supported, Toast.LENGTH_SHORT).show();
-            finish();
-            return;
-        }
-        if (!mBle.isBleEnable()) {
-            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableBtIntent, Ble.REQUEST_ENABLE_BT);
         }
     }
 
@@ -434,9 +440,8 @@ public class BleActivity extends BaseActivity implements View.OnClickListener, A
             finish();
             return;
         } else {
-            if (mBle != null) {
-                mBle.startScan(scanCallback);
-            }
+            //请求权限
+            requestPermission();
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
