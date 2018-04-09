@@ -53,9 +53,7 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
 
     private BluetoothLeService mBluetoothLeService;
 
-    /**
-     * 打开蓝牙标志位
-     */
+    /**打开蓝牙标志位*/
     public static final int REQUEST_ENABLE_BT = 1;
 
     private BluetoothAdapter mBluetoothAdapter;
@@ -106,7 +104,9 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
         mRequest.startScan(callback);
     }
 
-    /*停止扫描*/
+    /**
+     * 停止扫描
+     */
     public void stopScan(){
         mRequest.stopScan();
     }
@@ -130,10 +130,10 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
      * @param device device
      * @return Whether the connection is successful
      */
-//    private boolean reconnect(T device) {
-//        // TODO: 2017/10/16 auth:Alex-Jerry  [2017/11/16]
-//        return connect(device);
-//    }
+    /*private boolean reconnect(T device) {
+        // TODO: 2017/10/16 auth:Alex-Jerry  [2017/11/16]
+        return connect(device);
+    }*/
 
     /**
      * 断开蓝牙  无回调
@@ -143,18 +143,18 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
     @Document(TodoDocument = "TODO: 2017/10/16 auth:Alex-Jerry [2018/06/16]")
     public void disconnect(T device) {
         mRequest.disconnect(device);
-//        synchronized (mLocker) {
-//            if (mBluetoothLeService != null) {
-//                //Traverse the connected device collection to disconnect automatically cancel the automatic connection
-//                for (T bleDevice : mConnetedDevices) {
-//                    if (bleDevice.getBleAddress().equals(device.getBleAddress())) {
-//                        Log.e(TAG, "disconnect: " + "设置自动连接false");
-//                        bleDevice.setAutoConnect(false);
-//                    }
-//                }
-//                mBluetoothLeService.disconnect(device.getBleAddress());
-//            RequestManager.executeDisConnectRequest(device);
-//        }
+       /* synchronized (mLocker) {
+            if (mBluetoothLeService != null) {
+                //Traverse the connected device collection to disconnect automatically cancel the automatic connection
+                for (T bleDevice : mConnetedDevices) {
+                    if (bleDevice.getBleAddress().equals(device.getBleAddress())) {
+                        Log.e(TAG, "disconnect: " + "设置自动连接false");
+                        bleDevice.setAutoConnect(false);
+                    }
+                }
+                mBluetoothLeService.disconnect(device.getBleAddress());
+            RequestManager.executeDisConnectRequest(device);
+        }*/
     }
 
     /**
@@ -309,9 +309,6 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
             L.e(TAG, "Service connection successful");
             if (!mBluetoothLeService.initialize()) {
                 L.e(TAG, "Unable to initialize Bluetooth");
-//                for (BleLisenter bleLisenter : mBleLisenters) {
-//                    bleLisenter.onInitFailed();
-//                }
             }
             // Automatically connects to the device upon successful start-up
             // initialization.
@@ -367,9 +364,9 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
      * @return device type
      */
     //Temporarily comment out the code post-maintenance may re-use the code
-//    public Class<T> getDeviceClass(){
-//        return mDeviceClass;
-//    }
+   /*  public Class<T> getDeviceClass(){
+        return mDeviceClass;
+    }*/
 
     /**
      * 获取对应锁对象
@@ -399,22 +396,22 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
         return null;
     }
 
-//    private class AutoConThread extends Thread {
-//        @Override
-//        public void run() {
-//            while (true) {
-//                if (mAutoDevices.size() > 0) {
-//                    //Turn on cyclic scan
-//                    if (!mScanning) {
-//                        Log.e(TAG, "run: " + "Thread began scanning...");
-////                        scanLeDevice(true);
-//                    }
-//                }
-//                SystemClock.sleep(2 * 1000);
-//            }
-//        }
-//
-//    }
+    /*private class AutoConThread extends Thread {
+        @Override
+        public void run() {
+            while (true) {
+                if (mAutoDevices.size() > 0) {
+                    //Turn on cyclic scan
+                    if (!mScanning) {
+                        Log.e(TAG, "run: " + "Thread began scanning...");
+//                        scanLeDevice(true);
+                    }
+                }
+                SystemClock.sleep(2 * 1000);
+            }
+        }
+
+    }*/
 
     /**
      * If it is automatically connected device is removed from the automatic connection pool
@@ -462,15 +459,15 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
     /**
      * Release Empty all resources
      */
-//    public void clear() {
-//        synchronized (mLocker) {
-//            for (BleDevice bleDevice : mConnetedDevices) {
-//                disconnect(bleDevice);
-//            }
-//            mConnetedDevices.clear();
-//            mConnectingDevices.clear();
-//        }
-//    }
+    /*public void clear() {
+        synchronized (mLocker) {
+            for (BleDevice bleDevice : mConnetedDevices) {
+                disconnect(bleDevice);
+            }
+            mConnetedDevices.clear();
+            mConnectingDevices.clear();
+        }
+    }*/
 
     /**
      *
@@ -489,7 +486,7 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
     }
 
     /**
-     * 打开蓝牙
+     * 打开蓝牙(默认模式--带系统弹出框)
      *
      * @param activity 上下文对象
      */
@@ -499,6 +496,15 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
         if (!isBleEnable()) {
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             activity.startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+        }
+    }
+
+    /**
+     * 强制打开蓝牙（不弹出系统弹出框）
+     */
+    public void turnOnBlueToothNo(){
+        if(!isBleEnable()){
+            mBluetoothAdapter.enable();
         }
     }
 

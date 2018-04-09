@@ -58,7 +58,9 @@ public class ScanRequest<T extends BleDevice> implements IMessage {
             BleHandler.getHandler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    stopScan();
+                    if(mScanning){
+                        stopScan();
+                    }
                 }
             }, scanPeriod);
             if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP){
@@ -79,6 +81,7 @@ public class ScanRequest<T extends BleDevice> implements IMessage {
                 mScanner.stopScan(mScannerCallback);
             }
             mScanDevices.clear();
+            mScanCallback.onStop();
         }
     }
 

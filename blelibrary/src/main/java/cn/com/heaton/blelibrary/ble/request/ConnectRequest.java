@@ -24,8 +24,6 @@ import cn.com.heaton.blelibrary.ble.callback.BleConnCallback;
 public class ConnectRequest<T extends BleDevice> implements IMessage {
 
     private static final String TAG = "ConnectRequest";
-    private BleFactory<T> mBleFactory;
-//    private BleConnCallback<T> mBleLisenter;
     private List<BleConnCallback<T>> mConnectCallbacks = new ArrayList<>();
     private BleHandler mHandler;
 
@@ -33,7 +31,6 @@ public class ConnectRequest<T extends BleDevice> implements IMessage {
     private ArrayList<T> mConnetedDevices = new ArrayList<>();
 
     protected ConnectRequest() {
-        mBleFactory = new BleFactory<T>();
         mHandler = BleHandler.getHandler();
         mHandler.setHandlerCallback(this);
     }
@@ -42,7 +39,6 @@ public class ConnectRequest<T extends BleDevice> implements IMessage {
         if (!addBleDevice(device)) {
             return false;
         }
-//        this.mBleLisenter = lisenter;
         if(!mConnectCallbacks.contains(lisenter)){
             this.mConnectCallbacks.add(lisenter);
         }
@@ -91,7 +87,6 @@ public class ConnectRequest<T extends BleDevice> implements IMessage {
             case BleStates.BleStatus.ConnectException:
                 int errorCode = msg.arg1;
                 //Disconnect and clear the connection
-//                mBleLisenter.onConnectException(t, errorCode);
                 for (BleConnCallback<T> callback : mConnectCallbacks){
                     callback.onConnectException(t, errorCode);
                 }
@@ -119,7 +114,6 @@ public class ConnectRequest<T extends BleDevice> implements IMessage {
                     //connectting
                     t.setConnectionState(BleStates.BleStatus.CONNECTING);
                 }
-//                mBleLisenter.onConnectionChanged(t);
                 for (BleConnCallback<T> callback : mConnectCallbacks){
                     callback.onConnectionChanged(t);
                 }
