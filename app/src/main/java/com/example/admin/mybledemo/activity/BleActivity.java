@@ -283,6 +283,7 @@ public class BleActivity extends BaseActivity implements View.OnClickListener, A
         @Override
         public void onStop() {
             super.onStop();
+            Log.e(TAG, "onStop: ");
         }
     };
 
