@@ -1,4 +1,5 @@
-# 对蓝牙感兴趣可以加群讨论学习(QQ：494309361)
+### 对蓝牙感兴趣可以加群讨论学习(QQ：494309361)
+### Email：jerryee0911@qq.com
 
 #### 一、先来看张BleLib库的api之间的关系图：
 ![BleLib库结构图.png](http://upload-images.jianshu.io/upload_images/3884117-2c5a0b95cda75158.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/840)
