@@ -40,6 +40,12 @@ dependencies {
 tasks.withType(JavaCompile) {
     options.encoding = "UTF-8"
 }
+//配置javadoc文档(方式一)
+tasks.withType(Javadoc) {
+    options.addStringOption('Xdoclint:none', '-quiet')
+    options.addStringOption('encoding', 'UTF-8')
+    options.addStringOption('charSet','UTF-8')
+}
 
 version = "2.1.5"       //这个是版本号，必须填写
 def siteUrl = 'https://github.com/Alex-Jerry/Android-BLE'      // 项目的主页   这个是说明，可随便填
@@ -135,3 +141,15 @@ bintray {
 
 //apply from: 'https://raw.githubusercontent.com/nuuneoi/JCenter/master/installv1.gradle'
 //apply from: 'https://raw.githubusercontent.com/nuuneoi/JCenter/master/bintrayv1.gradle'
+
+//配置javadoc文档(方式二)
+//javadoc {
+//    options {
+//        //如果你的项目里面有中文注释的话，必须将格式设置为UTF-8，不然会出现乱码
+//        encoding "UTF-8"
+//        charSet 'UTF-8'
+//        author true
+//        version true
+//        links "http://docs.oracle.com/javase/7/docs/api"
+//    }
+//}
