@@ -1,5 +1,6 @@
 package cn.com.heaton.blelibrary.ble.request;
 
+import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.le.BluetoothLeScanner;
@@ -18,6 +19,7 @@ import java.util.List;
 import cn.com.heaton.blelibrary.ble.Ble;
 import cn.com.heaton.blelibrary.ble.BleFactory;
 import cn.com.heaton.blelibrary.ble.BleHandler;
+import cn.com.heaton.blelibrary.ble.BleStates;
 import cn.com.heaton.blelibrary.ble.L;
 import cn.com.heaton.blelibrary.ble.annotation.Implement;
 import cn.com.heaton.blelibrary.ble.callback.BleScanCallback;
@@ -38,16 +40,18 @@ public class ScanRequest<T extends BleDevice> implements IMessage {
     private List<ScanFilter> mFilters;
     //    private AtomicBoolean isContains = new AtomicBoolean(false);
     private ArrayList<T> mScanDevices = new ArrayList<>();
+    private Ble<T> mBle;
 
     protected ScanRequest() {
+        mBle = Ble.getInstance();
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
+        /*if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
             mScanner = mBluetoothAdapter.getBluetoothLeScanner();
             mScannerSetting = new ScanSettings.Builder()
                     .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
                     .build();
             mFilters = new ArrayList<>();
-        }
+        }*/
     }
 
     public void startScan(BleScanCallback<T> callback, int scanPeriod) {
@@ -63,11 +67,12 @@ public class ScanRequest<T extends BleDevice> implements IMessage {
                     }
                 }
             }, scanPeriod);
-            if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP){
+            /*if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP){
                 mBluetoothAdapter.startLeScan(mLeScanCallback);
             }else {
                 mScanner.startScan(mFilters, mScannerSetting, mScannerCallback);
-            }
+            }*/
+            mBluetoothAdapter.startLeScan(mLeScanCallback);
             mScanCallback.onStart();
         }
     }
@@ -75,11 +80,12 @@ public class ScanRequest<T extends BleDevice> implements IMessage {
     public void stopScan() {
         if (mScanning) {
             mScanning = false;
-            if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP){
+            /*if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP){
                 mBluetoothAdapter.stopLeScan(mLeScanCallback);
             }else {
                 mScanner.stopScan(mScannerCallback);
-            }
+            }*/
+            mBluetoothAdapter.stopLeScan(mLeScanCallback);
             mScanDevices.clear();
             mScanCallback.onStop();
         }
@@ -89,7 +95,7 @@ public class ScanRequest<T extends BleDevice> implements IMessage {
         return mScanning;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+   /* @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private ScanCallback mScannerCallback = new ScanCallback() {
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
@@ -116,7 +122,7 @@ public class ScanRequest<T extends BleDevice> implements IMessage {
         public void onScanFailed(int errorCode) {
             L.e("Scan Failed", "Error Code: " + errorCode);
         }
-    };
+    };*/
 
 
     private BluetoothAdapter.LeScanCallback mLeScanCallback = new BluetoothAdapter.LeScanCallback() {
@@ -152,6 +158,14 @@ public class ScanRequest<T extends BleDevice> implements IMessage {
 //            }
         }
     };
+
+    private void autoConnect(BluetoothDevice device){
+        T b = mBle.getBleDevice(device);
+        if(b != null && b.getConnectionState() == BleStates.BleStatus.DISCONNECT && b.isAutoConnect()){
+            mBle.reconnect(b);
+        }
+
+    }
 
     private boolean constans(String address) {
         for (T device : mScanDevices) {

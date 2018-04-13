@@ -130,10 +130,9 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
      * @param device device
      * @return Whether the connection is successful
      */
-    /*private boolean reconnect(T device) {
-        // TODO: 2017/10/16 auth:Alex-Jerry  [2017/11/16]
-        return connect(device);
-    }*/
+    public void reconnect(T device) {
+        connect(device, null);
+    }
 
     /**
      * 断开蓝牙  无回调

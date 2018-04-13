@@ -292,7 +292,8 @@ public class BleActivity extends BaseActivity implements View.OnClickListener, A
         @Override
         public void onConnectionChanged(BleDevice device) {
             if (device.isConnected()) {
-                setNotify(device);
+                 /*连接成功后，设置通知*/
+                mBle.startNotify(device, bleNotiftCallback);
             }
             Log.e(TAG, "onConnectionChanged: " + device.isConnected());
             mLeDeviceListAdapter.notifyDataSetChanged();
@@ -306,37 +307,30 @@ public class BleActivity extends BaseActivity implements View.OnClickListener, A
         }
     };
 
-    //这里是全局的
-    byte[] mBuff = new byte[4096];
-    int mReadCount = 0;
-
     /*设置通知的回调*/
-    private void setNotify(BleDevice device) {
-         /*连接成功后，设置通知*/
-        mBle.startNotify(device, new BleNotiftCallback<BleDevice>() {
-            @Override
-            public void onChanged(BluetoothGattCharacteristic characteristic) {
-                UUID uuid = characteristic.getUuid();
-                Log.e(TAG, "onChanged: " + uuid.toString());
-                Log.e(TAG, "onChanged: " + Arrays.toString(characteristic.getValue()));
-            }
+    private BleNotiftCallback<BleDevice> bleNotiftCallback =  new BleNotiftCallback<BleDevice>() {
+        @Override
+        public void onChanged(BluetoothGattCharacteristic characteristic) {
+            UUID uuid = characteristic.getUuid();
+            Log.e(TAG, "onChanged: " + uuid.toString());
+            Log.e(TAG, "onChanged: " + Arrays.toString(characteristic.getValue()));
+        }
 
-            @Override
-            public void onReady(BleDevice device) {
-                Log.e(TAG, "onReady: ");
-            }
+        @Override
+        public void onReady(BleDevice device) {
+            Log.e(TAG, "onReady: ");
+        }
 
-            @Override
-            public void onServicesDiscovered(BluetoothGatt gatt) {
-                Log.e(TAG, "onServicesDiscovered is success ");
-            }
+        @Override
+        public void onServicesDiscovered(BluetoothGatt gatt) {
+            Log.e(TAG, "onServicesDiscovered is success ");
+        }
 
-            @Override
-            public void onNotifySuccess(BluetoothGatt gatt) {
-                Log.e(TAG, "onNotifySuccess is success ");
-            }
-        });
-    }
+        @Override
+        public void onNotifySuccess(BluetoothGatt gatt) {
+            Log.e(TAG, "onNotifySuccess is success ");
+        }
+    };
 
     /*更新当前连接设备的数量*/
     private void setConnectedNum() {

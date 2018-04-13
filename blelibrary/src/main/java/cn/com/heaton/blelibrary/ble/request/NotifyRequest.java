@@ -30,11 +30,12 @@ public class NotifyRequest<T extends BleDevice> implements IMessage {
     protected NotifyRequest() {
         BleHandler handler = BleHandler.getHandler();
         handler.setHandlerCallback(this);
-        L.e(TAG, "NotifyRequest: ++++");
     }
 
     public void notify(T device, BleNotiftCallback<T> callback){
-        this.mNotifyCallbacks.add(callback);
+        if(callback != null && !mNotifyCallbacks.contains(callback)){
+            this.mNotifyCallbacks.add(callback);
+        }
     }
 
     @Override

@@ -39,7 +39,7 @@ public class ConnectRequest<T extends BleDevice> implements IMessage {
         if (!addBleDevice(device)) {
             return false;
         }
-        if(!mConnectCallbacks.contains(lisenter)){
+        if(lisenter != null && !mConnectCallbacks.contains(lisenter)){
             this.mConnectCallbacks.add(lisenter);
         }
         boolean result = false;
@@ -108,7 +108,6 @@ public class ConnectRequest<T extends BleDevice> implements IMessage {
                     mConnetedDevices.remove(t);
                     mDevices.remove(t);
                     L.e(TAG, "handleMessage:++++DISCONNECT ");
-////                    Log.i(TAG, "mDevices quantity: " + mDevices.size());
 //                    addAutoPool(device);
                 } else if (msg.arg1 == 2) {
                     //connectting
@@ -132,6 +131,16 @@ public class ConnectRequest<T extends BleDevice> implements IMessage {
         L.i(TAG, "addBleDevice" + "Added a device to the device pool");
         return true;
     }
+
+    //自动连接相关   暂时屏蔽
+    /*private void addBleDevice1(T device) {
+        if (device == null || mDevices.contains(device)) {
+            L.i(TAG, "addBleDevice" + "Already contains the device");
+        }else {
+            mDevices.add(device);
+            L.i(TAG, "addBleDevice" + "Added a device to the device pool");
+        }
+    }*/
 
     public T getBleDevice(int index) {
         return mDevices.get(index);
@@ -177,9 +186,10 @@ public class ConnectRequest<T extends BleDevice> implements IMessage {
                     }
                 }
             }
-            T newDevice = (T) BleFactory.create(BleDevice.class, Ble.getInstance(), device);
-            L.e(TAG, "By BluetoothDevice to get BleDevice and device is new");
-            return newDevice;
+//            T newDevice = (T) BleFactory.create(BleDevice.class, Ble.getInstance(), device);
+//            L.e(TAG, "By BluetoothDevice to get BleDevice and device is new");
+            L.e(TAG, "By BluetoothDevice to get BleDevice and isn't exist");
+            return null;
         }
     }
 
