@@ -19,7 +19,6 @@ import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import cn.com.heaton.blelibrary.ble.annotation.Document;
 import cn.com.heaton.blelibrary.ble.callback.BleConnCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleNotiftCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleReadCallback;
@@ -65,7 +64,6 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
      * a bluetooth management class .  Note that use of this constructor is
      * unnecessary since Can not be externally constructed.
      */
-    @Document(TodoDocument = "TODO: 2017/10/16 auth:Alex-Jerry [2018/06/16]")
     private Ble() {
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         ///暂时注销代码后维护可能会重新使用代码
@@ -139,7 +137,6 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
      *
      * @param device 蓝牙设备对象
      */
-    @Document(TodoDocument = "TODO: 2017/10/16 auth:Alex-Jerry [2018/06/16]")
     public void disconnect(T device) {
         mRequest.disconnect(device);
        /* synchronized (mLocker) {
@@ -204,7 +201,6 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
     }
 
     /*获取当前类的类型*/
-    @Document(TodoDocument = "TODO: 2017/10/16 auth:Alex-Jerry [2018/06/16]")
     public Class<T> getClassType(){
         Type genType = this.getClass().getGenericSuperclass();
         Class<T> entityClass = (Class<T>)((ParameterizedType)genType).getActualTypeArguments()[0];
@@ -218,7 +214,6 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
      * @param i    LOCATION
      * @return Object
      */
-    @Document(TodoDocument = "TODO: 2017/10/16 auth:Alex-Jerry [2018/06/16]")
     private static Class getClass(Type type, int i) {
         if (type instanceof ParameterizedType) { //Processing generic types
             return getGenericClass((ParameterizedType) type, i);
@@ -229,7 +224,6 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
         }
     }
 
-    @Document(TodoDocument = "TODO: 2017/10/16 auth:Alex-Jerry [2018/06/16]")
     private static Class getGenericClass(ParameterizedType parameterizedType, int i) {
         Object genericClass = parameterizedType.getActualTypeArguments()[i];
         if (genericClass instanceof ParameterizedType) { // Processing multistage generic
