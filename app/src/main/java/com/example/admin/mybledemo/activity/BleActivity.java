@@ -297,14 +297,6 @@ public class BleActivity extends BaseActivity implements View.OnClickListener, A
             if (device.isConnected()) {
                  /*连接成功后，设置通知*/
                 mBle.startNotify(device, bleNotiftCallback);
-//                mBle.startNotify(device, new BleNotiftCallback<BleDevice>() {
-//                    @Override
-//                    public void onChanged(BleDevice device, BluetoothGattCharacteristic characteristic) {
-//                        String address = device.getBleAddress();
-//                        Log.e(TAG, "onChanged: "+"address:"+address);
-//                        Log.e(TAG, "onChanged: "+"data:"+Arrays.toString(characteristic.getValue()));
-//                    }
-//                });
             }
             Log.e(TAG, "onConnectionChanged: " + device.isConnected());
             mLeDeviceListAdapter.notifyDataSetChanged();
@@ -326,21 +318,6 @@ public class BleActivity extends BaseActivity implements View.OnClickListener, A
             Log.e(TAG, "onChanged==uuid:" + uuid.toString());
             Log.e(TAG, "onChanged==address:"+ device.getBleAddress());
             Log.e(TAG, "onChanged==data:" + Arrays.toString(characteristic.getValue()));
-        }
-
-        @Override
-        public void onReady(BleDevice device) {
-            Log.e(TAG, "onReady: ");
-        }
-
-        @Override
-        public void onServicesDiscovered(BluetoothGatt gatt) {
-            Log.e(TAG, "onServicesDiscovered is success ");
-        }
-
-        @Override
-        public void onNotifySuccess(BluetoothGatt gatt) {
-            Log.e(TAG, "onNotifySuccess is success ");
         }
     };
 

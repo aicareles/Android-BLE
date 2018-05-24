@@ -24,6 +24,22 @@
 ```
 
 ### 二、历史版本介绍：
+[![Version](https://img.shields.io/badge/BleLib-v2.2.0-blue.svg)](https://bintray.com/superliu/maven/BleLib/2.2.0)
+```
+修复连接多个设备在onChanged()回调中判断设备对象
+如下图所示：
+        /*设置通知的回调*/
+        private BleNotiftCallback<BleDevice> bleNotiftCallback =  new BleNotiftCallback<BleDevice>() {
+            @Override
+            public void onChanged(BleDevice device, BluetoothGattCharacteristic characteristic) {
+                UUID uuid = characteristic.getUuid();
+                Log.e(TAG, "onChanged==uuid:" + uuid.toString());
+                Log.e(TAG, "onChanged==address:"+ device.getBleAddress());
+                Log.e(TAG, "onChanged==data:" + Arrays.toString(characteristic.getValue()));
+            }
+        };
+
+```
 [![Version](https://img.shields.io/badge/BleLib-v2.1.5-blue.svg)](https://bintray.com/superliu/maven/BleLib/2.1.5)
 ```
 更新低版本手机(初始化问题)报错问题
@@ -110,7 +126,7 @@
 [![License](https://img.shields.io/badge/license-Apache%202-green.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 [![Download](https://api.bintray.com/packages/superliu/maven/BleLib/images/download.svg)](https://bintray.com/superliu/maven/BleLib/_latestVersion)
 ```groovy
-compile 'cn.com.superLei:blelibrary:2.1.5'
+compile 'cn.com.superLei:blelibrary:2.2.0'
 ```
 
 #### 1.初始化蓝牙(判断设备是否支持BLE，蓝牙是否打开以及6.0动态授权蓝牙权限等)<br>
