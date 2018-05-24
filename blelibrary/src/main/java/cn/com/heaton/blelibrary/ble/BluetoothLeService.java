@@ -169,6 +169,9 @@ public class BluetoothLeService extends Service {
         public void onCharacteristicChanged(BluetoothGatt gatt,
                                             BluetoothGattCharacteristic characteristic) {
             synchronized (mLocker) {
+                if (gatt.getDevice() == null)return;
+
+                BleDevice d = mBleManager.getBleDevice(gatt.getDevice());
                 L.i(TAG, gatt.getDevice().getAddress() + " -- onCharacteristicChanged: " + (characteristic.getValue() != null ? Arrays.toString(characteristic.getValue()) : ""));
                 if (mOptions.uuid_ota_write_cha.equals(characteristic.getUuid()) || mOptions.uuid_ota_notify_cha.equals(characteristic.getUuid())) {
                     if (mOtaListener != null) {
@@ -176,7 +179,11 @@ public class BluetoothLeService extends Service {
                     }
                     return;
                 }
-                mHandler.obtainMessage(BleStates.BleStatus.Changed, characteristic).sendToTarget();
+
+                if(d != null){
+                    d.setNotifyCharacteristic(characteristic);
+                    mHandler.obtainMessage(BleStates.BleStatus.Changed, d).sendToTarget();
+                }
             }
         }
 
@@ -544,7 +551,7 @@ public class BluetoothLeService extends Service {
         for (BluetoothGattService gattService : gattServices) {
             uuid = gattService.getUuid().toString();
             L.d(TAG, "displayGattServices: " + uuid);
-            if (uuid.equals(mOptions.uuid_service.toString())) {
+            if (uuid.equals(mOptions.uuid_service.toString()) || isContainUUID(uuid)) {
                 L.d(TAG, "service_uuid: " + uuid);
                 List<BluetoothGattCharacteristic> gattCharacteristics = gattService.getCharacteristics();
                 for (BluetoothGattCharacteristic gattCharacteristic : gattCharacteristics) {
@@ -566,6 +573,7 @@ public class BluetoothLeService extends Service {
 //                        mNotifyCharacteristics.add(gattCharacteristic);
 //                    }
                     uuid = gattCharacteristic.getUuid().toString();
+                    L.d(TAG, "Characteristic_uuid: " + uuid);
                     if (uuid.equals(mOptions.uuid_write_cha.toString())) {
                         L.e("mWriteCharacteristic", uuid);
                         mWriteCharacteristicMap.put(address, gattCharacteristic);
@@ -577,6 +585,9 @@ public class BluetoothLeService extends Service {
                     } if ((gattCharacteristic.getProperties() & BluetoothGattCharacteristic.PROPERTY_NOTIFY) != 0) {
                         mNotifyCharacteristics.add(gattCharacteristic);
                         L.e("mNotifyCharacteristics", "PROPERTY_NOTIFY");
+                    } if((gattCharacteristic.getProperties() & BluetoothGattCharacteristic.PROPERTY_INDICATE) != 0){
+                        mNotifyCharacteristics.add(gattCharacteristic);
+                        L.e("mNotifyCharacteristics", "PROPERTY_INDICATE");
                     }
                 }
                 //Really set up notifications
@@ -586,6 +597,16 @@ public class BluetoothLeService extends Service {
                 }
             }
         }
+    }
+
+    //是否包含该uuid
+    private boolean isContainUUID(String uuid) {
+        for (UUID u : mOptions.uuid_services_extra){
+            if(u != null && uuid.equals(u.toString())){
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -726,6 +747,7 @@ public class BluetoothLeService extends Service {
      */
     public static class Options {
 
+        public UUID[] uuid_services_extra = new UUID[]{};
         public UUID uuid_service = UUID.fromString("0000fee9-0000-1000-8000-00805f9b34fb");
         public UUID uuid_write_cha = UUID.fromString("d44bc439-abfd-45a2-b575-925416129600");
         public UUID uuid_read_cha = UUID.fromString("d44bc439-abfd-45a2-b575-925416129600");

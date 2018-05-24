@@ -57,6 +57,12 @@ public class RequestImpl<T extends BleDevice> implements RequestLisenter<T>{
         request.notify(device, callback);
     }
 
+//    @Override
+//    public void unNotify(T device) {
+//        NotifyRequest<T> request = Rproxy.getInstance().getRequest(NotifyRequest.class);
+//        request.unNotify(device);
+//    }
+
 
     @Override
     public void disconnect(T device) {

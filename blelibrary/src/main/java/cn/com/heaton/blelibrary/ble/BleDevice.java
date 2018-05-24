@@ -44,6 +44,8 @@ public class BleDevice implements Serializable{
     /*是否自动连接*/
     private boolean mAutoConnect = false;//The default is not automatic connection
 
+    /*通知的特征*/
+    private  BluetoothGattCharacteristic mNotifyCharacteristic;
     /**
      * Use the address and name of the BluetoothDevice object
      * to construct the address and name of the {@code BleDevice} object
@@ -104,6 +106,14 @@ public class BleDevice implements Serializable{
         this.mBleAlias = mBleAlias;
     }
 
+    public BluetoothGattCharacteristic getNotifyCharacteristic() {
+        return mNotifyCharacteristic;
+    }
+
+    public void setNotifyCharacteristic(BluetoothGattCharacteristic notifyCharacteristic) {
+        this.mNotifyCharacteristic = notifyCharacteristic;
+    }
+
     @Override
     public String toString() {
         return "BleDevice{" +
@@ -112,6 +122,7 @@ public class BleDevice implements Serializable{
                 ", mBleName='" + mBleName + '\'' +
                 ", mBleAlias='" + mBleAlias + '\'' +
                 ", mAutoConnect=" + mAutoConnect +
+                ", mNotifyCharacteristic=" + mNotifyCharacteristic +
                 '}';
     }
 }

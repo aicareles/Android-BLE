@@ -91,8 +91,13 @@ public class BleActivity extends BaseActivity implements View.OnClickListener, A
         options.scanPeriod = 12 * 1000;//设置扫描时长
         options.connectTimeout = 10 * 1000;//设置连接超时时长
         options.uuid_service = UUID.fromString("0000fee9-0000-1000-8000-00805f9b34fb");//设置主服务的uuid
+        options.uuid_services_extra = new UUID[]{UUID.fromString("0000180f-0000-1000-8000-00805f9b34fb")};//添加额外的服务（如电量服务，心跳服务等）
         options.uuid_write_cha = UUID.fromString("d44bc439-abfd-45a2-b575-925416129600");//设置可写特征的uuid
 //        options.uuid_read_cha = UUID.fromString("d44bc439-abfd-45a2-b575-925416129601");//设置可读特征的uuid
+        //ota相关 修改为你们自己的
+        options.uuid_ota_service = UUID.fromString("0000fee8-0000-1000-8000-00805f9b34fb");
+        options.uuid_ota_notify_cha = UUID.fromString("003784cf-f7e3-55b4-6c4c-9fd140100a16");
+        options.uuid_ota_write_cha = UUID.fromString("013784cf-f7e3-55b4-6c4c-9fd140100a16");
         mBle.init(getApplicationContext(), options);
         //开始扫描
         mBle.startScan(scanCallback);
@@ -159,9 +164,7 @@ public class BleActivity extends BaseActivity implements View.OnClickListener, A
                 if (mBle.isScanning()) {
                     mBle.stopScan();
                 }
-                //根据自身需求传入需要在其他界面操作的蓝牙对象  这里测试取第一个设备对象
-                BleDevice d = mBle.getConnetedDevices().get(0);
-                startActivity(new Intent(BleActivity.this, TestActivity.class).putExtra("device", d));
+                startActivity(new Intent(BleActivity.this, TestActivity.class));
                 break;
             case R.id.readRssi:
                 mBle.readRssi(mBle.getConnetedDevices().get(0), new BleReadRssiCallback<BleDevice>() {
@@ -290,10 +293,18 @@ public class BleActivity extends BaseActivity implements View.OnClickListener, A
     /*连接的回调*/
     private BleConnCallback<BleDevice> connectCallback = new BleConnCallback<BleDevice>() {
         @Override
-        public void onConnectionChanged(BleDevice device) {
+        public void onConnectionChanged(final BleDevice device) {
             if (device.isConnected()) {
                  /*连接成功后，设置通知*/
                 mBle.startNotify(device, bleNotiftCallback);
+//                mBle.startNotify(device, new BleNotiftCallback<BleDevice>() {
+//                    @Override
+//                    public void onChanged(BleDevice device, BluetoothGattCharacteristic characteristic) {
+//                        String address = device.getBleAddress();
+//                        Log.e(TAG, "onChanged: "+"address:"+address);
+//                        Log.e(TAG, "onChanged: "+"data:"+Arrays.toString(characteristic.getValue()));
+//                    }
+//                });
             }
             Log.e(TAG, "onConnectionChanged: " + device.isConnected());
             mLeDeviceListAdapter.notifyDataSetChanged();
@@ -310,10 +321,11 @@ public class BleActivity extends BaseActivity implements View.OnClickListener, A
     /*设置通知的回调*/
     private BleNotiftCallback<BleDevice> bleNotiftCallback =  new BleNotiftCallback<BleDevice>() {
         @Override
-        public void onChanged(BluetoothGattCharacteristic characteristic) {
+        public void onChanged(BleDevice device, BluetoothGattCharacteristic characteristic) {
             UUID uuid = characteristic.getUuid();
-            Log.e(TAG, "onChanged: " + uuid.toString());
-            Log.e(TAG, "onChanged: " + Arrays.toString(characteristic.getValue()));
+            Log.e(TAG, "onChanged==uuid:" + uuid.toString());
+            Log.e(TAG, "onChanged==address:"+ device.getBleAddress());
+            Log.e(TAG, "onChanged==data:" + Arrays.toString(characteristic.getValue()));
         }
 
         @Override

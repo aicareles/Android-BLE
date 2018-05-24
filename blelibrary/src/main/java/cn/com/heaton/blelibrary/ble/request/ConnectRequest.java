@@ -108,6 +108,8 @@ public class ConnectRequest<T extends BleDevice> implements IMessage {
                     mConnetedDevices.remove(t);
                     mDevices.remove(t);
                     L.e(TAG, "handleMessage:++++DISCONNECT ");
+//                    //移除通知
+//                    Ble.getInstance().cancelNotify(t);
 //                    addAutoPool(device);
                 } else if (msg.arg1 == 2) {
                     //connectting

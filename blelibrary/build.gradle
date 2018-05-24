@@ -45,6 +45,7 @@ tasks.withType(Javadoc) {
     options.addStringOption('Xdoclint:none', '-quiet')
     options.addStringOption('encoding', 'UTF-8')
     options.addStringOption('charSet','UTF-8')
+//    options.addStringOption('links','http://docs.oracle.com/javase/7/docs/api')
 }
 
 version = "2.1.5"       //这个是版本号，必须填写

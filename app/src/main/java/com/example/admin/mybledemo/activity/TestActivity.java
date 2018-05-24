@@ -49,9 +49,9 @@ public class TestActivity extends AppCompatActivity {
         setContentView(R.layout.activity_test);
         //初始化注解  替代findViewById
         LLAnnotation.viewInit(this);
-        mDevice = (BleDevice) getIntent().getSerializableExtra("device");
-
+        //根据自身需求传入需要在其他界面操作的蓝牙对象  这里测试取第一个设备对象
         mBle = Ble.getInstance();
+        mDevice = mBle.getConnetedDevices().get(0);
 
         initView();
 
@@ -73,7 +73,7 @@ public class TestActivity extends AppCompatActivity {
             mNotifyStatus.setText("设置通知监听成功！！！");
             mBle.startNotify(mDevice, new BleNotiftCallback<BleDevice>() {
                 @Override
-                public void onChanged(BluetoothGattCharacteristic characteristic) {
+                public void onChanged(BleDevice device, BluetoothGattCharacteristic characteristic) {
                     Log.e(TAG, "onChanged: " + Arrays.toString(characteristic.getValue()));
                     mNotifyValue.setText("收到MCU通知值:\n"+Arrays.toString(characteristic.getValue()));
                 }
@@ -178,7 +178,7 @@ public class TestActivity extends AppCompatActivity {
          /*连接成功后，设置通知*/
         mBle.startNotify(device, new BleNotiftCallback<BleDevice>() {
             @Override
-            public void onChanged(BluetoothGattCharacteristic characteristic) {
+            public void onChanged(BleDevice device, BluetoothGattCharacteristic characteristic) {
                 UUID uuid = characteristic.getUuid();
                 Log.e(TAG, "onChanged: "+uuid.toString());
                 Log.e(TAG, "onChanged: " + Arrays.toString(characteristic.getValue()));

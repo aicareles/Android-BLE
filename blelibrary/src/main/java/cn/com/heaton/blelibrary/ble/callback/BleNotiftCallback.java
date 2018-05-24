@@ -13,9 +13,10 @@ import cn.com.heaton.blelibrary.ble.BleDevice;
 public abstract class BleNotiftCallback<T> {
     /**
      *  MCU data sent to the app when the data callback call is setNotify
+     * @param device ble device object
      * @param characteristic  characteristic
      */
-    public abstract void onChanged(BluetoothGattCharacteristic characteristic);
+    public abstract void onChanged(T device, BluetoothGattCharacteristic characteristic);
 
     /**
      *  Set the notification feature to be successful and can send data

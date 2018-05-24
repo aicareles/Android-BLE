@@ -5,7 +5,9 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.os.Message;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 import cn.com.heaton.blelibrary.ble.BleHandler;
 import cn.com.heaton.blelibrary.ble.BleDevice;
@@ -23,9 +25,11 @@ public class NotifyRequest<T extends BleDevice> implements IMessage {
 
     private static final String TAG = "NotifyRequest";
 
-//    private BleNotiftCallback<T> mBleLisenter;
+    private BleNotiftCallback<T> mBleLisenter;
 
     private List<BleNotiftCallback> mNotifyCallbacks = new ArrayList<>();
+
+    private HashMap<T, BleNotiftCallback> mBleNotifyMap = new HashMap<>();
 
     protected NotifyRequest() {
         BleHandler handler = BleHandler.getHandler();
@@ -36,7 +40,18 @@ public class NotifyRequest<T extends BleDevice> implements IMessage {
         if(callback != null && !mNotifyCallbacks.contains(callback)){
             this.mNotifyCallbacks.add(callback);
         }
+//        if(!mBleNotifyMap.containsKey(device)){
+//            this.mBleNotifyMap.put(device, callback);
+//            this.mNotifyCallbacks.add(callback);
+//        }
     }
+
+//    public void unNotify(T device){
+//        if(mBleNotifyMap.containsKey(device)){
+//            mNotifyCallbacks.remove(mBleNotifyMap.get(device));
+//            mBleNotifyMap.remove(device);
+//        }
+//    }
 
     @Override
     public void handleMessage(Message msg) {
@@ -54,7 +69,10 @@ public class NotifyRequest<T extends BleDevice> implements IMessage {
                 break;
             case BleStates.BleStatus.Changed:
                 for(BleNotiftCallback callback : mNotifyCallbacks){
-                    callback.onChanged((BluetoothGattCharacteristic) msg.obj);
+                    if(msg.obj instanceof BleDevice){
+                        BleDevice device = (BleDevice) msg.obj;
+                        callback.onChanged(device, device.getNotifyCharacteristic());
+                    }
                 }
                 break;
             default:

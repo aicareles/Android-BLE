@@ -171,6 +171,10 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
         mRequest.notify(device, callback);
     }
 
+//    public void cancelNotify(T device){
+//        mRequest.unNotify(device);
+//    }
+
     /**
      * 读取数据
      * @param device 蓝牙设备对象
