@@ -121,6 +121,18 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
     }
 
     /**
+     * 通过mac地址连接设备
+     *
+     * @param address  mac地址
+     * @param callback 连接回调
+     */
+    public void connect(String address,BleConnCallback<T> callback){
+        synchronized (mLocker) {
+            mRequest.connect(address, callback);
+        }
+    }
+
+    /**
      * Reconnection equipment
      * <p>
      * TODO Later will add reconnection times

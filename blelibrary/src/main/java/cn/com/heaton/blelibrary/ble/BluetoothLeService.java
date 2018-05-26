@@ -304,11 +304,20 @@ public class BluetoothLeService extends Service {
             return true;
         }
 
-        if (mBluetoothAdapter == null || address == null) {
+        if (mBluetoothAdapter == null) {
             L.w(TAG,
-                    "BluetoothAdapter not initialized or unspecified address.");
+                    "BluetoothAdapter not initialized");
             return false;
         }
+
+        // getRemoteDevice(address) will throw an exception if the device address is invalid,
+        // so it's necessary to check the address
+        boolean isValidAddress = BluetoothAdapter.checkBluetoothAddress(address);
+        if (!isValidAddress) {
+            L.d(TAG, "the device address is invalid");
+            return false;
+        }
+
         // Previously connected device. Try to reconnect. ()
         if (mBluetoothGattMap == null) {
             mBluetoothGattMap = new HashMap<>();

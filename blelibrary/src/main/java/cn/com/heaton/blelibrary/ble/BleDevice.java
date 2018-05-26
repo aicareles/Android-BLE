@@ -90,7 +90,7 @@ public class BleDevice implements Serializable{
         this.mBleAddress = mBleAddress;
     }
 
-    public String getmBleName() {
+    public String getBleName() {
         return mBleName;
     }
 

@@ -19,6 +19,8 @@ public interface RequestLisenter<T> {
 
     boolean connect(T device, BleConnCallback<T> callback);
 
+    boolean connect(String address, BleConnCallback<T> callback);
+
     void notify(T device, BleNotiftCallback<T> callback);
 
 //    void unNotify(T device);
