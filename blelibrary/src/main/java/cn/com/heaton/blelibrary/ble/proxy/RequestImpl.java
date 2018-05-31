@@ -52,6 +52,12 @@ public class RequestImpl<T extends BleDevice> implements RequestLisenter<T>{
     }
 
     @Override
+    public boolean connect(String address, BleConnCallback<T> callback) {
+        ConnectRequest<T> request = Rproxy.getInstance().getRequest(ConnectRequest.class);
+        return request.connect(address, callback);
+    }
+
+    @Override
     public void notify(T device, BleNotiftCallback<T> callback) {
         NotifyRequest<T> request = Rproxy.getInstance().getRequest(NotifyRequest.class);
         request.notify(device, callback);

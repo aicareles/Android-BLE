@@ -1,5 +1,6 @@
 package cn.com.heaton.blelibrary.ble.request;
 
+import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.os.Message;
 
@@ -48,6 +49,23 @@ public class ConnectRequest<T extends BleDevice> implements IMessage {
             result = service.connect(device.getBleAddress());
         }
         return result;
+    }
+
+    public boolean connect(String address, BleConnCallback<T> lisenter) {
+        //check if address is vaild. if don't check it, getRemoteDevice(adress)
+        //will throw exception when the address is invalid
+        boolean isValidAddress = BluetoothAdapter.checkBluetoothAddress(address);
+        if (!isValidAddress) {
+            L.d(TAG, "the device address is invalid");
+            return false;
+        }
+        BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
+        if (adapter == null) {
+            return false;
+        }
+        BluetoothDevice device = adapter.getRemoteDevice(address);
+        T bleDevice = (T) BleFactory.create(BleDevice.class, Ble.getInstance(), device);
+        return connect(bleDevice, lisenter);
     }
 
     /**
