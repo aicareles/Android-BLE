@@ -24,6 +24,31 @@
 ```
 
 ### 二、历史版本介绍：
+[![Version](https://img.shields.io/badge/BleLib-v2.3.0-blue.svg)](https://bintray.com/superliu/maven/BleLib/2.3.0)
+```
+1、添加通过mac地址连接的接口:
+    String address = device.getBleAddress();//或者  String address = "3E:9A:4A:71:F6:4D";
+    mBle.connect(address, new BleConnCallback<BleDevice>() {
+         @Override
+         public void onConnectionChanged(BleDevice device) {
+
+         }
+       });
+2、添加BLE4.2的设置MTU的接口:
+    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
+        //此处第二个参数  不是特定的   比如你也可以设置500   但是如果设备不支持500个字节则会返回最大支持数
+        mBle.setMTU(mBle.getConnetedDevices().get(0).getBleAddress(), 250, new BleMtuCallback<BleDevice>() {
+            @Override
+            public void onMtuChanged(BleDevice device, int mtu, int status) {
+                super.onMtuChanged(device, mtu, status);
+                ToastUtil.showToast("最大支持MTU："+mtu);
+            }
+        });
+    }else {
+        ToastUtil.showToast("设备不支持MTU");
+    }
+
+```
 [![Version](https://img.shields.io/badge/BleLib-v2.2.0-blue.svg)](https://bintray.com/superliu/maven/BleLib/2.2.0)
 ```
 修复连接多个设备在onChanged()回调中判断设备对象
@@ -125,7 +150,7 @@
 [![License](https://img.shields.io/badge/license-Apache%202-green.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 [![Download](https://api.bintray.com/packages/superliu/maven/BleLib/images/download.svg)](https://bintray.com/superliu/maven/BleLib/_latestVersion)
 ```groovy
-compile 'cn.com.superLei:blelibrary:2.2.0'
+compile 'cn.com.superLei:blelibrary:2.3.0'
 ```
 
 #### 1.初始化蓝牙(判断设备是否支持BLE，蓝牙是否打开以及6.0动态授权蓝牙权限等)<br>

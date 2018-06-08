@@ -230,7 +230,8 @@ public class BleActivity extends BaseActivity implements View.OnClickListener, A
         if (device.isConnected()) {
             mBle.disconnect(device);
         } else if (!device.isConnectting()) {
-            mBle.connect(device, connectCallback);
+//            mBle.connect(device, connectCallback); //也可以
+            mBle.connect(device.getBleAddress(), connectCallback);//新添加通过mac地址进行连接
         }
     }
 
