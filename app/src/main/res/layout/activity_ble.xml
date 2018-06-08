@@ -16,50 +16,56 @@
         <!--android:id="@+id/recycle_listView"-->
         <!--android:layout_width="match_parent"-->
         <!--android:layout_height="match_parent"/>-->
+    <LinearLayout
+        android:id="@+id/ll_function"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/toolbar_main"
+        android:gravity="center">
+
+        <Button
+            android:id="@+id/sendData"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="发送"/>
+
+        <Button
+            android:id="@+id/updateOta"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="更新OTA"/>
+
+        <Button
+            android:id="@+id/readRssi"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="读取RSSI"/>
+
+        <Button
+            android:id="@+id/test"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="测试页面"
+            android:visibility="gone"/>
+
+        <Button
+            android:id="@+id/requestMtu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="请求MTU"/>
+
+    </LinearLayout>
     <TextView
         android:id="@+id/connected_num"
-        android:layout_below="@+id/sendData"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="10dp"
-        android:text="@string/lined_num"/>
-
-    <Button
-        android:id="@+id/sendData"
-        android:layout_below="@id/toolbar_main"
-        android:layout_alignParentRight="true"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="发送"/>
-
-    <Button
-        android:id="@+id/updateOta"
-        android:layout_below="@id/toolbar_main"
-        android:layout_toLeftOf="@+id/sendData"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="更新OTA"/>
-
-    <Button
-        android:id="@+id/readRssi"
-        android:layout_below="@id/toolbar_main"
-        android:layout_toLeftOf="@+id/updateOta"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="读取RSSI"/>
-
-    <Button
-        android:id="@+id/test"
-        android:layout_below="@id/toolbar_main"
-        android:layout_toLeftOf="@+id/readRssi"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-
-        android:text="测试页面"/>
+        android:text="@string/lined_num"
+        android:visibility="gone"/>
 
     <ListView
         android:id="@+id/listView"
-        android:layout_below="@id/connected_num"
+        android:layout_below="@id/ll_function"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 

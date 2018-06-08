@@ -1,6 +1,7 @@
 package cn.com.heaton.blelibrary.ble;
 
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -14,6 +15,7 @@ import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -114,6 +116,15 @@ public class BluetoothLeService extends Service {
                 mHandler.obtainMessage(BleStates.BleStatus.ConnectException, errorCode, 0, device).sendToTarget();
             }
 
+        }
+
+        @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+        public void onMtuChanged(android.bluetooth.BluetoothGatt gatt, int mtu, int status){
+            if (gatt != null && gatt.getDevice() != null) {
+                BleDevice d = mBleManager.getBleDevice(gatt.getDevice());
+                L.e(TAG, "onMtuChanged mtu=" + mtu + ",status=" + status);
+                mHandler.obtainMessage(BleStates.BleStatus.MTUCHANGED, mtu, status, d).sendToTarget();
+            }
         }
 
         @Override
@@ -377,6 +388,21 @@ public class BluetoothLeService extends Service {
             mBluetoothGattMap.get(address).close();
             mBluetoothGattMap.remove(address);
         }
+    }
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    public boolean setMTU(String address, int mtu){
+        L.d(TAG,"setMTU "+mtu);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
+            if(mtu>20){
+                if (mBluetoothGattMap.get(address) != null) {
+                    boolean result =   mBluetoothGattMap.get(address).requestMtu(mtu);
+                    L.d(TAG,"requestMTU "+mtu+" result="+result);
+                    return result;
+                }
+            }
+        }
+        return false;
     }
 
     /**

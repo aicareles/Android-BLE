@@ -29,7 +29,7 @@ public class NotifyRequest<T extends BleDevice> implements IMessage {
 
     private List<BleNotiftCallback> mNotifyCallbacks = new ArrayList<>();
 
-    private HashMap<T, BleNotiftCallback> mBleNotifyMap = new HashMap<>();
+//    private HashMap<T, BleNotiftCallback> mBleNotifyMap = new HashMap<>();
 
     protected NotifyRequest() {
         BleHandler handler = BleHandler.getHandler();
@@ -46,12 +46,15 @@ public class NotifyRequest<T extends BleDevice> implements IMessage {
 //        }
     }
 
-//    public void unNotify(T device){
+    public void unNotify(BleNotiftCallback<T> callback){
+        if(callback != null && mNotifyCallbacks.contains(callback)){
+            this.mNotifyCallbacks.remove(callback);
+        }
 //        if(mBleNotifyMap.containsKey(device)){
 //            mNotifyCallbacks.remove(mBleNotifyMap.get(device));
 //            mBleNotifyMap.remove(device);
 //        }
-//    }
+    }
 
     @Override
     public void handleMessage(Message msg) {
@@ -72,6 +75,7 @@ public class NotifyRequest<T extends BleDevice> implements IMessage {
                     if(msg.obj instanceof BleDevice){
                         BleDevice device = (BleDevice) msg.obj;
                         callback.onChanged(device, device.getNotifyCharacteristic());
+                        L.e("handleMessage","onChanged++");
                     }
                 }
                 break;

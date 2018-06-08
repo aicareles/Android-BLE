@@ -6,6 +6,7 @@ import java.lang.reflect.Proxy;
 
 import cn.com.heaton.blelibrary.ble.L;
 import cn.com.heaton.blelibrary.ble.request.ConnectRequest;
+import cn.com.heaton.blelibrary.ble.request.MtuRequest;
 import cn.com.heaton.blelibrary.ble.request.NotifyRequest;
 import cn.com.heaton.blelibrary.ble.request.ReadRequest;
 import cn.com.heaton.blelibrary.ble.request.ReadRssiRequest;
@@ -40,7 +41,8 @@ public class RequestProxy implements InvocationHandler{
                 NotifyRequest.class,
                 ReadRequest.class,
                 ReadRssiRequest.class,
-                WriteRequest.class
+                WriteRequest.class,
+                MtuRequest.class
         );
         return Proxy.newProxyInstance(
                 tar.getClass().getClassLoader(),

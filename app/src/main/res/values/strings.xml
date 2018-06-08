@@ -17,12 +17,12 @@
 
 
     <!-- Menu items -->
-    <string name="menu_introduced">Developers Introduced</string>
-    <string name="menu_disconnect_all">DisConnect_All</string>
-    <string name="menu_connect_all">Connect_All</string>
+    <string name="menu_introduced">错误码相关</string>
+    <string name="menu_disconnect_all">断开所有设备</string>
+    <string name="menu_connect_all">连接所有设备</string>
     <string name="menu_disconnect">Disconnect</string>
-    <string name="menu_scan">Scan</string>
-    <string name="menu_stop">Stop</string>
+    <string name="menu_scan">扫描</string>
+    <string name="menu_stop">停止扫描</string>
     <string name="menu_refresh">Refreshing</string>
     <string name="open">打开</string>
     <string name="close">关闭</string>

@@ -71,13 +71,7 @@ public class TestActivity extends AppCompatActivity {
     public void testNotify(View view) {
         if(mDevice != null){
             mNotifyStatus.setText("设置通知监听成功！！！");
-            mBle.startNotify(mDevice, new BleNotiftCallback<BleDevice>() {
-                @Override
-                public void onChanged(BleDevice device, BluetoothGattCharacteristic characteristic) {
-                    Log.e(TAG, "onChanged: " + Arrays.toString(characteristic.getValue()));
-                    mNotifyValue.setText("收到MCU通知值:\n"+Arrays.toString(characteristic.getValue()));
-                }
-            });
+            mBle.startNotify(mDevice, mBleNotifyCallback);
         }
     }
 
@@ -146,7 +140,8 @@ public class TestActivity extends AppCompatActivity {
                     mBle.stopScan();
                 }
                 if (device.isConnected()) {
-                    mBle.disconnect(device, connectCallback);
+//                    mBle.disconnect(device, connectCallback);
+                    mBle.disconnect(device);
                 } else if (!device.isConnectting()) {
                     mBle.connect(device, connectCallback);
                 }
@@ -176,28 +171,30 @@ public class TestActivity extends AppCompatActivity {
     /*设置通知的回调*/
     private void setNotify(BleDevice device) {
          /*连接成功后，设置通知*/
-        mBle.startNotify(device, new BleNotiftCallback<BleDevice>() {
-            @Override
-            public void onChanged(BleDevice device, BluetoothGattCharacteristic characteristic) {
-                UUID uuid = characteristic.getUuid();
-                Log.e(TAG, "onChanged: "+uuid.toString());
-                Log.e(TAG, "onChanged: " + Arrays.toString(characteristic.getValue()));
-            }
-
-            @Override
-            public void onReady(BleDevice device) {
-                Log.e(TAG, "onReady: ");
-            }
-
-            @Override
-            public void onServicesDiscovered(BluetoothGatt gatt) {
-                Log.e(TAG, "onServicesDiscovered is success ");
-            }
-
-            @Override
-            public void onNotifySuccess(BluetoothGatt gatt) {
-                Log.e(TAG, "onNotifySuccess is success ");
-            }
-        });
+        mBle.startNotify(device, mBleNotifyCallback);
     }
+
+    private BleNotiftCallback<BleDevice> mBleNotifyCallback = new BleNotiftCallback<BleDevice>() {
+        @Override
+        public void onChanged(BleDevice device, BluetoothGattCharacteristic characteristic) {
+            UUID uuid = characteristic.getUuid();
+            Log.e(TAG, "onChanged: "+uuid.toString());
+            Log.e(TAG, "onChanged: " + Arrays.toString(characteristic.getValue()));
+        }
+
+        @Override
+        public void onReady(BleDevice device) {
+            Log.e(TAG, "onReady: ");
+        }
+
+        @Override
+        public void onServicesDiscovered(BluetoothGatt gatt) {
+            Log.e(TAG, "onServicesDiscovered is success ");
+        }
+
+        @Override
+        public void onNotifySuccess(BluetoothGatt gatt) {
+            Log.e(TAG, "onNotifySuccess is success ");
+        }
+    };
 }

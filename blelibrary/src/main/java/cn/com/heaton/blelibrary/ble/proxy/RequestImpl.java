@@ -3,6 +3,7 @@ package cn.com.heaton.blelibrary.ble.proxy;
 import cn.com.heaton.blelibrary.ble.BleDevice;
 import cn.com.heaton.blelibrary.ble.Ble;
 import cn.com.heaton.blelibrary.ble.callback.BleConnCallback;
+import cn.com.heaton.blelibrary.ble.callback.BleMtuCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleNotiftCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleReadCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleReadRssiCallback;
@@ -63,12 +64,11 @@ public class RequestImpl<T extends BleDevice> implements RequestLisenter<T>{
         request.notify(device, callback);
     }
 
-//    @Override
-//    public void unNotify(T device) {
-//        NotifyRequest<T> request = Rproxy.getInstance().getRequest(NotifyRequest.class);
-//        request.unNotify(device);
-//    }
-
+    @Override
+    public void unNotify(BleNotiftCallback<T> callback) {
+        NotifyRequest<T> request = Rproxy.getInstance().getRequest(NotifyRequest.class);
+        request.unNotify(callback);
+    }
 
     @Override
     public void disconnect(T device) {
@@ -98,5 +98,11 @@ public class RequestImpl<T extends BleDevice> implements RequestLisenter<T>{
     public boolean write(T device, byte[] data, BleWriteCallback<T> callback) {
         WriteRequest<T> request = Rproxy.getInstance().getRequest(WriteRequest.class);
         return request.write(device, data, callback);
+    }
+
+    @Override
+    public boolean setMtu(String address, int mtu, BleMtuCallback<T> callback) {
+        MtuRequest<T> request = Rproxy.getInstance().getRequest(MtuRequest.class);
+        return request.setMtu(address, mtu, callback);
     }
 }

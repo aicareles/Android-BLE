@@ -3,11 +3,9 @@ package com.example.admin.mybledemo.activity;
 import android.Manifest;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.os.Bundle;
+import android.os.Build;
 import android.os.Environment;
 import android.util.Log;
 import android.view.Menu;
@@ -17,16 +15,15 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.example.admin.mybledemo.command.Command;
 import com.example.admin.mybledemo.LeDeviceListAdapter;
 import com.example.admin.mybledemo.R;
 import com.example.admin.mybledemo.StaticValue;
-import com.example.admin.mybledemo.annotation.LLAnnotation;
 import com.example.admin.mybledemo.annotation.ViewInit;
+import com.example.admin.mybledemo.command.Command;
 import com.example.admin.mybledemo.utils.FileUtils;
 import com.example.admin.mybledemo.utils.SPUtils;
+import com.example.admin.mybledemo.utils.ToastUtil;
 import com.orhanobut.logger.Logger;
 
 import java.io.File;
@@ -39,6 +36,7 @@ import java.util.UUID;
 import cn.com.heaton.blelibrary.ble.Ble;
 import cn.com.heaton.blelibrary.ble.BleDevice;
 import cn.com.heaton.blelibrary.ble.callback.BleConnCallback;
+import cn.com.heaton.blelibrary.ble.callback.BleMtuCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleNotiftCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleReadCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleReadRssiCallback;
@@ -61,6 +59,8 @@ public class BleActivity extends BaseActivity implements View.OnClickListener, A
     private Button mSend;
     @ViewInit(R.id.updateOta)
     private Button mUpdateOta;
+    @ViewInit(R.id.requestMtu)
+    private Button mRequestMtu;
     @ViewInit(R.id.listView)
     private ListView mListView;
     @ViewInit(R.id.connected_num)
@@ -91,13 +91,13 @@ public class BleActivity extends BaseActivity implements View.OnClickListener, A
         options.scanPeriod = 12 * 1000;//设置扫描时长
         options.connectTimeout = 10 * 1000;//设置连接超时时长
         options.uuid_service = UUID.fromString("0000fee9-0000-1000-8000-00805f9b34fb");//设置主服务的uuid
-        options.uuid_services_extra = new UUID[]{UUID.fromString("0000180f-0000-1000-8000-00805f9b34fb")};//添加额外的服务（如电量服务，心跳服务等）
+//        options.uuid_services_extra = new UUID[]{UUID.fromString("0000180f-0000-1000-8000-00805f9b34fb")};//添加额外的服务（如电量服务，心跳服务等）
         options.uuid_write_cha = UUID.fromString("d44bc439-abfd-45a2-b575-925416129600");//设置可写特征的uuid
 //        options.uuid_read_cha = UUID.fromString("d44bc439-abfd-45a2-b575-925416129601");//设置可读特征的uuid
         //ota相关 修改为你们自己的
-        options.uuid_ota_service = UUID.fromString("0000fee8-0000-1000-8000-00805f9b34fb");
+       /* options.uuid_ota_service = UUID.fromString("0000fee8-0000-1000-8000-00805f9b34fb");
         options.uuid_ota_notify_cha = UUID.fromString("003784cf-f7e3-55b4-6c4c-9fd140100a16");
-        options.uuid_ota_write_cha = UUID.fromString("013784cf-f7e3-55b4-6c4c-9fd140100a16");
+        options.uuid_ota_write_cha = UUID.fromString("013784cf-f7e3-55b4-6c4c-9fd140100a16");*/
         mBle.init(getApplicationContext(), options);
         //开始扫描
         mBle.startScan(scanCallback);
@@ -107,7 +107,7 @@ public class BleActivity extends BaseActivity implements View.OnClickListener, A
     private void checkBle() {
         // 检查设备是否支持BLE4.0
         if (!mBle.isSupportBle(this)) {
-            Toast.makeText(this, R.string.ble_not_supported, Toast.LENGTH_SHORT).show();
+            ToastUtil.showToast(R.string.ble_not_supported);
             finish();
             return;
         }
@@ -142,6 +142,7 @@ public class BleActivity extends BaseActivity implements View.OnClickListener, A
         mReadRssi.setOnClickListener(this);
         mSend.setOnClickListener(this);
         mUpdateOta.setOnClickListener(this);
+        mRequestMtu.setOnClickListener(this);
         mListView.setOnItemClickListener(this);
     }
 
@@ -156,7 +157,7 @@ public class BleActivity extends BaseActivity implements View.OnClickListener, A
     public void onClick(View v) {
         List<BleDevice> list = mBle.getConnetedDevices();
         if (list.size() == 0) {
-            Toast.makeText(BleActivity.this, "请先连接设备", Toast.LENGTH_SHORT).show();
+            ToastUtil.showToast("请先连接设备");
             return;
         }
         switch (v.getId()) {
@@ -172,7 +173,7 @@ public class BleActivity extends BaseActivity implements View.OnClickListener, A
                     public void onReadRssiSuccess(int rssi) {
                         super.onReadRssiSuccess(rssi);
                         Log.e(TAG, "onReadRssiSuccess: " + rssi);
-                        Toast.makeText(BleActivity.this, "onReadRssiSuccess:" + rssi, Toast.LENGTH_SHORT).show();
+                        ToastUtil.showToast("读取远程RSSI成功："+rssi);
                     }
                 });
                 break;
@@ -193,7 +194,7 @@ public class BleActivity extends BaseActivity implements View.OnClickListener, A
                                 if (granted) {
                                     CopyAssetsToSD();
                                 } else {
-                                    Toast.makeText(BleActivity.this, "读写SD卡权限被拒绝,将会影响OTA升级功能哦！", Toast.LENGTH_SHORT).show();
+                                    ToastUtil.showToast("读写SD卡权限被拒绝,将会影响OTA升级功能哦!");
                                 }
                             }
                         });
@@ -201,6 +202,20 @@ public class BleActivity extends BaseActivity implements View.OnClickListener, A
                 OtaManager mOtaManager = new OtaManager(BleActivity.this);
                 boolean result = mOtaManager.startOtaUpdate(file, (BleDevice) mBle.getConnetedDevices().get(0), mBle);
                 Log.e("OTA升级结果:", result + "");
+                break;
+            case R.id.requestMtu:
+                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
+                    //此处第二个参数  不是特定的   比如你也可以设置500   但是如果设备不支持500个字节则会返回最大支持数
+                    mBle.setMTU(mBle.getConnetedDevices().get(0).getBleAddress(), 250, new BleMtuCallback<BleDevice>() {
+                        @Override
+                        public void onMtuChanged(BleDevice device, int mtu, int status) {
+                            super.onMtuChanged(device, mtu, status);
+                            ToastUtil.showToast("最大支持MTU："+mtu);
+                        }
+                    });
+                }else {
+                    ToastUtil.showToast("设备不支持MTU");
+                }
                 break;
         }
     }
@@ -213,7 +228,7 @@ public class BleActivity extends BaseActivity implements View.OnClickListener, A
             mBle.stopScan();
         }
         if (device.isConnected()) {
-            mBle.disconnect(device, connectCallback);
+            mBle.disconnect(device);
         } else if (!device.isConnectting()) {
             mBle.connect(device, connectCallback);
         }
@@ -224,11 +239,11 @@ public class BleActivity extends BaseActivity implements View.OnClickListener, A
         boolean result = mBle.write(device, changeLevelInner(1), new BleWriteCallback<BleDevice>() {
             @Override
             public void onWriteSuccess(BluetoothGattCharacteristic characteristic) {
-                Toast.makeText(BleActivity.this, "发送数据成功", Toast.LENGTH_SHORT).show();
+                ToastUtil.showToast("发送数据成功");
             }
         });
         if (!result) {
-            Log.e(TAG, "changeLevelInner: " + "发送数据失败!");
+            ToastUtil.showToast("发送数据失败!");
         }
     }
 
@@ -306,7 +321,7 @@ public class BleActivity extends BaseActivity implements View.OnClickListener, A
         @Override
         public void onConnectException(BleDevice device, int errorCode) {
             super.onConnectException(device, errorCode);
-            Toast.makeText(BleActivity.this, "连接异常，异常状态码:" + errorCode, Toast.LENGTH_SHORT).show();
+            ToastUtil.showToast("连接异常，异常状态码:" + errorCode);
         }
     };
 

@@ -1,5 +1,6 @@
 package cn.com.heaton.blelibrary.ble.proxy;
 import cn.com.heaton.blelibrary.ble.callback.BleConnCallback;
+import cn.com.heaton.blelibrary.ble.callback.BleMtuCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleNotiftCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleReadCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleReadRssiCallback;
@@ -23,7 +24,7 @@ public interface RequestLisenter<T> {
 
     void notify(T device, BleNotiftCallback<T> callback);
 
-//    void unNotify(T device);
+    void unNotify(BleNotiftCallback<T> callback);
 
     void disconnect(T device);
 
@@ -35,4 +36,5 @@ public interface RequestLisenter<T> {
 
     boolean write(T device, byte[]data, BleWriteCallback<T> callback);
 
+    boolean setMtu(String address, int mtu, BleMtuCallback<T> callback);
 }

@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import cn.com.heaton.blelibrary.ble.callback.BleConnCallback;
+import cn.com.heaton.blelibrary.ble.callback.BleMtuCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleNotiftCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleReadCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleReadRssiCallback;
@@ -183,9 +184,13 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
         mRequest.notify(device, callback);
     }
 
-//    public void cancelNotify(T device){
-//        mRequest.unNotify(device);
-//    }
+    /**
+     * 移除通知
+     * @param callback 通知回调对象
+     */
+    public void cancelNotify(BleNotiftCallback<T> callback){
+        mRequest.unNotify(callback);
+    }
 
     /**
      * 读取数据
@@ -203,6 +208,16 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
      */
     public void readRssi(T device, BleReadRssiCallback<T> callback){
         mRequest.readRssi(device, callback);
+    }
+
+    /**
+     * 设置MTU
+     * @param address 蓝牙设备地址
+     * @param mtu mtu大小
+     * @return 是否设置成功
+     */
+    public boolean setMTU(String address, int mtu, BleMtuCallback<T> callback){
+        return mRequest.setMtu(address, mtu, callback);
     }
 
     /**
@@ -531,7 +546,20 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
      */
     public boolean refreshDeviceCache(String address) {
         if (mBluetoothLeService != null) {
-            mBluetoothLeService.refreshDeviceCache(address);
+            return mBluetoothLeService.refreshDeviceCache(address);
+        }
+        return false;
+    }
+
+    /**
+     * 设置MTU
+     * @param address 蓝牙设备地址
+     * @param mtu mtu大小
+     * @return 是否设置成功
+     */
+    public boolean setMTU(String address, int mtu){
+        if (mBluetoothLeService != null){
+            return mBluetoothLeService.setMTU(address, mtu);
         }
         return false;
     }
