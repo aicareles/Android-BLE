@@ -58,10 +58,10 @@ public class BleActivity extends BaseActivity{
     private String TAG = BleActivity.class.getSimpleName();
 
     @ViewInit(R.id.listView)
-    private ListView mListView;
+    ListView mListView;
     @ViewInit(R.id.connected_num)
-
     private TextView mConnectedNum;
+
     private LeDeviceListAdapter mLeDeviceListAdapter;
     private Ble<BleDevice> mBle;
     private String path;
