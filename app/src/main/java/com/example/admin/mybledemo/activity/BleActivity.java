@@ -12,16 +12,21 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.example.admin.mybledemo.LeDeviceListAdapter;
 import com.example.admin.mybledemo.R;
 import com.example.admin.mybledemo.StaticValue;
+import com.example.admin.mybledemo.annotation.ContentView;
+import com.example.admin.mybledemo.annotation.OnClick;
+import com.example.admin.mybledemo.annotation.OnItemClick;
 import com.example.admin.mybledemo.annotation.ViewInit;
+import com.example.admin.mybledemo.aop.CheckConnect;
+import com.example.admin.mybledemo.aop.SingleClick;
 import com.example.admin.mybledemo.command.Command;
 import com.example.admin.mybledemo.utils.FileUtils;
+import com.example.admin.mybledemo.utils.PermissionUtils;
 import com.example.admin.mybledemo.utils.SPUtils;
 import com.example.admin.mybledemo.utils.ToastUtil;
 import com.orhanobut.logger.Logger;
@@ -47,120 +52,25 @@ import cn.com.heaton.blelibrary.ota.OtaManager;
 /**
  * Activity for scanning and displaying available Bluetooth LE devices.
  */
-public class BleActivity extends BaseActivity implements View.OnClickListener, AdapterView.OnItemClickListener {
+@ContentView( R.layout.activity_ble)
+public class BleActivity extends BaseActivity{
 
     private String TAG = BleActivity.class.getSimpleName();
 
-    @ViewInit(R.id.test)
-    private Button mTest;
-    @ViewInit(R.id.readRssi)
-    private Button mReadRssi;
-    @ViewInit(R.id.sendData)
-    private Button mSend;
-    @ViewInit(R.id.updateOta)
-    private Button mUpdateOta;
-    @ViewInit(R.id.requestMtu)
-    private Button mRequestMtu;
     @ViewInit(R.id.listView)
     private ListView mListView;
     @ViewInit(R.id.connected_num)
+
     private TextView mConnectedNum;
     private LeDeviceListAdapter mLeDeviceListAdapter;
     private Ble<BleDevice> mBle;
     private String path;
 
-    @Override
-    protected int getLayoutResource() {
-        return R.layout.activity_ble;
-    }
-
-    @Override
-    protected void onInitView() {
-        initView();
-        mBle = Ble.getInstance();
-        //检测蓝牙是否支持BLE以及是否打开
-        checkBle();
-    }
-
-    //初始化蓝牙
-    private void initBle() {
-        Ble.Options options = new Ble.Options();
-        options.logBleExceptions = true;//设置是否输出打印蓝牙日志
-        options.throwBleException = true;//设置是否抛出蓝牙异常
-        options.autoConnect = false;//设置是否自动连接
-        options.scanPeriod = 12 * 1000;//设置扫描时长
-        options.connectTimeout = 10 * 1000;//设置连接超时时长
-        options.uuid_service = UUID.fromString("0000fee9-0000-1000-8000-00805f9b34fb");//设置主服务的uuid
-//        options.uuid_services_extra = new UUID[]{UUID.fromString("0000180f-0000-1000-8000-00805f9b34fb")};//添加额外的服务（如电量服务，心跳服务等）
-        options.uuid_write_cha = UUID.fromString("d44bc439-abfd-45a2-b575-925416129600");//设置可写特征的uuid
-//        options.uuid_read_cha = UUID.fromString("d44bc439-abfd-45a2-b575-925416129601");//设置可读特征的uuid
-        //ota相关 修改为你们自己的
-       /* options.uuid_ota_service = UUID.fromString("0000fee8-0000-1000-8000-00805f9b34fb");
-        options.uuid_ota_notify_cha = UUID.fromString("003784cf-f7e3-55b4-6c4c-9fd140100a16");
-        options.uuid_ota_write_cha = UUID.fromString("013784cf-f7e3-55b4-6c4c-9fd140100a16");*/
-        mBle.init(getApplicationContext(), options);
-        //开始扫描
-        mBle.startScan(scanCallback);
-    }
-
-    //检查蓝牙是否支持及打开
-    private void checkBle() {
-        // 检查设备是否支持BLE4.0
-        if (!mBle.isSupportBle(this)) {
-            ToastUtil.showToast(R.string.ble_not_supported);
-            finish();
-            return;
-        }
-        if (!mBle.isBleEnable()) {
-            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableBtIntent, Ble.REQUEST_ENABLE_BT);
-        }else {
-            //请求权限
-            requestPermission();
-        }
-    }
-
-    //请求权限
-    private void requestPermission(){
-        requestPermission(new String[]{Manifest.permission.BLUETOOTH_ADMIN,Manifest.permission.ACCESS_COARSE_LOCATION},
-                "请求蓝牙相关权限", new GrantedResult() {
-                    @Override
-                    public void onResult(boolean granted) {
-                        if (granted) {
-                            //初始化蓝牙
-                            initBle();
-                        } else {
-                            finish();
-                        }
-                    }
-                });
-    }
-
-    @Override
-    protected void initLinsenter() {
-        mTest.setOnClickListener(this);
-        mReadRssi.setOnClickListener(this);
-        mSend.setOnClickListener(this);
-        mUpdateOta.setOnClickListener(this);
-        mRequestMtu.setOnClickListener(this);
-        mListView.setOnItemClickListener(this);
-    }
-
-    private void initView() {
-        setTitle("Ble界面");
-        mConnectedNum = (TextView) findViewById(R.id.connected_num);
-        mLeDeviceListAdapter = new LeDeviceListAdapter(this);
-        mListView.setAdapter(mLeDeviceListAdapter);
-    }
-
-    @Override
-    public void onClick(View v) {
-        List<BleDevice> list = mBle.getConnetedDevices();
-        if (list.size() == 0) {
-            ToastUtil.showToast("请先连接设备");
-            return;
-        }
-        switch (v.getId()) {
+    @SingleClick //过滤重复点击
+    @CheckConnect //检查是否连接
+    @OnClick({R.id.test, R.id.readRssi, R.id.sendData, R.id.updateOta, R.id.requestMtu})
+    public void onClick(View view){
+        switch (view.getId()){
             case R.id.test:
                 if (mBle.isScanning()) {
                     mBle.stopScan();
@@ -178,6 +88,7 @@ public class BleActivity extends BaseActivity implements View.OnClickListener, A
                 });
                 break;
             case R.id.sendData:
+                List<BleDevice> list = Ble.getInstance().getConnetedDevices();
                 synchronized (mBle.getLocker()) {
                     for (BleDevice device : list) {
                         sendData(device);
@@ -217,11 +128,13 @@ public class BleActivity extends BaseActivity implements View.OnClickListener, A
                     ToastUtil.showToast("设备不支持MTU");
                 }
                 break;
+            default:
+                break;
         }
     }
 
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+    @OnItemClick(R.id.listView)
+    public void itemOnClick(AdapterView<?> parent, View view, int position, long id){
         final BleDevice device = mLeDeviceListAdapter.getDevice(position);
         if (device == null) return;
         if (mBle.isScanning()) {
@@ -231,13 +144,87 @@ public class BleActivity extends BaseActivity implements View.OnClickListener, A
             mBle.disconnect(device);
         } else if (!device.isConnectting()) {
 //            mBle.connect(device, connectCallback); //也可以
-            mBle.connect(device.getBleAddress(), connectCallback);//新添加通过mac地址进行连接
+            mBle.connect(device, connectCallback);//新添加通过mac地址进行连接
         }
+    }
+
+    @Override
+    protected void onInitView() {
+        initView();
+        mBle = Ble.getInstance();
+        //检测蓝牙是否支持BLE以及是否打开
+        checkBle();
+    }
+
+    //初始化蓝牙
+    private void initBle() {
+        Ble.Options options = new Ble.Options();
+        options.logBleExceptions = true;//设置是否输出打印蓝牙日志
+        options.throwBleException = true;//设置是否抛出蓝牙异常
+        options.autoConnect = false;//设置是否自动连接
+        options.scanPeriod = 12 * 1000;//设置扫描时长
+        options.connectTimeout = 10 * 1000;//设置连接超时时长
+        options.uuid_service = UUID.fromString("0000fee9-0000-1000-8000-00805f9b34fb");//设置主服务的uuid
+        //options.uuid_services_extra = new UUID[]{UUID.fromString("0000180f-0000-1000-8000-00805f9b34fb")};//添加额外的服务（如电量服务，心跳服务等）
+        options.uuid_write_cha = UUID.fromString("d44bc439-abfd-45a2-b575-925416129600");//设置可写特征的uuid
+        //options.uuid_read_cha = UUID.fromString("d44bc439-abfd-45a2-b575-925416129601");//设置可读特征的uuid
+        //ota相关 修改为你们自己的
+       /* options.uuid_ota_service = UUID.fromString("0000fee8-0000-1000-8000-00805f9b34fb");
+        options.uuid_ota_notify_cha = UUID.fromString("003784cf-f7e3-55b4-6c4c-9fd140100a16");
+        options.uuid_ota_write_cha = UUID.fromString("013784cf-f7e3-55b4-6c4c-9fd140100a16");*/
+        mBle.init(getApplicationContext(), options);
+        //开始扫描
+        mBle.startScan(scanCallback);
+    }
+
+    //检查蓝牙是否支持及打开
+    private void checkBle() {
+        // 检查设备是否支持BLE4.0
+        if (!mBle.isSupportBle(this)) {
+            ToastUtil.showToast(R.string.ble_not_supported);
+            finish();
+            return;
+        }
+        if (!mBle.isBleEnable()) {
+            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enableBtIntent, Ble.REQUEST_ENABLE_BT);
+        }else {
+            //请求权限
+            requestPermission();
+        }
+    }
+
+    //请求权限
+    private void requestPermission(){
+        requestPermission(new String[]{Manifest.permission.BLUETOOTH_ADMIN,
+                        Manifest.permission.ACCESS_COARSE_LOCATION},
+                "请求蓝牙相关权限", new GrantedResult() {
+                    @Override
+                    public void onResult(boolean granted) {
+                        if (granted) {
+                            //初始化蓝牙
+                            initBle();
+                        } else {
+                            finish();
+                        }
+                    }
+                });
+    }
+
+    @Override
+    protected void initLinsenter() {}
+
+    private void initView() {
+        setTitle("Ble界面");
+        mConnectedNum = (TextView) findViewById(R.id.connected_num);
+        mLeDeviceListAdapter = new LeDeviceListAdapter(this);
+        mListView.setAdapter(mLeDeviceListAdapter);
     }
 
     /*发送数据*/
     public void sendData(BleDevice device) {
-        boolean result = mBle.write(device, changeLevelInner(1), new BleWriteCallback<BleDevice>() {
+        boolean result = mBle.write(device, changeLevelInner(1),
+                new BleWriteCallback<BleDevice>() {
             @Override
             public void onWriteSuccess(BluetoothGattCharacteristic characteristic) {
                 ToastUtil.showToast("发送数据成功");
@@ -289,13 +276,8 @@ public class BleActivity extends BaseActivity implements View.OnClickListener, A
         @Override
         public void onLeScan(final BleDevice device, int rssi, byte[] scanRecord) {
             synchronized (mBle.getLocker()) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        mLeDeviceListAdapter.addDevice(device);
-                        mLeDeviceListAdapter.notifyDataSetChanged();
-                    }
-                });
+                mLeDeviceListAdapter.addDevice(device);
+                mLeDeviceListAdapter.notifyDataSetChanged();
             }
         }
 

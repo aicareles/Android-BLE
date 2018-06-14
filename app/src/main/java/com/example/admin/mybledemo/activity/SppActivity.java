@@ -1,5 +1,6 @@
 package com.example.admin.mybledemo.activity;
 
+import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.os.Bundle;
@@ -14,8 +15,14 @@ import android.widget.Toast;
 
 import com.example.admin.mybledemo.BtDeviceAdapter;
 import com.example.admin.mybledemo.R;
+import com.example.admin.mybledemo.annotation.ContentView;
 import com.example.admin.mybledemo.annotation.LLAnnotation;
+import com.example.admin.mybledemo.annotation.OnItemClick;
 import com.example.admin.mybledemo.annotation.ViewInit;
+import com.example.admin.mybledemo.aop.CheckConnect;
+import com.example.admin.mybledemo.aop.Permission;
+import com.example.admin.mybledemo.aop.SingleClick;
+import com.example.admin.mybledemo.utils.TaskExecutor;
 import com.orhanobut.logger.Logger;
 
 import java.util.ArrayList;
@@ -26,25 +33,24 @@ import cn.com.heaton.blelibrary.spp.BtManager;
 /**
  * Activity for scanning and displaying available Bluetooth devices.
  */
-public class SppActivity extends BaseActivity implements AdapterView.OnItemClickListener {
+
+@ContentView(R.layout.activity_spp)
+public class SppActivity extends BaseActivity {
 
     private String TAG = SppActivity.class.getSimpleName();
     public final static int OPEN_BLUETH = 0x89;//请求打开蓝牙
 
     @ViewInit(R.id.listView)
-    private ListView mListView;
+    ListView mListView;
     @ViewInit(R.id.connected_num)
-    private TextView mConnectedNum;
+    TextView mConnectedNum;
+
     private BtDeviceAdapter mBtAdapter;
     private BtManager mBtManager;
-    private boolean isScanning = false;//是否正在扫描
-    //播放音乐
-    boolean lock = false;//默认关
-
-    @Override
-    protected int getLayoutResource() {
-        return R.layout.activity_spp;
-    }
+    //是否正在扫描
+    private boolean isScanning = false;
+    //播放音乐   默认关
+    boolean lock = false;
 
     @Override
     protected void onInitView() {
@@ -53,11 +59,9 @@ public class SppActivity extends BaseActivity implements AdapterView.OnItemClick
     }
 
     @Override
-    protected void initLinsenter() {
-        mListView.setOnItemClickListener(this);
-    }
+    protected void initLinsenter() {}
 
-    @Override
+    @OnItemClick(R.id.listView)
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         final BtDevice device = mBtAdapter.getDevice(position);
         if (device == null) return;
@@ -73,16 +77,16 @@ public class SppActivity extends BaseActivity implements AdapterView.OnItemClick
         }
     }
 
+    //初始化蓝牙
     private void initBle() {
         try {
-            mBtManager = new BtManager(this, mBtListener);
+            mBtManager = BtManager.init(this, mBtListener);
             mBtManager.setSecure(true);
             //如果没有打开蓝牙，则弹出请打开蓝牙
             if (mBtManager.getAdapter() != null && !mBtManager.getAdapter().isEnabled()) {
                 Intent enableBlueIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
                 startActivityForResult(enableBlueIntent, OPEN_BLUETH);
             }
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -139,13 +143,11 @@ public class SppActivity extends BaseActivity implements AdapterView.OnItemClick
         }
     };
 
+    @SingleClick
+    @CheckConnect(value = 1)
     public void sendData(View view) {
-        if (mBtManager.getConnectedDevices().size() == 0) {//若当前没有连接设备则直接返回
-            Toast.makeText(SppActivity.this,"请连接设备后重试",Toast.LENGTH_SHORT).show();
-            return;
-        }
         lock = !lock;
-        new Thread(new Runnable() {
+        TaskExecutor.executeTask(new Runnable() {
             @Override
             public void run() {
                 byte[] oc = new byte[6];
@@ -158,20 +160,18 @@ public class SppActivity extends BaseActivity implements AdapterView.OnItemClick
                 boolean result = mBtManager.getConnectedDevices().get(0).sendOnePacket(oc, 10, true);
                 Log.e(TAG, "sendData: "+result);
             }
-        }).start();
+        });
     }
 
     private void initView() {
         setTitle("SPP界面");
         mConnectedNum = (TextView) findViewById(R.id.connected_num);
-
         // Initializes list view adapter.
         if (mBtAdapter == null) {
             mBtAdapter = new BtDeviceAdapter(this);
         }
         mListView.setAdapter(mBtAdapter);
     }
-
 
     private void setConnectedNum() {
         if (mBtManager != null) {

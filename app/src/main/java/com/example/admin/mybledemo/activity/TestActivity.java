@@ -13,7 +13,9 @@ import android.widget.Toast;
 
 import com.example.admin.mybledemo.LeDeviceListAdapter;
 import com.example.admin.mybledemo.R;
+import com.example.admin.mybledemo.annotation.ContentView;
 import com.example.admin.mybledemo.annotation.LLAnnotation;
+import com.example.admin.mybledemo.annotation.OnItemClick;
 import com.example.admin.mybledemo.annotation.ViewInit;
 import com.example.admin.mybledemo.command.Command;
 import com.orhanobut.logger.Logger;
@@ -29,7 +31,8 @@ import cn.com.heaton.blelibrary.ble.callback.BleReadRssiCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleScanCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleWriteCallback;
 
-public class TestActivity extends AppCompatActivity {
+@ContentView(R.layout.activity_test)
+public class TestActivity extends BaseActivity {
 
     private static final String TAG = "TestActivity";
     @ViewInit(R.id.lv_scan)
@@ -44,18 +47,16 @@ public class TestActivity extends AppCompatActivity {
     private BleDevice mDevice;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_test);
-        //初始化注解  替代findViewById
-        LLAnnotation.viewInit(this);
+    protected void onInitView() {
         //根据自身需求传入需要在其他界面操作的蓝牙对象  这里测试取第一个设备对象
         mBle = Ble.getInstance();
         mDevice = mBle.getConnetedDevices().get(0);
-
-        initView();
-
+        mLeDeviceListAdapter = new LeDeviceListAdapter(this);
+        mListView.setAdapter(mLeDeviceListAdapter);
     }
+
+    @Override
+    protected void initLinsenter() {}
 
     //播放音乐
     public byte[] changeLevelInner(int play) {
@@ -127,27 +128,20 @@ public class TestActivity extends AppCompatActivity {
         }
     }
 
-    private void initView() {
-        mLeDeviceListAdapter = new LeDeviceListAdapter(this);
-        mListView.setAdapter(mLeDeviceListAdapter);
-        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                //测试连接或断开
-                final BleDevice device = mLeDeviceListAdapter.getDevice(position);
-                if (device == null) return;
-                if (mBle.isScanning()) {
-                    mBle.stopScan();
-                }
-                if (device.isConnected()) {
-//                    mBle.disconnect(device, connectCallback);
-                    mBle.disconnect(device);
-                } else if (!device.isConnectting()) {
-                    mBle.connect(device, connectCallback);
-                }
-            }
-        });
-
+    @OnItemClick(R.id.lv_scan)
+    public void itemOnClick(AdapterView<?> parent, View view, int position, long id){
+        //测试连接或断开
+        final BleDevice device = mLeDeviceListAdapter.getDevice(position);
+        if (device == null) return;
+        if (mBle.isScanning()) {
+            mBle.stopScan();
+        }
+        if (device.isConnected()) {
+//          mBle.disconnect(device, connectCallback);
+            mBle.disconnect(device);
+        } else if (!device.isConnectting()) {
+            mBle.connect(device, connectCallback);
+        }
     }
 
     /*连接的回调*/

@@ -8,6 +8,7 @@ import android.util.Log;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.InvocationTargetException;
 
 import cn.com.heaton.blelibrary.BuildConfig;
 
@@ -297,7 +298,16 @@ public class BtDevice {
 					Log.d(TAG, "Creating BluetoothSocket");
 				}
 				if (mSecure) {
-					mBluetoothSocket = mDevice.createRfcommSocketToServiceRecord(BtConfig.UUID_SECURE);
+//					mBluetoothSocket = mDevice.createRfcommSocketToServiceRecord(BtConfig.UUID_SECURE);
+					try {
+						mBluetoothSocket =(BluetoothSocket) mDevice.getClass().getMethod("createRfcommSocket", new Class[] {int.class}).invoke(mDevice,1);
+					} catch (IllegalAccessException e) {
+						e.printStackTrace();
+					} catch (InvocationTargetException e) {
+						e.printStackTrace();
+					} catch (NoSuchMethodException e) {
+						e.printStackTrace();
+					}
 				} else {
 					mBluetoothSocket = mDevice.createInsecureRfcommSocketToServiceRecord(BtConfig.UUID_INSECURE);
 				}

@@ -8,13 +8,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Created by LiuLei on 2017/11/29.
+ * Created by jerry on 2018/6/13.
  */
-
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-@EventInterface(lisenterSetter="setOnClickListener",lisenterType=View.OnClickListener.class,callbackMethod="onClick")
-public @interface OnClick {
-    // 由于有很多个点击事件，所以要搞个数组
-    int[] value();
+@EventInterface(lisenterSetter = "setOnLongClickListener",
+        lisenterType = View.OnLongClickListener.class,callbackMethod = "onLongClick")
+public @interface OnLongClick {
+    int[] value() default -1;
 }

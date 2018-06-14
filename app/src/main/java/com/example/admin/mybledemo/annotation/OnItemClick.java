@@ -1,6 +1,6 @@
 package com.example.admin.mybledemo.annotation;
 
-import android.view.View;
+import android.widget.AdapterView;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -13,8 +13,8 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-@EventInterface(lisenterSetter="setOnClickListener",lisenterType=View.OnClickListener.class,callbackMethod="onClick")
-public @interface OnClick {
+@EventInterface(lisenterSetter="setOnItemClickListener",lisenterType=AdapterView.OnItemClickListener.class,callbackMethod="onItemClick")
+public @interface OnItemClick {
     // 由于有很多个点击事件，所以要搞个数组
     int[] value();
 }

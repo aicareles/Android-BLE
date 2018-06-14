@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'android-aspectjx'
 
 android {
 //    signingConfigs {
@@ -24,19 +25,12 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-//            signingConfig signingConfigs.config
         }
         debug {
-//            signingConfig signingConfigs.config
             jniDebuggable true
         }
     }
 
-    /*android.applicationVariants.all { variant ->
-        variant.outputs.each { output ->
-            output.outputFile = new File(output.outputFile.parent, output.outputFile.name.replace(".apk", "-" + defaultConfig.versionName + defaultConfig.versionNameSuffix + ".apk"));
-        }
-    }*/
     applicationVariants.all { variant ->
         variant.outputs.each { output ->
             def outputFile = output.outputFile
@@ -58,16 +52,26 @@ android {
     }
 }
 
+
+//aspectjx {
+////排除所有package路径中包含`android.support`的class文件及库（jar文件）
+//    exclude 'android.support'
+//}
+
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
+
     compile project(':blelibrary')
 //    compile 'cn.com.superLei:blelibrary:2.2.0'
     compile 'com.android.support:appcompat-v7:25.3.1'
     compile 'com.android.support:design:25.3.1'
     compile 'com.orhanobut:logger:1.15'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
+    compile 'org.aspectj:aspectjrt:1.8.9'
     testCompile 'junit:junit:4.12'
+
 }
+

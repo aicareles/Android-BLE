@@ -1,77 +1,25 @@
-package com.example.admin.mybledemo.activity;
+package com.example.admin.mybledemo.utils;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.os.Build;
-import android.os.Bundle;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.SparseArray;
-import android.widget.TextView;
 
 import com.example.admin.mybledemo.R;
-import com.example.admin.mybledemo.annotation.LLAnnotation;
+import com.example.admin.mybledemo.activity.BaseActivity;
 
-public abstract class BaseActivity extends AppCompatActivity {
+/**
+ * Created by jerry on 2018/6/13.
+ */
 
-    protected final String TAG = this.getClass().getSimpleName();
-    public Toolbar toolbar;
-    private TextView abTitle;
-    @Override
-    public void onCreate(Bundle bundle) {
-        super.onCreate(bundle);
-        initToolBar();
+public enum  PermissionUtils {
 
-//        setContentView(getLayoutResource());
+    INSTANCE;
 
-        //初始化注解  替代findViewById
-//        LLAnnotation.viewInit(this);
-        LLAnnotation.bind(this);
-
-        onInitView();
-        initLinsenter();
-    }
-
-//    protected abstract int getLayoutResource();
-
-    protected abstract void onInitView();
-
-    protected abstract void initLinsenter();
-
-    @Override
-    protected void onTitleChanged(CharSequence title, int color) {
-        super.onTitleChanged(title, color);
-        if (abTitle != null) {
-            abTitle.setText(title);
-        }
-    }
-
-    private void initToolBar() {
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
-        if (toolbar != null) {
-            setSupportActionBar(toolbar);
-            abTitle = (TextView) toolbar.findViewById(R.id.toolbar_title);
-        }
-        if (abTitle != null) {
-            ActionBar actionBar = getSupportActionBar();
-            if (actionBar != null) {
-                actionBar.setDisplayShowTitleEnabled(false);
-                actionBar.setHomeButtonEnabled(true);
-//                actionBar.setDisplayHomeAsUpEnabled(true);
-            }
-        }
-    }
-
-    @Override
-    public void setContentView(int layoutResID) {
-        super.setContentView(layoutResID);
-        initToolBar();
-    }
+    private Activity mActivity;
 
     /*---------------------------------------------------------------------------以下是android6.0动态授权的封装十分好用---------------------------------------------------------------------------*/
     private int                   mPermissionIdx = 0x10;//请求权限索引
@@ -86,17 +34,18 @@ public abstract class BaseActivity extends AppCompatActivity {
         if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             runnable.mGranted = true;
         }
-        runOnUiThread(runnable);
+        mActivity.runOnUiThread(runnable);
     }
 
-    public void requestPermission(String[] permissions, String reason, GrantedResult runnable) {
-        if(runnable == null){
+    public void requestPermission(Activity activity, String[] permissions, String reason, GrantedResult runnable) {
+        if(activity == null || permissions == null || permissions.length == 0 || runnable == null){
             return;
         }
+        mActivity = activity;
         runnable.mGranted = false;
-        if (Build.VERSION.SDK_INT < 23 || permissions == null || permissions.length == 0) {
+        if (Build.VERSION.SDK_INT < 23) {
             runnable.mGranted = true;//新添加
-            runOnUiThread(runnable);
+            mActivity.runOnUiThread(runnable);
             return;
         }
         final int requestCode = mPermissionIdx++;
@@ -108,13 +57,13 @@ public abstract class BaseActivity extends AppCompatActivity {
         boolean granted = true;
         for (String permission : permissions) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                granted = granted && checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED;
+                granted = granted && mActivity.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED;
             }
         }
 
         if (granted) {
             runnable.mGranted = true;
-            runOnUiThread(runnable);
+            mActivity.runOnUiThread(runnable);
             return;
         }
 
@@ -124,19 +73,19 @@ public abstract class BaseActivity extends AppCompatActivity {
         boolean request = true;
         for (String permission : permissions) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                request = request && !shouldShowRequestPermissionRationale(permission);
+                request = request && !mActivity.shouldShowRequestPermissionRationale(permission);
             }
         }
 
         if (!request) {
             final String[] permissionTemp = permissions;
-            AlertDialog dialog = new AlertDialog.Builder(this)
+            AlertDialog dialog = new AlertDialog.Builder(mActivity)
                     .setMessage(reason)
                     .setPositiveButton(R.string.btn_sure, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                                requestPermissions(permissionTemp, requestCode);
+                                mActivity.requestPermissions(permissionTemp, requestCode);
                             }
                         }
                     })
@@ -149,13 +98,13 @@ public abstract class BaseActivity extends AppCompatActivity {
                                 return;
                             }
                             runnable.mGranted = false;
-                            runOnUiThread(runnable);
+                            mActivity.runOnUiThread(runnable);
                         }
                     }).create();
             dialog.show();
         } else {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                requestPermissions(permissions, requestCode);
+                mActivity.requestPermissions(permissions, requestCode);
             }
         }
     }
@@ -168,4 +117,5 @@ public abstract class BaseActivity extends AppCompatActivity {
             onResult(mGranted);
         }
     }
+
 }
