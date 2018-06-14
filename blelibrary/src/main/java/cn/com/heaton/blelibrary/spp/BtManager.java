@@ -52,13 +52,14 @@ public class BtManager implements Handler.Callback {
 	private Handler          mHandler;//主线程对象
 	private boolean          mConnecting;//是否连接中
 	private BluetoothAdapter mBluetoothAdapter;//蓝牙适配器
+	private static BtManager btManager;
 
 	private final Object  mLocker     = new Object();//线程锁
 	private       int     mState      = STATE_IDLE;//默认状态空闲
 	private       boolean mRegistered = false;//是否已注册服务
 	private       boolean mSecure     = true;//是否加密
 
-	public BtManager(Context context, BtDeviceListener btDeviceListener) {
+	private BtManager(Context context, BtDeviceListener btDeviceListener) {
 		mContext = context;
 		mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 		mBtDeviceListener = btDeviceListener;
@@ -69,6 +70,20 @@ public class BtManager implements Handler.Callback {
 			mBtServerThread.start();
 		}
 		mHandler = new Handler(mContext.getMainLooper(), this);
+	}
+
+	public static BtManager init(Context context, BtDeviceListener btDeviceListener){
+		if (btManager == null){
+			btManager = new BtManager(context, btDeviceListener);
+		}
+		return btManager;
+	}
+
+	public static BtManager getBtManager(){
+		if(btManager == null){
+			throw new RuntimeException("请先调用BtManager的init方法进行初始化!");
+		}
+		return btManager;
 	}
 
 	/**
