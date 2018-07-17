@@ -1,5 +1,5 @@
-### 对蓝牙感兴趣可以加群讨论学习(QQ：494309361)
-### 有个人项目或者定制化需求的可加qq:823581722  进行联系
+#### 对蓝牙感兴趣可以加群讨论学习(QQ：494309361)
+### 有个人项目或者定制化需求的可加QQ:823581722 进行联系
 ### Email：jerryee0911@qq.com
 
 #### 一、先来看张BleLib库的api之间的关系图：
@@ -279,6 +279,9 @@ Log.e("OTA升级结果:", result + "");
 ### 四、Demo效果演示图：
 
 ![Demo预览图.gif](http://upload-images.jianshu.io/upload_images/3884117-49f080ad44b60946.gif?imageMogr2/auto-orient/strip)
+
+### 五、微信打赏：
+[](https://upload-images.jianshu.io/upload_images/3884117-5d22ae84180a93ed.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/240)
 
 
 
