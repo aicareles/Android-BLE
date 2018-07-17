@@ -282,7 +282,9 @@ Log.e("OTA升级结果:", result + "");
 
 ### 五、微信打赏：
 ![](https://upload-images.jianshu.io/upload_images/3884117-5d22ae84180a93ed.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/240)
-打赏后可留言您的需求以及建议，本人会进行定期的更新优化库的体验
+```
+注：打赏后可留言您的需求以及建议，本人会进行定期的更新优化库的体验，多谢支持!
+```
 
 
 
