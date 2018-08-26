@@ -80,6 +80,9 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
      * @return 初始化是否成功
      */
     public boolean init(Context context,Options opts){
+        if(context == null || !isSupportBle(context)){
+            return false;
+        }
         if(opts == null){
             opts = new Options();
         }
