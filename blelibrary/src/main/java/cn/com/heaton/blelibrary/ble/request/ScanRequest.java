@@ -55,7 +55,7 @@ public class ScanRequest<T extends BleDevice> implements IMessage {
         }
     }
 
-    public void startScan(BleScanCallback<T> callback, int scanPeriod) {
+    public synchronized void startScan(BleScanCallback<T> callback, int scanPeriod) {
         if(mScanning) {
             return;
         }
@@ -87,7 +87,7 @@ public class ScanRequest<T extends BleDevice> implements IMessage {
         mScanCallback.onStart();
     }
 
-    public void stopScan() {
+    public synchronized void stopScan() {
         if (!mScanning) {
             return;
         }
@@ -106,7 +106,7 @@ public class ScanRequest<T extends BleDevice> implements IMessage {
         mScanCallback.onStop();
     }
 
-    public boolean isScanning() {
+    public synchronized boolean isScanning() {
         return mScanning;
     }
 
