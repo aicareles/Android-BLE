@@ -9,7 +9,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
@@ -115,10 +117,15 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
      *
      * @param device 蓝牙设备对象
      */
-    public void connect(T device, BleConnCallback<T> callback) {
-        synchronized (mLocker) {
-            mRequest.connect(device, callback);
-        }
+    public void connect(final T device, final BleConnCallback<T> callback) {
+        securityConnect(new Runnable() {
+            @Override
+            public void run() {
+                synchronized (mLocker) {
+                    mRequest.connect(device, callback);
+                }
+            }
+        });
     }
 
     /**
@@ -127,9 +134,34 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
      * @param address  mac地址
      * @param callback 连接回调
      */
-    public void connect(String address,BleConnCallback<T> callback){
-        synchronized (mLocker) {
-            mRequest.connect(address, callback);
+    public void connect(final String address,final BleConnCallback<T> callback){
+        securityConnect(new Runnable() {
+            @Override
+            public void run() {
+                synchronized (mLocker) {
+                    mRequest.connect(address, callback);
+                }
+            }
+        });
+    }
+
+    private void securityConnect(Runnable r){
+        //check if binding bluetooth service has finished. if it's binding the bluetooth
+        //service, we wait for it 100ms until the binding process is over
+        if(mBluetoothLeService == null){
+            //we try to maintain the thread that developers wanna call the method
+            if(Looper.myLooper() == Looper.getMainLooper()){
+                new Handler(Looper.getMainLooper()).postDelayed(r,100);
+            }else {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                r.run();
+            }
+        }else {
+            r.run();
         }
     }
 
