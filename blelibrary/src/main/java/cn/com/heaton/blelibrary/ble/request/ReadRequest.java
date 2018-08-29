@@ -41,7 +41,9 @@ public class ReadRequest<T extends BleDevice> implements IMessage {
             case BleStates.BleStatus.Read:
                 if(msg.obj instanceof BluetoothGattCharacteristic){
                     BluetoothGattCharacteristic characteristic = (BluetoothGattCharacteristic) msg.obj;
-                    mBleLisenter.onReadSuccess(characteristic);
+                    if(mBleLisenter != null){
+                        mBleLisenter.onReadSuccess(characteristic);
+                    }
                 }
                 break;
             default:

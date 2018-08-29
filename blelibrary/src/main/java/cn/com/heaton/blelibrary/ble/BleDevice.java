@@ -42,7 +42,7 @@ public class BleDevice implements Serializable{
     private String mBleAlias;
 
     /*是否自动连接*/
-    private boolean mAutoConnect = false;//The default is not automatic connection
+    private boolean mAutoConnect = true;//The default is not automatic connection
 
     /*通知的特征*/
     private  BluetoothGattCharacteristic mNotifyCharacteristic;

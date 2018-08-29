@@ -40,7 +40,9 @@ public class ReadRssiRequest<T extends BleDevice> implements IMessage {
             case BleStates.BleStatus.ReadRssi:
                 if(msg.obj instanceof Integer){
                     int rssi = (int) msg.obj;
-                    mBleLisenter.onReadRssiSuccess(rssi);
+                    if(mBleLisenter != null){
+                        mBleLisenter.onReadRssiSuccess(rssi);
+                    }
                 }
                 break;
             default:

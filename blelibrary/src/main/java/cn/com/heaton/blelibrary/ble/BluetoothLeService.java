@@ -67,6 +67,9 @@ public class BluetoothLeService extends Service {
 
     private OtaListener mOtaListener;//Ota update operation listener
 
+    //blutooth status observer
+    private       BluetoothChangedObserver mBleObserver;
+
     /**
      * 在各种状态回调中发现连接更改或服务
      */
@@ -234,6 +237,17 @@ public class BluetoothLeService extends Service {
         }
     };
 
+    /**
+     * 蓝牙状态变化时的回调  2018/08/29
+     */
+    private BluetoothChangedObserver.BluetoothStatusLisenter
+            mBluetoothStatusLisenter = new BluetoothChangedObserver.BluetoothStatusLisenter() {
+        @Override
+        public void onBluetoothStatusChanged(int status) {
+            mHandler.obtainMessage(status).sendToTarget();
+        }
+    };
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -257,12 +271,17 @@ public class BluetoothLeService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
+        this.mBleObserver = new BluetoothChangedObserver(getApplication());
+        this.mBleObserver.setBluetoothStatusLisenter(mBluetoothStatusLisenter);
+        //注册广播接收器
+        this.mBleObserver.registerReceiver();
         return mBinder;
     }
 
     @Override
     public boolean onUnbind(Intent intent) {
         close();
+        mBleObserver.unregisterReceiver();
         return super.onUnbind(intent);
     }
 

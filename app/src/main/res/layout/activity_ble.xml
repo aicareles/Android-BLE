@@ -55,6 +55,14 @@
             android:text="请求MTU"/>
 
     </LinearLayout>
+
+    <Button
+        android:id="@+id/sendEntityData"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/ll_function"
+        android:text="发送大数据"/>
+
     <TextView
         android:id="@+id/connected_num"
         android:layout_width="wrap_content"
@@ -65,7 +73,7 @@
 
     <ListView
         android:id="@+id/listView"
-        android:layout_below="@id/ll_function"
+        android:layout_below="@id/sendEntityData"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 

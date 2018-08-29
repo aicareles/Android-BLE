@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.os.IBinder;
+import android.os.SystemClock;
 
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
@@ -26,6 +27,7 @@ import cn.com.heaton.blelibrary.ble.callback.BleReadCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleReadRssiCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleScanCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleWriteCallback;
+import cn.com.heaton.blelibrary.ble.callback.BleWriteEntityCallback;
 import cn.com.heaton.blelibrary.ble.request.ConnectRequest;
 import cn.com.heaton.blelibrary.ble.exception.BleServiceException;
 import cn.com.heaton.blelibrary.ble.proxy.RequestImpl;
@@ -58,7 +60,7 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
 
     private BluetoothAdapter mBluetoothAdapter;
 
-    private final ArrayList<T> mAutoDevices = new ArrayList<>();
+    private ArrayList<T> mAutoDevices = new ArrayList<>();
 
     /**
      * Initializes a newly created {@code Ble} object so that it represents
@@ -89,6 +91,9 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
         mRequest = (RequestLisenter) RequestProxy
                 .getInstance()
                 .bindProxy(RequestImpl.getInstance(opts));
+
+//        AutoConThread thread = new AutoConThread();
+//        thread.start();
 
         boolean result = instance.startService(context);
         L.w(TAG, "bind service result is"+ result);
@@ -152,18 +157,19 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
      */
     public void disconnect(T device) {
         mRequest.disconnect(device);
-       /* synchronized (mLocker) {
+        synchronized (mLocker) {
             if (mBluetoothLeService != null) {
                 //Traverse the connected device collection to disconnect automatically cancel the automatic connection
-                for (T bleDevice : mConnetedDevices) {
+                for (T bleDevice : getConnetedDevices()) {
                     if (bleDevice.getBleAddress().equals(device.getBleAddress())) {
-                        Log.e(TAG, "disconnect: " + "设置自动连接false");
+                        L.e(TAG, "disconnect: " + "设置自动连接false");
                         bleDevice.setAutoConnect(false);
                     }
                 }
-                mBluetoothLeService.disconnect(device.getBleAddress());
-            RequestManager.executeDisConnectRequest(device);
-        }*/
+//                mBluetoothLeService.disconnect(device.getBleAddress());
+//                RequestManager.executeDisConnectRequest(device);
+            }
+        }
     }
 
     /**
@@ -230,6 +236,22 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
     public boolean write(T device, byte[]data, BleWriteCallback<T> callback){
         return mRequest.write(device, data, callback);
     }
+
+    /**
+     * 写入大数据量的数据（分包）
+     * @param device 蓝牙设备对象
+     * @param data 写入的总字节数组（如整个文件的字节数组）
+     * @param packLength 每包需要发送的长度
+     * @param delay 每包之间的时间间隔
+     * @param callback 发送结果回调
+     */
+    public void writeEntity(T device, final byte[]data, int packLength, int delay, BleWriteEntityCallback<T> callback){
+        mRequest.writeEntity(device, data, packLength, delay, callback);
+    }
+
+//    public boolean writeAutoEntity(T device, final byte[]data, int packLength){
+//        return mRequest.writeAutoEntity(device, data, packLength);
+//    }
 
     /*获取当前类的类型*/
     public Class<T> getClassType(){
@@ -420,29 +442,29 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
         return null;
     }
 
-    /*private class AutoConThread extends Thread {
+    private class AutoConThread extends Thread {
         @Override
         public void run() {
             while (true) {
                 if (mAutoDevices.size() > 0) {
                     //Turn on cyclic scan
-                    if (!mScanning) {
-                        Log.e(TAG, "run: " + "Thread began scanning...");
-//                        scanLeDevice(true);
+                    if (!isScanning()) {
+                        L.e(TAG, "run: " + "Thread began scanning...");
+//                        startScan(null);
                     }
                 }
                 SystemClock.sleep(2 * 1000);
             }
         }
 
-    }*/
+    }
 
     /**
      * If it is automatically connected device is removed from the automatic connection pool
      *
      * @param device Device object
      */
-    private void removeAutoPool(BleDevice device) {
+    public void removeAutoPool(BleDevice device) {
         if (device == null) return;
         Iterator<T> iterator = mAutoDevices.iterator();
         while (iterator.hasNext()) {
@@ -458,10 +480,11 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
      *
      * @param device Device object
      */
-    private void addAutoPool(T device) {
+    public void addAutoPool(T device) {
         if (device == null) return;
         for (BleDevice item : mAutoDevices) {
             if (device.getBleAddress().equals(item.getBleAddress())) {
+                L.w("addAutoPool:","自动连接池中已存在");
                 return;
             }
         }
@@ -469,6 +492,10 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
             L.w(TAG, "addAutoPool: "+"Add automatic connection device to the connection pool");
             mAutoDevices.add(device);
         }
+    }
+
+    public ArrayList<T> getAutoDevices(){
+        return mAutoDevices;
     }
 
 

@@ -2,6 +2,7 @@ package com.example.admin.mybledemo.activity;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.content.Intent;
@@ -31,8 +32,10 @@ import com.example.admin.mybledemo.utils.SPUtils;
 import com.example.admin.mybledemo.utils.ToastUtil;
 import com.orhanobut.logger.Logger;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -40,6 +43,7 @@ import java.util.UUID;
 
 import cn.com.heaton.blelibrary.ble.Ble;
 import cn.com.heaton.blelibrary.ble.BleDevice;
+import cn.com.heaton.blelibrary.ble.L;
 import cn.com.heaton.blelibrary.ble.callback.BleConnCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleMtuCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleNotiftCallback;
@@ -47,6 +51,7 @@ import cn.com.heaton.blelibrary.ble.callback.BleReadCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleReadRssiCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleScanCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleWriteCallback;
+import cn.com.heaton.blelibrary.ble.callback.BleWriteEntityCallback;
 import cn.com.heaton.blelibrary.ota.OtaManager;
 
 /**
@@ -68,7 +73,7 @@ public class BleActivity extends BaseActivity{
 
     @SingleClick //过滤重复点击
     @CheckConnect //检查是否连接
-    @OnClick({R.id.test, R.id.readRssi, R.id.sendData, R.id.updateOta, R.id.requestMtu})
+    @OnClick({R.id.test, R.id.readRssi, R.id.sendData, R.id.updateOta, R.id.requestMtu, R.id.sendEntityData})
     public void onClick(View view){
         switch (view.getId()){
             case R.id.test:
@@ -117,7 +122,7 @@ public class BleActivity extends BaseActivity{
             case R.id.requestMtu:
                 if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
                     //此处第二个参数  不是特定的   比如你也可以设置500   但是如果设备不支持500个字节则会返回最大支持数
-                    mBle.setMTU(mBle.getConnetedDevices().get(0).getBleAddress(), 250, new BleMtuCallback<BleDevice>() {
+                    mBle.setMTU(mBle.getConnetedDevices().get(0).getBleAddress(), 96, new BleMtuCallback<BleDevice>() {
                         @Override
                         public void onMtuChanged(BleDevice device, int mtu, int status) {
                             super.onMtuChanged(device, mtu, status);
@@ -126,6 +131,25 @@ public class BleActivity extends BaseActivity{
                     });
                 }else {
                     ToastUtil.showToast("设备不支持MTU");
+                }
+                break;
+            case R.id.sendEntityData:
+                try {
+                    byte[]data = toByteArray(getAssets().open("WhiteChristmas.bin"));
+                    //发送大数据量的包
+                    mBle.writeEntity(mBle.getConnetedDevices().get(0), data, 20, 50, new BleWriteEntityCallback<BleDevice>() {
+                        @Override
+                        public void onWriteSuccess() {
+                            L.e("writeEntity", "onWriteSuccess");
+                        }
+
+                        @Override
+                        public void onWriteFailed() {
+                            L.e("writeEntity", "onWriteFailed");
+                        }
+                    });
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
                 break;
             default:
@@ -143,21 +167,25 @@ public class BleActivity extends BaseActivity{
         if (device.isConnected()) {
             mBle.disconnect(device);
         } else if (!device.isConnectting()) {
-//            mBle.connect(device, connectCallback); //也可以
-            mBle.connect(device, connectCallback);//新添加通过mac地址进行连接
+            //扫描到设备时   务必用该方式连接(是上层逻辑问题， 否则点击列表  虽然能够连接上，但设备列表的状态不会发生改变)
+            mBle.connect(device, connectCallback);
+            //此方式只是针对不进行扫描连接（如上，若通过该方式进行扫描列表的连接  列表状态不会发生改变）
+//            mBle.connect(device.getBleAddress(), connectCallback);
         }
     }
 
     @Override
     protected void onInitView() {
         initView();
-        mBle = Ble.getInstance();
-        //检测蓝牙是否支持BLE以及是否打开
-        checkBle();
+        path = Environment.getExternalStorageDirectory()
+                + "/aceDownload/";
+        //1、请求蓝牙相关权限
+        requestPermission();
     }
 
     //初始化蓝牙
     private void initBle() {
+        mBle = Ble.getInstance();
         Ble.Options options = new Ble.Options();
         options.logBleExceptions = true;//设置是否输出打印蓝牙日志
         options.throwBleException = true;//设置是否抛出蓝牙异常
@@ -173,24 +201,24 @@ public class BleActivity extends BaseActivity{
         options.uuid_ota_notify_cha = UUID.fromString("003784cf-f7e3-55b4-6c4c-9fd140100a16");
         options.uuid_ota_write_cha = UUID.fromString("013784cf-f7e3-55b4-6c4c-9fd140100a16");*/
         mBle.init(getApplicationContext(), options);
-        //开始扫描
-        mBle.startScan(scanCallback);
+        //3、检查蓝牙是否支持及打开
+        checkBluetoothStatus();
     }
 
     //检查蓝牙是否支持及打开
-    private void checkBle() {
+    private void checkBluetoothStatus() {
         // 检查设备是否支持BLE4.0
         if (!mBle.isSupportBle(this)) {
             ToastUtil.showToast(R.string.ble_not_supported);
             finish();
-            return;
         }
         if (!mBle.isBleEnable()) {
+            //4、若未打开，则请求打开蓝牙
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBtIntent, Ble.REQUEST_ENABLE_BT);
         }else {
-            //请求权限
-            requestPermission();
+            //5、若已打开，则进行扫描
+            mBle.startScan(scanCallback);
         }
     }
 
@@ -202,7 +230,7 @@ public class BleActivity extends BaseActivity{
                     @Override
                     public void onResult(boolean granted) {
                         if (granted) {
-                            //初始化蓝牙
+                            //2、初始化蓝牙
                             initBle();
                         } else {
                             finish();
@@ -259,17 +287,6 @@ public class BleActivity extends BaseActivity{
         Logger.e("data:" + Arrays.toString(data));
         return data;
     }
-
-//    播放音乐
-//    public byte[] changeLevelInner() {
-//        int var = 0xAA51;//左邊是高位  右邊是低位
-//        byte[] data = new byte[2];
-//        data[0] =  (byte)((var>>8) & 0xff);
-//        data[1] =  (byte)(var & 0xff);
-//        Logger.e("data:" + Arrays.toString(data));
-//        Logger.e("data11:" + Integer.toHexString(var));
-//        return data;
-//    }
 
     //扫描的回调
     BleScanCallback<BleDevice> scanCallback = new BleScanCallback<BleDevice>() {
@@ -340,8 +357,6 @@ public class BleActivity extends BaseActivity{
             @Override
             public void run() {
                 // 获取SD卡路径
-                path = Environment.getExternalStorageDirectory()
-                        + "/aceDownload/";
                 File file = new File(path);
                 // 如果SD卡目录不存在创建
                 if (!file.exists()) {
@@ -420,10 +435,9 @@ public class BleActivity extends BaseActivity{
         // User chose not to enable Bluetooth.
         if (requestCode == Ble.REQUEST_ENABLE_BT && resultCode == Activity.RESULT_CANCELED) {
             finish();
-            return;
-        } else {
-            //请求权限
-            requestPermission();
+        } else if(requestCode == Ble.REQUEST_ENABLE_BT && resultCode == Activity.RESULT_OK){
+            //6、若打开，则进行扫描
+            mBle.startScan(scanCallback);
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
@@ -434,6 +448,17 @@ public class BleActivity extends BaseActivity{
         if (mBle != null) {
             mBle.destory(getApplicationContext());
         }
+    }
+
+    //inputstream转byte[]
+    public static byte[] toByteArray(InputStream input) throws IOException {
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        byte[] buffer = new byte[4096];
+        int n = 0;
+        while (-1 != (n = input.read(buffer))) {
+            output.write(buffer, 0, n);
+        }
+        return output.toByteArray();
     }
 
 }

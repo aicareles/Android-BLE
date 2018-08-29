@@ -9,6 +9,7 @@ import cn.com.heaton.blelibrary.ble.callback.BleReadCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleReadRssiCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleScanCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleWriteCallback;
+import cn.com.heaton.blelibrary.ble.callback.BleWriteEntityCallback;
 import cn.com.heaton.blelibrary.ble.request.*;
 
 /**
@@ -99,6 +100,18 @@ public class RequestImpl<T extends BleDevice> implements RequestLisenter<T>{
         WriteRequest<T> request = Rproxy.getInstance().getRequest(WriteRequest.class);
         return request.write(device, data, callback);
     }
+
+    @Override
+    public void writeEntity(T device, byte[] data, int packLength, int delay, BleWriteEntityCallback<T> callback) {
+        WriteRequest<T> request = Rproxy.getInstance().getRequest(WriteRequest.class);
+        request.writeEntity(device, data, packLength, delay, callback);
+    }
+
+//    @Override
+//    public boolean writeAutoEntity(T device, byte[] data, int packLength) {
+//        WriteRequest<T> request = Rproxy.getInstance().getRequest(WriteRequest.class);
+//        return request.writeAutoEntity(device, data, packLength);
+//    }
 
     @Override
     public boolean setMtu(String address, int mtu, BleMtuCallback<T> callback) {

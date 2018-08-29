@@ -46,11 +46,6 @@
             android:name=".activity.IntroducedActivity"
             android:screenOrientation="portrait" />
 
-        <receiver android:name="BluetoothConnectReceiver">
-            <intent-filter>
-                <action android:name="android.bluetooth.device.action.PAIRING_REQUEST" />
-            </intent-filter>
-        </receiver>
     </application>
 
 </manifest>

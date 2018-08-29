@@ -37,7 +37,9 @@ public class BleStates {
             BleStatus.ConnectError,
             BleStatus.ConnectException,
             BleStatus.ReadRssi,
-            BleStatus.MTUCHANGED
+            BleStatus.MTUCHANGED,
+            BleStatus.BlutoothStatusOff,
+            BleStatus.BlutoothStatusOn,
     })
 
     @Retention(RetentionPolicy.SOURCE)
@@ -62,6 +64,8 @@ public class BleStates {
         int ReadRssi = 2524;
         int NotifySuccess = 2525;
         int MTUCHANGED = 2526;
+        int BlutoothStatusOff = 2527;
+        int BlutoothStatusOn = 2528;
     }
 
     @Retention(RetentionPolicy.SOURCE)

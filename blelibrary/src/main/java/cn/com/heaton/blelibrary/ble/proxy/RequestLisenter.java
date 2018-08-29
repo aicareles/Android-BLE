@@ -6,6 +6,7 @@ import cn.com.heaton.blelibrary.ble.callback.BleReadCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleReadRssiCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleScanCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleWriteCallback;
+import cn.com.heaton.blelibrary.ble.callback.BleWriteEntityCallback;
 
 /**
  *
@@ -35,6 +36,10 @@ public interface RequestLisenter<T> {
     boolean readRssi(T device, BleReadRssiCallback<T> callback);
 
     boolean write(T device, byte[]data, BleWriteCallback<T> callback);
+
+    void writeEntity(T device, final byte[]data, int packLength, int delay, BleWriteEntityCallback<T> callback);
+
+//    boolean writeAutoEntity(T device, final byte[]data, int packLength);
 
     boolean setMtu(String address, int mtu, BleMtuCallback<T> callback);
 }

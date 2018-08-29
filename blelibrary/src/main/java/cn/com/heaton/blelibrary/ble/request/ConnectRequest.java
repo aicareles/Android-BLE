@@ -5,6 +5,7 @@ import android.bluetooth.BluetoothDevice;
 import android.os.Message;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import cn.com.heaton.blelibrary.ble.BleHandler;
@@ -69,6 +70,26 @@ public class ConnectRequest<T extends BleDevice> implements IMessage {
     }
 
     /**
+     * 通过蓝牙地址断开设备
+     * @param address 蓝牙地址
+     */
+    public void disconnect(String address){
+        boolean isValidAddress = BluetoothAdapter.checkBluetoothAddress(address);
+        if (!isValidAddress) {
+            L.d(TAG, "the device address is invalid");
+            return;
+        }
+        BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
+        if (adapter == null) {
+            return;
+        }
+        BluetoothLeService service = Ble.getInstance().getBleService();
+        if (service != null) {
+            service.disconnect(address);
+        }
+    }
+
+    /**
      * 无回调的断开
      * @param device 设备对象
      */
@@ -119,7 +140,7 @@ public class ConnectRequest<T extends BleDevice> implements IMessage {
 //                        //After the success of the connection can be considered automatically reconnect
 //                        device.setAutoConnect(true);
 //                        //If it is automatically connected device is removed from the automatic connection pool
-//                        removeAutoPool(device);
+//                    mBle.removeAutoPool(t);
                 } else if (msg.arg1 == 0) {
                     //disconnect
                     t.setConnectionState(BleStates.BleStatus.DISCONNECT);
@@ -128,7 +149,7 @@ public class ConnectRequest<T extends BleDevice> implements IMessage {
                     L.e(TAG, "handleMessage:++++DISCONNECT ");
 //                    //移除通知
 //                    Ble.getInstance().cancelNotify(t);
-//                    addAutoPool(device);
+//                    mBle.addAutoPool(t);
                 } else if (msg.arg1 == 2) {
                     //connectting
                     t.setConnectionState(BleStates.BleStatus.CONNECTING);

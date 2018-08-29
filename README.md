@@ -25,6 +25,29 @@
 ```
 
 ### 二、历史版本介绍：
+[![Version](https://img.shields.io/badge/BleLib-v2.5.0-blue.svg)](https://bintray.com/superliu/maven/BleLib/2.5.0)
+```
+1、添加了发送大数据包（如：文件等）的接口
+    try {
+        //获取整个文件的总字节
+        byte[]data = toByteArray(getAssets().open("WhiteChristmas.bin"));
+        //发送大数据量的包
+        mBle.writeEntity(mBle.getConnetedDevices().get(0), data, 20, 50, new BleWriteEntityCallback<BleDevice>() {
+            @Override
+            public void onWriteSuccess() {
+                L.e("writeEntity", "onWriteSuccess");
+            }
+
+            @Override
+            public void onWriteFailed() {
+                L.e("writeEntity", "onWriteFailed");
+            }
+        });
+    } catch (IOException e) {
+        e.printStackTrace();
+    }
+2、修复了正在扫描时，关闭蓝牙导致停止扫描onStop()不回调的问题
+```
 [![Version](https://img.shields.io/badge/BleLib-v2.3.0-blue.svg)](https://bintray.com/superliu/maven/BleLib/2.3.0)
 ```
 1、添加通过mac地址连接的接口:

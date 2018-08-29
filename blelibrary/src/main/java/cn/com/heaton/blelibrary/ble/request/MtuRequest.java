@@ -40,7 +40,9 @@ public class MtuRequest<T extends BleDevice> implements IMessage {
             case BleStates.BleStatus.MTUCHANGED:
                 if(msg.obj instanceof BleDevice){
                     BleDevice device = (BleDevice) msg.obj;
-                    mBleLisenter.onMtuChanged(device, msg.arg1, msg.arg2);
+                    if(mBleLisenter != null){
+                        mBleLisenter.onMtuChanged(device, msg.arg1, msg.arg2);
+                    }
                 }
                 break;
             default:
