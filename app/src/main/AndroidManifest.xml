@@ -35,10 +35,6 @@
             android:screenOrientation="portrait" />
 
         <activity
-            android:name=".activity.DeviceControlActivity"
-            android:screenOrientation="portrait" />
-
-        <activity
             android:name=".activity.TestActivity"
             android:screenOrientation="portrait" />
 
