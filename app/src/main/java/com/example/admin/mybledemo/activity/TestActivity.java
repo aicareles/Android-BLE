@@ -2,8 +2,6 @@ package com.example.admin.mybledemo.activity;
 
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
-import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -14,10 +12,10 @@ import android.widget.Toast;
 import com.example.admin.mybledemo.LeDeviceListAdapter;
 import com.example.admin.mybledemo.R;
 import com.example.admin.mybledemo.annotation.ContentView;
-import com.example.admin.mybledemo.annotation.LLAnnotation;
 import com.example.admin.mybledemo.annotation.OnItemClick;
 import com.example.admin.mybledemo.annotation.ViewInit;
-import com.example.admin.mybledemo.command.Command;
+import com.example.admin.mybledemo.command.AppProtocol;
+import com.example.admin.mybledemo.command.CommandBean;
 import com.orhanobut.logger.Logger;
 
 import java.util.Arrays;
@@ -58,16 +56,6 @@ public class TestActivity extends BaseActivity {
     @Override
     protected void initLinsenter() {}
 
-    //播放音乐
-    public byte[] changeLevelInner(int play) {
-        byte[] data = new byte[Command.qppDataSend.length];
-        System.arraycopy(Command.qppDataSend, 0, data, 0, data.length);
-        data[6] = 0x03;
-        data[7] = (byte) play;
-        Logger.e("data:" + Arrays.toString(data));
-        return data;
-    }
-
     //测试通知
     public void testNotify(View view) {
         if(mDevice != null){
@@ -102,15 +90,8 @@ public class TestActivity extends BaseActivity {
     public void testSend(View view){
         if(mDevice != null){
             //发送数据
-            boolean result = mBle.write(mDevice, changeLevelInner(1), new BleWriteCallback<BleDevice>() {
-                @Override
-                public void onWriteSuccess(BluetoothGattCharacteristic characteristic) {
-                    Toast.makeText(TestActivity.this, "发送数据成功", Toast.LENGTH_SHORT).show();
-                }
-            });
-            if (!result) {
-                Log.e(TAG, "changeLevelInner: " + "发送数据失败!");
-            }
+            CommandBean commandBean = new CommandBean();
+            AppProtocol.sendCarCmdCommand(mDevice, commandBean.setCarCommand(80, 1));
         }
     }
 

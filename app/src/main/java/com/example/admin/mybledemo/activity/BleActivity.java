@@ -2,7 +2,6 @@ package com.example.admin.mybledemo.activity;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.content.Intent;
@@ -16,18 +15,18 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.example.admin.mybledemo.C;
 import com.example.admin.mybledemo.LeDeviceListAdapter;
 import com.example.admin.mybledemo.R;
-import com.example.admin.mybledemo.StaticValue;
 import com.example.admin.mybledemo.annotation.ContentView;
 import com.example.admin.mybledemo.annotation.OnClick;
 import com.example.admin.mybledemo.annotation.OnItemClick;
 import com.example.admin.mybledemo.annotation.ViewInit;
 import com.example.admin.mybledemo.aop.CheckConnect;
 import com.example.admin.mybledemo.aop.SingleClick;
-import com.example.admin.mybledemo.command.Command;
+import com.example.admin.mybledemo.command.AppProtocol;
+import com.example.admin.mybledemo.command.CommandBean;
 import com.example.admin.mybledemo.utils.FileUtils;
-import com.example.admin.mybledemo.utils.PermissionUtils;
 import com.example.admin.mybledemo.utils.SPUtils;
 import com.example.admin.mybledemo.utils.ToastUtil;
 import com.orhanobut.logger.Logger;
@@ -50,7 +49,6 @@ import cn.com.heaton.blelibrary.ble.callback.BleNotiftCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleReadCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleReadRssiCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleScanCallback;
-import cn.com.heaton.blelibrary.ble.callback.BleWriteCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleWriteEntityCallback;
 import cn.com.heaton.blelibrary.ota.OtaManager;
 
@@ -114,7 +112,7 @@ public class BleActivity extends BaseActivity{
                                 }
                             }
                         });
-                File file = new File(path + StaticValue.OTA_NEW_PATH);
+                File file = new File(path + C.Constance.OTA_NEW_PATH);
                 OtaManager mOtaManager = new OtaManager(BleActivity.this);
                 boolean result = mOtaManager.startOtaUpdate(file, (BleDevice) mBle.getConnetedDevices().get(0), mBle);
                 Log.e("OTA升级结果:", result + "");
@@ -251,16 +249,11 @@ public class BleActivity extends BaseActivity{
 
     /*发送数据*/
     public void sendData(BleDevice device) {
-        boolean result = mBle.write(device, changeLevelInner(1),
-                new BleWriteCallback<BleDevice>() {
-            @Override
-            public void onWriteSuccess(BluetoothGattCharacteristic characteristic) {
-                ToastUtil.showToast("发送数据成功");
-            }
-        });
-        if (!result) {
-            ToastUtil.showToast("发送数据失败!");
-        }
+        CommandBean commandBean = new CommandBean();
+        AppProtocol.sendCarCmdCommand(device, commandBean.setCarCommand(80, 1));
+//        AppProtocol.sendCarMoveCommand(device, commandBean.setOrderCommand(2,1,null));
+//        AppProtocol.sendCarMscCommand(device, commandBean.setMscCommand(C.Command.TF_MUSIC_TYPE, 1, (short) 121));
+//        AppProtocol.sendMusicVolume(device, commandBean.setVolumeCommand(C.Command.TF_MUSIC_TYPE, 10));
     }
 
     /*主动读取数据*/
@@ -276,16 +269,6 @@ public class BleActivity extends BaseActivity{
         if (!result) {
             Log.d(TAG, "读取数据失败!");
         }
-    }
-
-    //播放音乐
-    public byte[] changeLevelInner(int play) {
-        byte[] data = new byte[Command.qppDataSend.length];
-        System.arraycopy(Command.qppDataSend, 0, data, 0, data.length);
-        data[6] = 0x03;
-        data[7] = (byte) play;
-        Logger.e("data:" + Arrays.toString(data));
-        return data;
     }
 
     //扫描的回调
@@ -350,7 +333,7 @@ public class BleActivity extends BaseActivity{
     /*拷贝OTA升级文件到SD卡*/
     private void CopyAssetsToSD() {
         //判断是否是第一次进入   默认第一次进入
-        if (!SPUtils.get(BleActivity.this, StaticValue.IS_FIRST_RUN, true)) {
+        if (!SPUtils.get(BleActivity.this, C.SP.IS_FIRST_RUN, true)) {
             return;
         }
         new Thread(new Runnable() {
@@ -363,16 +346,16 @@ public class BleActivity extends BaseActivity{
                     file.mkdir();
                 }
 
-                final File newFile = new File(path + StaticValue.OTA_NEW_PATH);
-                final File oldFile = new File(path + StaticValue.OTA_OLD_PATH);
+                final File newFile = new File(path + C.Constance.OTA_NEW_PATH);
+                final File oldFile = new File(path + C.Constance.OTA_OLD_PATH);
                 try {
-                    FileUtils.copyBigDataToSD(BleActivity.this, StaticValue.OTA_NEW_PATH, newFile.getAbsolutePath());
-                    FileUtils.copyBigDataToSD(BleActivity.this, StaticValue.OTA_OLD_PATH, oldFile.getAbsolutePath());
+                    FileUtils.copyBigDataToSD(BleActivity.this, C.Constance.OTA_NEW_PATH, newFile.getAbsolutePath());
+                    FileUtils.copyBigDataToSD(BleActivity.this, C.Constance.OTA_OLD_PATH, oldFile.getAbsolutePath());
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
                 //设置程序非第一次进入
-                SPUtils.put(BleActivity.this, StaticValue.IS_FIRST_RUN, false);
+                SPUtils.put(BleActivity.this, C.SP.IS_FIRST_RUN, false);
             }
         }).start();
     }
@@ -416,6 +399,12 @@ public class BleActivity extends BaseActivity{
                 break;
             case R.id.menu_introduced:
                 startActivity(new Intent(BleActivity.this, IntroducedActivity.class));
+                break;
+            case R.id.menu_share:
+                Intent textIntent = new Intent(Intent.ACTION_SEND);
+                textIntent.setType("text/plain");
+                textIntent.putExtra(Intent.EXTRA_TEXT, "这是一段分享的文字");
+                startActivity(Intent.createChooser(textIntent, "分享"));
                 break;
         }
         return super.onOptionsItemSelected(item);

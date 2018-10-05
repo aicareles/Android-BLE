@@ -36,5 +36,6 @@
 
     <string name="line_success">连接成功</string>
     <string name="line_disconnect">断开连接</string>
+    <string name="menu_share">分享</string>
 
 </resources>

@@ -15,4 +15,7 @@
     <item android:id="@+id/menu_introduced"
         android:title="@string/menu_introduced"
         app:showAsAction="never"/>
+    <item android:id="@+id/menu_share"
+        android:title="@string/menu_share"
+        app:showAsAction="never"/>
 </menu>
