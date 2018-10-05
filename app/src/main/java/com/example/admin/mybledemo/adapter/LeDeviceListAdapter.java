@@ -1,4 +1,4 @@
-package com.example.admin.mybledemo;
+package com.example.admin.mybledemo.adapter;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothDevice;
@@ -8,6 +8,8 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+
+import com.example.admin.mybledemo.R;
 
 import java.util.ArrayList;
 import java.util.List;

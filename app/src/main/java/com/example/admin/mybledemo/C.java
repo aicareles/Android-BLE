@@ -4,11 +4,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * 创建时间:  2018/1/5
- * 创建人:Alex-Jerry
- * 功能描述: 全局静态常量值
+ * 全局静态常量值
+ * Created by jerry on 2018/10/5.
  */
-
 public class C {
     /**
      * SharePreferences常量保存类

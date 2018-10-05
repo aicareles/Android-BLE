@@ -9,14 +9,13 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.admin.mybledemo.LeDeviceListAdapter;
+import com.example.admin.mybledemo.adapter.LeDeviceListAdapter;
 import com.example.admin.mybledemo.R;
 import com.example.admin.mybledemo.annotation.ContentView;
 import com.example.admin.mybledemo.annotation.OnItemClick;
 import com.example.admin.mybledemo.annotation.ViewInit;
 import com.example.admin.mybledemo.command.AppProtocol;
 import com.example.admin.mybledemo.command.CommandBean;
-import com.orhanobut.logger.Logger;
 
 import java.util.Arrays;
 import java.util.UUID;
@@ -27,7 +26,6 @@ import cn.com.heaton.blelibrary.ble.callback.BleConnCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleNotiftCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleReadRssiCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleScanCallback;
-import cn.com.heaton.blelibrary.ble.callback.BleWriteCallback;
 
 @ContentView(R.layout.activity_test)
 public class TestActivity extends BaseActivity {

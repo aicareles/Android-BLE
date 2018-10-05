@@ -16,7 +16,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.example.admin.mybledemo.C;
-import com.example.admin.mybledemo.LeDeviceListAdapter;
+import com.example.admin.mybledemo.adapter.LeDeviceListAdapter;
 import com.example.admin.mybledemo.R;
 import com.example.admin.mybledemo.annotation.ContentView;
 import com.example.admin.mybledemo.annotation.OnClick;
@@ -29,7 +29,6 @@ import com.example.admin.mybledemo.command.CommandBean;
 import com.example.admin.mybledemo.utils.FileUtils;
 import com.example.admin.mybledemo.utils.SPUtils;
 import com.example.admin.mybledemo.utils.ToastUtil;
-import com.orhanobut.logger.Logger;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -370,17 +369,17 @@ public class BleActivity extends BaseActivity{
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_scan:
-                Logger.e("点击了扫描按钮");
+                L.e(this, "点击了扫描按钮");
                 reScan();
                 break;
             case R.id.menu_stop:
-                Logger.e("点击了停止扫描按钮");
+                L.e(this, "点击了停止扫描按钮");
                 if (mBle != null) {
                     mBle.stopScan();
                 }
                 break;
             case R.id.menu_connect_all:
-                Logger.e("点击了连接全部设备按钮");
+                L.e(this, "点击了连接全部设备按钮");
                 if (mBle != null) {
                     for (int i = 0; i < mLeDeviceListAdapter.getCount(); i++) {
                         BleDevice device = mLeDeviceListAdapter.getDevice(i);
@@ -389,7 +388,7 @@ public class BleActivity extends BaseActivity{
                 }
                 break;
             case R.id.menu_disconnect_all:
-                Logger.e("点击了断开全部设备按钮");
+                L.e(this, "点击了断开全部设备按钮");
                 if (mBle != null) {
                     ArrayList<BleDevice> list = mBle.getConnetedDevices();
                     for (BleDevice device : list) {
