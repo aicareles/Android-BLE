@@ -18,10 +18,10 @@ import com.example.admin.mybledemo.annotation.ViewInit;
 import com.example.admin.mybledemo.aop.CheckConnect;
 import com.example.admin.mybledemo.aop.SingleClick;
 import com.example.admin.mybledemo.utils.TaskExecutor;
-import com.orhanobut.logger.Logger;
 
 import java.util.ArrayList;
 
+import cn.com.heaton.blelibrary.ble.L;
 import cn.com.heaton.blelibrary.spp.BtDevice;
 import cn.com.heaton.blelibrary.spp.BtManager;
 
@@ -188,7 +188,7 @@ public class SppActivity extends BaseActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_scan:
-                Logger.e("点击了扫描按钮");
+                L.e(this, "点击了扫描按钮");
                 if (mBtManager != null && !isScanning) {
                     mBtAdapter.clear();
 //                    mBtManager.release();
@@ -196,13 +196,13 @@ public class SppActivity extends BaseActivity {
                 }
                 break;
             case R.id.menu_stop:
-                Logger.e("点击了停止扫描按钮");
+                L.e(this, "点击了停止扫描按钮");
                 if (mBtManager != null) {
                     mBtManager.cancelDiscovery();
                 }
                 break;
             case R.id.menu_connect_all:
-                Logger.e("点击了连接全部设备按钮");
+                L.e(this, "点击了连接全部设备按钮");
                 if (mBtManager != null) {
                     for (int i = 0; i < mBtAdapter.getCount(); i++) {
                         BtDevice device = mBtAdapter.getDevice(i);
@@ -211,7 +211,7 @@ public class SppActivity extends BaseActivity {
                 }
                 break;
             case R.id.menu_disconnect_all:
-                Logger.e("点击了断开全部设备按钮");
+                L.e(this, "点击了断开全部设备按钮");
                 if (mBtManager != null) {
                     ArrayList<BtDevice> list = (ArrayList<BtDevice>) mBtManager.getConnectedDevices();
                     for (BtDevice device : list) {

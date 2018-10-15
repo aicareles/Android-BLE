@@ -182,22 +182,33 @@ public class BleActivity extends BaseActivity{
 
     //初始化蓝牙
     private void initBle() {
-        mBle = Ble.getInstance();
-        Ble.Options options = new Ble.Options();
-        options.logBleExceptions = true;//设置是否输出打印蓝牙日志
-        options.throwBleException = true;//设置是否抛出蓝牙异常
-        options.autoConnect = false;//设置是否自动连接
-        options.scanPeriod = 12 * 1000;//设置扫描时长
-        options.connectTimeout = 10 * 1000;//设置连接超时时长
-        options.uuid_service = UUID.fromString("0000fee9-0000-1000-8000-00805f9b34fb");//设置主服务的uuid
-        //options.uuid_services_extra = new UUID[]{UUID.fromString("0000180f-0000-1000-8000-00805f9b34fb")};//添加额外的服务（如电量服务，心跳服务等）
-        options.uuid_write_cha = UUID.fromString("d44bc439-abfd-45a2-b575-925416129600");//设置可写特征的uuid
-        //options.uuid_read_cha = UUID.fromString("d44bc439-abfd-45a2-b575-925416129601");//设置可读特征的uuid
-        //ota相关 修改为你们自己的
-       /* options.uuid_ota_service = UUID.fromString("0000fee8-0000-1000-8000-00805f9b34fb");
-        options.uuid_ota_notify_cha = UUID.fromString("003784cf-f7e3-55b4-6c4c-9fd140100a16");
-        options.uuid_ota_write_cha = UUID.fromString("013784cf-f7e3-55b4-6c4c-9fd140100a16");*/
-        mBle.init(getApplicationContext(), options);
+//        mBle = Ble.getInstance();
+//        Ble.Options options = new Ble.Options();
+//        options.logBleExceptions = true;//设置是否输出打印蓝牙日志
+//        options.throwBleException = true;//设置是否抛出蓝牙异常
+//        options.autoConnect = false;//设置是否自动连接
+//        options.scanPeriod = 12 * 1000;//设置扫描时长
+//        options.connectTimeout = 10 * 1000;//设置连接超时时长
+//        options.uuid_service = UUID.fromString("0000fee9-0000-1000-8000-00805f9b34fb");//设置主服务的uuid
+//        options.uuid_services_extra = new UUID[]{UUID.fromString("0000180f-0000-1000-8000-00805f9b34fb")};//添加额外的服务（如电量服务，心跳服务等）
+//        options.uuid_write_cha = UUID.fromString("d44bc439-abfd-45a2-b575-925416129600");//设置可写特征的uuid
+//        options.uuid_read_cha = UUID.fromString("d44bc439-abfd-45a2-b575-925416129601");//设置可读特征的uuid
+//        //ota相关 修改为你们自己的
+//        options.uuid_ota_service = UUID.fromString("0000fee8-0000-1000-8000-00805f9b34fb");
+//        options.uuid_ota_notify_cha = UUID.fromString("003784cf-f7e3-55b4-6c4c-9fd140100a16");
+//        options.uuid_ota_write_cha = UUID.fromString("013784cf-f7e3-55b4-6c4c-9fd140100a16");
+//        mBle.init(getApplicationContext(), options);
+        mBle = Ble.options()
+                .setLogBleExceptions(true)
+                .setThrowBleException(true)
+                .setAutoConnect(true)
+                .setConnectFailedRetryCount(3)
+                .setConnectTimeout(10 * 1000)
+                .setScanPeriod(12 * 1000)
+                .setUuid_service(UUID.fromString("0000fee9-0000-1000-8000-00805f9b34fb"))
+                .setUuid_write_cha(UUID.fromString("d44bc439-abfd-45a2-b575-925416129600"))
+                .create(getApplicationContext());
+//        mBle = Ble.create(getApplicationContext());
         //3、检查蓝牙是否支持及打开
         checkBluetoothStatus();
     }
@@ -249,7 +260,7 @@ public class BleActivity extends BaseActivity{
     /*发送数据*/
     public void sendData(BleDevice device) {
         CommandBean commandBean = new CommandBean();
-        AppProtocol.sendCarCmdCommand(device, commandBean.setCarCommand(80, 1));
+        AppProtocol.sendCarMoveCommand(device, commandBean.setCarCommand(80, 1));
 //        AppProtocol.sendCarMoveCommand(device, commandBean.setOrderCommand(2,1,null));
 //        AppProtocol.sendCarMscCommand(device, commandBean.setMscCommand(C.Command.TF_MUSIC_TYPE, 1, (short) 121));
 //        AppProtocol.sendMusicVolume(device, commandBean.setVolumeCommand(C.Command.TF_MUSIC_TYPE, 10));
@@ -293,7 +304,13 @@ public class BleActivity extends BaseActivity{
         public void onConnectionChanged(final BleDevice device) {
             if (device.isConnected()) {
                  /*连接成功后，设置通知*/
-                mBle.startNotify(device, bleNotiftCallback);
+//                mBle.startNotify(device, bleNotiftCallback);
+                mBle.startNotify(device, new BleNotiftCallback<BleDevice>() {
+                    @Override
+                    public void onChanged(BleDevice device, BluetoothGattCharacteristic characteristic) {
+                        Log.e(TAG, "onChanged: "+device.getBleAddress());
+                    }
+                });
             }
             Log.e(TAG, "onConnectionChanged: " + device.isConnected());
             mLeDeviceListAdapter.notifyDataSetChanged();

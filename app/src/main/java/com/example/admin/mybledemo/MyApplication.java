@@ -4,8 +4,6 @@ import android.app.Activity;
 import android.app.Application;
 import android.os.Bundle;
 
-import com.orhanobut.logger.Logger;
-
 import java.util.Stack;
 
 
@@ -45,8 +43,6 @@ public class MyApplication extends Application {
         super.onCreate();
         mApplication = this;
         store = new Stack<>();
-        //修改打印的tag值
-        Logger.init("LiuLei");
         registerActivityLifecycleCallbacks(new SwitchBackgroundCallbacks());
 
     }

@@ -89,7 +89,7 @@ public class TestActivity extends BaseActivity {
         if(mDevice != null){
             //发送数据
             CommandBean commandBean = new CommandBean();
-            AppProtocol.sendCarCmdCommand(mDevice, commandBean.setCarCommand(80, 1));
+            AppProtocol.sendCarMoveCommand(mDevice, commandBean.setCarCommand(80, 1));
         }
     }
 
@@ -144,7 +144,13 @@ public class TestActivity extends BaseActivity {
     /*设置通知的回调*/
     private void setNotify(BleDevice device) {
          /*连接成功后，设置通知*/
-        mBle.startNotify(device, mBleNotifyCallback);
+//        mBle.startNotify(device, mBleNotifyCallback);
+        mBle.startNotify(device, new BleNotiftCallback<BleDevice>() {
+            @Override
+            public void onChanged(BleDevice device, BluetoothGattCharacteristic characteristic) {
+
+            }
+        });
     }
 
     private BleNotiftCallback<BleDevice> mBleNotifyCallback = new BleNotiftCallback<BleDevice>() {

@@ -20,8 +20,7 @@
         android:id="@+id/ll_function"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/toolbar_main"
-        android:gravity="center">
+        android:layout_below="@+id/toolbar_main">
 
         <Button
             android:id="@+id/sendData"
@@ -42,13 +41,6 @@
             android:text="读取RSSI"/>
 
         <Button
-            android:id="@+id/test"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="测试页面"
-            android:visibility="gone"/>
-
-        <Button
             android:id="@+id/requestMtu"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -62,6 +54,14 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/ll_function"
         android:text="发送大数据"/>
+
+    <Button
+        android:id="@+id/test"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/ll_function"
+        android:layout_toEndOf="@+id/sendEntityData"
+        android:text="测试页面" />
 
     <TextView
         android:id="@+id/connected_num"

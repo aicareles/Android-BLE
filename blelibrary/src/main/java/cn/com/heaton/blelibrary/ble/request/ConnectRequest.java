@@ -5,7 +5,6 @@ import android.bluetooth.BluetoothDevice;
 import android.os.Message;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import cn.com.heaton.blelibrary.ble.BleHandler;
@@ -140,7 +139,7 @@ public class ConnectRequest<T extends BleDevice> implements IMessage {
 //                        //After the success of the connection can be considered automatically reconnect
 //                        device.setAutoConnect(true);
 //                        //If it is automatically connected device is removed from the automatic connection pool
-//                    mBle.removeAutoPool(t);
+                    Ble.getInstance().removeAutoPool(t);
                 } else if (msg.arg1 == 0) {
                     //disconnect
                     t.setConnectionState(BleStates.BleStatus.DISCONNECT);
@@ -148,8 +147,8 @@ public class ConnectRequest<T extends BleDevice> implements IMessage {
                     mDevices.remove(t);
                     L.e(TAG, "handleMessage:++++DISCONNECT ");
 //                    //移除通知
-//                    Ble.getInstance().cancelNotify(t);
-//                    mBle.addAutoPool(t);
+                    Ble.getInstance().cancelNotify(t);
+                    Ble.getInstance().addAutoPool(t);
                 } else if (msg.arg1 == 2) {
                     //connectting
                     t.setConnectionState(BleStates.BleStatus.CONNECTING);

@@ -3,7 +3,6 @@ package cn.com.heaton.blelibrary.ble;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothGatt;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -13,12 +12,12 @@ import android.os.IBinder;
 import android.os.SystemClock;
 
 import java.lang.reflect.GenericArrayType;
-import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.UUID;
 
 import cn.com.heaton.blelibrary.ble.callback.BleConnCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleMtuCallback;
@@ -45,9 +44,9 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
     /** Log tag, apps may override it. */
     private final static String TAG = "Ble";
 
-    private static volatile Ble instance;
+    private static volatile Ble sInstance;
 
-    private Options mOptions;
+    private static volatile Options sOptions;
 
     private RequestLisenter<T> mRequest;
 
@@ -78,26 +77,26 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
     /**
      *  蓝牙初始化
      * @param context 上下文对象
-     * @param opts 蓝牙相关参数
      * @return 初始化是否成功
      */
-    public boolean init(Context context,Options opts){
-        if(opts == null){
-            opts = new Options();
-        }
-        mOptions = opts;
-        L.init(opts);
+    public boolean init(Context context, Options options){
+        sOptions = (options == null ? options() : options);
+        L.init(sOptions);
         /*设置动态代理*/
         mRequest = (RequestLisenter) RequestProxy
                 .getInstance()
-                .bindProxy(RequestImpl.getInstance(opts));
-
-//        AutoConThread thread = new AutoConThread();
-//        thread.start();
-
-        boolean result = instance.startService(context);
+                .bindProxy(RequestImpl.getInstance(sOptions));
+        AutoConThread thread = new AutoConThread();
+        thread.start();
+        boolean result = sInstance.startService(context);
         L.w(TAG, "bind service result is"+ result);
         return result;
+    }
+
+    public static Ble<BleDevice> create(Context context){
+        Ble<BleDevice> ble = getInstance();
+        ble.init(context, options());
+        return ble;
     }
 
     /**
@@ -192,10 +191,10 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
 
     /**
      * 移除通知
-     * @param callback 通知回调对象
+     * @param  device 蓝牙设备对象
      */
-    public void cancelNotify(BleNotiftCallback<T> callback){
-        mRequest.unNotify(callback);
+    public void cancelNotify(T device){
+        mRequest.unNotify(device);
     }
 
     /**
@@ -291,14 +290,14 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
     }
 
     public static <T extends BleDevice> Ble<T> getInstance(){
-        if (instance == null) {
+        if (sInstance == null) {
             synchronized (Ble.class) {
-                if (instance == null) {
-                    instance = new Ble();
+                if (sInstance == null) {
+                    sInstance = new Ble();
                 }
             }
         }
-        return instance;
+        return sInstance;
     }
 
     /**
@@ -322,7 +321,7 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
         }
         if (bll) {
             L.i(TAG, "service bind succseed!!!");
-        } else if(mOptions.throwBleException){
+        } else if(sOptions.throwBleException){
             try {
                 throw new BleServiceException("Bluetooth service binding failed," +
                         "Please check whether the service is registered in the manifest file!");
@@ -349,8 +348,8 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
         public void onServiceConnected(ComponentName componentName,
                                        IBinder service) {
             mBluetoothLeService = ((BluetoothLeService.LocalBinder) service).getService();
-            if(instance != null)
-                mBluetoothLeService.setBleManager(instance, mOptions);
+            if(sInstance != null)
+                mBluetoothLeService.setBleManager(sInstance, sOptions);
 
             L.e(TAG, "Service connection successful");
             if (!mBluetoothLeService.initialize()) {
@@ -445,12 +444,12 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
     private class AutoConThread extends Thread {
         @Override
         public void run() {
-            while (true) {
+            while (sOptions.autoConnect) {
                 if (mAutoDevices.size() > 0) {
                     //Turn on cyclic scan
                     if (!isScanning()) {
                         L.e(TAG, "run: " + "Thread began scanning...");
-//                        startScan(null);
+                        startScan(null);
                     }
                 }
                 SystemClock.sleep(2 * 1000);
@@ -591,10 +590,18 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
         return false;
     }
 
+    public static Options options(){
+        if(sOptions == null){
+            sOptions = new Options();
+        }
+        return sOptions;
+    }
+
+
     /**
      * 蓝牙相关参数配置类
      */
-    public static class Options extends BluetoothLeService.Options{
+    public static class Options {
         /**
          * 是否打印蓝牙日志
          */
@@ -623,6 +630,165 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
          * 蓝牙连接失败重试次数
          */
         public int connectFailedRetryCount = 3;
+
+        public Options setScanPeriod(int scanPeriod){
+            this.scanPeriod = scanPeriod;
+            return this;
+        }
+
+        public boolean isLogBleExceptions() {
+            return logBleExceptions;
+        }
+
+        public Options setLogBleExceptions(boolean logBleExceptions) {
+            this.logBleExceptions = logBleExceptions;
+            return this;
+        }
+
+        public boolean isThrowBleException() {
+            return throwBleException;
+        }
+
+        public Options setThrowBleException(boolean throwBleException) {
+            this.throwBleException = throwBleException;
+            return this;
+        }
+
+        public boolean isAutoConnect() {
+            return autoConnect;
+        }
+
+        public Options setAutoConnect(boolean autoConnect) {
+            this.autoConnect = autoConnect;
+            return this;
+        }
+
+        public int getConnectTimeout() {
+            return connectTimeout;
+        }
+
+        public Options setConnectTimeout(int connectTimeout) {
+            this.connectTimeout = connectTimeout;
+            return this;
+        }
+
+        public int getScanPeriod() {
+            return scanPeriod;
+        }
+
+        public int getServiceBindFailedRetryCount() {
+            return serviceBindFailedRetryCount;
+        }
+
+        public Options setServiceBindFailedRetryCount(int serviceBindFailedRetryCount) {
+            this.serviceBindFailedRetryCount = serviceBindFailedRetryCount;
+            return this;
+        }
+
+        public int getConnectFailedRetryCount() {
+            return connectFailedRetryCount;
+        }
+
+        public Options setConnectFailedRetryCount(int connectFailedRetryCount) {
+            this.connectFailedRetryCount = connectFailedRetryCount;
+            return this;
+        }
+
+        public UUID[] uuid_services_extra = new UUID[]{};
+        public UUID uuid_service = UUID.fromString("0000fee9-0000-1000-8000-00805f9b34fb");
+        public UUID uuid_write_cha = UUID.fromString("d44bc439-abfd-45a2-b575-925416129600");
+        public UUID uuid_read_cha = UUID.fromString("d44bc439-abfd-45a2-b575-925416129600");
+        public UUID uuid_notify = UUID.fromString("d44bc439-abfd-45a2-b575-925416129601");
+        public UUID uuid_notify_desc = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
+
+        public UUID uuid_ota_service = UUID.fromString("0000fee8-0000-1000-8000-00805f9b34fb");
+        public UUID uuid_ota_notify_cha = UUID.fromString("003784cf-f7e3-55b4-6c4c-9fd140100a16");
+        public UUID uuid_ota_write_cha = UUID.fromString("013784cf-f7e3-55b4-6c4c-9fd140100a16");
+
+        public UUID[] getUuid_services_extra() {
+            return uuid_services_extra;
+        }
+
+        public Options setUuid_services_extra(UUID[] uuid_services_extra) {
+            this.uuid_services_extra = uuid_services_extra;
+            return this;
+        }
+
+        public UUID getUuid_service() {
+            return uuid_service;
+        }
+
+        public Options setUuid_service(UUID uuid_service) {
+            this.uuid_service = uuid_service;
+            return this;
+        }
+
+        public UUID getUuid_write_cha() {
+            return uuid_write_cha;
+        }
+
+        public Options setUuid_write_cha(UUID uuid_write_cha) {
+            this.uuid_write_cha = uuid_write_cha;
+            return this;
+        }
+
+        public UUID getUuid_read_cha() {
+            return uuid_read_cha;
+        }
+
+        public Options setUuid_read_cha(UUID uuid_read_cha) {
+            this.uuid_read_cha = uuid_read_cha;
+            return this;
+        }
+
+        public UUID getUuid_notify() {
+            return uuid_notify;
+        }
+
+        public Options setUuid_notify(UUID uuid_notify) {
+            this.uuid_notify = uuid_notify;
+            return this;
+        }
+
+        public UUID getUuid_notify_desc() {
+            return uuid_notify_desc;
+        }
+
+        public Options setUuid_notify_desc(UUID uuid_notify_desc) {
+            this.uuid_notify_desc = uuid_notify_desc;
+            return this;
+        }
+
+        public UUID getUuid_ota_service() {
+            return uuid_ota_service;
+        }
+
+        public Options setUuid_ota_service(UUID uuid_ota_service) {
+            this.uuid_ota_service = uuid_ota_service;
+            return this;
+        }
+
+        public UUID getUuid_ota_notify_cha() {
+            return uuid_ota_notify_cha;
+        }
+
+        public Options setUuid_ota_notify_cha(UUID uuid_ota_notify_cha) {
+            this.uuid_ota_notify_cha = uuid_ota_notify_cha;
+            return this;
+        }
+
+        public UUID getUuid_ota_write_cha() {
+            return uuid_ota_write_cha;
+        }
+
+        public Options setUuid_ota_write_cha(UUID uuid_ota_write_cha) {
+            this.uuid_ota_write_cha = uuid_ota_write_cha;
+            return this;
+        }
+
+        public Ble<BleDevice> create(Context context){
+            return Ble.create(context);
+        }
 
     }
 

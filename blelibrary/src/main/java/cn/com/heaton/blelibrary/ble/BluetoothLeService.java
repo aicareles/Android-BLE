@@ -796,20 +796,20 @@ public class BluetoothLeService extends Service {
     }
 
 
-    /**
-     * 蓝牙相关参数配置基类
-     */
-    public static class Options {
-
-        public UUID[] uuid_services_extra = new UUID[]{};
-        public UUID uuid_service = UUID.fromString("0000fee9-0000-1000-8000-00805f9b34fb");
-        public UUID uuid_write_cha = UUID.fromString("d44bc439-abfd-45a2-b575-925416129600");
-        public UUID uuid_read_cha = UUID.fromString("d44bc439-abfd-45a2-b575-925416129600");
-        public UUID uuid_notify = UUID.fromString("d44bc439-abfd-45a2-b575-925416129601");
-        public UUID uuid_notify_desc = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
-
-        public UUID uuid_ota_service = UUID.fromString("0000fee8-0000-1000-8000-00805f9b34fb");
-        public UUID uuid_ota_notify_cha = UUID.fromString("003784cf-f7e3-55b4-6c4c-9fd140100a16");
-        public UUID uuid_ota_write_cha = UUID.fromString("013784cf-f7e3-55b4-6c4c-9fd140100a16");
-    }
+//    /**
+//     * 蓝牙相关参数配置基类
+//     */
+//    public static class Options {
+//
+//        public UUID[] uuid_services_extra = new UUID[]{};
+//        public UUID uuid_service = UUID.fromString("0000fee9-0000-1000-8000-00805f9b34fb");
+//        public UUID uuid_write_cha = UUID.fromString("d44bc439-abfd-45a2-b575-925416129600");
+//        public UUID uuid_read_cha = UUID.fromString("d44bc439-abfd-45a2-b575-925416129600");
+//        public UUID uuid_notify = UUID.fromString("d44bc439-abfd-45a2-b575-925416129601");
+//        public UUID uuid_notify_desc = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
+//
+//        public UUID uuid_ota_service = UUID.fromString("0000fee8-0000-1000-8000-00805f9b34fb");
+//        public UUID uuid_ota_notify_cha = UUID.fromString("003784cf-f7e3-55b4-6c4c-9fd140100a16");
+//        public UUID uuid_ota_write_cha = UUID.fromString("013784cf-f7e3-55b4-6c4c-9fd140100a16");
+//    }
 }

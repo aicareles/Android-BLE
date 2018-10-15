@@ -33,9 +33,15 @@ public class LeDeviceListAdapter extends BaseAdapter {
     }
 
     public void addDevice(BleDevice device) {
-        if (!mLeDevices.contains(device)) {
-            mLeDevices.add(device);
+        for (BleDevice d : mLeDevices){
+            if(d.getBleAddress().equals(device.getBleAddress())){
+                return;
+            }
         }
+        mLeDevices.add(device);
+//        if (!mLeDevices.contains(device)) {
+//            mLeDevices.add(device);
+//        }
     }
 
 

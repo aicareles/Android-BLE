@@ -1,9 +1,5 @@
 package com.example.admin.mybledemo.aop.aspect;
 
-import android.util.Log;
-import android.view.View;
-
-import com.example.admin.mybledemo.R;
 import com.example.admin.mybledemo.aop.CheckConnect;
 import com.example.admin.mybledemo.utils.ToastUtil;
 
@@ -12,13 +8,9 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 
-import java.util.Calendar;
 import java.util.List;
-import java.util.Objects;
 
 import cn.com.heaton.blelibrary.ble.Ble;
-import cn.com.heaton.blelibrary.ble.BleDevice;
-import cn.com.heaton.blelibrary.spp.BtDevice;
 import cn.com.heaton.blelibrary.spp.BtManager;
 
 /**

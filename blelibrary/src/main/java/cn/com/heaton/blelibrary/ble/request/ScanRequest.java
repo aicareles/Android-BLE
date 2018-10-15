@@ -1,7 +1,5 @@
 package cn.com.heaton.blelibrary.ble.request;
 
-import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.le.BluetoothLeScanner;
@@ -11,14 +9,11 @@ import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
 import android.os.Build;
 import android.os.Message;
-import android.os.ParcelUuid;
 import android.support.annotation.RequiresApi;
 import android.text.TextUtils;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import cn.com.heaton.blelibrary.ble.Ble;
 import cn.com.heaton.blelibrary.ble.BleFactory;
@@ -138,17 +133,17 @@ public class ScanRequest<T extends BleDevice> implements IMessage {
                 }
                 mScanDevices.add(bleDevice);
             }
-//            synchronized (mBle.getLocker()) {
-//                for (T autoDevice : mBle.getAutoDevices()) {
-//                    if (device.getAddress().equals(autoDevice.getBleAddress())) {
-//                        //Note non-active disconnect device in theory need to re-connect automatically (provided the connection is set to automatically connect property is true)
-//                        if (!autoDevice.isConnected() && !autoDevice.isConnectting() && autoDevice.isAutoConnect()) {
-//                            L.e("onScanResult", "onLeScan: " + "正在重连设备...");
-//                            mBle.reconnect(autoDevice);
-//                        }
-//                    }
-//                }
-//            }
+            synchronized (mBle.getLocker()) {
+                for (T autoDevice : mBle.getAutoDevices()) {
+                    if (device.getAddress().equals(autoDevice.getBleAddress())) {
+                        //Note non-active disconnect device in theory need to re-connect automatically (provided the connection is set to automatically connect property is true)
+                        if (!autoDevice.isConnected() && !autoDevice.isConnectting() && autoDevice.isAutoConnect()) {
+                            L.e("onScanResult", "onLeScan: " + "正在重连设备...");
+                            mBle.reconnect(autoDevice);
+                        }
+                    }
+                }
+            }
         }
 
         @Override

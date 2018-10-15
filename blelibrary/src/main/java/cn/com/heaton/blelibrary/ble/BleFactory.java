@@ -22,6 +22,7 @@ public class BleFactory<T extends BleDevice> {
                 constructor.setAccessible(true);
                 try {
                     T newDevice = (T) constructor.newInstance(device);
+                    newDevice.setAutoConnect(Ble.options().autoConnect);
                     return newDevice;
                 } catch (InstantiationException e) {
                     e.printStackTrace();
