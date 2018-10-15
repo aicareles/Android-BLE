@@ -25,7 +25,7 @@
 ```
 
 ### 二、历史版本介绍：
-[![Version](https://img.shields.io/badge/BleLib-v2.5.2 beta-blue.svg)](https://bintray.com/superliu/maven/BleLib/2.5.2-beta)
+[![Version](https://img.shields.io/badge/BleLib-v2.5.2%20beta-blue.svg)](https://bintray.com/superliu/maven/BleLib/2.5.2-beta)
 ```
 1、添加自动连接的接口(使用新的初始化写法)
     mBle = Ble.options()
