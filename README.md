@@ -195,17 +195,17 @@ compile 'cn.com.superLei:blelibrary:2.3.0'
 #### 1.初始化蓝牙(判断设备是否支持BLE，蓝牙是否打开以及6.0动态授权蓝牙权限等)<br>
 
 ```
-  private void initBle() {
-         mBle = Ble.getInstance();
-         Ble.Options options = new Ble.Options();
-         options.logBleExceptions = true;//设置是否输出打印蓝牙日志
-         options.throwBleException = true;//设置是否抛出蓝牙异常
-         options.autoConnect = false;//设置是否自动连接
-         options.scanPeriod = 12 * 1000;//设置扫描时长
-         options.connectTimeout = 10 * 1000;//设置连接超时时长
-         options.uuid_service = UUID.fromString("0000fee9-0000-1000-8000-00805f9b34fb");//设置主服务的uuid
-         options.uuid_write_cha = UUID.fromString("d44bc439-abfd-45a2-b575-925416129600");//设置可写特征的uuid
-         mBle.init(getApplicationContext(), options);
+    private void initBle() {
+        mBle = Ble.options()
+                .setLogBleExceptions(true)//设置是否输出打印蓝牙日志（非正式打包请设置为true，以便于调试）
+                .setThrowBleException(true)//设置是否抛出蓝牙异常
+                .setAutoConnect(true)//设置是否自动连接
+                .setConnectFailedRetryCount(3)
+                .setConnectTimeout(10 * 1000)//设置连接超时时长（默认10*1000 ms）
+                .setScanPeriod(12 * 1000)//设置扫描时长（默认10*1000 ms）
+                .setUuid_service(UUID.fromString("0000fee9-0000-1000-8000-00805f9b34fb"))//主服务的uuid
+                .setUuid_write_cha(UUID.fromString("d44bc439-abfd-45a2-b575-925416129600"))//可写特征的uuid
+                .create(getApplicationContext());
      } 
 ```
 
@@ -261,7 +261,7 @@ private void setNotify(BleDevice device) {
          /*连接成功后，设置通知*/
         mBle.startNotify(device, new BleNotiftCallback<BleDevice>() {
             @Override
-            public void onChanged(BluetoothGattCharacteristic characteristic) {
+            public void onChanged(BleDevice device, BluetoothGattCharacteristic characteristic) {
                 Log.e(TAG, "onChanged: " + Arrays.toString(characteristic.getValue()));
             }
 
