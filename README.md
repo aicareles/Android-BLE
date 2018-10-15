@@ -25,6 +25,21 @@
 ```
 
 ### 二、历史版本介绍：
+[![Version](https://img.shields.io/badge/BleLib-v2.5.2-beta-blue.svg)](https://bintray.com/superliu/maven/BleLib/2.5.2-beta)
+```
+1、添加自动连接的接口(使用新的初始化写法)
+    mBle = Ble.options()
+                 .setLogBleExceptions(true)
+                 .setThrowBleException(true)
+                 .setAutoConnect(true)//自动重连
+                 .setConnectFailedRetryCount(3)
+                 .setConnectTimeout(10 * 1000)
+                 .setScanPeriod(12 * 1000)
+                 .setUuid_service(UUID.fromString("0000fee9-0000-1000-8000-00805f9b34fb"))
+                 .setUuid_write_cha(UUID.fromString("d44bc439-abfd-45a2-b575-925416129600"))
+                 .create(getApplicationContext());
+2、优化断开连接后，自动移除通知监听的问题
+```
 [![Version](https://img.shields.io/badge/BleLib-v2.5.0-blue.svg)](https://bintray.com/superliu/maven/BleLib/2.5.0)
 ```
 1、添加了发送大数据包（如：文件等）的接口
