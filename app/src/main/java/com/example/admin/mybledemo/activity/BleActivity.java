@@ -7,7 +7,6 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Environment;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -66,7 +65,6 @@ public class BleActivity extends BaseActivity {
 
     @Override
     protected void onInitView() {
-        mConnectedNum = (TextView) findViewById(R.id.connected_num);
         mLeDeviceListAdapter = new LeDeviceListAdapter(this);
         mListView.setAdapter(mLeDeviceListAdapter);
         //1、请求蓝牙相关权限
@@ -229,7 +227,7 @@ public class BleActivity extends BaseActivity {
         File file = new File(path + C.Constance.OTA_NEW_PATH);
         OtaManager mOtaManager = new OtaManager(BleActivity.this);
         boolean result = mOtaManager.startOtaUpdate(file, (BleDevice) mBle.getConnetedDevices().get(0), mBle);
-        Log.e("OTA升级结果:", result + "");
+        L.e("OTA升级结果:", result + "");
     }
 
     /**
@@ -256,7 +254,7 @@ public class BleActivity extends BaseActivity {
             @Override
             public void onReadRssiSuccess(int rssi) {
                 super.onReadRssiSuccess(rssi);
-                Log.e(TAG, "onReadRssiSuccess: " + rssi);
+                L.e(TAG, "onReadRssiSuccess: " + rssi);
                 ToastUtil.showToast("读取远程RSSI成功：" + rssi);
             }
         });
@@ -290,11 +288,11 @@ public class BleActivity extends BaseActivity {
             public void onReadSuccess(BluetoothGattCharacteristic characteristic) {
                 super.onReadSuccess(characteristic);
                 byte[] data = characteristic.getValue();
-                Log.w(TAG, "onReadSuccess: " + Arrays.toString(data));
+                L.w(TAG, "onReadSuccess: " + Arrays.toString(data));
             }
         });
         if (!result) {
-            Log.d(TAG, "读取数据失败!");
+            L.d(TAG, "读取数据失败!");
         }
     }
 
@@ -313,7 +311,7 @@ public class BleActivity extends BaseActivity {
         @Override
         public void onStop() {
             super.onStop();
-            Log.e(TAG, "onStop: ");
+            L.e(TAG, "onStop: ");
         }
     };
 
@@ -327,9 +325,8 @@ public class BleActivity extends BaseActivity {
                  /*连接成功后，设置通知*/
                 mBle.startNotify(device, bleNotiftCallback);
             }
-            Log.e(TAG, "onConnectionChanged: " + device.isConnected());
+            L.e(TAG, "onConnectionChanged: " + device.isConnected());
             mLeDeviceListAdapter.notifyDataSetChanged();
-            setConnectedNum();
         }
 
         @Override
@@ -346,24 +343,11 @@ public class BleActivity extends BaseActivity {
         @Override
         public void onChanged(BleDevice device, BluetoothGattCharacteristic characteristic) {
             UUID uuid = characteristic.getUuid();
-            Log.e(TAG, "onChanged==uuid:" + uuid.toString());
-            Log.e(TAG, "onChanged==address:" + device.getBleAddress());
-            Log.e(TAG, "onChanged==data:" + Arrays.toString(characteristic.getValue()));
+            L.e(TAG, "onChanged==uuid:" + uuid.toString());
+            L.e(TAG, "onChanged==address:" + device.getBleAddress());
+            L.e(TAG, "onChanged==data:" + Arrays.toString(characteristic.getValue()));
         }
     };
-
-    /**
-     * 更新当前连接设备的数量
-     */
-    private void setConnectedNum() {
-        if (mBle != null) {
-            Log.e("mConnectedNum", "已连接的数量：" + mBle.getConnetedDevices().size() + "");
-            for (BleDevice device : mBle.getConnetedDevices()) {
-                Log.e("device", "设备地址：" + device.getBleAddress());
-            }
-            mConnectedNum.setText(getString(R.string.lined_num) + mBle.getConnetedDevices().size());
-        }
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
