@@ -53,9 +53,6 @@ public class SppActivity extends BaseActivity {
         initView();
     }
 
-    @Override
-    protected void initLinsenter() {}
-
     @OnItemClick(R.id.listView)
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         final BtDevice device = mBtAdapter.getDevice(position);
@@ -159,7 +156,6 @@ public class SppActivity extends BaseActivity {
     }
 
     private void initView() {
-        setTitle("SPP界面");
         mConnectedNum = (TextView) findViewById(R.id.connected_num);
         // Initializes list view adapter.
         if (mBtAdapter == null) {

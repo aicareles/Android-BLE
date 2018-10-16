@@ -28,11 +28,13 @@
 
         <activity
             android:name=".activity.BleActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:label="Ble界面"/>
 
         <activity
             android:name=".activity.SppActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:label="SPP界面"/>
 
         <activity
             android:name=".activity.TestActivity"

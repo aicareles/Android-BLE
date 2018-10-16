@@ -41,7 +41,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     protected abstract void onInitView();
 
-    protected abstract void initLinsenter();
+    protected void initLinsenter(){};
 
     @Override
     protected void onTitleChanged(CharSequence title, int color) {
