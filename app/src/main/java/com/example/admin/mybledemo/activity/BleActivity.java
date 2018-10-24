@@ -74,7 +74,7 @@ public class BleActivity extends BaseActivity {
         mBle = Ble.options()
                 .setLogBleExceptions(true)//设置是否输出打印蓝牙日志
                 .setThrowBleException(true)//设置是否抛出蓝牙异常
-                .setAutoConnect(true)//设置是否自动连接
+                .setAutoConnect(false)//设置是否自动连接
                 .setConnectFailedRetryCount(3)
                 .setConnectTimeout(10 * 1000)//设置连接超时时长
                 .setScanPeriod(12 * 1000)//设置扫描时长
@@ -300,6 +300,7 @@ public class BleActivity extends BaseActivity {
     BleScanCallback<BleDevice> scanCallback = new BleScanCallback<BleDevice>() {
         @Override
         public void onLeScan(final BleDevice device, int rssi, byte[] scanRecord) {
+//            if(!device.getBleName().contains("ifish"))return;
             synchronized (mBle.getLocker()) {
                 mLeDeviceListAdapter.addDevice(device);
                 mLeDeviceListAdapter.notifyDataSetChanged();
@@ -330,7 +331,7 @@ public class BleActivity extends BaseActivity {
         @Override
         public void onConnectException(BleDevice device, int errorCode) {
             super.onConnectException(device, errorCode);
-            ToastUtil.showToast("连接异常，异常状态码:" + errorCode);
+//            ToastUtil.showToast("连接异常，异常状态码:" + errorCode);
         }
     };
 
