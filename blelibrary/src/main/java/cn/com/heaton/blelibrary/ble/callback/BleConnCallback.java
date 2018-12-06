@@ -20,4 +20,6 @@ public abstract class BleConnCallback<T> {
      * @param errorCode errorCode
      */
     public void onConnectException(T device,int errorCode){};
+
+    public void onConnectTimeOut(T device){};
 }

@@ -10,7 +10,6 @@ import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.os.IBinder;
 import android.os.SystemClock;
-
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -82,10 +81,9 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
     public boolean init(Context context, Options options){
         sOptions = (options == null ? options() : options);
         L.init(sOptions);
-        /*设置动态代理*/
-        mRequest = (RequestLisenter) RequestProxy
-                .getInstance()
-                .bindProxy(RequestImpl.getInstance(sOptions));
+        //设置动态代理
+        mRequest = (RequestLisenter) RequestProxy.getInstance()
+                .bindProxy(context, RequestImpl.getInstance(sOptions));
         AutoConThread thread = new AutoConThread();
         thread.start();
         boolean result = sInstance.startService(context);

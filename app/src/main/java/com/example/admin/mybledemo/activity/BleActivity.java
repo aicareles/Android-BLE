@@ -12,7 +12,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import com.example.admin.mybledemo.C;
 import com.example.admin.mybledemo.R;
@@ -74,7 +73,7 @@ public class BleActivity extends BaseActivity {
         mBle = Ble.options()
                 .setLogBleExceptions(true)//设置是否输出打印蓝牙日志
                 .setThrowBleException(true)//设置是否抛出蓝牙异常
-                .setAutoConnect(false)//设置是否自动连接
+                .setAutoConnect(true)//设置是否自动连接
                 .setConnectFailedRetryCount(3)
                 .setConnectTimeout(10 * 1000)//设置连接超时时长
                 .setScanPeriod(12 * 1000)//设置扫描时长
@@ -331,7 +330,13 @@ public class BleActivity extends BaseActivity {
         @Override
         public void onConnectException(BleDevice device, int errorCode) {
             super.onConnectException(device, errorCode);
-//            ToastUtil.showToast("连接异常，异常状态码:" + errorCode);
+            ToastUtil.showToast("连接异常，异常状态码:" + errorCode);
+        }
+
+        @Override
+        public void onConnectTimeOut(BleDevice device) {
+            super.onConnectTimeOut(device);
+            ToastUtil.showToast("连接超时:"+device.getBleName());
         }
     };
 

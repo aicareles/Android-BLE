@@ -83,27 +83,24 @@ public class BluetoothLeService extends Service {
                 if (newState == BluetoothProfile.STATE_CONNECTED) {
                     mIndex++;
                     mConnectedAddressList.add(device.getAddress());
-///                    mHandler.removeCallbacks(mConnectTimeout);
-                    mHandler.removeMessages(BleStates.BleStatus.ConnectException);
+                    mHandler.removeMessages(BleStates.BleStatus.ConnectTimeOut);
                     mHandler.obtainMessage(BleStates.BleStatus.ConnectionChanged, 1, 0, device).sendToTarget();
-                    L.i(TAG, "Connected to GATT server.");
+                    L.i(TAG, "handleMessage:++++CONNECTED.");
                     // Attempts to discover services after successful connection.
-                    Log.i(TAG, "Attempting to start service discovery:"
-                            + mBluetoothGattMap.get(device.getAddress()).discoverServices());
-
+                    Log.i(TAG, "Attempting to start service discovery");
+                    mBluetoothGattMap.get(device.getAddress()).discoverServices();
                 } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-///                    mHandler.removeCallbacks(mConnectTimeout);
-                    mHandler.removeMessages(BleStates.BleStatus.ConnectException);
+                    mHandler.removeMessages(BleStates.BleStatus.ConnectTimeOut);
                     L.i(TAG, "Disconnected from GATT server.");
                     mHandler.obtainMessage(BleStates.BleStatus.ConnectionChanged, 0, 0, device).sendToTarget();
                     close(device.getAddress());
                 }
             } else {
                 //Occurrence 133 or 257 19 Equal value is not 0: Connection establishment failed due to protocol stack
-                mHandler.removeMessages(BleStates.BleStatus.ConnectException);
+                mHandler.removeMessages(BleStates.BleStatus.ConnectTimeOut);
                 L.e(TAG, "onConnectionStateChange+++: " + "Connection status is abnormal:" + status);
                 BleDevice d = mBleManager.getBleDevice(device);
-                int errorCode = BleStates.BleStatus.ConnectFailed;
+                int errorCode;
                 if (d.isConnected()) {
                     //Mcu connection is broken or the signal is weak and other reasons disconnect
                     errorCode = BleStates.BleStatus.ConnectException;
@@ -114,7 +111,6 @@ public class BluetoothLeService extends Service {
                     //Abnormal state (in theory, there is no such situation)
                     errorCode = BleStates.BleStatus.ConnectError;
                 }
-//                disconnect(d.getBleAddress());
                 close(d.getBleAddress());
                 mHandler.obtainMessage(BleStates.BleStatus.ConnectException, errorCode, 0, device).sendToTarget();
             }
@@ -361,14 +357,11 @@ public class BluetoothLeService extends Service {
         }
         //10s after the timeout prompt
         Message msg = Message.obtain();
-        msg.what = BleStates.BleStatus.ConnectException;
-        msg.arg1 = BleStates.BleStatus.ConnectTimeOut;
+        msg.what = BleStates.BleStatus.ConnectTimeOut;
         msg.obj = device;
         mHandler.sendMessageDelayed(msg, mOptions.connectTimeout);
-        // We want to directly connect to the device, so we are setting the
-        // autoConnect
-        // parameter to false
         mHandler.obtainMessage(BleStates.BleStatus.ConnectionChanged, 2, 0, device).sendToTarget();
+        // We want to directly connect to the device, so we are setting the autoConnect parameter to false
         BluetoothGatt bluetoothGatt = device.connectGatt(this, false, mGattCallback);
         if (bluetoothGatt != null) {
             mBluetoothGattMap.put(address, bluetoothGatt);
@@ -531,11 +524,9 @@ public class BluetoothLeService extends Service {
         BluetoothGattCharacteristic gattCharacteristic = mReadCharacteristicMap.get(address);
         if (gattCharacteristic != null) {
             try {
-//                if (mOptions.uuid_read_cha.equals(gattCharacteristic.getUuid())) {
-                    boolean result = mBluetoothGattMap.get(address).readRemoteRssi();
-                    L.d(TAG, address + " -- read result:" + result);
-                    return result;
-//                }
+                boolean result = mBluetoothGattMap.get(address).readRemoteRssi();
+                L.d(TAG, address + " -- read result:" + result);
+                return result;
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -575,7 +566,6 @@ public class BluetoothLeService extends Service {
         //If the number of descriptors in the eigenvalue of the notification is greater than zero
         if (characteristic.getDescriptors().size() > 0) {
             //Filter descriptors based on the uuid of the descriptor
-//            BluetoothGattDescriptor descriptor = characteristic.getDescriptor(mOptions.uuid_notify_desc);
             List<BluetoothGattDescriptor> descriptors = characteristic.getDescriptors();
             for(BluetoothGattDescriptor descriptor : descriptors){
                 if (descriptor != null) {
@@ -598,34 +588,32 @@ public class BluetoothLeService extends Service {
      * @param gattServices 蓝牙服务集合
      */
     private void displayGattServices(final String address, List<BluetoothGattService> gattServices) {
-        if (gattServices == null)
-            return;
-        String uuid = null;
+        if (gattServices == null) return;
         // Loops through available GATT Services.
         for (BluetoothGattService gattService : gattServices) {
-            uuid = gattService.getUuid().toString();
+            String uuid = gattService.getUuid().toString();
             L.d(TAG, "displayGattServices: " + uuid);
             if (uuid.equals(mOptions.uuid_service.toString()) || isContainUUID(uuid)) {
                 L.d(TAG, "service_uuid: " + uuid);
                 List<BluetoothGattCharacteristic> gattCharacteristics = gattService.getCharacteristics();
                 for (BluetoothGattCharacteristic gattCharacteristic : gattCharacteristics) {
-//                    int charaProp = gattCharacteristic.getProperties();
-//                    if ((charaProp & BluetoothGattCharacteristic.PROPERTY_READ) != 0) {
-//                        Log.e(TAG, "The readable UUID for gattCharacteristic is:" + gattCharacteristic.getUuid());
-//                        mReadCharacteristicMap.put(address, gattCharacteristic);
-//                    }
-//                    if ((charaProp & BluetoothGattCharacteristic.PROPERTY_WRITE) != 0) {
-//                        Log.e(TAG, "The writable UUID for gattCharacteristic is:" + gattCharacteristic.getUuid());
-//                        mWriteCharacteristicMap.put(address, gattCharacteristic);
-//                    }
-//                    if ((charaProp & BluetoothGattCharacteristic.PROPERTY_NOTIFY) != 0) {
-//                        Log.e(TAG, "The PROPERTY_NOTIFY characteristic's UUID:" + gattCharacteristic.getUuid());
-//                        mNotifyCharacteristics.add(gattCharacteristic);
-//                    }
-//                    if((charaProp & BluetoothGattCharacteristic.PROPERTY_INDICATE) != 0){
-//                        Log.e(TAG, "The PROPERTY_INDICATE characteristic's UUID:" + gattCharacteristic.getUuid());
-//                        mNotifyCharacteristics.add(gattCharacteristic);
-//                    }
+                    /*int charaProp = gattCharacteristic.getProperties();
+                    if ((charaProp & BluetoothGattCharacteristic.PROPERTY_READ) != 0) {
+                        Log.e(TAG, "The readable UUID for gattCharacteristic is:" + gattCharacteristic.getUuid());
+                        mReadCharacteristicMap.put(address, gattCharacteristic);
+                    }
+                    if ((charaProp & BluetoothGattCharacteristic.PROPERTY_WRITE) != 0) {
+                        Log.e(TAG, "The writable UUID for gattCharacteristic is:" + gattCharacteristic.getUuid());
+                        mWriteCharacteristicMap.put(address, gattCharacteristic);
+                    }
+                    if ((charaProp & BluetoothGattCharacteristic.PROPERTY_NOTIFY) != 0) {
+                        Log.e(TAG, "The PROPERTY_NOTIFY characteristic's UUID:" + gattCharacteristic.getUuid());
+                        mNotifyCharacteristics.add(gattCharacteristic);
+                    }
+                    if((charaProp & BluetoothGattCharacteristic.PROPERTY_INDICATE) != 0){
+                        Log.e(TAG, "The PROPERTY_INDICATE characteristic's UUID:" + gattCharacteristic.getUuid());
+                        mNotifyCharacteristics.add(gattCharacteristic);
+                    }*/
                     uuid = gattCharacteristic.getUuid().toString();
                     L.d(TAG, "Characteristic_uuid: " + uuid);
                     if (uuid.equals(mOptions.uuid_write_cha.toString())) {

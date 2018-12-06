@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cn.com.heaton.blelibrary.ble.Ble;
-import cn.com.heaton.blelibrary.ble.BleFactory;
+import cn.com.heaton.blelibrary.ble.factory.BleFactory;
 import cn.com.heaton.blelibrary.ble.BleHandler;
 import cn.com.heaton.blelibrary.ble.BleStates;
 import cn.com.heaton.blelibrary.ble.L;
@@ -125,25 +125,15 @@ public class ScanRequest<T extends BleDevice> implements IMessage {
             byte[] scanRecord = result.getScanRecord().getBytes();
             if (device == null) return;
             if (TextUtils.isEmpty(device.getName())) return;
-            L.i("onScanResult==deviceName:", result.getDevice().getName());
             if (!constains(device.getAddress())) {
-                T bleDevice = (T) BleFactory.create(BleDevice.class,  Ble.getInstance(), device);
+                T bleDevice = (T) BleFactory.create(BleDevice.class, device);
                 if(mScanCallback != null){
                     mScanCallback.onLeScan(bleDevice, result.getRssi(), scanRecord);
                 }
                 mScanDevices.add(bleDevice);
             }
-            synchronized (mBle.getLocker()) {
-                for (T autoDevice : mBle.getAutoDevices()) {
-                    if (device.getAddress().equals(autoDevice.getBleAddress())) {
-                        //Note non-active disconnect device in theory need to re-connect automatically (provided the connection is set to automatically connect property is true)
-                        if (!autoDevice.isConnected() && !autoDevice.isConnectting() && autoDevice.isAutoConnect()) {
-                            L.e("onScanResult", "onLeScan: " + "正在重连设备...");
-                            mBle.reconnect(autoDevice);
-                        }
-                    }
-                }
-            }
+            //自动重连
+            autoConnect(device);
         }
 
         @Override
@@ -159,6 +149,20 @@ public class ScanRequest<T extends BleDevice> implements IMessage {
         }
     };
 
+    private void autoConnect(BluetoothDevice device) {
+        synchronized (mBle.getLocker()) {
+            for (T autoDevice : mBle.getAutoDevices()) {
+                if (device.getAddress().equals(autoDevice.getBleAddress())) {
+                    //Note non-active disconnect device in theory need to re-connect automatically (provided the connection is set to automatically connect property is true)
+                    if (!autoDevice.isConnected() && !autoDevice.isConnectting() && autoDevice.isAutoConnect()) {
+                        L.e("onScanResult", "onLeScan: " + "正在重连设备...");
+                        mBle.reconnect(autoDevice);
+                    }
+                }
+            }
+        }
+    }
+
 
     private BluetoothAdapter.LeScanCallback mLeScanCallback = new BluetoothAdapter.LeScanCallback() {
 
@@ -167,42 +171,16 @@ public class ScanRequest<T extends BleDevice> implements IMessage {
             if (device == null) return;
             if (TextUtils.isEmpty(device.getName())) return;
             if (!constains(device.getAddress())) {
-                T bleDevice = (T) BleFactory.create(BleDevice.class,  Ble.getInstance(), device);
+                T bleDevice = (T) BleFactory.create(BleDevice.class, device);
                 if(mScanCallback != null){
                     mScanCallback.onLeScan(bleDevice, rssi, scanRecord);
                 }
                 mScanDevices.add(bleDevice);
             }
-//            if (!contains(device)) {
-//                T bleDevice = (T) new BleDevice(device);
-//                for (BleLisenter bleLisenter : mBleLisenters) {
-//                    bleLisenter.onLeScan(bleDevice, rssi, scanRecord);
-//                }
-//                mScanDevices.add(bleDevice);
-//            } else {
-//                synchronized (mLocker) {
-//                    for (T autoDevice : mAutoDevices) {
-//                        if (device.getAddress().equals(autoDevice.getBleAddress())) {
-//                            //Note non-active disconnect device in theory need to re-connect automatically (provided the connection is set to automatically connect property is true)
-//                            if (!autoDevice.isConnected() && !autoDevice.isConnectting() && autoDevice.isAutoConnect()) {
-//                                Log.e(TAG, "onLeScan: " + "正在重连设备...");
-//                                reconnect(autoDevice);
-//                                mAutoDevices.remove(autoDevice);
-//                            }
-//                        }
-//                    }
-//                }
-//            }
+            //自动重连
+            autoConnect(device);
         }
     };
-
-    private void autoConnect(BluetoothDevice device){
-        T b = mBle.getBleDevice(device);
-        if(b != null && b.getConnectionState() == BleStates.BleStatus.DISCONNECT && b.isAutoConnect()){
-            mBle.reconnect(b);
-        }
-
-    }
 
     private boolean constains(String address) {
         for (T device : mScanDevices) {

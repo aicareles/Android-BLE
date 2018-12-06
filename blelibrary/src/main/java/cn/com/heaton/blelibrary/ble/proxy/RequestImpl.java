@@ -27,16 +27,8 @@ public class RequestImpl<T extends BleDevice> implements RequestLisenter<T>{
         return instance;
     }
 
-
     @Override
     public void startScan(BleScanCallback<T> callback) {
-//        try {
-//            ScanRequest request = RequestFactory.newInstance().generateRequest(ScanRequest.class);
-//            request.startScan(callback, options.scanPeriod);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        ScanRequest<T> request = ScanRequest.getInstance();
         ScanRequest<T> request = Rproxy.getInstance().getRequest(ScanRequest.class);
         request.startScan(callback, options.scanPeriod);
     }

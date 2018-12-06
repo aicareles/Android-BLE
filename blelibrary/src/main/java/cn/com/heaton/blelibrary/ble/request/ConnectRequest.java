@@ -9,7 +9,7 @@ import java.util.List;
 
 import cn.com.heaton.blelibrary.ble.BleHandler;
 import cn.com.heaton.blelibrary.ble.BleDevice;
-import cn.com.heaton.blelibrary.ble.BleFactory;
+import cn.com.heaton.blelibrary.ble.factory.BleFactory;
 import cn.com.heaton.blelibrary.ble.Ble;
 import cn.com.heaton.blelibrary.ble.L;
 import cn.com.heaton.blelibrary.ble.BleStates;
@@ -64,7 +64,7 @@ public class ConnectRequest<T extends BleDevice> implements IMessage {
             return false;
         }
         BluetoothDevice device = adapter.getRemoteDevice(address);
-        T bleDevice = (T) BleFactory.create(BleDevice.class, Ble.getInstance(), device);
+        T bleDevice = (T) BleFactory.create(BleDevice.class, device);
         return connect(bleDevice, lisenter);
     }
 
@@ -130,23 +130,28 @@ public class ConnectRequest<T extends BleDevice> implements IMessage {
                 }
                 mHandler.obtainMessage(BleStates.BleStatus.ConnectionChanged, 0, 0, msg.obj).sendToTarget();
                 break;
+            case BleStates.BleStatus.ConnectTimeOut:
+                //Disconnect and clear the connection
+                for (BleConnCallback<T> callback : mConnectCallbacks){
+                    callback.onConnectTimeOut(t);
+                }
+                break;
             case BleStates.BleStatus.ConnectionChanged:
                 if (msg.arg1 == 1) {
                     //connect
                     t.setConnectionState(BleStates.BleStatus.CONNECTED);
                     mConnetedDevices.add(t);
-                    L.e(TAG, "handleMessage:++++CONNECTED ");
-//                        //After the success of the connection can be considered automatically reconnect
-//                        device.setAutoConnect(true);
-//                        //If it is automatically connected device is removed from the automatic connection pool
+                    L.e(TAG, "handleMessage:++++CONNECTED "+t.getBleName());
+                    //After the success of the connection can be considered automatically reconnect
+                    //If it is automatically connected device is removed from the automatic connection pool
                     Ble.getInstance().removeAutoPool(t);
                 } else if (msg.arg1 == 0) {
                     //disconnect
                     t.setConnectionState(BleStates.BleStatus.DISCONNECT);
                     mConnetedDevices.remove(t);
                     mDevices.remove(t);
-                    L.e(TAG, "handleMessage:++++DISCONNECT ");
-//                    //移除通知
+                    L.e(TAG, "handleMessage:++++DISCONNECT "+t.getBleName());
+                    //移除通知
                     Ble.getInstance().cancelNotify(t);
                     Ble.getInstance().addAutoPool(t);
                 } else if (msg.arg1 == 2) {
