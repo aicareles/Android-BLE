@@ -16,8 +16,8 @@ android {
         applicationId "com.example.admin.mybledemo"
         minSdkVersion 18
         targetSdkVersion 25
-        versionCode 1
-        versionName "2.0.0"
+        versionCode 5
+        versionName "2.5.2"
         versionNameSuffix 'b'
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
