@@ -3,7 +3,7 @@
 ### Email：jerryee0911@qq.com
 
 ### DEMO下载地址:https://www.pgyer.com/Dr8d
-### 或扫描下载:(https://www.pgyer.com/app/qrcode/Dr8d)
+### 或扫描下载:![二维码.png](https://www.pgyer.com/app/qrcode/Dr8d)
 
 #### 一、先来看张BleLib库的api之间的关系图：
 ![BleLib库结构图.png](http://upload-images.jianshu.io/upload_images/3884117-2c5a0b95cda75158.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/840)
