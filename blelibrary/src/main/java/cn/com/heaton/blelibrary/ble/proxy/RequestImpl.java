@@ -99,6 +99,12 @@ public class RequestImpl<T extends BleDevice> implements RequestLisenter<T>{
         request.writeEntity(device, data, packLength, delay, callback);
     }
 
+    @Override
+    public void cancelWriteEntity() {
+        WriteRequest<T> request = Rproxy.getInstance().getRequest(WriteRequest.class);
+        request.cancelWriteEntity();
+    }
+
 //    @Override
 //    public boolean writeAutoEntity(T device, byte[] data, int packLength) {
 //        WriteRequest<T> request = Rproxy.getInstance().getRequest(WriteRequest.class);

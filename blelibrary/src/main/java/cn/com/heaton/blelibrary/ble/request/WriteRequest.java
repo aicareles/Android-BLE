@@ -2,6 +2,9 @@ package cn.com.heaton.blelibrary.ble.request;
 
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.os.Message;
+import android.support.annotation.IntRange;
+
+import java.math.BigDecimal;
 
 import cn.com.heaton.blelibrary.ble.BleHandler;
 import cn.com.heaton.blelibrary.ble.BleDevice;
@@ -12,6 +15,8 @@ import cn.com.heaton.blelibrary.ble.TaskExecutor;
 import cn.com.heaton.blelibrary.ble.annotation.Implement;
 import cn.com.heaton.blelibrary.ble.callback.BleWriteCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleWriteEntityCallback;
+import cn.com.heaton.blelibrary.ble.exception.BleException;
+import cn.com.heaton.blelibrary.ble.exception.BleWriteException;
 
 /**
  *
@@ -24,6 +29,7 @@ public class WriteRequest<T extends BleDevice> implements IMessage {
     private BleWriteEntityCallback<T> mBleEntityLisenter;
     private BleHandler mHandler;
     private final Object lock = new Object();
+    private boolean isWritingEntity;
 
     protected WriteRequest() {
         mHandler = BleHandler.getHandler();
@@ -34,27 +40,42 @@ public class WriteRequest<T extends BleDevice> implements IMessage {
         this.mBleLisenter = lisenter;
         boolean result = false;
         BluetoothLeService service = Ble.getInstance().getBleService();
-        if (Ble.getInstance() != null && service != null) {
+        if (service != null) {
             result = service.wirteCharacteristic(device.getBleAddress(),data);
         }
         return result;
     }
 
+    public void cancelWriteEntity(){
+        if (isWritingEntity){
+            isWritingEntity = false;
+        }
+    }
+
     public void writeEntity(final T device, final byte[]data, final int packLength, final int delay, BleWriteEntityCallback<T> lisenter){
         this.mBleEntityLisenter = lisenter;
         final BluetoothLeService service = Ble.getInstance().getBleService();
-        if(data.length == 0 || packLength == 0 || service == null) {
-            if(mBleEntityLisenter != null){
-                mBleEntityLisenter.onWriteFailed();
+        if(data == null || data.length == 0) {
+            try {
+                throw new BleWriteException("Send Entity cannot be empty");
+            } catch (BleException e) {
+                e.printStackTrace();
                 return;
             }
         }
         TaskExecutor.executeTask(new Runnable() {
             @Override
             public void run() {
+                isWritingEntity = true;
                 int index = 0;
                 int length = data.length;
                 while (index < length){
+                    if (!isWritingEntity){
+                        if (mBleEntityLisenter != null){
+                            mBleEntityLisenter.onWriteCancel();
+                        }
+                        return;
+                    }
                     byte[] txBuffer = new byte[packLength];
                     for (int i=0; i<packLength; i++){
                         if(index < length){
@@ -65,7 +86,13 @@ public class WriteRequest<T extends BleDevice> implements IMessage {
                     if(!result){
                         if(mBleEntityLisenter != null){
                             mBleEntityLisenter.onWriteFailed();
+                            isWritingEntity = false;
                             return;
+                        }
+                    }else {
+                        if (mBleEntityLisenter != null){
+                            double progress = new BigDecimal((float)index / length).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+                            mBleEntityLisenter.onWriteProgress(progress);
                         }
                     }
                     try {
@@ -76,6 +103,7 @@ public class WriteRequest<T extends BleDevice> implements IMessage {
                 }
                 if(mBleEntityLisenter != null){
                     mBleEntityLisenter.onWriteSuccess();
+                    isWritingEntity = false;
                 }
             }
         });

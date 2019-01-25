@@ -56,11 +56,19 @@
         android:text="发送大数据"/>
 
     <Button
-        android:id="@+id/test"
+        android:id="@+id/cancelEntity"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/ll_function"
         android:layout_toEndOf="@+id/sendEntityData"
+        android:text="取消发送大数据"/>
+
+    <Button
+        android:id="@+id/test"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/ll_function"
+        android:layout_toEndOf="@+id/cancelEntity"
         android:text="测试页面" />
 
     <ListView

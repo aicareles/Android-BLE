@@ -192,7 +192,11 @@ public class BluetoothLeService extends Service {
 
                 if(d != null){
                     d.setNotifyCharacteristic(characteristic);
-                    mHandler.obtainMessage(BleStates.BleStatus.Changed, d).sendToTarget();
+                    Message message = Message.obtain();
+                    message.what = BleStates.BleStatus.Changed;
+                    message.obj = d;
+                    mHandler.sendMessage(message);
+//                    mHandler.obtainMessage(BleStates.BleStatus.Changed, d).sendToTarget();
                 }
             }
         }

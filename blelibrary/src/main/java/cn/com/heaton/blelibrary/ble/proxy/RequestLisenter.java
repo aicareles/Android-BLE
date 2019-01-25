@@ -39,6 +39,8 @@ public interface RequestLisenter<T> {
 
     void writeEntity(T device, final byte[]data, int packLength, int delay, BleWriteEntityCallback<T> callback);
 
+    void cancelWriteEntity();
+
 //    boolean writeAutoEntity(T device, final byte[]data, int packLength);
 
     boolean setMtu(String address, int mtu, BleMtuCallback<T> callback);

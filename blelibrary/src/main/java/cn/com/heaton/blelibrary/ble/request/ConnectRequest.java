@@ -115,7 +115,6 @@ public class ConnectRequest<T extends BleDevice> implements IMessage {
 
     @Override
     public void handleMessage(Message msg) {
-        L.e(TAG, "handleMessage: "+msg.arg1);
         T t = null;
         if (msg.obj instanceof BluetoothDevice) {
             t = getBleDevice((BluetoothDevice) msg.obj);

@@ -10,6 +10,8 @@ import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.os.IBinder;
 import android.os.SystemClock;
+import android.support.annotation.IntRange;
+
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -242,8 +244,12 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
      * @param delay 每包之间的时间间隔
      * @param callback 发送结果回调
      */
-    public void writeEntity(T device, final byte[]data, int packLength, int delay, BleWriteEntityCallback<T> callback){
+    public void writeEntity(T device, final byte[]data, @IntRange(from = 1,to = 20)int packLength, int delay, BleWriteEntityCallback<T> callback){
         mRequest.writeEntity(device, data, packLength, delay, callback);
+    }
+
+    public void cancelWriteEntity(){
+        mRequest.cancelWriteEntity();
     }
 
 //    public boolean writeAutoEntity(T device, final byte[]data, int packLength){
@@ -692,16 +698,16 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
             return this;
         }
 
-        public UUID[] uuid_services_extra = new UUID[]{};
-        public UUID uuid_service = UUID.fromString("0000fee9-0000-1000-8000-00805f9b34fb");
-        public UUID uuid_write_cha = UUID.fromString("d44bc439-abfd-45a2-b575-925416129600");
-        public UUID uuid_read_cha = UUID.fromString("d44bc439-abfd-45a2-b575-925416129600");
-        public UUID uuid_notify = UUID.fromString("d44bc439-abfd-45a2-b575-925416129601");
-        public UUID uuid_notify_desc = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
+        UUID[] uuid_services_extra = new UUID[]{};
+        UUID uuid_service = UUID.fromString("0000fee9-0000-1000-8000-00805f9b34fb");
+        UUID uuid_write_cha = UUID.fromString("d44bc439-abfd-45a2-b575-925416129600");
+        UUID uuid_read_cha = UUID.fromString("d44bc439-abfd-45a2-b575-925416129600");
+        UUID uuid_notify = UUID.fromString("d44bc439-abfd-45a2-b575-925416129601");
+        UUID uuid_notify_desc = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
 
-        public UUID uuid_ota_service = UUID.fromString("0000fee8-0000-1000-8000-00805f9b34fb");
-        public UUID uuid_ota_notify_cha = UUID.fromString("003784cf-f7e3-55b4-6c4c-9fd140100a16");
-        public UUID uuid_ota_write_cha = UUID.fromString("013784cf-f7e3-55b4-6c4c-9fd140100a16");
+        UUID uuid_ota_service = UUID.fromString("0000fee8-0000-1000-8000-00805f9b34fb");
+        UUID uuid_ota_notify_cha = UUID.fromString("003784cf-f7e3-55b4-6c4c-9fd140100a16");
+        UUID uuid_ota_write_cha = UUID.fromString("013784cf-f7e3-55b4-6c4c-9fd140100a16");
 
         public UUID[] getUuid_services_extra() {
             return uuid_services_extra;

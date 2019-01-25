@@ -7,6 +7,8 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Environment;
+import android.os.Handler;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -57,11 +59,13 @@ public class BleActivity extends BaseActivity {
     ListView mListView;
     private LeDeviceListAdapter mLeDeviceListAdapter;
     private Ble<BleDevice> mBle;
+    private Handler mHandler;
     private String path = Environment.getExternalStorageDirectory()
             + "/aceDownload/";
 
     @Override
     protected void onInitView() {
+        mHandler = new Handler();
         mLeDeviceListAdapter = new LeDeviceListAdapter(this);
         mListView.setAdapter(mLeDeviceListAdapter);
         //1、请求蓝牙相关权限
@@ -121,7 +125,7 @@ public class BleActivity extends BaseActivity {
 
     @SingleClick //过滤重复点击
     @CheckConnect //检查是否连接
-    @OnClick({R.id.test, R.id.readRssi, R.id.sendData, R.id.updateOta, R.id.requestMtu, R.id.sendEntityData})
+    @OnClick({R.id.test, R.id.readRssi, R.id.sendData, R.id.updateOta, R.id.requestMtu, R.id.sendEntityData, R.id.cancelEntity})
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.test:
@@ -140,7 +144,14 @@ public class BleActivity extends BaseActivity {
                 requestMtu();
                 break;
             case R.id.sendEntityData:
-                sendEntityData();
+                try {
+                    sendEntityData();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                break;
+            case R.id.cancelEntity:
+                cancelEntity();
                 break;
             default:
                 break;
@@ -167,23 +178,37 @@ public class BleActivity extends BaseActivity {
     /**
      * 发送大数据量的包
      */
-    private void sendEntityData() {
-        try {
-            byte[] data = ByteUtils.toByteArray(getAssets().open("WhiteChristmas.bin"));
-            mBle.writeEntity(mBle.getConnetedDevices().get(0), data, 20, 50, new BleWriteEntityCallback<BleDevice>() {
-                @Override
-                public void onWriteSuccess() {
-                    L.e("writeEntity", "onWriteSuccess");
-                }
+    private void sendEntityData() throws IOException {
+        byte[] data = ByteUtils.toByteArray(getAssets().open("WhiteChristmas.bin"));
+        Log.e(TAG, "sendEntityData: "+data.length);
+        mBle.writeEntity(mBle.getConnetedDevices().get(0), data, 20, 50, new BleWriteEntityCallback<BleDevice>() {
+            @Override
+            public void onWriteSuccess() {
+                L.e("writeEntity", "onWriteSuccess");
+            }
 
-                @Override
-                public void onWriteFailed() {
-                    L.e("writeEntity", "onWriteFailed");
-                }
-            });
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+            @Override
+            public void onWriteFailed() {
+                L.e("writeEntity", "onWriteFailed");
+            }
+
+            @Override
+            public void onWriteProgress(double progress) {
+                Log.e("writeEntity", "onWriteProgress: "+progress);
+            }
+
+            @Override
+            public void onWriteCancel() {
+                Log.e(TAG, "onWriteCancel: ");
+            }
+        });
+    }
+
+    /**
+     * 取消发送大数据包
+     */
+    private void cancelEntity() {
+        mBle.cancelWriteEntity();
     }
 
     /**
