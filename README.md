@@ -30,6 +30,7 @@
 ### 二、历史版本介绍：
 [![Version](https://img.shields.io/badge/BleLib-v2.5.3-blue.svg)](https://bintray.com/superliu/maven/BleLib/2.5.3)
 ```
+1、添加发送大数据量的进度回调
     private void sendEntityData() throws IOException {
             byte[] data = ByteUtils.toByteArray(getAssets().open("WhiteChristmas.bin"));
             Log.e(TAG, "sendEntityData: "+data.length);
@@ -55,6 +56,8 @@
                 }
             });
         }
+2、修复持续接收通知回调过快导致数据重复的问题
+3、修复多设备连接，同时断开所有设备，回调次数不完整的问题
 ```
 [![Version](https://img.shields.io/badge/BleLib-v2.5.2%20beta-blue.svg)](https://bintray.com/superliu/maven/BleLib/2.5.2-beta)
 ```
