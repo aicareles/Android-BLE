@@ -2,12 +2,13 @@ package com.example.admin.mybledemo.activity;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothGattCharacteristic;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Environment;
-import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -143,6 +144,7 @@ public class BleActivity extends BaseActivity {
                 break;
             case R.id.sendEntityData:
                 try {
+                    showProgress();
                     sendEntityData();
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -173,6 +175,41 @@ public class BleActivity extends BaseActivity {
         }
     }
 
+    ProgressDialog dialog;
+    private void showProgress(){
+        if (dialog == null){
+            dialog = new ProgressDialog(this);
+            dialog.setCancelable(false);
+            dialog.setCanceledOnTouchOutside(false);// 设置在点击Dialog外是否取消Dialog进度条
+            dialog.setTitle("发送大数据文件");
+            dialog.setIcon(R.mipmap.ic_launcher);
+            dialog.setMessage("Data is sending, please wait...");
+            dialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+            dialog.setMax(100);
+            dialog.setIndeterminate(false);
+            dialog.setButton(DialogInterface.BUTTON_NEGATIVE, "取消", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    cancelEntity();
+                }
+            });
+        }
+        dialog.show();
+    }
+
+    private void setDialogProgress(int progress){
+        Log.e(TAG, "setDialogProgress: "+progress);
+        if (dialog != null){
+            dialog.setProgress(progress);
+        }
+    }
+
+    private void hideProgress(){
+        if (dialog != null){
+            dialog.dismiss();
+        }
+    }
+
     /**
      * 发送大数据量的包
      */
@@ -183,21 +220,25 @@ public class BleActivity extends BaseActivity {
             @Override
             public void onWriteSuccess() {
                 L.e("writeEntity", "onWriteSuccess");
+                hideProgress();
             }
 
             @Override
             public void onWriteFailed() {
                 L.e("writeEntity", "onWriteFailed");
+                hideProgress();
             }
 
             @Override
             public void onWriteProgress(double progress) {
                 Log.e("writeEntity", "当前发送进度: "+progress);
+                setDialogProgress((int) (progress * 100));
             }
 
             @Override
             public void onWriteCancel() {
                 Log.e(TAG, "onWriteCancel: ");
+                hideProgress();
             }
         });
     }
