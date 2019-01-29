@@ -192,7 +192,7 @@ public class BleActivity extends BaseActivity {
 
             @Override
             public void onWriteProgress(double progress) {
-                Log.e("writeEntity", "onWriteProgress: "+progress);
+                Log.e("writeEntity", "当前发送进度: "+progress);
             }
 
             @Override

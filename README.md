@@ -28,6 +28,34 @@
 ```
 
 ### 二、历史版本介绍：
+[![Version](https://img.shields.io/badge/BleLib-v2.5.3-blue.svg)](https://bintray.com/superliu/maven/BleLib/2.5.3)
+```
+    private void sendEntityData() throws IOException {
+            byte[] data = ByteUtils.toByteArray(getAssets().open("WhiteChristmas.bin"));
+            Log.e(TAG, "sendEntityData: "+data.length);
+            mBle.writeEntity(mBle.getConnetedDevices().get(0), data, 20, 50, new BleWriteEntityCallback<BleDevice>() {
+                @Override
+                public void onWriteSuccess() {
+                    L.e("writeEntity", "onWriteSuccess");
+                }
+
+                @Override
+                public void onWriteFailed() {
+                    L.e("writeEntity", "onWriteFailed");
+                }
+
+                @Override
+                public void onWriteProgress(double progress) {
+                    Log.e("writeEntity", "当前发送进度: "+progress);
+                }
+
+                @Override
+                public void onWriteCancel() {
+                    Log.e(TAG, "onWriteCancel: ");
+                }
+            });
+        }
+```
 [![Version](https://img.shields.io/badge/BleLib-v2.5.2%20beta-blue.svg)](https://bintray.com/superliu/maven/BleLib/2.5.2-beta)
 ```
 1、添加自动连接的接口(使用新的初始化写法)
