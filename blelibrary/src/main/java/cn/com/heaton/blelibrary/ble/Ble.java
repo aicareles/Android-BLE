@@ -11,6 +11,7 @@ import android.content.pm.PackageManager;
 import android.os.IBinder;
 import android.os.SystemClock;
 import android.support.annotation.IntRange;
+import android.util.Log;
 
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
@@ -20,7 +21,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.UUID;
 
-import cn.com.heaton.blelibrary.ble.callback.BleConnCallback;
+import cn.com.heaton.blelibrary.ble.callback.BleConnectCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleMtuCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleNotiftCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleReadCallback;
@@ -119,7 +120,7 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
      *
      * @param device 蓝牙设备对象
      */
-    public void connect(T device, BleConnCallback<T> callback) {
+    public void connect(T device, BleConnectCallback<T> callback) {
         synchronized (mLocker) {
             mRequest.connect(device, callback);
         }
@@ -131,7 +132,7 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
      * @param address  mac地址
      * @param callback 连接回调
      */
-    public void connect(String address,BleConnCallback<T> callback){
+    public void connect(String address,BleConnectCallback<T> callback){
         synchronized (mLocker) {
             mRequest.connect(address, callback);
         }
@@ -176,7 +177,7 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
      *
      * @param device 蓝牙设备对象
      */
-    public void disconnect(T device, BleConnCallback<T> callback) {
+    public void disconnect(T device, BleConnectCallback<T> callback) {
         mRequest.disconnect(device, callback);
     }
 
@@ -352,12 +353,13 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
         public void onServiceConnected(ComponentName componentName,
                                        IBinder service) {
             mBluetoothLeService = ((BluetoothLeService.LocalBinder) service).getService();
+
             if(sInstance != null)
-                mBluetoothLeService.setBleManager(sInstance, sOptions);
+                mBluetoothLeService.initialize(sOptions);
 
             L.e(TAG, "Service connection successful");
-            if (!mBluetoothLeService.initialize()) {
-                L.e(TAG, "Unable to initialize Bluetooth");
+            if (!mBluetoothLeService.initBLE()) {
+                L.e(TAG, "Unable to initBLE Bluetooth");
             }
             // Automatically connects to the device upon successful start-up
             // initialization.
@@ -485,6 +487,7 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
      */
     public void addAutoPool(T device) {
         if (device == null) return;
+        Log.e(TAG, "addAutoPool: "+device.toString());
         for (BleDevice item : mAutoDevices) {
             if (device.getBleAddress().equals(item.getBleAddress())) {
                 L.w("addAutoPool:","自动连接池中已存在");

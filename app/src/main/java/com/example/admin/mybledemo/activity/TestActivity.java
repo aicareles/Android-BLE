@@ -22,7 +22,7 @@ import java.util.UUID;
 
 import cn.com.heaton.blelibrary.ble.Ble;
 import cn.com.heaton.blelibrary.ble.BleDevice;
-import cn.com.heaton.blelibrary.ble.callback.BleConnCallback;
+import cn.com.heaton.blelibrary.ble.callback.BleConnectCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleNotiftCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleReadRssiCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleScanCallback;
@@ -124,7 +124,7 @@ public class TestActivity extends BaseActivity {
     }
 
     /*连接的回调*/
-    private BleConnCallback<BleDevice> connectCallback = new BleConnCallback<BleDevice>() {
+    private BleConnectCallback<BleDevice> connectCallback = new BleConnectCallback<BleDevice>() {
         @Override
         public void onConnectionChanged(BleDevice device) {
             if (device.isConnected()) {

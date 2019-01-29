@@ -16,9 +16,9 @@ android {
         applicationId "com.example.admin.mybledemo"
         minSdkVersion 18
         targetSdkVersion 25
-        versionCode 5
+        versionCode 6
         versionName "2.5.2"
-        versionNameSuffix 'b'
+        versionNameSuffix ''
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -70,7 +70,7 @@ dependencies {
     })
 
     compile project(':blelibrary')
-//    compile 'cn.com.superLei:blelibrary:2.5.2-beta'
+//    compile 'cn.com.superLei:blelibrary:2.5.2'
     compile 'com.android.support:appcompat-v7:25.3.1'
     compile 'com.android.support:design:25.3.1'
 //    compile 'com.orhanobut:logger:1.15'

@@ -6,7 +6,7 @@ import cn.com.heaton.blelibrary.ble.BleDevice;
  * Created by LiuLei on 2017/10/23.
  */
 
-public abstract class BleConnCallback<T> {
+public abstract class BleConnectCallback<T> {
     /**
      *  The callback is disconnected or connected when the connection is changed
      * @param device ble device object

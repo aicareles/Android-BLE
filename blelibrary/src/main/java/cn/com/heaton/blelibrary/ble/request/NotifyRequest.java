@@ -10,18 +10,22 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
+import cn.com.heaton.blelibrary.ble.Ble;
 import cn.com.heaton.blelibrary.ble.BleHandler;
 import cn.com.heaton.blelibrary.ble.BleDevice;
+import cn.com.heaton.blelibrary.ble.BluetoothLeService;
 import cn.com.heaton.blelibrary.ble.L;
 import cn.com.heaton.blelibrary.ble.BleStates;
+import cn.com.heaton.blelibrary.ble.TaskExecutor;
 import cn.com.heaton.blelibrary.ble.annotation.Implement;
 import cn.com.heaton.blelibrary.ble.callback.BleNotiftCallback;
+import cn.com.heaton.blelibrary.ble.callback.wrapper.NotifyWrapperLisenter;
 
 /**
  * Created by LiuLei on 2017/10/23.
  */
 @Implement(NotifyRequest.class)
-public class NotifyRequest<T extends BleDevice> implements IMessage {
+public class NotifyRequest<T extends BleDevice> implements NotifyWrapperLisenter<T> {
 
     private static final String TAG = "NotifyRequest";
 
@@ -30,10 +34,7 @@ public class NotifyRequest<T extends BleDevice> implements IMessage {
     private List<BleNotiftCallback> mNotifyCallbacks = new ArrayList<>();
     private HashMap<T, List<BleNotiftCallback>> mBleNotifyMaps = new HashMap<>();
 
-    protected NotifyRequest() {
-        BleHandler handler = BleHandler.getHandler();
-        handler.setHandlerCallback(this);
-    }
+    protected NotifyRequest() {}
 
     public void notify(T device, BleNotiftCallback<T> callback) {
 //        if(callback != null && !mNotifyCallbacks.contains(callback)){
@@ -73,30 +74,44 @@ public class NotifyRequest<T extends BleDevice> implements IMessage {
     }
 
     @Override
-    public void handleMessage(Message msg) {
-        if (msg.obj == null) return;
-        switch (msg.what) {
-            case BleStates.BleStatus.ServicesDiscovered:
+    public void onChanged(final T device, BluetoothGattCharacteristic characteristic) {
+        TaskExecutor.runOnUIThread(new Runnable() {
+            @Override
+            public void run() {
                 for (BleNotiftCallback callback : mNotifyCallbacks) {
-                    callback.onServicesDiscovered((BluetoothGatt) msg.obj);
+                    callback.onChanged(device, device.getNotifyCharacteristic());
+                    L.e("handleMessage", "onChanged++");
                 }
-                break;
-            case BleStates.BleStatus.NotifySuccess:
+            }
+        });
+    }
+
+    @Override
+    public void onReady(T device) {
+
+    }
+
+    @Override
+    public void onServicesDiscovered(final BluetoothGatt gatt) {
+        TaskExecutor.runOnUIThread(new Runnable() {
+            @Override
+            public void run() {
                 for (BleNotiftCallback callback : mNotifyCallbacks) {
-                    callback.onNotifySuccess((BluetoothGatt) msg.obj);
+                    callback.onServicesDiscovered(gatt);
                 }
-                break;
-            case BleStates.BleStatus.Changed:
+            }
+        });
+    }
+
+    @Override
+    public void onNotifySuccess(final BluetoothGatt gatt) {
+        TaskExecutor.runOnUIThread(new Runnable() {
+            @Override
+            public void run() {
                 for (BleNotiftCallback callback : mNotifyCallbacks) {
-                    if (msg.obj instanceof BleDevice) {
-                        BleDevice device = (BleDevice) msg.obj;
-                        callback.onChanged(device, device.getNotifyCharacteristic());
-                        L.e("handleMessage", "onChanged++");
-                    }
+                    callback.onNotifySuccess(gatt);
                 }
-                break;
-            default:
-                break;
-        }
+            }
+        });
     }
 }

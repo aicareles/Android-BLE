@@ -40,7 +40,7 @@ import java.util.UUID;
 import cn.com.heaton.blelibrary.ble.Ble;
 import cn.com.heaton.blelibrary.ble.BleDevice;
 import cn.com.heaton.blelibrary.ble.L;
-import cn.com.heaton.blelibrary.ble.callback.BleConnCallback;
+import cn.com.heaton.blelibrary.ble.callback.BleConnectCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleMtuCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleNotiftCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleReadCallback;
@@ -59,13 +59,11 @@ public class BleActivity extends BaseActivity {
     ListView mListView;
     private LeDeviceListAdapter mLeDeviceListAdapter;
     private Ble<BleDevice> mBle;
-    private Handler mHandler;
     private String path = Environment.getExternalStorageDirectory()
             + "/aceDownload/";
 
     @Override
     protected void onInitView() {
-        mHandler = new Handler();
         mLeDeviceListAdapter = new LeDeviceListAdapter(this);
         mListView.setAdapter(mLeDeviceListAdapter);
         //1、请求蓝牙相关权限
@@ -341,9 +339,11 @@ public class BleActivity extends BaseActivity {
     /**
      * 连接的回调
      */
-    private BleConnCallback<BleDevice> connectCallback = new BleConnCallback<BleDevice>() {
+    private BleConnectCallback<BleDevice> connectCallback = new BleConnectCallback<BleDevice>() {
         @Override
-        public void onConnectionChanged(final BleDevice device) {
+        public void onConnectionChanged(BleDevice device) {
+            Log.e(TAG, "onConnectionChanged: "+device.getConnectionState());
+            Log.e(TAG, "onConnectionChanged: current thread:"+Thread.currentThread().getName());
             if (device.isConnected()) {
                  /*连接成功后，设置通知*/
                 mBle.startNotify(device, bleNotiftCallback);

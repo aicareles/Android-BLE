@@ -1,5 +1,5 @@
 package cn.com.heaton.blelibrary.ble.proxy;
-import cn.com.heaton.blelibrary.ble.callback.BleConnCallback;
+import cn.com.heaton.blelibrary.ble.callback.BleConnectCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleMtuCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleNotiftCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleReadCallback;
@@ -19,9 +19,9 @@ public interface RequestLisenter<T> {
 
     void stopScan();
 
-    boolean connect(T device, BleConnCallback<T> callback);
+    boolean connect(T device, BleConnectCallback<T> callback);
 
-    boolean connect(String address, BleConnCallback<T> callback);
+    boolean connect(String address, BleConnectCallback<T> callback);
 
     void notify(T device, BleNotiftCallback<T> callback);
 
@@ -29,7 +29,7 @@ public interface RequestLisenter<T> {
 
     void disconnect(T device);
 
-    void disconnect(T device, BleConnCallback<T> callback);
+    void disconnect(T device, BleConnectCallback<T> callback);
 
     boolean read(T device, BleReadCallback<T> callback);
 

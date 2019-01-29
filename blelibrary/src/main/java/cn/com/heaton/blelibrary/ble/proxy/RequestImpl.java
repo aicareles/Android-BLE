@@ -2,7 +2,7 @@ package cn.com.heaton.blelibrary.ble.proxy;
 
 import cn.com.heaton.blelibrary.ble.BleDevice;
 import cn.com.heaton.blelibrary.ble.Ble;
-import cn.com.heaton.blelibrary.ble.callback.BleConnCallback;
+import cn.com.heaton.blelibrary.ble.callback.BleConnectCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleMtuCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleNotiftCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleReadCallback;
@@ -40,13 +40,13 @@ public class RequestImpl<T extends BleDevice> implements RequestLisenter<T>{
     }
 
     @Override
-    public boolean connect(T device, BleConnCallback<T> callback) {
+    public boolean connect(T device, BleConnectCallback<T> callback) {
         ConnectRequest<T> request = Rproxy.getInstance().getRequest(ConnectRequest.class);
         return request.connect(device, callback);
     }
 
     @Override
-    public boolean connect(String address, BleConnCallback<T> callback) {
+    public boolean connect(String address, BleConnectCallback<T> callback) {
         ConnectRequest<T> request = Rproxy.getInstance().getRequest(ConnectRequest.class);
         return request.connect(address, callback);
     }
@@ -70,7 +70,7 @@ public class RequestImpl<T extends BleDevice> implements RequestLisenter<T>{
     }
 
     @Override
-    public void disconnect(T device, BleConnCallback<T> callback) {
+    public void disconnect(T device, BleConnectCallback<T> callback) {
         ConnectRequest<T> request = Rproxy.getInstance().getRequest(ConnectRequest.class);
         request.disconnect(device, callback);
     }
