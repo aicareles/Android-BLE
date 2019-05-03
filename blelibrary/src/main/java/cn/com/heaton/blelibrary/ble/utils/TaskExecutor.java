@@ -1,4 +1,4 @@
-package cn.com.heaton.blelibrary.ble;
+package cn.com.heaton.blelibrary.ble.utils;
 
 import android.os.AsyncTask;
 import android.os.Handler;
@@ -24,7 +24,7 @@ public class TaskExecutor {
         mSerialExecutor = AsyncTask.SERIAL_EXECUTOR;
     }
 
-    public static void runOnUIThread(Runnable runnable) {
+    public static void mainThread(Runnable runnable) {
         sHandler.post(runnable);
     }
 

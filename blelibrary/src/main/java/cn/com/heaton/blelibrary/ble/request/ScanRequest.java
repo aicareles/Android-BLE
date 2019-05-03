@@ -9,21 +9,21 @@ import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
 import android.os.Build;
 import android.os.Message;
+import android.os.ParcelUuid;
 import android.support.annotation.RequiresApi;
-import android.text.TextUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import cn.com.heaton.blelibrary.ble.Ble;
 import cn.com.heaton.blelibrary.ble.model.ScanRecord;
-import cn.com.heaton.blelibrary.ble.factory.BleFactory;
+import cn.com.heaton.blelibrary.ble.BleFactory;
 import cn.com.heaton.blelibrary.ble.BleHandler;
 import cn.com.heaton.blelibrary.ble.BleStates;
 import cn.com.heaton.blelibrary.ble.L;
 import cn.com.heaton.blelibrary.ble.annotation.Implement;
 import cn.com.heaton.blelibrary.ble.callback.BleScanCallback;
-import cn.com.heaton.blelibrary.ble.BleDevice;
+import cn.com.heaton.blelibrary.ble.model.BleDevice;
 
 /**
  *
@@ -41,12 +41,11 @@ public class ScanRequest<T extends BleDevice> implements IMessage {
     private List<ScanFilter> mFilters;
     //    private AtomicBoolean isContains = new AtomicBoolean(false);
     private ArrayList<T> mScanDevices = new ArrayList<>();
-    private Ble<T> mBle;
+    private ConnectRequest mConnectRequest;
 
     protected ScanRequest() {
-        mBle = Ble.getInstance();
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        BleHandler.getHandler().setHandlerCallback(this);
+        BleHandler.of().setHandlerCallback(this);
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
             //mScanner will be null if Bluetooth has been closed
             mScanner = mBluetoothAdapter.getBluetoothLeScanner();
@@ -65,7 +64,7 @@ public class ScanRequest<T extends BleDevice> implements IMessage {
         }
         mScanning = true;
         // Stops scanning after a pre-defined scan period.
-        BleHandler.getHandler().postDelayed(new Runnable() {
+        BleHandler.of().postDelayed(new Runnable() {
             @Override
             public void run() {
                 if(mScanning){
@@ -84,11 +83,11 @@ public class ScanRequest<T extends BleDevice> implements IMessage {
                 if (mScanner == null) {
                     mScanner = mBluetoothAdapter.getBluetoothLeScanner();
                 }
-//                byte[] manufacture = {0x00, 0x2A};
-//                mFilters.add(new ScanFilter.Builder()
-//                        .setServiceUuid(ParcelUuid.fromString("0000ae00-0000-1000-8000-00805f9b34fb"))
-//                        .setManufacturerData(0x5254, manufacture)
-//                        .build());
+                /*byte[] manufacture = {0x00, 0x2A};
+                mFilters.add(new ScanFilter.Builder()
+                        .setServiceUuid(ParcelUuid.fromString("0000ae00-0000-1000-8000-00805f9b34fb"))
+                        .setManufacturerData(0x5254, manufacture)
+                        .build());*/
                 mScanner.startScan(mFilters, mScannerSetting, mScannerCallback);
             }
         }
@@ -156,21 +155,6 @@ public class ScanRequest<T extends BleDevice> implements IMessage {
         }
     }
 
-    private void autoConnect(BluetoothDevice device) {
-        synchronized (mBle.getLocker()) {
-            for (T autoDevice : mBle.getAutoDevices()) {
-                if (device.getAddress().equals(autoDevice.getBleAddress())) {
-                    //Note non-active disconnect device in theory need to re-connect automatically (provided the connection is set to automatically connect property is true)
-                    if (!autoDevice.isConnected() && !autoDevice.isConnectting() && autoDevice.isAutoConnect()) {
-                        L.e("onScanResult", "onLeScan: " + "正在重连设备...");
-                        mBle.reconnect(autoDevice);
-                    }
-                }
-            }
-        }
-    }
-
-
     private BluetoothAdapter.LeScanCallback mLeScanCallback = new BluetoothAdapter.LeScanCallback() {
 
         @Override
@@ -188,6 +172,13 @@ public class ScanRequest<T extends BleDevice> implements IMessage {
             autoConnect(device);
         }
     };
+
+    private void autoConnect(BluetoothDevice device){
+        if (mConnectRequest == null){
+            mConnectRequest = Rproxy.getInstance().getRequest(ConnectRequest.class);
+        }
+        mConnectRequest.autoConnect(device);
+    }
 
     //获取已扫描到的设备（重复设备）
     private T getDevice(String address) {

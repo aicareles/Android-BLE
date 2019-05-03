@@ -10,7 +10,7 @@ import java.util.Calendar;
 import java.util.concurrent.Semaphore;
 
 import cn.com.heaton.blelibrary.ble.Ble;
-import cn.com.heaton.blelibrary.ble.BleDevice;
+import cn.com.heaton.blelibrary.ble.model.BleDevice;
 import cn.com.heaton.blelibrary.BuildConfig;
 
 /**

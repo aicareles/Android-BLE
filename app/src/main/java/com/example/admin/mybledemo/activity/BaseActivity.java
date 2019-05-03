@@ -1,18 +1,13 @@
 package com.example.admin.mybledemo.activity;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.SparseArray;
-import android.widget.TextView;
 
 import com.example.admin.mybledemo.R;
 import com.example.admin.mybledemo.annotation.LLAnnotation;
@@ -20,58 +15,17 @@ import com.example.admin.mybledemo.annotation.LLAnnotation;
 public abstract class BaseActivity extends AppCompatActivity {
 
     protected final String TAG = this.getClass().getSimpleName();
-    public Toolbar toolbar;
-    private TextView abTitle;
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
-        initToolBar();
-
-//        setContentView(getLayoutResource());
-
-        //初始化注解  替代findViewById
-//        LLAnnotation.viewInit(this);
         LLAnnotation.bind(this);
-
         onInitView();
         initLinsenter();
     }
 
-//    protected abstract int getLayoutResource();
-
     protected abstract void onInitView();
 
     protected void initLinsenter(){};
-
-    @Override
-    protected void onTitleChanged(CharSequence title, int color) {
-        super.onTitleChanged(title, color);
-        if (abTitle != null) {
-            abTitle.setText(title);
-        }
-    }
-
-    private void initToolBar() {
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
-        if (toolbar != null) {
-            setSupportActionBar(toolbar);
-            abTitle = (TextView) toolbar.findViewById(R.id.toolbar_title);
-        }
-        if (abTitle != null) {
-            ActionBar actionBar = getSupportActionBar();
-            if (actionBar != null) {
-                actionBar.setDisplayShowTitleEnabled(false);
-                actionBar.setHomeButtonEnabled(true);
-//                actionBar.setDisplayHomeAsUpEnabled(true);
-            }
-        }
-    }
-
-    @Override
-    public void setContentView(int layoutResID) {
-        super.setContentView(layoutResID);
-        initToolBar();
-    }
 
     /*---------------------------------------------------------------------------以下是android6.0动态授权的封装十分好用---------------------------------------------------------------------------*/
     private int                   mPermissionIdx = 0x10;//请求权限索引

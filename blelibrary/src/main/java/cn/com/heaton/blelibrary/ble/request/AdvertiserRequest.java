@@ -9,10 +9,10 @@ import android.os.Build;
 import android.os.Handler;
 import android.support.annotation.RequiresApi;
 
-import cn.com.heaton.blelibrary.ble.BleDevice;
+import cn.com.heaton.blelibrary.ble.model.BleDevice;
 import cn.com.heaton.blelibrary.ble.BleHandler;
 import cn.com.heaton.blelibrary.ble.L;
-import cn.com.heaton.blelibrary.ble.TaskExecutor;
+import cn.com.heaton.blelibrary.ble.utils.TaskExecutor;
 import cn.com.heaton.blelibrary.ble.annotation.Implement;
 import cn.com.heaton.blelibrary.ble.exception.AdvertiserUnsupportException;
 
@@ -35,7 +35,7 @@ public class AdvertiserRequest<T extends BleDevice> {
     protected AdvertiserRequest() {
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         mAdvertiser = bluetoothAdapter.getBluetoothLeAdvertiser();
-        mHandler = BleHandler.getHandler();
+        mHandler = BleHandler.of();
         if (mAdvertiser == null) {
             try {
                 throw new AdvertiserUnsupportException("Device does not support Avertise!");
@@ -53,11 +53,11 @@ public class AdvertiserRequest<T extends BleDevice> {
     }
 
     public void startAdvertising(final byte[] payload) {
+        mHandler.removeCallbacks(stopAvertiseRunnable);
         if(mAdvertiser != null){
             TaskExecutor.executeTask(new Runnable() {
                 @Override
                 public void run() {
-                    mHandler.removeCallbacks(stopAvertiseRunnable);
                     mAdvertiser.stopAdvertising(mAdvertiseCallback);
                     myAdvertiseData = new AdvertiseData.Builder()
                             .addManufacturerData(65520, payload)

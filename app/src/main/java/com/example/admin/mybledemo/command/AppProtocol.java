@@ -7,7 +7,7 @@ import com.example.admin.mybledemo.utils.ByteUtils;
 import java.util.List;
 
 import cn.com.heaton.blelibrary.ble.Ble;
-import cn.com.heaton.blelibrary.ble.BleDevice;
+import cn.com.heaton.blelibrary.ble.model.BleDevice;
 import cn.com.heaton.blelibrary.ble.callback.BleWriteCallback;
 
 /**

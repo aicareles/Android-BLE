@@ -2,23 +2,13 @@ apply plugin: 'com.android.application'
 apply plugin: 'android-aspectjx'
 
 android {
-//    signingConfigs {
-//        config {
-//            keyAlias 'bestway'
-//            keyPassword 'android'
-//            storeFile file('F:/bestway.keystore')
-//            storePassword 'android'
-//        }
-//    }
-    compileSdkVersion 25
-    buildToolsVersion "25.0.3"
+    compileSdkVersion 28
     defaultConfig {
         applicationId "com.example.admin.mybledemo"
         minSdkVersion 18
-        targetSdkVersion 25
+        targetSdkVersion 28
         versionCode 6
         versionName "2.5.3"
-        versionNameSuffix ''
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -36,64 +26,24 @@ android {
         }
     }
 
-    applicationVariants.all { variant ->
-        variant.outputs.each { output ->
-            def outputFile = output.outputFile
-            if (outputFile != null && outputFile.name.endsWith('.apk')) {
-                // 这里添加productFlavors的名字，输出apk名称为BLE-v2.0.0b-beat.apk
-                def fileName = "BLE-v${defaultConfig.versionName}$defaultConfig.versionNameSuffix-${variant.productFlavors[0].name}.apk"
-                output.outputFile = new File(outputFile.parent, fileName)
-            }
+    android.applicationVariants.all { variant ->
+        variant.outputs.all {
+            outputFileName = "BLE-v${defaultConfig.versionName}}.apk"
         }
     }
 
-    productFlavors {
-        beat {}
-        google {}
-        productFlavors.all { flavor ->
-            flavor.manifestPlaceholders = [CHANNEL_VALUE: name]
-        }
-    }
-
-//    productFlavors.all {
-//        flavor -> flavor.manifestPlaceholders = [NAME_VALUE : name]
-//    }
-
-    packagingOptions {
-        exclude 'META-INF/DEPENDENCIES'
-        exclude 'META-INF/NOTICE'
-        exclude 'META-INF/LICENSE'
-        exclude 'META-INF/NOTICE.txt'
-        exclude 'META-INF/LICENSE.txt'
-    }
 }
 
-
-//aspectjx {
-////排除所有package路径中包含`android.support`的class文件及库（jar文件）
-//    exclude 'android.support'
-//}
-
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
-        exclude group: 'com.android.support', module: 'support-annotations'
-    })
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 
-    compile project(':blelibrary')
-//    compile 'cn.com.superLei:blelibrary:2.5.3'
-    compile 'com.android.support:appcompat-v7:25.3.1'
-    compile 'com.android.support:design:25.3.1'
-//    compile 'com.orhanobut:logger:1.15'
-    compile 'com.android.support.constraint:constraint-layout:1.0.2'
-    compile 'org.aspectj:aspectjrt:1.8.9'
-    testCompile 'junit:junit:4.12'
-
-    compile 'com.github.skydoves:colorpickerview:1.0.8'
-    compile 'com.loopj.android:android-async-http:1.4.8'
-    compile 'org.apache.httpcomponents:httpcore:4.4.4'
-    compile 'org.apache.httpcomponents:httpmime:4.5.2'
-    compile 'com.alibaba:fastjson:1.2.7'
-
+    implementation project(':blelibrary')
+//    implementation 'cn.com.superLei:blelibrary:2.5.3'
+    implementation 'com.android.support:appcompat-v7:28.0.0'
+    implementation 'org.aspectj:aspectjrt:1.8.9'
+//    implementation 'com.github.skydoves:colorpickerview:1.0.8'
 }
 

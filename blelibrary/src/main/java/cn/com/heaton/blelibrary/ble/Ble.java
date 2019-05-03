@@ -31,6 +31,7 @@ import cn.com.heaton.blelibrary.ble.callback.BleReadRssiCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleScanCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleWriteCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleWriteEntityCallback;
+import cn.com.heaton.blelibrary.ble.model.BleDevice;
 import cn.com.heaton.blelibrary.ble.request.ConnectRequest;
 import cn.com.heaton.blelibrary.ble.exception.BleServiceException;
 import cn.com.heaton.blelibrary.ble.proxy.RequestImpl;
@@ -43,7 +44,7 @@ import cn.com.heaton.blelibrary.ble.request.ScanRequest;
  * 这个类对外提供所有的蓝牙操作API
  * Created by jerry on 2016/12/7.
  */
-public class Ble<T extends BleDevice> implements BleLisenter<T>{
+public class Ble<T extends BleDevice> {
 
     /** Log tag, apps may override it. */
     private final static String TAG = "Ble";
@@ -62,8 +63,6 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
     public static final int REQUEST_ENABLE_BT = 1;
 
     private BluetoothAdapter mBluetoothAdapter;
-
-    private ArrayList<T> mAutoDevices = new ArrayList<>();
 
     /**
      * Initializes a newly created {@code Ble} object so that it represents
@@ -89,8 +88,6 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
         //设置动态代理
         mRequest = (RequestLisenter) RequestProxy.getInstance()
                 .bindProxy(context, RequestImpl.getInstance(sOptions));
-        AutoConThread thread = new AutoConThread();
-        thread.start();
         boolean result = sInstance.startService(context);
         L.w(TAG, "bind service result is"+ result);
         return result;
@@ -463,64 +460,6 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
         }
         return null;
     }
-
-    private class AutoConThread extends Thread {
-        @Override
-        public void run() {
-            while (sOptions.autoConnect) {
-                if (mAutoDevices.size() > 0) {
-                    //Turn on cyclic scan
-                    if (!isScanning()) {
-                        L.e(TAG, "run: " + "Thread began scanning...");
-                        startScan(null);
-                    }
-                }
-                SystemClock.sleep(2 * 1000);
-            }
-        }
-
-    }
-
-    /**
-     * If it is automatically connected device is removed from the automatic connection pool
-     *
-     * @param device Device object
-     */
-    public void removeAutoPool(BleDevice device) {
-        if (device == null) return;
-        Iterator<T> iterator = mAutoDevices.iterator();
-        while (iterator.hasNext()) {
-            BleDevice item = iterator.next();
-            if (device.getBleAddress().equals(item.getBleAddress())) {
-                iterator.remove();
-            }
-        }
-    }
-
-    /**
-     * Add a disconnected device to the autouppool
-     *
-     * @param device Device object
-     */
-    public void addAutoPool(T device) {
-        if (device == null) return;
-        Log.e(TAG, "addAutoPool: "+device.toString());
-        for (BleDevice item : mAutoDevices) {
-            if (device.getBleAddress().equals(item.getBleAddress())) {
-                L.w("addAutoPool:","自动连接池中已存在");
-                return;
-            }
-        }
-        if (device.isAutoConnect()) {
-            L.w(TAG, "addAutoPool: "+"Add automatic connection device to the connection pool");
-            mAutoDevices.add(device);
-        }
-    }
-
-    public ArrayList<T> getAutoDevices(){
-        return mAutoDevices;
-    }
-
 
     /**
      * 当Application退出时，释放所有资源

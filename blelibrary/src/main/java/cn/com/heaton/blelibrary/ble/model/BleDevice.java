@@ -1,10 +1,10 @@
-package cn.com.heaton.blelibrary.ble;
+package cn.com.heaton.blelibrary.ble.model;
 
 import android.bluetooth.BluetoothDevice;
 
 import java.io.Serializable;
 
-import cn.com.heaton.blelibrary.ble.model.ScanRecord;
+import cn.com.heaton.blelibrary.ble.BleStates;
 
 /**
  *

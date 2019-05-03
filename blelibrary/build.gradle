@@ -4,14 +4,12 @@ apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'com.jfrog.bintray'
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion "25.0.3"
-
+    compileSdkVersion 28
     defaultConfig {
         minSdkVersion 18
-        targetSdkVersion 25
-        versionCode 47
-        versionName "2.5.3"
+        targetSdkVersion 28
+        versionCode 48
+        versionName "2.5.4"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
@@ -30,12 +28,8 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
-        exclude group: 'com.android.support', module: 'support-annotations'
-    })
-    compile 'com.android.support:appcompat-v7:25.3.1'
-    testCompile 'junit:junit:4.12'
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'com.android.support:appcompat-v7:28.0.0'
 }
 tasks.withType(JavaCompile) {
     options.encoding = "UTF-8"
@@ -48,10 +42,10 @@ tasks.withType(Javadoc) {
 //    options.addStringOption('links','http://docs.oracle.com/javase/7/docs/api')
 }
 
-version = "2.5.3"       //这个是版本号，必须填写
+version = "2.5.4"       //这个是版本号，必须填写
 def siteUrl = 'https://github.com/Alex-Jerry/Android-BLE'      // 项目的主页   这个是说明，可随便填
 def gitUrl = 'https://github.com/Alex-Jerry/Android-BLE'      // Git仓库的url  这个是说明，可随便填
-//compile 'com.arshowbaby:mylibrary:1.0.0'中的com.arshowbaby
+//implementation 'com.arshowbaby:mylibrary:1.0.0'中的com.arshowbaby
 group = "cn.com.superLei"    // 这里是groupId ,必须填写  一般填你唯一的包名
 
 install {

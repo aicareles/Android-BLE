@@ -1,4 +1,4 @@
-package cn.com.heaton.blelibrary.ble;
+package cn.com.heaton.blelibrary.ble.callback.wrapper;
 
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 
 import java.lang.ref.WeakReference;
+
+import cn.com.heaton.blelibrary.ble.BleStates;
 
 /**
  * 蓝牙状态发生变化时

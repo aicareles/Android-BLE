@@ -1,7 +1,6 @@
 package com.example.admin.mybledemo.adapter;
 
 import android.app.Activity;
-import android.bluetooth.BluetoothDevice;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,7 +14,7 @@ import com.example.admin.mybledemo.R;
 import java.util.ArrayList;
 import java.util.List;
 
-import cn.com.heaton.blelibrary.ble.BleDevice;
+import cn.com.heaton.blelibrary.ble.model.BleDevice;
 
 /**
  *

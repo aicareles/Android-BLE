@@ -3,7 +3,7 @@ package cn.com.heaton.blelibrary.ble.proxy;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 
-import cn.com.heaton.blelibrary.ble.BleDevice;
+import cn.com.heaton.blelibrary.ble.model.BleDevice;
 import cn.com.heaton.blelibrary.ble.Ble;
 import cn.com.heaton.blelibrary.ble.callback.BleConnectCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleMtuCallback;

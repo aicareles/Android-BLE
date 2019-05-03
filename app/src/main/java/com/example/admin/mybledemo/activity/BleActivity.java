@@ -39,7 +39,7 @@ import java.util.List;
 import java.util.UUID;
 
 import cn.com.heaton.blelibrary.ble.Ble;
-import cn.com.heaton.blelibrary.ble.BleDevice;
+import cn.com.heaton.blelibrary.ble.model.BleDevice;
 import cn.com.heaton.blelibrary.ble.L;
 import cn.com.heaton.blelibrary.ble.callback.BleConnectCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleMtuCallback;
@@ -77,15 +77,13 @@ public class BleActivity extends BaseActivity {
         mBle = Ble.options()
                 .setLogBleExceptions(true)//设置是否输出打印蓝牙日志
                 .setThrowBleException(true)//设置是否抛出蓝牙异常
-                .setAutoConnect(true)//设置是否自动连接
+                .setAutoConnect(false)//设置是否自动连接
                 .setConnectFailedRetryCount(3)
                 .setConnectTimeout(10 * 1000)//设置连接超时时长
                 .setScanPeriod(12 * 1000)//设置扫描时长
                 .setUuid_service(UUID.fromString("0000fee9-0000-1000-8000-00805f9b34fb"))//设置主服务的uuid
                 .setUuid_write_cha(UUID.fromString("d44bc439-abfd-45a2-b575-925416129600"))//设置可写特征的uuid
-//                .setManufacturerId(65535)//设置广播包厂商id
                 .create(getApplicationContext());
-//        mBle = Ble.create(getApplicationContext());
         //3、检查蓝牙是否支持及打开
         checkBluetoothStatus();
     }
@@ -431,6 +429,7 @@ public class BleActivity extends BaseActivity {
         @Override
         public void onConnectTimeOut(BleDevice device) {
             super.onConnectTimeOut(device);
+            Log.e(TAG, "onConnectTimeOut: "+device.getBleAddress());
             ToastUtil.showToast("连接超时:"+device.getBleName());
         }
     };

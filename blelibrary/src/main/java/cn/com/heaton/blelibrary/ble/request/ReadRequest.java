@@ -4,7 +4,7 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.os.Message;
 
 import cn.com.heaton.blelibrary.ble.BleHandler;
-import cn.com.heaton.blelibrary.ble.BleDevice;
+import cn.com.heaton.blelibrary.ble.model.BleDevice;
 import cn.com.heaton.blelibrary.ble.Ble;
 import cn.com.heaton.blelibrary.ble.BleStates;
 import cn.com.heaton.blelibrary.ble.BluetoothLeService;
@@ -21,7 +21,7 @@ public class ReadRequest<T extends BleDevice> implements IMessage {
     private BleReadCallback<T> mBleLisenter;
 
     protected ReadRequest() {
-        BleHandler handler = BleHandler.getHandler();
+        BleHandler handler = BleHandler.of();
         handler.setHandlerCallback(this);
     }
 

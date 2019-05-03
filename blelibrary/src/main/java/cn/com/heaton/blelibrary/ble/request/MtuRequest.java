@@ -3,7 +3,7 @@ package cn.com.heaton.blelibrary.ble.request;
 import android.os.Message;
 
 import cn.com.heaton.blelibrary.ble.Ble;
-import cn.com.heaton.blelibrary.ble.BleDevice;
+import cn.com.heaton.blelibrary.ble.model.BleDevice;
 import cn.com.heaton.blelibrary.ble.BleHandler;
 import cn.com.heaton.blelibrary.ble.BleStates;
 import cn.com.heaton.blelibrary.ble.BluetoothLeService;
@@ -20,7 +20,7 @@ public class MtuRequest<T extends BleDevice> implements IMessage {
     private BleMtuCallback<T> mBleLisenter;
 
     protected MtuRequest() {
-        BleHandler handler = BleHandler.getHandler();
+        BleHandler handler = BleHandler.of();
         handler.setHandlerCallback(this);
     }
 

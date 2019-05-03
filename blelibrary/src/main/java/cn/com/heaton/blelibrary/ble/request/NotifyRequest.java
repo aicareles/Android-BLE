@@ -7,9 +7,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import cn.com.heaton.blelibrary.ble.BleDevice;
+import cn.com.heaton.blelibrary.ble.model.BleDevice;
 import cn.com.heaton.blelibrary.ble.L;
-import cn.com.heaton.blelibrary.ble.TaskExecutor;
+import cn.com.heaton.blelibrary.ble.utils.TaskExecutor;
 import cn.com.heaton.blelibrary.ble.annotation.Implement;
 import cn.com.heaton.blelibrary.ble.callback.BleNotiftCallback;
 import cn.com.heaton.blelibrary.ble.callback.wrapper.NotifyWrapperLisenter;
@@ -68,7 +68,7 @@ public class NotifyRequest<T extends BleDevice> implements NotifyWrapperLisenter
 
     @Override
     public void onChanged(final T device, final BluetoothGattCharacteristic characteristic) {
-        TaskExecutor.runOnUIThread(new Runnable() {
+        TaskExecutor.mainThread(new Runnable() {
             @Override
             public void run() {
                 for (BleNotiftCallback callback : mNotifyCallbacks) {
@@ -86,7 +86,7 @@ public class NotifyRequest<T extends BleDevice> implements NotifyWrapperLisenter
 
     @Override
     public void onServicesDiscovered(final BluetoothGatt gatt) {
-        TaskExecutor.runOnUIThread(new Runnable() {
+        TaskExecutor.mainThread(new Runnable() {
             @Override
             public void run() {
                 for (BleNotiftCallback callback : mNotifyCallbacks) {
@@ -98,7 +98,7 @@ public class NotifyRequest<T extends BleDevice> implements NotifyWrapperLisenter
 
     @Override
     public void onNotifySuccess(final BluetoothGatt gatt) {
-        TaskExecutor.runOnUIThread(new Runnable() {
+        TaskExecutor.mainThread(new Runnable() {
             @Override
             public void run() {
                 for (BleNotiftCallback callback : mNotifyCallbacks) {

@@ -27,7 +27,7 @@ public class BleHandler extends Handler {
         }
     }
 
-    public static BleHandler getHandler(){
+    public static BleHandler of(){
         synchronized (BleHandler.class){
             if(sHandler == null){
                 HandlerThread handlerThread = new HandlerThread("handler thread");
