@@ -3,8 +3,6 @@ package cn.com.heaton.blelibrary.ble.callback;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 
-import cn.com.heaton.blelibrary.ble.BleDevice;
-
 /**
  *
  * Created by LiuLei on 2017/10/23.

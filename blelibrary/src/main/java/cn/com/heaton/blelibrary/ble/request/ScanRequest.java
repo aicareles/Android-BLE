@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cn.com.heaton.blelibrary.ble.Ble;
+import cn.com.heaton.blelibrary.ble.model.ScanRecord;
 import cn.com.heaton.blelibrary.ble.factory.BleFactory;
 import cn.com.heaton.blelibrary.ble.BleHandler;
 import cn.com.heaton.blelibrary.ble.BleStates;
@@ -36,6 +37,7 @@ public class ScanRequest<T extends BleDevice> implements IMessage {
     private BluetoothLeScanner mScanner;
     private ScanSettings mScannerSetting;
     private BleScanCallback<T> mScanCallback;
+    private BLEScanCallback mScannerCallback;
     private List<ScanFilter> mFilters;
     //    private AtomicBoolean isContains = new AtomicBoolean(false);
     private ArrayList<T> mScanDevices = new ArrayList<>();
@@ -51,6 +53,7 @@ public class ScanRequest<T extends BleDevice> implements IMessage {
             mScannerSetting = new ScanSettings.Builder()
                     .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
                     .build();
+            mScannerCallback  = new BLEScanCallback();
             mFilters = new ArrayList<>();
         }
     }
@@ -118,19 +121,23 @@ public class ScanRequest<T extends BleDevice> implements IMessage {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    private ScanCallback mScannerCallback = new ScanCallback() {
+    private class BLEScanCallback extends ScanCallback {
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
             BluetoothDevice device = result.getDevice();
             byte[] scanRecord = result.getScanRecord().getBytes();
             if (device == null) return;
-            if (TextUtils.isEmpty(device.getName())) return;
-            if (!constains(device.getAddress())) {
-                T bleDevice = (T) BleFactory.create(BleDevice.class, device);
+            T bleDevice = getDevice(device.getAddress());
+            if (bleDevice == null) {
+                bleDevice = (T) BleFactory.create(BleDevice.class, device);
                 if(mScanCallback != null){
                     mScanCallback.onLeScan(bleDevice, result.getRssi(), scanRecord);
                 }
                 mScanDevices.add(bleDevice);
+            }
+            ScanRecord parseRecord = ScanRecord.parseFromBytes(scanRecord);
+            if (parseRecord != null && mScanCallback != null){
+                mScanCallback.onParsedData(bleDevice, parseRecord);
             }
             //自动重连
             autoConnect(device);
@@ -147,7 +154,7 @@ public class ScanRequest<T extends BleDevice> implements IMessage {
         public void onScanFailed(int errorCode) {
             L.e("Scan Failed", "Error Code: " + errorCode);
         }
-    };
+    }
 
     private void autoConnect(BluetoothDevice device) {
         synchronized (mBle.getLocker()) {
@@ -169,9 +176,9 @@ public class ScanRequest<T extends BleDevice> implements IMessage {
         @Override
         public void onLeScan(final BluetoothDevice device, int rssi, final byte[] scanRecord) {
             if (device == null) return;
-            if (TextUtils.isEmpty(device.getName())) return;
-            if (!constains(device.getAddress())) {
-                T bleDevice = (T) BleFactory.create(BleDevice.class, device);
+            T bleDevice = getDevice(device.getAddress());
+            if (bleDevice == null) {
+                bleDevice = (T) BleFactory.create(BleDevice.class, device);
                 if(mScanCallback != null){
                     mScanCallback.onLeScan(bleDevice, rssi, scanRecord);
                 }
@@ -182,13 +189,14 @@ public class ScanRequest<T extends BleDevice> implements IMessage {
         }
     };
 
-    private boolean constains(String address) {
+    //获取已扫描到的设备（重复设备）
+    private T getDevice(String address) {
         for (T device : mScanDevices) {
             if (device.getBleAddress().equals(address)) {
-                return true;
+                return device;
             }
         }
-        return false;
+        return null;
     }
 
     @Override

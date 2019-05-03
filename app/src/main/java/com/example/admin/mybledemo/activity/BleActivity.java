@@ -48,6 +48,7 @@ import cn.com.heaton.blelibrary.ble.callback.BleReadCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleReadRssiCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleScanCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleWriteEntityCallback;
+import cn.com.heaton.blelibrary.ble.model.ScanRecord;
 import cn.com.heaton.blelibrary.ota.OtaManager;
 
 /**
@@ -82,6 +83,7 @@ public class BleActivity extends BaseActivity {
                 .setScanPeriod(12 * 1000)//设置扫描时长
                 .setUuid_service(UUID.fromString("0000fee9-0000-1000-8000-00805f9b34fb"))//设置主服务的uuid
                 .setUuid_write_cha(UUID.fromString("d44bc439-abfd-45a2-b575-925416129600"))//设置可写特征的uuid
+//                .setManufacturerId(65535)//设置广播包厂商id
                 .create(getApplicationContext());
 //        mBle = Ble.create(getApplicationContext());
         //3、检查蓝牙是否支持及打开
@@ -121,6 +123,24 @@ public class BleActivity extends BaseActivity {
                     }
                 });
     }
+
+    @SingleClick //过滤重复点击
+    @OnClick({R.id.startAdvertise, R.id.stopAdvertise})
+    public void onAdvertiseClick(View view) {
+        switch (view.getId()) {
+            case R.id.startAdvertise:
+                byte[] payload = new byte[16];
+                payload[0] = 0x01;
+                mBle.startAdvertising(payload);
+                break;
+            case R.id.stopAdvertise:
+                mBle.stopAdvertising();
+                break;
+            default:
+                break;
+        }
+    }
+
 
     @SingleClick //过滤重复点击
     @CheckConnect //检查是否连接
@@ -363,7 +383,7 @@ public class BleActivity extends BaseActivity {
     BleScanCallback<BleDevice> scanCallback = new BleScanCallback<BleDevice>() {
         @Override
         public void onLeScan(final BleDevice device, int rssi, byte[] scanRecord) {
-//            if(!device.getBleName().contains("ifish"))return;
+            Log.e(TAG, "onLeScan: "+device.getBleAddress());
             synchronized (mBle.getLocker()) {
                 mLeDeviceListAdapter.addDevice(device);
                 mLeDeviceListAdapter.notifyDataSetChanged();
@@ -374,6 +394,15 @@ public class BleActivity extends BaseActivity {
         public void onStop() {
             super.onStop();
             L.e(TAG, "onStop: ");
+        }
+
+        @Override
+        public void onParsedData(BleDevice device, ScanRecord scanRecord) {
+            super.onParsedData(device, scanRecord);
+            byte[] data = scanRecord.getManufacturerSpecificData(65535);//参数为厂商id
+            if (data != null){
+                Log.e(TAG, "onParsedData: "+ ByteUtils.BinaryToHexString(data));
+            }
         }
     };
 

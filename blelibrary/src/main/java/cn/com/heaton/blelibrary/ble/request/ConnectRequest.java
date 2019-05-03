@@ -2,7 +2,6 @@ package cn.com.heaton.blelibrary.ble.request;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.os.Message;
 
 import java.util.ArrayList;
 import java.util.List;

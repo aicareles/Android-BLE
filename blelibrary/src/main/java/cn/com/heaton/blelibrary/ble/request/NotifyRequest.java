@@ -2,20 +2,13 @@ package cn.com.heaton.blelibrary.ble.request;
 
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
-import android.os.Message;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 
-import cn.com.heaton.blelibrary.ble.Ble;
-import cn.com.heaton.blelibrary.ble.BleHandler;
 import cn.com.heaton.blelibrary.ble.BleDevice;
-import cn.com.heaton.blelibrary.ble.BluetoothLeService;
 import cn.com.heaton.blelibrary.ble.L;
-import cn.com.heaton.blelibrary.ble.BleStates;
 import cn.com.heaton.blelibrary.ble.TaskExecutor;
 import cn.com.heaton.blelibrary.ble.annotation.Implement;
 import cn.com.heaton.blelibrary.ble.callback.BleNotiftCallback;
@@ -74,12 +67,12 @@ public class NotifyRequest<T extends BleDevice> implements NotifyWrapperLisenter
     }
 
     @Override
-    public void onChanged(final T device, BluetoothGattCharacteristic characteristic) {
+    public void onChanged(final T device, final BluetoothGattCharacteristic characteristic) {
         TaskExecutor.runOnUIThread(new Runnable() {
             @Override
             public void run() {
                 for (BleNotiftCallback callback : mNotifyCallbacks) {
-                    callback.onChanged(device, device.getNotifyCharacteristic());
+                    callback.onChanged(device, characteristic);
                     L.e("handleMessage", "onChanged++");
                 }
             }

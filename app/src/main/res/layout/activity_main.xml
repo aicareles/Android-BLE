@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/linearLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -17,5 +18,13 @@
         android:layout_height="wrap_content"
         android:text="SPP模块"
         android:onClick="spp"/>
+
+    <!--<com.skydoves.colorpickerview.ColorPickerView-->
+        <!--android:id="@+id/colorPickerView"-->
+        <!--android:layout_width="300dp"-->
+        <!--android:layout_height="300dp"-->
+        <!--android:layout_gravity="center"-->
+        <!--app:palette="@mipmap/palette"-->
+        <!--app:selector="@mipmap/wheel" />-->
 
 </LinearLayout>

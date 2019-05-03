@@ -2,7 +2,6 @@ package cn.com.heaton.blelibrary.ble.request;
 
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.os.Message;
-import android.support.annotation.IntRange;
 
 import java.math.BigDecimal;
 

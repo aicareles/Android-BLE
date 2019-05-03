@@ -30,8 +30,6 @@ import java.util.Map;
 import java.util.UUID;
 
 import cn.com.heaton.blelibrary.BuildConfig;
-import cn.com.heaton.blelibrary.ble.callback.BleConnectCallback;
-import cn.com.heaton.blelibrary.ble.callback.BleNotiftCallback;
 import cn.com.heaton.blelibrary.ble.callback.wrapper.ConnectWrapperLisenter;
 import cn.com.heaton.blelibrary.ble.callback.wrapper.NotifyWrapperLisenter;
 import cn.com.heaton.blelibrary.ble.request.ConnectRequest;
@@ -73,7 +71,7 @@ public class BluetoothLeService extends Service {
 
     private ConnectWrapperLisenter mConnectWrapperLisenter;
 
-    private NotifyWrapperLisenter mNotifyWrapperLisenter;
+    private NotifyWrapperLisenter<BleDevice> mNotifyWrapperLisenter;
 
     private OtaListener mOtaListener;//Ota update operation listener
 
@@ -201,7 +199,6 @@ public class BluetoothLeService extends Service {
                 }
 
                 if(d != null){
-                    d.setNotifyCharacteristic(characteristic);
                     if (mNotifyWrapperLisenter != null) {
                         mNotifyWrapperLisenter.onChanged(d, characteristic);
                     }

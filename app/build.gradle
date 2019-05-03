@@ -50,10 +50,21 @@ android {
     productFlavors {
         beat {}
         google {}
+        productFlavors.all { flavor ->
+            flavor.manifestPlaceholders = [CHANNEL_VALUE: name]
+        }
     }
 
-    productFlavors.all {
-        flavor -> flavor.manifestPlaceholders = [NAME_VALUE : name]
+//    productFlavors.all {
+//        flavor -> flavor.manifestPlaceholders = [NAME_VALUE : name]
+//    }
+
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/LICENSE.txt'
     }
 }
 
@@ -69,14 +80,20 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
 
-//    compile project(':blelibrary')
-    compile 'cn.com.superLei:blelibrary:2.5.3'
+    compile project(':blelibrary')
+//    compile 'cn.com.superLei:blelibrary:2.5.3'
     compile 'com.android.support:appcompat-v7:25.3.1'
     compile 'com.android.support:design:25.3.1'
 //    compile 'com.orhanobut:logger:1.15'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     compile 'org.aspectj:aspectjrt:1.8.9'
     testCompile 'junit:junit:4.12'
+
+    compile 'com.github.skydoves:colorpickerview:1.0.8'
+    compile 'com.loopj.android:android-async-http:1.4.8'
+    compile 'org.apache.httpcomponents:httpcore:4.4.4'
+    compile 'org.apache.httpcomponents:httpmime:4.5.2'
+    compile 'com.alibaba:fastjson:1.2.7'
 
 }
 

@@ -1,7 +1,6 @@
 package cn.com.heaton.blelibrary.ble.request;
 
 import android.content.Context;
-import android.util.Log;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
@@ -11,6 +10,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import cn.com.heaton.blelibrary.ble.annotation.Implement;
 import dalvik.system.DexFile;
@@ -33,9 +33,9 @@ public class Rproxy {
         mRequestObjs = new HashMap<>();
     }
 
-    public void init(Context context){
-        List<Class> requestsClass = getRequestsClass(context, getClass().getPackage().getName());
-        for(Class cls : requestsClass){
+    public void init(Class... clss){
+//        List<Class> requestsClass = getRequestsClass(context, getClass().getPackage().getName());
+        for(Class cls : clss){
             if(cls.isAnnotationPresent(Implement.class)){
                 for(Annotation ann : cls.getDeclaredAnnotations()){
                     if(ann instanceof Implement){

@@ -1,7 +1,5 @@
 package cn.com.heaton.blelibrary.ble.callback;
 
-import cn.com.heaton.blelibrary.ble.BleDevice;
-
 /**
  * Created by LiuLei on 2017/10/23.
  */

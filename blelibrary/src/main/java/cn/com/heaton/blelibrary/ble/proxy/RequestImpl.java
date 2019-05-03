@@ -1,5 +1,8 @@
 package cn.com.heaton.blelibrary.ble.proxy;
 
+import android.os.Build;
+import android.support.annotation.RequiresApi;
+
 import cn.com.heaton.blelibrary.ble.BleDevice;
 import cn.com.heaton.blelibrary.ble.Ble;
 import cn.com.heaton.blelibrary.ble.callback.BleConnectCallback;
@@ -10,6 +13,7 @@ import cn.com.heaton.blelibrary.ble.callback.BleReadRssiCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleScanCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleWriteCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleWriteEntityCallback;
+import cn.com.heaton.blelibrary.ble.request.AdvertiserRequest;
 import cn.com.heaton.blelibrary.ble.request.*;
 
 /**
@@ -115,5 +119,19 @@ public class RequestImpl<T extends BleDevice> implements RequestLisenter<T>{
     public boolean setMtu(String address, int mtu, BleMtuCallback<T> callback) {
         MtuRequest<T> request = Rproxy.getInstance().getRequest(MtuRequest.class);
         return request.setMtu(address, mtu, callback);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    @Override
+    public void startAdvertising(byte[] payload) {
+        AdvertiserRequest<T> request = Rproxy.getInstance().getRequest(AdvertiserRequest.class);
+        request.startAdvertising(payload);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    @Override
+    public void stopAdvertising() {
+        AdvertiserRequest<T> request = Rproxy.getInstance().getRequest(AdvertiserRequest.class);
+        request.stopAdvertising();
     }
 }

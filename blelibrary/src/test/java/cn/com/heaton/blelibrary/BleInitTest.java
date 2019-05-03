@@ -1,18 +1,10 @@
 package cn.com.heaton.blelibrary;
 
-import android.app.Instrumentation;
-import android.content.Context;
-import android.test.InstrumentationTestRunner;
-import android.test.InstrumentationTestSuite;
-import android.test.mock.MockContext;
-
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import java.util.UUID;
 
 import cn.com.heaton.blelibrary.ble.Ble;
-import cn.com.heaton.blelibrary.ble.BleDevice;
 
 import static org.junit.Assert.*;
 

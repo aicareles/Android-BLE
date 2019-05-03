@@ -8,9 +8,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.IBinder;
 import android.os.SystemClock;
 import android.support.annotation.IntRange;
+import android.support.annotation.RequiresApi;
 import android.util.Log;
 
 import java.lang.reflect.GenericArrayType;
@@ -253,6 +255,21 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
         mRequest.cancelWriteEntity();
     }
 
+    /**
+     * 开始发送广播包
+     * @param payload 负载数据
+     */
+    public void startAdvertising(byte[] payload) {
+        mRequest.startAdvertising(payload);
+    }
+
+    /**
+     * 停止发送广播包
+     */
+    public void stopAdvertising() {
+        mRequest.stopAdvertising();
+    }
+
 //    public boolean writeAutoEntity(T device, final byte[]data, int packLength){
 //        return mRequest.writeAutoEntity(device, data, packLength);
 //    }
@@ -440,7 +457,7 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
      */
 
     public ArrayList<T> getConnetedDevices() {
-        ConnectRequest request = Rproxy.getInstance().getRequest(ConnectRequest.class);
+        ConnectRequest<T> request = Rproxy.getInstance().getRequest(ConnectRequest.class);
         if(request != null){
             return request.getConnetedDevices();
         }
@@ -638,6 +655,12 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
          */
         public int connectFailedRetryCount = 3;
 
+        /**
+         * 广播包,厂商id
+         */
+        @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+        public int manufacturerId = 65520; // 0xfff0
+
         public Options setScanPeriod(int scanPeriod){
             this.scanPeriod = scanPeriod;
             return this;
@@ -699,6 +722,16 @@ public class Ble<T extends BleDevice> implements BleLisenter<T>{
         public Options setConnectFailedRetryCount(int connectFailedRetryCount) {
             this.connectFailedRetryCount = connectFailedRetryCount;
             return this;
+        }
+
+        @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+        public int getManufacturerId() {
+            return manufacturerId;
+        }
+
+        @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+        public void setManufacturerId(int manufacturerId) {
+            this.manufacturerId = manufacturerId;
         }
 
         UUID[] uuid_services_extra = new UUID[]{};

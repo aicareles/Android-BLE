@@ -2,6 +2,7 @@ package com.example.admin.mybledemo.adapter;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothDevice;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -85,7 +86,6 @@ public class LeDeviceListAdapter extends BaseAdapter {
             viewHolder = new ViewHolder();
             viewHolder.deviceAddress = (TextView) view.findViewById(R.id.device_address);
             viewHolder.deviceName = (TextView) view.findViewById(R.id.device_name);
-            viewHolder.deviceRSSI = (TextView) view.findViewById(R.id.device_RSSI);
             viewHolder.deviceState = (TextView) view.findViewById(R.id.state);
             view.setTag(viewHolder);
         } else {
@@ -94,7 +94,6 @@ public class LeDeviceListAdapter extends BaseAdapter {
 
         final BleDevice device = mLeDevices.get(i);
         final String deviceName = device.getBleName();
-        final String deviceRSSI = BluetoothDevice.EXTRA_RSSI;
         if(device.isConnectting()){
             viewHolder.deviceState.setText("正在连接中...");
         }
@@ -103,12 +102,12 @@ public class LeDeviceListAdapter extends BaseAdapter {
         }else {
             viewHolder.deviceState.setText("未连接");
         }
-        if (deviceName != null && deviceName.length() > 0)
+        if (TextUtils.isEmpty(deviceName)){
+            viewHolder.deviceName.setText("未知设备");
+        }else {
             viewHolder.deviceName.setText(deviceName);
-        else if (deviceRSSI != null && deviceRSSI.length() > 0)
-            viewHolder.deviceRSSI.setText(deviceRSSI);
-        else
-            viewHolder.deviceName.setText(R.string.unknown_device);
+        }
+
         viewHolder.deviceAddress.setText(device.getBleAddress());
 
         return view;

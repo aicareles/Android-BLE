@@ -67,7 +67,6 @@ public class BtDeviceAdapter extends BaseAdapter{
             viewHolder = new BtDeviceAdapter.ViewHolder();
             viewHolder.deviceAddress = (TextView) view.findViewById(R.id.device_address);
             viewHolder.deviceName = (TextView) view.findViewById(R.id.device_name);
-            viewHolder.deviceRSSI = (TextView) view.findViewById(R.id.device_RSSI);
             viewHolder.deviceState = (TextView) view.findViewById(R.id.state);
             view.setTag(viewHolder);
         } else {
@@ -76,7 +75,6 @@ public class BtDeviceAdapter extends BaseAdapter{
 
         final BtDevice device = mBtDevices.get(i);
         final String deviceName = device.getName();
-        final String deviceRSSI = BluetoothDevice.EXTRA_RSSI;
         if(device.isConnecting()){
             viewHolder.deviceState.setText("正在连接中...");
         }
@@ -87,8 +85,6 @@ public class BtDeviceAdapter extends BaseAdapter{
         }
         if (deviceName != null && deviceName.length() > 0)
             viewHolder.deviceName.setText(deviceName);
-        else if (deviceRSSI != null && deviceRSSI.length() > 0)
-            viewHolder.deviceRSSI.setText(deviceRSSI);
         else
             viewHolder.deviceName.setText(R.string.unknown_device);
         viewHolder.deviceAddress.setText(device.getAddress());

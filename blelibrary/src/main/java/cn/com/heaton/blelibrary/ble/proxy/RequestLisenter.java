@@ -44,4 +44,8 @@ public interface RequestLisenter<T> {
 //    boolean writeAutoEntity(T device, final byte[]data, int packLength);
 
     boolean setMtu(String address, int mtu, BleMtuCallback<T> callback);
+
+    void startAdvertising(byte[] payload);
+
+    void stopAdvertising();
 }

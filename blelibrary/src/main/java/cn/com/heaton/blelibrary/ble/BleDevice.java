@@ -1,18 +1,10 @@
 package cn.com.heaton.blelibrary.ble;
 
-import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothGatt;
-import android.bluetooth.BluetoothGattCharacteristic;
-import android.os.Handler;
-import android.os.Looper;
-import android.text.TextUtils;
-import android.util.Log;
 
 import java.io.Serializable;
-import java.util.concurrent.atomic.AtomicBoolean;
 
-import cn.com.heaton.blelibrary.ota.OtaListener;
+import cn.com.heaton.blelibrary.ble.model.ScanRecord;
 
 /**
  *
@@ -44,8 +36,9 @@ public class BleDevice implements Serializable{
     /*是否自动连接*/
     private boolean mAutoConnect = false;//The default is not automatic connection
 
-    /*通知的特征*/
-    private  BluetoothGattCharacteristic mNotifyCharacteristic;
+    /*解析后的广播包数据*/
+    public ScanRecord scanRecord;
+
     /**
      * Use the address and name of the BluetoothDevice object
      * to construct the address and name of the {@code BleDevice} object
@@ -106,12 +99,12 @@ public class BleDevice implements Serializable{
         this.mBleAlias = mBleAlias;
     }
 
-    public BluetoothGattCharacteristic getNotifyCharacteristic() {
-        return mNotifyCharacteristic;
+    public ScanRecord getScanRecord() {
+        return scanRecord;
     }
 
-    public void setNotifyCharacteristic(BluetoothGattCharacteristic notifyCharacteristic) {
-        this.mNotifyCharacteristic = notifyCharacteristic;
+    public void setScanRecord(ScanRecord scanRecord) {
+        this.scanRecord = scanRecord;
     }
 
     @Override
@@ -122,7 +115,6 @@ public class BleDevice implements Serializable{
                 ", mBleName='" + mBleName + '\'' +
                 ", mBleAlias='" + mBleAlias + '\'' +
                 ", mAutoConnect=" + mAutoConnect +
-                ", mNotifyCharacteristic=" + mNotifyCharacteristic +
                 '}';
     }
 }

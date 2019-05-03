@@ -71,9 +71,24 @@
         android:layout_toEndOf="@+id/cancelEntity"
         android:text="测试页面" />
 
+    <Button
+        android:id="@+id/startAdvertise"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/sendEntityData"
+        android:text="开启广播"/>
+
+    <Button
+        android:id="@+id/stopAdvertise"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/sendEntityData"
+        android:layout_toRightOf="@+id/startAdvertise"
+        android:text="停止广播"/>
+
     <ListView
         android:id="@+id/listView"
-        android:layout_below="@id/sendEntityData"
+        android:layout_below="@id/startAdvertise"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
