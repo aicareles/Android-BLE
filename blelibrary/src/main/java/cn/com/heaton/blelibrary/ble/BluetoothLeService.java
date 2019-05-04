@@ -87,11 +87,12 @@ public class BluetoothLeService extends Service {
         public void onConnectionStateChange(BluetoothGatt gatt, int status,
                                             int newState) {
             BluetoothDevice device = gatt.getDevice();
+            //remove timeout callback
+            mHandler.removeCallbacksAndMessages(device.getAddress());
             //There is a problem here Every time a new object is generated that causes the same device to be disconnected and the connection produces two objects
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 if (newState == BluetoothProfile.STATE_CONNECTED) {
                     mConnectedAddressList.add(device.getAddress());
-                    mHandler.removeMessages(BleStates.BleStatus.ConnectTimeOut);
                     if (mConnectWrapperLisenter != null){
                         mConnectWrapperLisenter.onConnectionChanged(device, BleStates.BleStatus.CONNECTED);
                     }
@@ -100,7 +101,6 @@ public class BluetoothLeService extends Service {
                     Log.i(TAG, "Attempting to start service discovery");
                     Objects.requireNonNull(mBluetoothGattMap.get(device.getAddress())).discoverServices();
                 } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-                    mHandler.removeMessages(BleStates.BleStatus.ConnectTimeOut);
                     L.i(TAG, "Disconnected from GATT server.");
                     if (mConnectWrapperLisenter != null){
                         mConnectWrapperLisenter.onConnectionChanged(device, BleStates.BleStatus.DISCONNECT);
@@ -109,7 +109,6 @@ public class BluetoothLeService extends Service {
                 }
             } else {
                 //Occurrence 133 or 257 19 Equal value is not 0: Connection establishment failed due to protocol stack
-                mHandler.removeMessages(BleStates.BleStatus.ConnectTimeOut);
                 L.e(TAG, "onConnectionStateChange>>>>>>>>: " + "Connection status is abnormal:" + status);
                 close(device.getAddress());
                 if (mConnectWrapperLisenter != null){
@@ -360,7 +359,7 @@ public class BluetoothLeService extends Service {
                    mConnectWrapperLisenter.onConnectionChanged(device, BleStates.BleStatus.DISCONNECT);
                }
            }
-       }, mOptions.connectTimeout);
+       }, device.getAddress(), mOptions.getConnectTimeout());
 
         if (mConnectWrapperLisenter != null){
             mConnectWrapperLisenter.onConnectionChanged(device, BleStates.BleStatus.CONNECTING);

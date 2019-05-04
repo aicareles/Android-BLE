@@ -580,11 +580,11 @@ public class Ble<T extends BleDevice> {
         /**
          * 蓝牙连接超时时长
          */
-        public int connectTimeout = 10 * 1000;
+        public long connectTimeout = 10 * 1000L;
         /**
          * 蓝牙扫描周期时长
          */
-        public int scanPeriod = 10 * 1000;
+        public long scanPeriod = 10 * 1000L;
         /**
          * 服务绑定失败重试次数
          */
@@ -600,7 +600,7 @@ public class Ble<T extends BleDevice> {
         @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
         public int manufacturerId = 65520; // 0xfff0
 
-        public Options setScanPeriod(int scanPeriod){
+        public Options setScanPeriod(long scanPeriod){
             this.scanPeriod = scanPeriod;
             return this;
         }
@@ -632,16 +632,16 @@ public class Ble<T extends BleDevice> {
             return this;
         }
 
-        public int getConnectTimeout() {
+        public long getConnectTimeout() {
             return connectTimeout;
         }
 
-        public Options setConnectTimeout(int connectTimeout) {
+        public Options setConnectTimeout(long connectTimeout) {
             this.connectTimeout = connectTimeout;
             return this;
         }
 
-        public int getScanPeriod() {
+        public long getScanPeriod() {
             return scanPeriod;
         }
 

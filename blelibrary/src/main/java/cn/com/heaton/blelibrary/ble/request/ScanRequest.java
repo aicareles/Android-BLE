@@ -57,7 +57,7 @@ public class ScanRequest<T extends BleDevice> implements IMessage {
         }
     }
 
-    public void startScan(BleScanCallback<T> callback, int scanPeriod) {
+    public void startScan(BleScanCallback<T> callback, long scanPeriod) {
         if(mScanning)return;
         if(callback != null){
             mScanCallback = callback;

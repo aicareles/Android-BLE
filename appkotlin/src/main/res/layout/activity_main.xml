@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:fitsSystemWindows="true"
+    android:clipToPadding="true"
+    tools:context="com.i502tech.appkotlin.MainActivity">
+
+    <!--<android.support.v7.widget.RecyclerView-->
+        <!--android:id="@+id/recycle_listView"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"/>-->
+    <LinearLayout
+        android:id="@+id/ll_function"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/sendData"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="发送"/>
+
+        <Button
+            android:id="@+id/updateOta"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="更新OTA"/>
+
+        <Button
+            android:id="@+id/readRssi"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="读取RSSI"/>
+
+        <Button
+            android:id="@+id/requestMtu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="请求MTU"/>
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/sendEntityData"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/ll_function"
+        android:text="发送大数据"/>
+
+    <Button
+        android:id="@+id/cancelEntity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/ll_function"
+        android:layout_toEndOf="@+id/sendEntityData"
+        android:text="取消发送大数据"/>
+
+    <Button
+        android:id="@+id/test"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/ll_function"
+        android:layout_toEndOf="@+id/cancelEntity"
+        android:text="测试页面" />
+
+    <Button
+        android:id="@+id/startAdvertise"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/sendEntityData"
+        android:text="开启广播"/>
+
+    <Button
+        android:id="@+id/stopAdvertise"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/sendEntityData"
+        android:layout_toRightOf="@+id/startAdvertise"
+        android:text="停止广播"/>
+
+    <Button
+        android:id="@+id/scan"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/sendEntityData"
+        android:layout_toRightOf="@+id/stopAdvertise"
+        android:text="扫描"/>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recyclerview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/stopAdvertise"/>
+
+</RelativeLayout>
