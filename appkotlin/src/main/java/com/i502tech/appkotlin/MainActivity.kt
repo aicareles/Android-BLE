@@ -12,7 +12,6 @@ import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v7.widget.LinearLayoutManager
 import cn.com.heaton.blelibrary.ble.Ble
-import cn.com.heaton.blelibrary.ble.L
 import cn.com.heaton.blelibrary.ble.callback.*
 import cn.com.heaton.blelibrary.ble.model.BleDevice
 import kotlinx.android.synthetic.main.activity_main.*
@@ -36,7 +35,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun initLinsenter() {
         readRssi.setOnClickListener{
-            mBle.readRssi(mBle.connetedDevices!![0], object : BleReadRssiCallback<BleDevice>() {
+            if (mBle.connetedDevices.size > 0)
+            mBle.readRssi(mBle.connetedDevices[0], object : BleReadRssiCallback<BleDevice>() {
                 override fun onReadRssiSuccess(rssi: Int) {
                     super.onReadRssiSuccess(rssi)
                     toast("读取远程RSSI成功：$rssi")
@@ -46,10 +46,10 @@ class MainActivity : AppCompatActivity() {
         sendData.setOnClickListener {
             val list = mBle.connetedDevices
             synchronized(mBle.locker) {
-//                for (device in list) {
-//                    val commandBean = CommandBean()
-//                    AppProtocol.sendCarMoveCommand(device, commandBean.setCarCommand(80, 1))
-//                }
+                for (device in list) {
+                    val commandBean = CommandBean()
+                    AppProtocol.sendCarMoveCommand(device, commandBean.setCarCommand(80, 1))
+                }
             }
         }
         updateOta.setOnClickListener {
@@ -75,6 +75,7 @@ class MainActivity : AppCompatActivity() {
             mBle.cancelWriteEntity()
         }
         scan.setOnClickListener {
+            listDatas.clear()
             mBle.startScan(bleScanCallback())
         }
     }
@@ -95,7 +96,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun requestBLEPermission() {
-        ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), REQUESTCODE)
+        ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.BLUETOOTH_ADMIN, Manifest.permission.ACCESS_COARSE_LOCATION), REQUESTCODE)
     }
 
 
@@ -128,20 +129,7 @@ class MainActivity : AppCompatActivity() {
             startActivityForResult(enableBtIntent, Ble.REQUEST_ENABLE_BT)
         } else {
             //5、若已打开，则进行扫描
-            mBle.startScan(object : BleScanCallback<BleDevice>(){
-                override fun onLeScan(device: BleDevice?, rssi: Int, scanRecord: ByteArray?) {
-                    for (d in listDatas) {
-                        if (d.bleAddress == device?.bleAddress) {
-                            return
-                        }
-                        device?.let {
-                            listDatas.add(it)
-                            adapter.notifyDataSetChanged()
-                        }
-                    }
-                }
-
-            })
+            mBle.startScan(bleScanCallback())
         }
     }
 
@@ -152,10 +140,10 @@ class MainActivity : AppCompatActivity() {
                     if (d.bleAddress == device?.bleAddress) {
                         return
                     }
-                    device?.let {
-                        listDatas.add(it)
-                        adapter.notifyDataSetChanged()
-                    }
+                }
+                device?.let {
+                    listDatas.add(it)
+                    adapter.notifyDataSetChanged()
                 }
             }
         }
@@ -216,7 +204,7 @@ class MainActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUESTCODE) {
             if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                val i = ContextCompat.checkSelfPermission (this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                val i = ContextCompat.checkSelfPermission (this, Manifest.permission.ACCESS_COARSE_LOCATION)
                 if (i != PackageManager.PERMISSION_GRANTED) {
                     // 提示用户应该去应用设置界面手动开启权限
                 } else {

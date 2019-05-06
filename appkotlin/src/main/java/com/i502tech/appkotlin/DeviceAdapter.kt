@@ -11,11 +11,11 @@ import kotlinx.android.synthetic.main.item_device.view.*
  * description $desc$
  * created by jerry on 2019/5/4.
  */
-class DeviceAdapter(var items : List<BleDevice>) : RecyclerView.Adapter<DeviceAdapter.ViewHolder>() {
+class DeviceAdapter(var items: List<BleDevice>) : RecyclerView.Adapter<DeviceAdapter.ViewHolder>() {
 
     private var mListener: ((Int) -> Unit?)? = null
 
-    fun setOnItemClickListener(mListener: (Int)->Unit) {
+    fun setOnItemClickListener(mListener: (Int) -> Unit) {
         this.mListener = mListener
     }
 
@@ -29,14 +29,12 @@ class DeviceAdapter(var items : List<BleDevice>) : RecyclerView.Adapter<DeviceAd
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val device = items[position]
         device.run {
-            holder.itemView.device_name.text = bleName?: "未知设备"
+            holder.itemView.device_name.text = bleName ?: "未知设备"
             holder.itemView.device_address.text = bleAddress
-            holder.itemView.state.text.apply {
-                when{
-                    device.isConnected -> "已连接"
-                    device.isConnectting -> "正在连接中..."
-                    else -> "未连接"
-                }
+            when {
+                device.isConnected -> holder.itemView.state.text = "已连接"
+                device.isConnectting -> holder.itemView.state.text = "正在连接中..."
+                else -> holder.itemView.state.text = "未连接"
             }
         }
         holder.itemView.setOnClickListener {
@@ -44,5 +42,5 @@ class DeviceAdapter(var items : List<BleDevice>) : RecyclerView.Adapter<DeviceAd
         }
     }
 
-    class ViewHolder(itemView : View) : RecyclerView.ViewHolder(itemView)
+    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
 }
