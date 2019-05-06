@@ -20,80 +20,75 @@
 
         <Button
             android:id="@+id/sendData"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
             android:layout_height="wrap_content"
             android:text="发送"/>
 
         <Button
-            android:id="@+id/updateOta"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="更新OTA"/>
-
-        <Button
             android:id="@+id/readRssi"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
             android:layout_height="wrap_content"
             android:text="读取RSSI"/>
 
         <Button
             android:id="@+id/requestMtu"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
             android:layout_height="wrap_content"
             android:text="请求MTU"/>
 
+        <Button
+            android:id="@+id/sendEntityData"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="发送文件"/>
+
     </LinearLayout>
 
-    <Button
-        android:id="@+id/sendEntityData"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:id="@+id/ll_function2"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/ll_function"
-        android:text="发送大数据"/>
+        android:layout_below="@+id/ll_function">
 
-    <Button
-        android:id="@+id/cancelEntity"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/ll_function"
-        android:layout_toEndOf="@+id/sendEntityData"
-        android:text="取消发送大数据"/>
+        <Button
+            android:id="@+id/cancelEntity"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:text="取消发送文件"/>
 
-    <Button
-        android:id="@+id/test"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/ll_function"
-        android:layout_toEndOf="@+id/cancelEntity"
-        android:text="测试页面" />
+        <Button
+            android:id="@+id/startAdvertise"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="开启广播"/>
 
-    <Button
-        android:id="@+id/startAdvertise"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/sendEntityData"
-        android:text="开启广播"/>
+        <Button
+            android:id="@+id/stopAdvertise"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="停止广播"/>
 
-    <Button
-        android:id="@+id/stopAdvertise"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/sendEntityData"
-        android:layout_toRightOf="@+id/startAdvertise"
-        android:text="停止广播"/>
+        <Button
+            android:id="@+id/scan"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="扫描"/>
 
-    <Button
-        android:id="@+id/scan"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/sendEntityData"
-        android:layout_toRightOf="@+id/stopAdvertise"
-        android:text="扫描"/>
+    </LinearLayout>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recyclerview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/stopAdvertise"/>
+        android:layout_below="@+id/ll_function2"/>
 
 </RelativeLayout>

@@ -1,11 +1,31 @@
 package cn.com.heaton.blelibrary.ble.utils;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
 /**
  * 字节的转换
  * Created by jerry on 2017/4/27.
  */
 
 public class ByteUtils {
+
+    //inputstream转byte[]
+    public static byte[] toByteArray(InputStream input) {
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        byte[] buffer = new byte[4096];
+        int n = 0;
+        try {
+            while (-1 != (n = input.read(buffer))) {
+                output.write(buffer, 0, n);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return output.toByteArray();
+    }
+
     //将字节数组转换为short类型，即统计字符串长度
     public static short bytes2Short2(byte[] b) {
         short i = (short) (((b[1] & 0xff) << 8) | b[0] & 0xff);

@@ -1,8 +1,10 @@
 package com.i502tech.appkotlin
 
 import android.Manifest
+import android.app.ProgressDialog
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothGattCharacteristic
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
@@ -11,10 +13,14 @@ import android.os.Bundle
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v7.widget.LinearLayoutManager
+import android.util.Log
 import cn.com.heaton.blelibrary.ble.Ble
+import cn.com.heaton.blelibrary.ble.L
 import cn.com.heaton.blelibrary.ble.callback.*
 import cn.com.heaton.blelibrary.ble.model.BleDevice
+import cn.com.heaton.blelibrary.ble.utils.ByteUtils
 import kotlinx.android.synthetic.main.activity_main.*
+import java.io.IOException
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
@@ -22,6 +28,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var mBle: Ble<BleDevice>
     private var listDatas = mutableListOf<BleDevice>()
     private val adapter = DeviceAdapter(listDatas)
+    private var dialog: ProgressDialog ?= null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,17 +52,13 @@ class MainActivity : AppCompatActivity() {
         }
         sendData.setOnClickListener {
             val list = mBle.connetedDevices
-            synchronized(mBle.locker) {
-                for (device in list) {
-                    val commandBean = CommandBean()
-                    AppProtocol.sendCarMoveCommand(device, commandBean.setCarCommand(80, 1))
-                }
+            for (device in list) {
+                val commandBean = CommandBean()
+                AppProtocol.sendCarMoveCommand(device, commandBean.setCarCommand(80, 1))
             }
         }
-        updateOta.setOnClickListener {
-
-        }
         requestMtu.setOnClickListener {
+            if (mBle.connetedDevices.size > 0)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 //此处第二个参数  不是特定的   比如你也可以设置500   但是如果设备不支持500个字节则会返回最大支持数
                 mBle.setMTU(mBle.connetedDevices[0].bleAddress, 96, object : BleMtuCallback<BleDevice>() {
@@ -69,13 +72,17 @@ class MainActivity : AppCompatActivity() {
             }
         }
         sendEntityData.setOnClickListener {
-
+            if (mBle.connetedDevices.size > 0){
+                showProgress()
+                sendEntityData()
+            }
         }
         cancelEntity.setOnClickListener {
             mBle.cancelWriteEntity()
         }
         scan.setOnClickListener {
             listDatas.clear()
+            listDatas.addAll(mBle.connetedDevices)
             mBle.startScan(bleScanCallback())
         }
     }
@@ -137,9 +144,7 @@ class MainActivity : AppCompatActivity() {
         return object : BleScanCallback<BleDevice>() {
             override fun onLeScan(device: BleDevice?, rssi: Int, scanRecord: ByteArray?) {
                 for (d in listDatas) {
-                    if (d.bleAddress == device?.bleAddress) {
-                        return
-                    }
+                    if (d.bleAddress == device?.bleAddress)return
                 }
                 device?.let {
                     listDatas.add(it)
@@ -173,7 +178,7 @@ class MainActivity : AppCompatActivity() {
     private fun bleNotifyCallback(): BleNotiftCallback<BleDevice> {
         return object : BleNotiftCallback<BleDevice>(){
             override fun onChanged(device: BleDevice?, characteristic: BluetoothGattCharacteristic?) {
-
+                L.i("收到硬件数据>>>>>onChanged:",ByteUtils.BinaryToHexString(characteristic?.value))
             }
 
         }
@@ -213,6 +218,57 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    @Throws(IOException::class)
+    private fun sendEntityData() {
+        val data = ByteUtils.toByteArray(assets.open("WhiteChristmas.bin"))
+        mBle.writeEntity(mBle.connetedDevices[0], data, 20, 50, object : BleWriteEntityCallback<BleDevice>() {
+            override fun onWriteSuccess() {
+                L.e("writeEntity", "onWriteSuccess")
+                hideProgress()
+            }
+
+            override fun onWriteFailed() {
+                L.e("writeEntity", "onWriteFailed")
+                hideProgress()
+            }
+
+            override fun onWriteProgress(progress: Double) {
+                Log.e("writeEntity", "当前发送进度: $progress")
+                setDialogProgress((progress * 100).toInt())
+            }
+
+            override fun onWriteCancel() {
+                hideProgress()
+            }
+        })
+    }
+
+    private fun showProgress() {
+        if (dialog == null) {
+            dialog = ProgressDialog(this)
+            dialog?.run{
+                setCancelable(false)
+                setCanceledOnTouchOutside(false)// 设置在点击Dialog外是否取消Dialog进度条
+                title = "发送大数据文件"
+                setIcon(R.mipmap.ic_launcher)
+                setMessage("Data is sending, please wait...")
+                setProgressStyle(ProgressDialog.STYLE_HORIZONTAL)
+                max = 100
+                isIndeterminate = false
+                setButton(DialogInterface.BUTTON_NEGATIVE, "取消") { _, which -> mBle.cancelWriteEntity() }
+            }
+        }
+        dialog?.show()
+    }
+
+    private fun setDialogProgress(progress: Int) {
+        dialog?.progress = progress
+    }
+
+    private fun hideProgress() {
+        dialog?.dismiss()
     }
 
 }
