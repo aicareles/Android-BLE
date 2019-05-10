@@ -773,5 +773,4 @@ public class Ble<T extends BleDevice> {
 
     }
 
-
 }
