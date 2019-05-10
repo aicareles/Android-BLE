@@ -94,8 +94,12 @@ public class Ble<T extends BleDevice> {
     }
 
     public static Ble<BleDevice> create(Context context){
+        return create(context, options());
+    }
+
+    public static Ble<BleDevice> create(Context context, Options options){
         Ble<BleDevice> ble = getInstance();
-        ble.init(context, options());
+        ble.init(context, options);
         return ble;
     }
 
@@ -156,19 +160,6 @@ public class Ble<T extends BleDevice> {
      */
     public void disconnect(T device) {
         mRequest.disconnect(device);
-        synchronized (mLocker) {
-            if (mBluetoothLeService != null) {
-                //Traverse the connected device collection to disconnect automatically cancel the automatic connection
-                for (T bleDevice : getConnetedDevices()) {
-                    if (bleDevice.getBleAddress().equals(device.getBleAddress())) {
-                        L.e(TAG, "disconnect: " + "设置自动连接false");
-                        bleDevice.setAutoConnect(false);
-                    }
-                }
-//                mBluetoothLeService.disconnect(device.getBleAddress());
-//                RequestManager.executeDisConnectRequest(device);
-            }
-        }
     }
 
     /**
@@ -560,7 +551,6 @@ public class Ble<T extends BleDevice> {
         return sOptions;
     }
 
-
     /**
      * 蓝牙相关参数配置类
      */
@@ -593,7 +583,10 @@ public class Ble<T extends BleDevice> {
          * 蓝牙连接失败重试次数
          */
         public int connectFailedRetryCount = 3;
-
+        /**
+         * 是否过滤扫描设备
+         */
+        public boolean isFilterScan = false;
         /**
          * 广播包,厂商id
          */
@@ -663,6 +656,15 @@ public class Ble<T extends BleDevice> {
             return this;
         }
 
+        public boolean isFilterScan() {
+            return isFilterScan;
+        }
+
+        public Options setFilterScan(boolean filterScan) {
+            isFilterScan = filterScan;
+            return this;
+        }
+
         @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
         public int getManufacturerId() {
             return manufacturerId;
@@ -684,83 +686,83 @@ public class Ble<T extends BleDevice> {
         UUID uuid_ota_notify_cha = UUID.fromString("003784cf-f7e3-55b4-6c4c-9fd140100a16");
         UUID uuid_ota_write_cha = UUID.fromString("013784cf-f7e3-55b4-6c4c-9fd140100a16");
 
-        public UUID[] getUuid_services_extra() {
+        public UUID[] getUuidServicesExtra() {
             return uuid_services_extra;
         }
 
-        public Options setUuid_services_extra(UUID[] uuid_services_extra) {
+        public Options setUuidServicesExtra(UUID[] uuid_services_extra) {
             this.uuid_services_extra = uuid_services_extra;
             return this;
         }
 
-        public UUID getUuid_service() {
+        public UUID getUuidService() {
             return uuid_service;
         }
 
-        public Options setUuid_service(UUID uuid_service) {
+        public Options setUuidService(UUID uuid_service) {
             this.uuid_service = uuid_service;
             return this;
         }
 
-        public UUID getUuid_write_cha() {
+        public UUID getUuidWriteCha() {
             return uuid_write_cha;
         }
 
-        public Options setUuid_write_cha(UUID uuid_write_cha) {
+        public Options setUuidWriteCha(UUID uuid_write_cha) {
             this.uuid_write_cha = uuid_write_cha;
             return this;
         }
 
-        public UUID getUuid_read_cha() {
+        public UUID getUuidReadCha() {
             return uuid_read_cha;
         }
 
-        public Options setUuid_read_cha(UUID uuid_read_cha) {
+        public Options setUuidReadCha(UUID uuid_read_cha) {
             this.uuid_read_cha = uuid_read_cha;
             return this;
         }
 
-        public UUID getUuid_notify() {
+        public UUID getUuidNotify() {
             return uuid_notify;
         }
 
-        public Options setUuid_notify(UUID uuid_notify) {
+        public Options setUuidNotify(UUID uuid_notify) {
             this.uuid_notify = uuid_notify;
             return this;
         }
 
-        public UUID getUuid_notify_desc() {
+        public UUID getUuidNotifyDesc() {
             return uuid_notify_desc;
         }
 
-        public Options setUuid_notify_desc(UUID uuid_notify_desc) {
+        public Options setUuidNotifyDesc(UUID uuid_notify_desc) {
             this.uuid_notify_desc = uuid_notify_desc;
             return this;
         }
 
-        public UUID getUuid_ota_service() {
+        public UUID getUuidOtaService() {
             return uuid_ota_service;
         }
 
-        public Options setUuid_ota_service(UUID uuid_ota_service) {
+        public Options setUuidOtaService(UUID uuid_ota_service) {
             this.uuid_ota_service = uuid_ota_service;
             return this;
         }
 
-        public UUID getUuid_ota_notify_cha() {
+        public UUID getUuidOtaNotifyCha() {
             return uuid_ota_notify_cha;
         }
 
-        public Options setUuid_ota_notify_cha(UUID uuid_ota_notify_cha) {
+        public Options setUuidOtaNotifyCha(UUID uuid_ota_notify_cha) {
             this.uuid_ota_notify_cha = uuid_ota_notify_cha;
             return this;
         }
 
-        public UUID getUuid_ota_write_cha() {
+        public UUID getUuidOtaWriteCha() {
             return uuid_ota_write_cha;
         }
 
-        public Options setUuid_ota_write_cha(UUID uuid_ota_write_cha) {
+        public Options setUuidOtaWriteCha(UUID uuid_ota_write_cha) {
             this.uuid_ota_write_cha = uuid_ota_write_cha;
             return this;
         }

@@ -116,8 +116,8 @@ class MainActivity : AppCompatActivity() {
             connectFailedRetryCount = 3
             connectTimeout = 10000L
             scanPeriod = 12000L
-            uuid_service = UUID.fromString("0000fee9-0000-1000-8000-00805f9b34fb")
-            uuid_write_cha = UUID.fromString("d44bc439-abfd-45a2-b575-925416129600")
+            uuidService = UUID.fromString("0000fee9-0000-1000-8000-00805f9b34fb")
+            uuidWriteCha = UUID.fromString("d44bc439-abfd-45a2-b575-925416129600")
         }.create(applicationContext)
         //3、检查蓝牙是否支持及打开
         checkBluetoothStatus()

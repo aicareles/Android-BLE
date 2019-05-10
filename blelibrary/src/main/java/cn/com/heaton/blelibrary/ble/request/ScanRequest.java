@@ -75,11 +75,7 @@ public class ScanRequest<T extends BleDevice> implements IMessage {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             mBluetoothAdapter.startLeScan(mLeScanCallback);
         } else {
-            //the status of bluetooth will be checked in the original codes of startScan().
-            //once bluetooth is closed,it will throw an exception, so to avoid this, it's
-            //necessary to check the status of bluetooth before calling startScan()
             if (mBluetoothAdapter.isEnabled()) {
-                //mScanner may be null when it was initialized without opening bluetooth, so recheck it
                 if (mScanner == null) {
                     mScanner = mBluetoothAdapter.getBluetoothLeScanner();
                 }
@@ -125,21 +121,11 @@ public class ScanRequest<T extends BleDevice> implements IMessage {
         public void onScanResult(int callbackType, ScanResult result) {
             BluetoothDevice device = result.getDevice();
             byte[] scanRecord = result.getScanRecord().getBytes();
-            if (device == null) return;
-            T bleDevice = getDevice(device.getAddress());
-            if (bleDevice == null) {
-                bleDevice = (T) BleFactory.create(BleDevice.class, device);
-                if(mScanCallback != null){
-                    mScanCallback.onLeScan(bleDevice, result.getRssi(), scanRecord);
-                }
-                mScanDevices.add(bleDevice);
-            }
+            T bleDevice = dispatcherScanResult(device, result.getRssi(), scanRecord);
             ScanRecord parseRecord = ScanRecord.parseFromBytes(scanRecord);
             if (parseRecord != null && mScanCallback != null){
                 mScanCallback.onParsedData(bleDevice, parseRecord);
             }
-            //自动重连
-            autoConnect(device);
         }
 
         @Override
@@ -159,19 +145,30 @@ public class ScanRequest<T extends BleDevice> implements IMessage {
 
         @Override
         public void onLeScan(final BluetoothDevice device, int rssi, final byte[] scanRecord) {
-            if (device == null) return;
-            T bleDevice = getDevice(device.getAddress());
-            if (bleDevice == null) {
-                bleDevice = (T) BleFactory.create(BleDevice.class, device);
+            dispatcherScanResult(device, rssi, scanRecord);
+        }
+    };
+
+    private T dispatcherScanResult(BluetoothDevice device, int rssi, byte[] scanRecord) {
+        if (device == null) return null;
+        T bleDevice = getDevice(device.getAddress());
+        if (bleDevice == null) {
+            bleDevice = (T) BleFactory.create(BleDevice.class, device);
+            if(mScanCallback != null){
+                mScanCallback.onLeScan(bleDevice, rssi, scanRecord);
+            }
+            mScanDevices.add(bleDevice);
+        }else {
+            if (!Ble.options().isFilterScan){//无需过滤
                 if(mScanCallback != null){
                     mScanCallback.onLeScan(bleDevice, rssi, scanRecord);
                 }
-                mScanDevices.add(bleDevice);
             }
-            //自动重连
-            autoConnect(device);
         }
-    };
+        //自动重连
+        autoConnect(device);
+        return bleDevice;
+    }
 
     private void autoConnect(BluetoothDevice device){
         if (mConnectRequest == null){

@@ -47,6 +47,7 @@ public class ConnectRequest<T extends BleDevice> implements ConnectWrapperLisent
         boolean result = false;
         BluetoothLeService service = Ble.getInstance().getBleService();
         if (service != null) {
+            device.setAutoConnect(Ble.options().autoConnect);
             result = service.connect(device.getBleAddress());
         }
         return result;
@@ -85,6 +86,12 @@ public class ConnectRequest<T extends BleDevice> implements ConnectWrapperLisent
         }
         BluetoothLeService service = Ble.getInstance().getBleService();
         if (service != null) {
+            //Traverse the connected device collection to disconnect automatically cancel the automatic connection
+            for (T bleDevice : getConnetedDevices()) {
+                if (bleDevice.getBleAddress().equals(address)) {
+                    bleDevice.setAutoConnect(false);
+                }
+            }
             service.disconnect(address);
         }
     }
@@ -94,9 +101,8 @@ public class ConnectRequest<T extends BleDevice> implements ConnectWrapperLisent
      * @param device 设备对象
      */
     public void disconnect(BleDevice device) {
-        BluetoothLeService service = Ble.getInstance().getBleService();
-        if (service != null) {
-            service.disconnect(device.getBleAddress());
+        if (device != null){
+            disconnect(device.getBleAddress());
         }
     }
 
@@ -105,12 +111,11 @@ public class ConnectRequest<T extends BleDevice> implements ConnectWrapperLisent
      * @param device 设备对象
      */
     public void disconnect(BleDevice device, BleConnectCallback<T> lisenter) {
-        if(!mConnectCallbacks.contains(lisenter)){
-            this.mConnectCallbacks.add(lisenter);
-        }
-        BluetoothLeService service = Ble.getInstance().getBleService();
-        if (service != null) {
-            service.disconnect(device.getBleAddress());
+        if (device != null){
+            disconnect(device.getBleAddress());
+            if(lisenter != null && !mConnectCallbacks.contains(lisenter)){
+                this.mConnectCallbacks.add(lisenter);
+            }
         }
     }
 
@@ -304,7 +309,7 @@ public class ConnectRequest<T extends BleDevice> implements ConnectWrapperLisent
                 if (device.getAddress().equals(autoDevice.getBleAddress())) {
                     //Note non-active disconnect device in theory need to re-connect automatically (provided the connection is set to automatically connect property is true)
                     if (!autoDevice.isConnected() && !autoDevice.isConnectting() && autoDevice.isAutoConnect()) {
-                        L.e("onScanResult", "onLeScan: " + "正在重连设备...");
+                        L.e(TAG, "onLeScan: 正在重连设备..."+device.getAddress());
                         mBle.reconnect(autoDevice);
                         break;
                     }

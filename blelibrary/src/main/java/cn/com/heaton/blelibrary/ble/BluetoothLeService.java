@@ -18,7 +18,6 @@ import android.os.Binder;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.Message;
 import android.util.Log;
 
 import java.lang.reflect.Method;
@@ -56,10 +55,9 @@ public class BluetoothLeService extends Service {
     private int mNotifyIndex = 0;//Notification feature callback list
     private BluetoothGattCharacteristic mOtaWriteCharacteristic;//Ota ble send the object
     private boolean mOtaUpdating = false;//Whether the OTA is updated
-
     private Map<String, BluetoothGattCharacteristic> mWriteCharacteristicMap = new HashMap<>();
-
     private Map<String, BluetoothGattCharacteristic> mReadCharacteristicMap = new HashMap<>();
+    private Map<String, Runnable> mTimeoutTasks = new HashMap<>();
 
     /**
      * Multiple device connections must put the gatt object in the collection
@@ -88,7 +86,11 @@ public class BluetoothLeService extends Service {
                                             int newState) {
             BluetoothDevice device = gatt.getDevice();
             //remove timeout callback
-            mHandler.removeCallbacksAndMessages(device.getAddress());
+            Runnable timeoutRunnable = mTimeoutTasks.get(device.getAddress());
+            if (timeoutRunnable != null){
+                mTimeoutTasks.remove(device.getAddress());
+                mHandler.removeCallbacks(timeoutRunnable);
+            }
             //There is a problem here Every time a new object is generated that causes the same device to be disconnected and the connection produces two objects
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 if (newState == BluetoothProfile.STATE_CONNECTED) {
@@ -319,6 +321,18 @@ public class BluetoothLeService extends Service {
         return true;
     }
 
+    private Runnable checkTimeOutTask(final BluetoothDevice device) {
+        return new Runnable() {
+            @Override
+            public void run() {
+                if (mConnectWrapperLisenter != null) {
+                    mConnectWrapperLisenter.onConnectTimeOut(device);
+                    mConnectWrapperLisenter.onConnectionChanged(device, BleStates.BleStatus.DISCONNECT);
+                }
+            }
+        };
+    }
+
     /**
      * 连接蓝牙
      *
@@ -347,20 +361,9 @@ public class BluetoothLeService extends Service {
             return false;
         }
         //10s after the timeout prompt
-       /* Message msg = Message.obtain();
-        msg.what = BleStates.BleStatus.ConnectTimeOut;
-        msg.obj = device;
-        mHandler.sendMessageDelayed(msg, mOptions.connectTimeout);*/
-       mHandler.postDelayed(new Runnable() {
-           @Override
-           public void run() {
-               if (mConnectWrapperLisenter != null){
-                   mConnectWrapperLisenter.onConnectTimeOut(device);
-                   mConnectWrapperLisenter.onConnectionChanged(device, BleStates.BleStatus.DISCONNECT);
-               }
-           }
-       }, device.getAddress(), mOptions.getConnectTimeout());
-
+        Runnable timeOutRunnable = checkTimeOutTask(device);
+        mTimeoutTasks.put(device.getAddress(), timeOutRunnable);
+        mHandler.postDelayed(timeOutRunnable, mOptions.getConnectTimeout());
         if (mConnectWrapperLisenter != null){
             mConnectWrapperLisenter.onConnectionChanged(device, BleStates.BleStatus.CONNECTING);
         }
