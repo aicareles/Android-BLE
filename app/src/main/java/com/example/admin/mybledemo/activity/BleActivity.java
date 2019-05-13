@@ -78,7 +78,7 @@ public class BleActivity extends BaseActivity {
                 .setLogBleExceptions(true)//设置是否输出打印蓝牙日志
                 .setThrowBleException(true)//设置是否抛出蓝牙异常
                 .setAutoConnect(true)//设置是否自动连接
-                .setFilterScan(true)
+                .setFilterScan(true)//设置是否过滤扫描到的设备
                 .setConnectFailedRetryCount(3)
                 .setConnectTimeout(10 * 1000)//设置连接超时时长
                 .setScanPeriod(12 * 1000)//设置扫描时长

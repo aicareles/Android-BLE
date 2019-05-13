@@ -28,6 +28,50 @@
 ```
 
 ### 二、历史版本介绍：
+[![Version](https://img.shields.io/badge/BleLib-v2.5.4-blue.svg)](https://bintray.com/superliu/maven/BleLib/2.5.4)
+```
+1、添加过滤扫描设备接口
+    mBle = Ble.options()
+                 .setLogBleExceptions(true)
+                 .setThrowBleException(true)
+                 .setAutoConnect(true)
+                 .setFilterScan(true)//设置是否过滤扫描到的设备
+                 .setConnectFailedRetryCount(3)
+                 .setConnectTimeout(10 * 1000)
+                 .setScanPeriod(12 * 1000)
+                 .setUuidService(UUID.fromString("0000fee9-0000-1000-8000-00805f9b34fb"))
+                 .setUuidWriteCha(UUID.fromString("d44bc439-abfd-45a2-b575-925416129600"))
+                 .create(getApplicationContext());
+ 2、优化自动重连接口
+ 3、添加Android5.0发送广播的接口
+    byte[] payload = new byte[16];
+    payload[0] = 0x01;
+    mBle.startAdvertising(payload);
+ 4、收到广播包并解析后的数据
+    BleScanCallback<BleDevice> scanCallback = new BleScanCallback<BleDevice>() {
+            @Override
+            public void onLeScan(final BleDevice device, int rssi, byte[] scanRecord) {
+                Log.e(TAG, "onLeScan: "+device.getBleAddress());
+                synchronized (mBle.getLocker()) {
+                    mLeDeviceListAdapter.addDevice(device);
+                    mLeDeviceListAdapter.notifyDataSetChanged();
+                }
+            }
+
+            //收到广播包并解析后的数据
+            @Override
+            public void onParsedData(BleDevice device, ScanRecord scanRecord) {
+                super.onParsedData(device, scanRecord);
+                byte[] data = scanRecord.getManufacturerSpecificData(65535);//参数为厂商id
+                if (data != null){
+                    Log.e(TAG, "onParsedData: "+ ByteUtils.BinaryToHexString(data));
+                }
+            }
+        };
+
+
+```
+
 [![Version](https://img.shields.io/badge/BleLib-v2.5.3-blue.svg)](https://bintray.com/superliu/maven/BleLib/2.5.3)
 ```
 1、添加发送大数据量的进度回调
@@ -69,8 +113,8 @@
                  .setConnectFailedRetryCount(3)
                  .setConnectTimeout(10 * 1000)
                  .setScanPeriod(12 * 1000)
-                 .setUuid_service(UUID.fromString("0000fee9-0000-1000-8000-00805f9b34fb"))
-                 .setUuid_write_cha(UUID.fromString("d44bc439-abfd-45a2-b575-925416129600"))
+                 .setUuidService(UUID.fromString("0000fee9-0000-1000-8000-00805f9b34fb"))
+                 .setUuidWriteCha(UUID.fromString("d44bc439-abfd-45a2-b575-925416129600"))
                  .create(getApplicationContext());
 2、优化断开连接后，自动移除通知监听的问题
 ```
@@ -223,23 +267,36 @@
 [![License](https://img.shields.io/badge/license-Apache%202-green.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 [![Download](https://api.bintray.com/packages/superliu/maven/BleLib/images/download.svg)](https://bintray.com/superliu/maven/BleLib/_latestVersion)
 ```groovy
-compile 'cn.com.superLei:blelibrary:2.5.3'
+compile 'cn.com.superLei:blelibrary:2.5.4'
 ```
 
 #### 1.初始化蓝牙(判断设备是否支持BLE，蓝牙是否打开以及6.0动态授权蓝牙权限等)<br>
 
 ```
     private void initBle() {
-        mBle = Ble.options()
+        //方式1
+        mBle = Ble.options()//开启配置
                 .setLogBleExceptions(true)//设置是否输出打印蓝牙日志（非正式打包请设置为true，以便于调试）
                 .setThrowBleException(true)//设置是否抛出蓝牙异常
                 .setAutoConnect(true)//设置是否自动连接
+                .setFilterScan(true)//设置是否过滤扫描到的设备
                 .setConnectFailedRetryCount(3)
                 .setConnectTimeout(10 * 1000)//设置连接超时时长（默认10*1000 ms）
                 .setScanPeriod(12 * 1000)//设置扫描时长（默认10*1000 ms）
-                .setUuid_service(UUID.fromString("0000fee9-0000-1000-8000-00805f9b34fb"))//主服务的uuid
-                .setUuid_write_cha(UUID.fromString("d44bc439-abfd-45a2-b575-925416129600"))//可写特征的uuid
+                .setUuidService(UUID.fromString("0000fee9-0000-1000-8000-00805f9b34fb"))//主服务的uuid
+                .setUuidWriteCha(UUID.fromString("d44bc439-abfd-45a2-b575-925416129600"))//可写特征的uuid
                 .create(getApplicationContext());
+
+        或者
+        //方式2  使用默认配置
+        mBle = Ble.create(getApplicationContext());
+        //方式3(同方式1)
+        Ble.Options options = Ble.options()
+                        .setLogBleExceptions(true)
+                        .setAutoConnect(true)...;
+        mBle = Ble.create(getApplicationContext(), options);
+
+        注意：若进行数据交互，必须进行配置uuid的各个值
      } 
 ```
 
