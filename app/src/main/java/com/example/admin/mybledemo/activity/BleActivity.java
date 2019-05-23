@@ -9,6 +9,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Environment;
+import android.os.SystemClock;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -195,8 +197,9 @@ public class BleActivity extends BaseActivity {
     }
 
     ProgressDialog dialog;
-    private void showProgress(){
-        if (dialog == null){
+
+    private void showProgress() {
+        if (dialog == null) {
             dialog = new ProgressDialog(this);
             dialog.setCancelable(false);
             dialog.setCanceledOnTouchOutside(false);// 设置在点击Dialog外是否取消Dialog进度条
@@ -216,15 +219,15 @@ public class BleActivity extends BaseActivity {
         dialog.show();
     }
 
-    private void setDialogProgress(int progress){
-        Log.e(TAG, "setDialogProgress: "+progress);
-        if (dialog != null){
+    private void setDialogProgress(int progress) {
+        Log.e(TAG, "setDialogProgress: " + progress);
+        if (dialog != null) {
             dialog.setProgress(progress);
         }
     }
 
-    private void hideProgress(){
-        if (dialog != null){
+    private void hideProgress() {
+        if (dialog != null) {
             dialog.dismiss();
         }
     }
@@ -234,7 +237,7 @@ public class BleActivity extends BaseActivity {
      */
     private void sendEntityData() throws IOException {
         byte[] data = ByteUtils.toByteArray(getAssets().open("WhiteChristmas.bin"));
-        Log.e(TAG, "sendEntityData: "+data.length);
+        Log.e(TAG, "sendEntityData: " + data.length);
         mBle.writeEntity(mBle.getConnetedDevices().get(0), data, 20, 50, new BleWriteEntityCallback<BleDevice>() {
             @Override
             public void onWriteSuccess() {
@@ -250,7 +253,7 @@ public class BleActivity extends BaseActivity {
 
             @Override
             public void onWriteProgress(double progress) {
-                Log.e("writeEntity", "当前发送进度: "+progress);
+                Log.e("writeEntity", "当前发送进度: " + progress);
                 setDialogProgress((int) (progress * 100));
             }
 
@@ -360,6 +363,7 @@ public class BleActivity extends BaseActivity {
 
     /**
      * 主动读取数据
+     *
      * @param device 设备对象
      */
     public void read(BleDevice device) {
@@ -382,7 +386,8 @@ public class BleActivity extends BaseActivity {
     BleScanCallback<BleDevice> scanCallback = new BleScanCallback<BleDevice>() {
         @Override
         public void onLeScan(final BleDevice device, int rssi, byte[] scanRecord) {
-            Log.e(TAG, "onLeScan: "+device.getBleAddress());
+            Log.e(TAG, "onLeScan: " + device.getBleAddress());
+            if (TextUtils.isEmpty(device.getBleName())) return;
             synchronized (mBle.getLocker()) {
                 mLeDeviceListAdapter.addDevice(device);
                 mLeDeviceListAdapter.notifyDataSetChanged();
@@ -399,8 +404,8 @@ public class BleActivity extends BaseActivity {
         public void onParsedData(BleDevice device, ScanRecord scanRecord) {
             super.onParsedData(device, scanRecord);
             byte[] data = scanRecord.getManufacturerSpecificData(65535);//参数为厂商id
-            if (data != null){
-                Log.e(TAG, "onParsedData: "+ ByteUtils.BinaryToHexString(data));
+            if (data != null) {
+                Log.e(TAG, "onParsedData: " + ByteUtils.BinaryToHexString(data));
             }
         }
     };
@@ -411,10 +416,9 @@ public class BleActivity extends BaseActivity {
     private BleConnectCallback<BleDevice> connectCallback = new BleConnectCallback<BleDevice>() {
         @Override
         public void onConnectionChanged(BleDevice device) {
-            Log.e(TAG, "onConnectionChanged: "+device.getConnectionState());
-            Log.e(TAG, "onConnectionChanged: current thread:"+Thread.currentThread().getName());
+            Log.e(TAG, "onConnectionChanged: " + device.getConnectionState());
             if (device.isConnected()) {
-                 /*连接成功后，设置通知*/
+                /*连接成功后，设置通知*/
                 mBle.startNotify(device, bleNotiftCallback);
             }
             L.e(TAG, "onConnectionChanged: " + device.isConnected());
@@ -430,8 +434,8 @@ public class BleActivity extends BaseActivity {
         @Override
         public void onConnectTimeOut(BleDevice device) {
             super.onConnectTimeOut(device);
-            Log.e(TAG, "onConnectTimeOut: "+device.getBleAddress());
-            ToastUtil.showToast("连接超时:"+device.getBleName());
+            Log.e(TAG, "onConnectTimeOut: " + device.getBleAddress());
+            ToastUtil.showToast("连接超时:" + device.getBleName());
         }
     };
 
@@ -476,8 +480,9 @@ public class BleActivity extends BaseActivity {
             case R.id.menu_disconnect_all:
                 if (mBle != null) {
                     ArrayList<BleDevice> list = mBle.getConnetedDevices();
-                    for (BleDevice device : list) {
-                        mBle.disconnect(device);
+                    Log.e(TAG, "onOptionsItemSelected:>>>> " + list.size());
+                    for (int i = 0; i < list.size(); i++) {
+                        mBle.disconnect(list.get(i));
                     }
                 }
                 break;

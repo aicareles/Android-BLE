@@ -21,6 +21,7 @@ import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.UUID;
 
 import cn.com.heaton.blelibrary.ble.callback.BleConnectCallback;
@@ -151,6 +152,24 @@ public class Ble<T extends BleDevice> {
      */
     public void reconnect(T device) {
         connect(device, null);
+    }
+
+//    /**
+//     * 取消单个设备重连
+//     * @param device 设备对象
+//     */
+//    public void cancelReConnect(T device){
+//        ConnectRequest<T> request = Rproxy.getInstance().getRequest(ConnectRequest.class);
+//        if(request != null){
+//            request.cancelAutoConnect(device);
+//        }
+//    }
+
+    public void resetReConnect(T device, boolean autoConnect){
+        ConnectRequest<T> request = Rproxy.getInstance().getRequest(ConnectRequest.class);
+        if(request != null){
+            request.resetReConnect(device, autoConnect);
+        }
     }
 
     /**

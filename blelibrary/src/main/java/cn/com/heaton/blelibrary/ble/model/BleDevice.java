@@ -36,6 +36,9 @@ public class BleDevice implements Serializable{
     /*是否自动连接*/
     private boolean mAutoConnect = false;//The default is not automatic connection
 
+    /*是否正在自动重连*/
+    private boolean isAutoConnectting = false;
+
     /*解析后的广播包数据*/
     public ScanRecord scanRecord;
 
@@ -64,6 +67,14 @@ public class BleDevice implements Serializable{
 
     public void setAutoConnect(boolean mAutoConnect) {
         this.mAutoConnect = mAutoConnect;
+    }
+
+    public boolean isAutoConnectting() {
+        return isAutoConnectting;
+    }
+
+    public void setAutoConnectting(boolean autoConnectting) {
+        isAutoConnectting = autoConnectting;
     }
 
     public int getConnectionState() {

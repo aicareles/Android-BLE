@@ -165,17 +165,17 @@ public class ScanRequest<T extends BleDevice> implements IMessage {
                 }
             }
         }
-        //自动重连
-        autoConnect(device);
+//        //自动重连
+//        autoConnect(device);
         return bleDevice;
     }
 
-    private void autoConnect(BluetoothDevice device){
+    /*private void autoConnect(BluetoothDevice device){
         if (mConnectRequest == null){
             mConnectRequest = Rproxy.getInstance().getRequest(ConnectRequest.class);
         }
         mConnectRequest.autoConnect(device);
-    }
+    }*/
 
     //获取已扫描到的设备（重复设备）
     private T getDevice(String address) {

@@ -327,7 +327,7 @@ public class BluetoothLeService extends Service {
             public void run() {
                 if (mConnectWrapperLisenter != null) {
                     mConnectWrapperLisenter.onConnectTimeOut(device);
-                    mConnectWrapperLisenter.onConnectionChanged(device, BleStates.BleStatus.DISCONNECT);
+                    close(device.getAddress());
                 }
             }
         };

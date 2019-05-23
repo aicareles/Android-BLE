@@ -6,14 +6,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.TextView;
 
 
 import com.example.admin.mybledemo.R;
+import com.example.admin.mybledemo.utils.ToastUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.com.heaton.blelibrary.ble.Ble;
 import cn.com.heaton.blelibrary.ble.model.BleDevice;
 
 /**
@@ -78,7 +81,7 @@ public class LeDeviceListAdapter extends BaseAdapter {
 
     @Override
     public View getView(int i, View view, ViewGroup viewGroup) {
-        ViewHolder viewHolder;
+        final ViewHolder viewHolder;
         // General ListView optimization code.
         if (view == null) {
             view = mInflator.inflate(R.layout.listitem_device, null);
@@ -86,6 +89,7 @@ public class LeDeviceListAdapter extends BaseAdapter {
             viewHolder.deviceAddress = (TextView) view.findViewById(R.id.device_address);
             viewHolder.deviceName = (TextView) view.findViewById(R.id.device_name);
             viewHolder.deviceState = (TextView) view.findViewById(R.id.state);
+            viewHolder.cancelReConnect = (Button) view.findViewById(R.id.cancelReConnect);
             view.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) view.getTag();
@@ -107,7 +111,31 @@ public class LeDeviceListAdapter extends BaseAdapter {
             viewHolder.deviceName.setText(deviceName);
         }
 
+        if (device.isAutoConnect()){
+            viewHolder.cancelReConnect.setText("取消重连");
+        }else {
+            viewHolder.cancelReConnect.setText("重连");
+        }
+
         viewHolder.deviceAddress.setText(device.getBleAddress());
+
+        viewHolder.cancelReConnect.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (device.isAutoConnect()){
+                    Ble.getInstance().resetReConnect(device, false);
+                    ToastUtil.showToast("已取消重连");
+                    viewHolder.cancelReConnect.setText("重连");
+                    if (!device.isConnected()){
+                        viewHolder.deviceState.setText("未连接");
+                    }
+                }else {
+                    Ble.getInstance().resetReConnect(device, true);
+                    ToastUtil.showToast("开启重连");
+                    viewHolder.cancelReConnect.setText("取消重连");
+                }
+            }
+        });
 
         return view;
     }
@@ -117,6 +145,7 @@ public class LeDeviceListAdapter extends BaseAdapter {
         TextView deviceAddress;
         TextView deviceRSSI;
         TextView deviceState;
+        Button cancelReConnect;
     }
 
 }
