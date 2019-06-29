@@ -33,6 +33,7 @@ import cn.com.heaton.blelibrary.ble.callback.BleScanCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleWriteCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleWriteEntityCallback;
 import cn.com.heaton.blelibrary.ble.model.BleDevice;
+import cn.com.heaton.blelibrary.ble.model.EntityData;
 import cn.com.heaton.blelibrary.ble.request.ConnectRequest;
 import cn.com.heaton.blelibrary.ble.exception.BleServiceException;
 import cn.com.heaton.blelibrary.ble.proxy.RequestImpl;
@@ -53,6 +54,8 @@ public class Ble<T extends BleDevice> {
     private static volatile Ble sInstance;
 
     private static volatile Options sOptions;
+
+    private Context mContext;
 
     private RequestLisenter<T> mRequest;
 
@@ -85,6 +88,7 @@ public class Ble<T extends BleDevice> {
      */
     public boolean init(Context context, Options options){
         sOptions = (options == null ? options() : options);
+        mContext = context;
         L.init(sOptions);
         //设置动态代理
         mRequest = (RequestLisenter) RequestProxy.getInstance()
@@ -153,17 +157,6 @@ public class Ble<T extends BleDevice> {
     public void reconnect(T device) {
         connect(device, null);
     }
-
-//    /**
-//     * 取消单个设备重连
-//     * @param device 设备对象
-//     */
-//    public void cancelReConnect(T device){
-//        ConnectRequest<T> request = Rproxy.getInstance().getRequest(ConnectRequest.class);
-//        if(request != null){
-//            request.cancelAutoConnect(device);
-//        }
-//    }
 
     public void resetReConnect(T device, boolean autoConnect){
         ConnectRequest<T> request = Rproxy.getInstance().getRequest(ConnectRequest.class);
@@ -254,8 +247,13 @@ public class Ble<T extends BleDevice> {
      * @param delay 每包之间的时间间隔
      * @param callback 发送结果回调
      */
+    @Deprecated
     public void writeEntity(T device, final byte[]data, @IntRange(from = 1,to = 20)int packLength, int delay, BleWriteEntityCallback<T> callback){
         mRequest.writeEntity(device, data, packLength, delay, callback);
+    }
+
+    public void writeEntity(EntityData entityData, BleWriteEntityCallback<T> callback){
+        mRequest.writeEntity(entityData, callback);
     }
 
     public void cancelWriteEntity(){
@@ -568,6 +566,10 @@ public class Ble<T extends BleDevice> {
             sOptions = new Options();
         }
         return sOptions;
+    }
+
+    public Context getContext(){
+        return mContext;
     }
 
     /**

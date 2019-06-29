@@ -3,31 +3,28 @@ package cn.com.heaton.blelibrary.ble.request;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.os.SystemClock;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
-import cn.com.heaton.blelibrary.ble.model.BleDevice;
-import cn.com.heaton.blelibrary.ble.utils.TaskExecutor;
-import cn.com.heaton.blelibrary.ble.callback.wrapper.ConnectWrapperLisenter;
-import cn.com.heaton.blelibrary.ble.BleFactory;
 import cn.com.heaton.blelibrary.ble.Ble;
-import cn.com.heaton.blelibrary.ble.L;
+import cn.com.heaton.blelibrary.ble.BleFactory;
 import cn.com.heaton.blelibrary.ble.BleStates;
 import cn.com.heaton.blelibrary.ble.BluetoothLeService;
+import cn.com.heaton.blelibrary.ble.L;
 import cn.com.heaton.blelibrary.ble.annotation.Implement;
 import cn.com.heaton.blelibrary.ble.callback.BleConnectCallback;
+import cn.com.heaton.blelibrary.ble.callback.wrapper.ConnectWrapperLisenter;
+import cn.com.heaton.blelibrary.ble.model.BleDevice;
+import cn.com.heaton.blelibrary.ble.utils.TaskExecutor;
 
 /**
  *
  * Created by LiuLei on 2017/10/21.
  */
 @Implement(ConnectRequest.class)
-public class ConnectRequest<T extends BleDevice> implements ConnectWrapperLisenter {
+public class ConnectRequest<T extends BleDevice> implements ConnectWrapperLisenter{
 
     private static final String TAG = "ConnectRequest";
     private List<BleConnectCallback<T>> mConnectCallbacks = new ArrayList<>();
@@ -45,7 +42,6 @@ public class ConnectRequest<T extends BleDevice> implements ConnectWrapperLisent
     }
 
     public boolean connect(T device, BleConnectCallback<T> lisenter) {
-        L.i(TAG, Thread.currentThread().getName()+">>>>");
         addBleDevice(device);
         if(lisenter != null && !mConnectCallbacks.contains(lisenter)){
             this.mConnectCallbacks.add(lisenter);
@@ -133,14 +129,14 @@ public class ConnectRequest<T extends BleDevice> implements ConnectWrapperLisent
         d.setConnectionState(status);
         if (status == BleStates.BleStatus.CONNECTED){
             mConnetedDevices.add(d);
-            L.e(TAG, "handleMessage:++++CONNECTED "+d.getBleName());
+            L.e(TAG, "CONNECTED>>>> "+d.getBleName());
             //After the success of the connection can be considered automatically reconnect
             //If it is automatically connected device is removed from the automatic connection pool
             removeAutoPool(d);
         }else if(status == BleStates.BleStatus.DISCONNECT) {
             mConnetedDevices.remove(d);
             mDevices.remove(d);
-            L.e(TAG, "handleMessage:++++DISCONNECT "+d.getBleName());
+            L.e(TAG, "DISCONNECT>>>> "+d.getBleName());
             //移除通知
             Ble.getInstance().cancelNotify(d);
             addAutoPool(d);
@@ -168,6 +164,7 @@ public class ConnectRequest<T extends BleDevice> implements ConnectWrapperLisent
         } else {//Abnormal state (in theory, there is no such situation)
             errorCode = BleStates.BleStatus.ConnectError;
         }
+        L.e(TAG, "ConnectException>>>> "+d.getBleName()+"\n异常码:"+errorCode);
         TaskExecutor.mainThread(new Runnable() {
             @Override
             public void run() {
@@ -182,6 +179,7 @@ public class ConnectRequest<T extends BleDevice> implements ConnectWrapperLisent
     public void onConnectTimeOut(BluetoothDevice device) {
         final T d = getBleDevice(device);
         if (d == null)return;
+        L.e(TAG, "ConnectTimeOut>>>> "+d.getBleName());
         TaskExecutor.mainThread(new Runnable() {
             @Override
             public void run() {
@@ -210,19 +208,18 @@ public class ConnectRequest<T extends BleDevice> implements ConnectWrapperLisent
 
     public T getBleDevice(String address) {
         if(address == null){
-            L.i(TAG,"By address to get BleDevice but address is null");
+            L.w(TAG,"By address to get BleDevice but address is null");
             return null;
         }
         synchronized (mDevices){
             if(mDevices.size() > 0){
                 for (T bleDevice : mDevices){
                     if(bleDevice.getBleAddress().equals(address)){
-                        L.i(TAG,"By address to get BleDevice and BleDevice is exist");
                         return bleDevice;
                     }
                 }
             }
-            L.i(TAG,"By address to get BleDevice and BleDevice isn't exist");
+            L.w(TAG,"By address to get BleDevice and BleDevice isn't exist");
             return null;
         }
 

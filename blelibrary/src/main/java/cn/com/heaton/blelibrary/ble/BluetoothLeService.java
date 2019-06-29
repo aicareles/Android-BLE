@@ -30,7 +30,6 @@ import java.util.Objects;
 import java.util.UUID;
 
 import cn.com.heaton.blelibrary.BuildConfig;
-import cn.com.heaton.blelibrary.ble.callback.wrapper.BluetoothChangedObserver;
 import cn.com.heaton.blelibrary.ble.callback.wrapper.ConnectWrapperLisenter;
 import cn.com.heaton.blelibrary.ble.callback.wrapper.NotifyWrapperLisenter;
 import cn.com.heaton.blelibrary.ble.model.BleDevice;
@@ -45,7 +44,6 @@ public class BluetoothLeService extends Service {
 
     private final static String TAG = BluetoothLeService.class.getSimpleName();
 
-    private ConnectRequest mConnectRequest;
     private Handler mHandler;
     private Ble.Options mOptions;
     private BluetoothManager mBluetoothManager;
@@ -73,9 +71,6 @@ public class BluetoothLeService extends Service {
     private NotifyWrapperLisenter<BleDevice> mNotifyWrapperLisenter;
 
     private OtaListener mOtaListener;//Ota update operation listener
-
-    /**blutooth status observer*/
-    private BluetoothChangedObserver mBleObserver;
 
     /**
      * 在各种状态回调中发现连接更改或服务
@@ -124,7 +119,7 @@ public class BluetoothLeService extends Service {
         @TargetApi(Build.VERSION_CODES.LOLLIPOP)
         public void onMtuChanged(android.bluetooth.BluetoothGatt gatt, int mtu, int status){
             if (gatt != null && gatt.getDevice() != null) {
-                BleDevice d = mConnectRequest.getBleDevice(gatt.getDevice());
+                BleDevice d = Ble.getInstance().getBleDevice(gatt.getDevice());
                 L.e(TAG, "onMtuChanged mtu=" + mtu + ",status=" + status);
                 mHandler.obtainMessage(BleStates.BleStatus.MTUCHANGED, mtu, status, d).sendToTarget();
             }
@@ -186,9 +181,9 @@ public class BluetoothLeService extends Service {
                                             BluetoothGattCharacteristic characteristic) {
             synchronized (mLocker) {
                 if (gatt.getDevice() == null)return;
-
-                BleDevice d = mConnectRequest.getBleDevice(gatt.getDevice());
-                L.i(TAG, gatt.getDevice().getAddress() + " -- onCharacteristicChanged: " + (characteristic.getValue() != null ? Arrays.toString(characteristic.getValue()) : ""));
+                BleDevice d = Ble.getInstance().getBleDevice(gatt.getDevice());
+                L.i(TAG, gatt.getDevice().getAddress() + " -- onCharacteristicChanged: "
+                        + (characteristic.getValue() != null ? Arrays.toString(characteristic.getValue()) : ""));
                 if (mOptions.uuid_ota_write_cha.equals(characteristic.getUuid()) || mOptions.uuid_ota_notify_cha.equals(characteristic.getUuid())) {
                     if (mOtaListener != null) {
                         mOtaListener.onChange(characteristic.getValue());
@@ -208,15 +203,15 @@ public class BluetoothLeService extends Service {
         public void onDescriptorWrite(BluetoothGatt gatt,
                                       BluetoothGattDescriptor descriptor, int status) {
             UUID uuid = descriptor.getCharacteristic().getUuid();
-            L.w(TAG, "onDescriptorWrite");
-            L.e(TAG, "descriptor_uuid:" + uuid);
+            L.i(TAG, "onDescriptorWrite");
+            L.i(TAG, "descriptor_uuid:" + uuid);
             synchronized (mLocker) {
-                L.e(TAG, " -- onDescriptorWrite: " + status);
+                L.w(TAG, " -- onDescriptorWrite: " + status);
                 if (status == BluetoothGatt.GATT_SUCCESS) {
                     if (mNotifyCharacteristics != null && mNotifyCharacteristics.size() > 0 && mNotifyIndex < mNotifyCharacteristics.size()) {
                         setCharacteristicNotification(gatt.getDevice().getAddress(), mNotifyCharacteristics.get(mNotifyIndex++), true);
                     } else {
-                        L.e(TAG, "====setCharacteristicNotification is true,ready to sendData===");
+                        L.i(TAG, "====setCharacteristicNotification is true,ready to sendData===");
                         if (mNotifyWrapperLisenter != null) {
                             mNotifyWrapperLisenter.onNotifySuccess(gatt);
                         }
@@ -230,8 +225,8 @@ public class BluetoothLeService extends Service {
         public void onDescriptorRead(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
             super.onDescriptorRead(gatt, descriptor, status);
             UUID uuid = descriptor.getCharacteristic().getUuid();
-            L.w(TAG, "onDescriptorRead");
-            L.e(TAG, "descriptor_uuid:" + uuid);
+            L.i(TAG, "onDescriptorRead");
+            L.i(TAG, "descriptor_uuid:" + uuid);
             mHandler.obtainMessage(BleStates.BleStatus.DescriptorRead, gatt).sendToTarget();
         }
 
@@ -239,17 +234,6 @@ public class BluetoothLeService extends Service {
         public void onReadRemoteRssi(BluetoothGatt gatt, int rssi, int status) {
             System.out.println("rssi = " + rssi);
             mHandler.obtainMessage(BleStates.BleStatus.ReadRssi, rssi).sendToTarget();
-        }
-    };
-
-    /**
-     * 蓝牙状态变化时的回调  2018/08/29
-     */
-    private BluetoothChangedObserver.BluetoothStatusLisenter
-            mBluetoothStatusLisenter = new BluetoothChangedObserver.BluetoothStatusLisenter() {
-        @Override
-        public void onBluetoothStatusChanged(int status) {
-            mHandler.obtainMessage(status).sendToTarget();
         }
     };
 
@@ -271,27 +255,22 @@ public class BluetoothLeService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
-        this.mBleObserver = new BluetoothChangedObserver(getApplication());
-        this.mBleObserver.setBluetoothStatusLisenter(mBluetoothStatusLisenter);
-        //注册广播接收器
-        this.mBleObserver.registerReceiver();
+        L.e(TAG,"onBind>>>>");
         return mBinder;
     }
 
     @Override
     public boolean onUnbind(Intent intent) {
         close();
-        mBleObserver.unregisterReceiver();
+        L.e(TAG,"onUnbind>>>>");
         return super.onUnbind(intent);
     }
 
     private final IBinder mBinder = new LocalBinder();
 
     public void initialize(Ble.Options options) {
-        mConnectRequest = Rproxy.getInstance().getRequest(ConnectRequest.class);
-        setConnectWrapperLisenter(mConnectRequest);
-        NotifyRequest request = Rproxy.getInstance().getRequest(NotifyRequest.class);
-        setNotifyWrapperLisenter(request);
+        this.mConnectWrapperLisenter = Rproxy.getInstance().getRequest(ConnectRequest.class);
+        this.mNotifyWrapperLisenter = Rproxy.getInstance().getRequest(NotifyRequest.class);
         this.mHandler = BleHandler.of();
         this.mOptions = options;
     }
@@ -428,8 +407,7 @@ public class BluetoothLeService extends Service {
      */
     public void close() {
         if (mConnectedAddressList == null) return;
-        for (String address :
-                mConnectedAddressList) {
+        for (String address : mConnectedAddressList) {
             if (mBluetoothGattMap.get(address) != null) {
                 mBluetoothGattMap.get(address).close();
             }
@@ -787,15 +765,6 @@ public class BluetoothLeService extends Service {
      */
     public void setOtaListener(OtaListener otaListener) {
         this.mOtaListener = otaListener;
-    }
-
-
-    public void setConnectWrapperLisenter(ConnectWrapperLisenter lisenter) {
-        this.mConnectWrapperLisenter = lisenter;
-    }
-
-    public void setNotifyWrapperLisenter(NotifyWrapperLisenter<BleDevice> lisenter) {
-        this.mNotifyWrapperLisenter = lisenter;
     }
 
 }

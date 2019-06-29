@@ -61,6 +61,7 @@ public class AdvertiserRequest<T extends BleDevice> {
                     mAdvertiser.stopAdvertising(mAdvertiseCallback);
                     myAdvertiseData = new AdvertiseData.Builder()
                             .addManufacturerData(65520, payload)
+                            .setIncludeDeviceName(true)
                             .build();
                     mAdvertiser.startAdvertising(myAdvertiseSettings, myAdvertiseData, mAdvertiseCallback);
                 }

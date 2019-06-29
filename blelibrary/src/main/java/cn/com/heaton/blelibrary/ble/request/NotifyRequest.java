@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import cn.com.heaton.blelibrary.ble.model.BleDevice;
-import cn.com.heaton.blelibrary.ble.L;
 import cn.com.heaton.blelibrary.ble.utils.TaskExecutor;
 import cn.com.heaton.blelibrary.ble.annotation.Implement;
 import cn.com.heaton.blelibrary.ble.callback.BleNotiftCallback;
@@ -22,21 +21,12 @@ public class NotifyRequest<T extends BleDevice> implements NotifyWrapperLisenter
 
     private static final String TAG = "NotifyRequest";
 
-    private BleNotiftCallback<T> mBleLisenter;
-    private HashMap<T, BleNotiftCallback> mBleNotifyMap = new HashMap<>();
     private List<BleNotiftCallback> mNotifyCallbacks = new ArrayList<>();
     private HashMap<T, List<BleNotiftCallback>> mBleNotifyMaps = new HashMap<>();
 
     protected NotifyRequest() {}
 
     public void notify(T device, BleNotiftCallback<T> callback) {
-//        if(callback != null && !mNotifyCallbacks.contains(callback)){
-//            this.mNotifyCallbacks.add(callback);
-//        }
-//        if(!mBleNotifyMap.containsKey(device)){
-//            this.mBleNotifyMap.put(device, callback);
-//            this.mNotifyCallbacks.add(callback);
-//        }
         if (!mNotifyCallbacks.contains(callback)) {
             List<BleNotiftCallback> bleCallbacks;
             if (mBleNotifyMaps.containsKey(device)) {
@@ -52,13 +42,6 @@ public class NotifyRequest<T extends BleDevice> implements NotifyWrapperLisenter
     }
 
     public void unNotify(T device) {
-//        if(callback != null && mNotifyCallbacks.contains(callback)){
-//            this.mNotifyCallbacks.remove(callback);
-//        }
-//        if(mBleNotifyMap.containsKey(device)){
-//            mNotifyCallbacks.remove(mBleNotifyMap.get(device));
-//            mBleNotifyMap.remove(device);
-//        }
         if (mBleNotifyMaps.containsKey(device)) {
             //移除该设备的所有通知
             mNotifyCallbacks.removeAll(mBleNotifyMaps.get(device));
@@ -68,15 +51,9 @@ public class NotifyRequest<T extends BleDevice> implements NotifyWrapperLisenter
 
     @Override
     public void onChanged(final T device, final BluetoothGattCharacteristic characteristic) {
-        TaskExecutor.mainThread(new Runnable() {
-            @Override
-            public void run() {
-                for (BleNotiftCallback callback : mNotifyCallbacks) {
-                    callback.onChanged(device, characteristic);
-                    L.e("handleMessage", "onChanged++");
-                }
-            }
-        });
+        for (BleNotiftCallback callback : mNotifyCallbacks) {
+            callback.onChanged(device, characteristic);
+        }
     }
 
     @Override

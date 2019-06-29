@@ -52,35 +52,28 @@
         android:text="发送大数据"/>
 
     <Button
-        android:id="@+id/cancelEntity"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/ll_function"
-        android:layout_toEndOf="@+id/sendEntityData"
-        android:text="取消发送大数据"/>
-
-    <Button
-        android:id="@+id/test"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/ll_function"
-        android:layout_toEndOf="@+id/cancelEntity"
-        android:text="测试页面" />
-
-    <Button
         android:id="@+id/startAdvertise"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/sendEntityData"
+        android:layout_toEndOf="@+id/sendEntityData"
+        android:layout_below="@+id/ll_function"
         android:text="开启广播"/>
 
     <Button
         android:id="@+id/stopAdvertise"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/sendEntityData"
+        android:layout_below="@+id/ll_function"
         android:layout_toRightOf="@+id/startAdvertise"
         android:text="停止广播"/>
+
+    <Button
+        android:id="@+id/restart"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/ll_function"
+        android:layout_toRightOf="@+id/stopAdvertise"
+        android:text="重启app"/>
 
     <ListView
         android:id="@+id/listView"

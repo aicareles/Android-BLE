@@ -8,7 +8,6 @@ import android.os.ParcelUuid;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.util.ArrayMap;
-import android.util.Log;
 import android.util.SparseArray;
 
 import java.nio.ByteBuffer;
@@ -19,6 +18,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+
+import cn.com.heaton.blelibrary.ble.L;
 
 /**
  * description $desc$
@@ -297,7 +298,7 @@ public class ScanRecord {
             return new ScanRecord(serviceUuids, manufacturerData, serviceData,
                     advertiseFlag, txPowerLevel, localName, scanRecord);
         } catch (Exception e) {
-            Log.e(TAG, "unable to parse scan record: " + Arrays.toString(scanRecord));
+            L.e(TAG, "unable to parse scan record: " + Arrays.toString(scanRecord));
             // As the record is invalid, ignore all the parsed results for this packet
             // and return an empty record with raw scanRecord bytes in results
             return new ScanRecord(null, manufacturerData, null, -1, Integer.MIN_VALUE, null, scanRecord);

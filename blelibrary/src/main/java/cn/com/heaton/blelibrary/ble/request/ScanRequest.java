@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cn.com.heaton.blelibrary.ble.Ble;
+import cn.com.heaton.blelibrary.ble.callback.wrapper.BluetoothChangedObserver;
 import cn.com.heaton.blelibrary.ble.model.ScanRecord;
 import cn.com.heaton.blelibrary.ble.BleFactory;
 import cn.com.heaton.blelibrary.ble.BleHandler;
@@ -30,8 +31,9 @@ import cn.com.heaton.blelibrary.ble.model.BleDevice;
  * Created by LiuLei on 2017/10/21.
  */
 @Implement(ScanRequest.class)
-public class ScanRequest<T extends BleDevice> implements IMessage {
+public class ScanRequest<T extends BleDevice> {
 
+    private static final String TAG = "ScanRequest";
     private boolean mScanning;
     private BluetoothAdapter mBluetoothAdapter;
     private BluetoothLeScanner mScanner;
@@ -41,11 +43,11 @@ public class ScanRequest<T extends BleDevice> implements IMessage {
     private List<ScanFilter> mFilters;
     //    private AtomicBoolean isContains = new AtomicBoolean(false);
     private ArrayList<T> mScanDevices = new ArrayList<>();
-    private ConnectRequest mConnectRequest;
+    /**blutooth status observer*/
+    private BluetoothChangedObserver mBleObserver;
 
     protected ScanRequest() {
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        BleHandler.of().setHandlerCallback(this);
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
             //mScanner will be null if Bluetooth has been closed
             mScanner = mBluetoothAdapter.getBluetoothLeScanner();
@@ -54,6 +56,11 @@ public class ScanRequest<T extends BleDevice> implements IMessage {
                     .build();
             mScannerCallback  = new BLEScanCallback();
             mFilters = new ArrayList<>();
+        }
+        if (mBleObserver == null){
+            this.mBleObserver = new BluetoothChangedObserver(Ble.getInstance().getContext());
+            this.mBleObserver.setBluetoothStatusLisenter(mBluetoothStatusLisenter);
+            this.mBleObserver.registerReceiver();
         }
     }
 
@@ -165,17 +172,8 @@ public class ScanRequest<T extends BleDevice> implements IMessage {
                 }
             }
         }
-//        //自动重连
-//        autoConnect(device);
         return bleDevice;
     }
-
-    /*private void autoConnect(BluetoothDevice device){
-        if (mConnectRequest == null){
-            mConnectRequest = Rproxy.getInstance().getRequest(ConnectRequest.class);
-        }
-        mConnectRequest.autoConnect(device);
-    }*/
 
     //获取已扫描到的设备（重复设备）
     private T getDevice(String address) {
@@ -187,14 +185,23 @@ public class ScanRequest<T extends BleDevice> implements IMessage {
         return null;
     }
 
-    @Override
-    public void handleMessage(Message msg) {
-        switch (msg.what){
-            case BleStates.BleStatus.BlutoothStatusOff:
-                if(mScanning){
-                    stopScan();
-                }
-                break;
+    /**
+     * 蓝牙状态变化时的回调  2018/08/29
+     */
+    private BluetoothChangedObserver.BluetoothStatusLisenter
+            mBluetoothStatusLisenter = new BluetoothChangedObserver.BluetoothStatusLisenter() {
+        @Override
+        public void onBluetoothStatusChanged(int status) {
+            L.e(TAG,"onBluetoothStatusChanged>>>"+status);
+            if(status == BleStates.BleStatus.BlutoothStatusOff && mScanning){
+                stopScan();
+            }
+        }
+    };
+
+    public void unRegisterReceiver(){
+        if (mBleObserver != null){
+            mBleObserver.unregisterReceiver();
         }
     }
 }

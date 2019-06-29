@@ -7,6 +7,7 @@ import cn.com.heaton.blelibrary.ble.callback.BleReadRssiCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleScanCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleWriteCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleWriteEntityCallback;
+import cn.com.heaton.blelibrary.ble.model.EntityData;
 
 /**
  *
@@ -38,6 +39,8 @@ public interface RequestLisenter<T> {
     boolean write(T device, byte[]data, BleWriteCallback<T> callback);
 
     void writeEntity(T device, final byte[]data, int packLength, int delay, BleWriteEntityCallback<T> callback);
+
+    void writeEntity(EntityData entityData, BleWriteEntityCallback<T> callback);
 
     void cancelWriteEntity();
 

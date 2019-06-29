@@ -31,7 +31,15 @@ import com.example.admin.mybledemo.command.AppProtocol;
 import com.example.admin.mybledemo.command.CommandBean;
 import com.example.admin.mybledemo.utils.ByteUtils;
 import com.example.admin.mybledemo.utils.FileUtils;
+import com.example.admin.mybledemo.utils.RetryUtils;
 import com.example.admin.mybledemo.utils.ToastUtil;
+import com.github.rholder.retry.RetryException;
+import com.github.rholder.retry.Retryer;
+import com.github.rholder.retry.RetryerBuilder;
+import com.github.rholder.retry.StopStrategies;
+import com.github.rholder.retry.WaitStrategies;
+import com.github.rholder.retry.WaitStrategy;
+import com.google.common.base.Predicates;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,6 +47,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 import cn.com.heaton.blelibrary.ble.Ble;
 import cn.com.heaton.blelibrary.ble.model.BleDevice;
@@ -86,6 +97,9 @@ public class BleActivity extends BaseActivity {
                 .setScanPeriod(12 * 1000)//设置扫描时长
                 .setUuidService(UUID.fromString("0000fee9-0000-1000-8000-00805f9b34fb"))//设置主服务的uuid
                 .setUuidWriteCha(UUID.fromString("d44bc439-abfd-45a2-b575-925416129600"))//设置可写特征的uuid
+                .setUuidOtaService(UUID.fromString("0000fd00-0000-1000-8000-00805f9b34fb"))
+                .setUuidOtaNotifyCha(UUID.fromString("0000fd02-0000-1000-8000-00805f9b34fb"))
+                .setUuidOtaWriteCha(UUID.fromString("0000fd01-0000-1000-8000-00805f9b34fb"))
                 .create(getApplicationContext());
         //3、检查蓝牙是否支持及打开
         checkBluetoothStatus();
@@ -145,12 +159,9 @@ public class BleActivity extends BaseActivity {
 
     @SingleClick //过滤重复点击
     @CheckConnect //检查是否连接
-    @OnClick({R.id.test, R.id.readRssi, R.id.sendData, R.id.updateOta, R.id.requestMtu, R.id.sendEntityData, R.id.cancelEntity})
+    @OnClick({R.id.readRssi, R.id.sendData, R.id.updateOta, R.id.requestMtu, R.id.sendEntityData, R.id.restart})
     public void onClick(View view) {
         switch (view.getId()) {
-            case R.id.test:
-                toTest();
-                break;
             case R.id.readRssi:
                 readRssi();
                 break;
@@ -171,8 +182,8 @@ public class BleActivity extends BaseActivity {
                     e.printStackTrace();
                 }
                 break;
-            case R.id.cancelEntity:
-                cancelEntity();
+            case R.id.restart:
+                recreate();
                 break;
             default:
                 break;
@@ -212,7 +223,7 @@ public class BleActivity extends BaseActivity {
             dialog.setButton(DialogInterface.BUTTON_NEGATIVE, "取消", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    cancelEntity();
+                    mBle.cancelWriteEntity();
                 }
             });
         }
@@ -233,7 +244,7 @@ public class BleActivity extends BaseActivity {
     }
 
     /**
-     * 发送大数据量的包
+     * 分包发送数据
      */
     private void sendEntityData() throws IOException {
         byte[] data = ByteUtils.toByteArray(getAssets().open("WhiteChristmas.bin"));
@@ -263,13 +274,6 @@ public class BleActivity extends BaseActivity {
                 hideProgress();
             }
         });
-    }
-
-    /**
-     * 取消发送大数据包
-     */
-    private void cancelEntity() {
-        mBle.cancelWriteEntity();
     }
 
     /**
@@ -317,16 +321,8 @@ public class BleActivity extends BaseActivity {
      * 发送数据
      */
     private void sendData() {
-        List<BleDevice> list = Ble.getInstance().getConnetedDevices();
-        synchronized (mBle.getLocker()) {
-            for (BleDevice device : list) {
-                CommandBean commandBean = new CommandBean();
-                AppProtocol.sendCarMoveCommand(device, commandBean.setCarCommand(80, 1));
-//                AppProtocol.sendCarMoveCommand(device, commandBean.setOrderCommand(2, 1, null));
-//                AppProtocol.sendCarMscCommand(device, commandBean.setMscCommand(C.Command.TF_MUSIC_TYPE, 1, (short) 121));
-//                AppProtocol.sendMusicVolume(device, commandBean.setVolumeCommand(C.Command.TF_MUSIC_TYPE, 10));
-            }
-        }
+        final List<BleDevice> list = mBle.getConnetedDevices();
+        RetryUtils.call(() -> mBle.write(list.get(0), "Hello Android!".getBytes(), null), 3, 50);
     }
 
     /**
@@ -341,13 +337,6 @@ public class BleActivity extends BaseActivity {
                 ToastUtil.showToast("读取远程RSSI成功：" + rssi);
             }
         });
-    }
-
-    private void toTest() {
-        if (mBle.isScanning()) {
-            mBle.stopScan();
-        }
-        startActivity(new Intent(BleActivity.this, TestActivity.class));
     }
 
     /**
@@ -367,26 +356,23 @@ public class BleActivity extends BaseActivity {
      * @param device 设备对象
      */
     public void read(BleDevice device) {
-        boolean result = mBle.read(device, new BleReadCallback<BleDevice>() {
+        RetryUtils.call(() -> mBle.read(device, new BleReadCallback<BleDevice>() {
             @Override
             public void onReadSuccess(BluetoothGattCharacteristic characteristic) {
                 super.onReadSuccess(characteristic);
                 byte[] data = characteristic.getValue();
                 L.w(TAG, "onReadSuccess: " + Arrays.toString(data));
             }
-        });
-        if (!result) {
-            L.d(TAG, "读取数据失败!");
-        }
+        }), 3, 50);
     }
 
     /**
      * 扫描的回调
      */
-    BleScanCallback<BleDevice> scanCallback = new BleScanCallback<BleDevice>() {
+    private BleScanCallback<BleDevice> scanCallback = new BleScanCallback<BleDevice>() {
         @Override
         public void onLeScan(final BleDevice device, int rssi, byte[] scanRecord) {
-            Log.e(TAG, "onLeScan: " + device.getBleAddress());
+            Log.e(TAG, "onLeScan: " + device.getBleName());
             if (TextUtils.isEmpty(device.getBleName())) return;
             synchronized (mBle.getLocker()) {
                 mLeDeviceListAdapter.addDevice(device);
@@ -403,7 +389,7 @@ public class BleActivity extends BaseActivity {
         @Override
         public void onParsedData(BleDevice device, ScanRecord scanRecord) {
             super.onParsedData(device, scanRecord);
-            byte[] data = scanRecord.getManufacturerSpecificData(65535);//参数为厂商id
+            byte[] data = scanRecord.getManufacturerSpecificData(65520);//参数为厂商id
             if (data != null) {
                 Log.e(TAG, "onParsedData: " + ByteUtils.BinaryToHexString(data));
             }

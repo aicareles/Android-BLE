@@ -13,6 +13,7 @@ import cn.com.heaton.blelibrary.ble.callback.BleReadRssiCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleScanCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleWriteCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleWriteEntityCallback;
+import cn.com.heaton.blelibrary.ble.model.EntityData;
 import cn.com.heaton.blelibrary.ble.request.AdvertiserRequest;
 import cn.com.heaton.blelibrary.ble.request.*;
 
@@ -101,6 +102,12 @@ public class RequestImpl<T extends BleDevice> implements RequestLisenter<T>{
     public void writeEntity(T device, byte[] data, int packLength, int delay, BleWriteEntityCallback<T> callback) {
         WriteRequest<T> request = Rproxy.getInstance().getRequest(WriteRequest.class);
         request.writeEntity(device, data, packLength, delay, callback);
+    }
+
+    @Override
+    public void writeEntity(EntityData entityData, BleWriteEntityCallback<T> callback) {
+        WriteRequest<T> request = Rproxy.getInstance().getRequest(WriteRequest.class);
+        request.writeEntity(entityData, callback);
     }
 
     @Override
