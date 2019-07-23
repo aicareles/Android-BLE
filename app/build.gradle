@@ -7,8 +7,8 @@ android {
         applicationId "com.example.admin.mybledemo"
         minSdkVersion 18
         targetSdkVersion 28
-        versionCode 6
-        versionName "2.5.3"
+        versionCode 9
+        versionName "2.6.1"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
@@ -38,6 +38,10 @@ android {
         }
     }
 
+    lintOptions {
+        abortOnError false
+    }
+
 }
 
 dependencies {
@@ -49,8 +53,7 @@ dependencies {
     implementation project(':blelibrary')
 //    implementation 'cn.com.superLei:blelibrary:2.6.0'
     implementation 'com.android.support:appcompat-v7:28.0.0'
-    implementation 'org.aspectj:aspectjrt:1.8.9'
 //    implementation 'com.github.skydoves:colorpickerview:1.0.8'
-    implementation 'com.github.rholder:guava-retrying:2.0.0'
+    implementation 'cn.com.superLei:aop-arms:1.0.2'
 }
 

@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cn.com.heaton.blelibrary.ble.Ble;
+import cn.com.heaton.blelibrary.ble.callback.BleStatusCallback;
 import cn.com.heaton.blelibrary.ble.callback.wrapper.BluetoothChangedObserver;
 import cn.com.heaton.blelibrary.ble.model.ScanRecord;
 import cn.com.heaton.blelibrary.ble.BleFactory;
@@ -45,6 +46,7 @@ public class ScanRequest<T extends BleDevice> {
     private ArrayList<T> mScanDevices = new ArrayList<>();
     /**blutooth status observer*/
     private BluetoothChangedObserver mBleObserver;
+    private BleStatusCallback mBleStatusCallback;
 
     protected ScanRequest() {
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -192,16 +194,30 @@ public class ScanRequest<T extends BleDevice> {
             mBluetoothStatusLisenter = new BluetoothChangedObserver.BluetoothStatusLisenter() {
         @Override
         public void onBluetoothStatusChanged(int status) {
-            L.e(TAG,"onBluetoothStatusChanged>>>"+status);
-            if(status == BleStates.BleStatus.BlutoothStatusOff && mScanning){
-                stopScan();
+            L.i(TAG,"onBluetoothStatusChanged>>>"+status);
+            if(status == BleStates.BleStatus.BlutoothStatusOff){
+                if (mScanning){
+                    stopScan();
+                }
+                if (mBleStatusCallback != null){
+                    mBleStatusCallback.onBluetoothStatusOff();
+                }
+            }else {
+                if (mBleStatusCallback != null){
+                    mBleStatusCallback.onBluetoothStatusOn();
+                }
             }
         }
     };
+
+    public void setBluetoothStatusCallback(BleStatusCallback callback) {
+        this.mBleStatusCallback = callback;
+    }
 
     public void unRegisterReceiver(){
         if (mBleObserver != null){
             mBleObserver.unregisterReceiver();
         }
     }
+
 }

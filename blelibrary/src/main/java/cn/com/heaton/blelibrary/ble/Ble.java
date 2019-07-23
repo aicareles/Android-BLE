@@ -30,6 +30,7 @@ import cn.com.heaton.blelibrary.ble.callback.BleNotiftCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleReadCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleReadRssiCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleScanCallback;
+import cn.com.heaton.blelibrary.ble.callback.BleStatusCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleWriteCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleWriteEntityCallback;
 import cn.com.heaton.blelibrary.ble.model.BleDevice;
@@ -106,6 +107,17 @@ public class Ble<T extends BleDevice> {
         Ble<BleDevice> ble = getInstance();
         ble.init(context, options);
         return ble;
+    }
+
+    /**
+     * 设置全局蓝牙开启、关闭监听
+     * @param callback
+     */
+    public void setBleStatusCallback(BleStatusCallback callback){
+        ScanRequest request = Rproxy.getInstance().getRequest(ScanRequest.class);
+        if (request != null){
+            request.setBluetoothStatusCallback(callback);
+        }
     }
 
     /**

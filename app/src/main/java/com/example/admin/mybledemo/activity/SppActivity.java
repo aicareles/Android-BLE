@@ -16,7 +16,6 @@ import com.example.admin.mybledemo.annotation.ContentView;
 import com.example.admin.mybledemo.annotation.OnItemClick;
 import com.example.admin.mybledemo.annotation.ViewInit;
 import com.example.admin.mybledemo.aop.CheckConnect;
-import com.example.admin.mybledemo.aop.SingleClick;
 import com.example.admin.mybledemo.utils.TaskExecutor;
 
 import java.util.ArrayList;
@@ -135,7 +134,6 @@ public class SppActivity extends BaseActivity {
         }
     };
 
-    @SingleClick
     @CheckConnect(value = 1)
     public void sendData(View view) {
         lock = !lock;

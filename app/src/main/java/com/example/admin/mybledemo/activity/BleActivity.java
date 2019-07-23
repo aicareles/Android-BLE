@@ -9,7 +9,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Environment;
-import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
@@ -26,20 +25,10 @@ import com.example.admin.mybledemo.annotation.OnClick;
 import com.example.admin.mybledemo.annotation.OnItemClick;
 import com.example.admin.mybledemo.annotation.ViewInit;
 import com.example.admin.mybledemo.aop.CheckConnect;
-import com.example.admin.mybledemo.aop.SingleClick;
-import com.example.admin.mybledemo.command.AppProtocol;
-import com.example.admin.mybledemo.command.CommandBean;
 import com.example.admin.mybledemo.utils.ByteUtils;
 import com.example.admin.mybledemo.utils.FileUtils;
 import com.example.admin.mybledemo.utils.RetryUtils;
 import com.example.admin.mybledemo.utils.ToastUtil;
-import com.github.rholder.retry.RetryException;
-import com.github.rholder.retry.Retryer;
-import com.github.rholder.retry.RetryerBuilder;
-import com.github.rholder.retry.StopStrategies;
-import com.github.rholder.retry.WaitStrategies;
-import com.github.rholder.retry.WaitStrategy;
-import com.google.common.base.Predicates;
 
 import java.io.File;
 import java.io.IOException;
@@ -47,11 +36,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-
 import cn.com.heaton.blelibrary.ble.Ble;
+import cn.com.heaton.blelibrary.ble.callback.BleStatusCallback;
 import cn.com.heaton.blelibrary.ble.model.BleDevice;
 import cn.com.heaton.blelibrary.ble.L;
 import cn.com.heaton.blelibrary.ble.callback.BleConnectCallback;
@@ -61,8 +47,9 @@ import cn.com.heaton.blelibrary.ble.callback.BleReadCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleReadRssiCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleScanCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleWriteEntityCallback;
-import cn.com.heaton.blelibrary.ble.model.ScanRecord;
 import cn.com.heaton.blelibrary.ota.OtaManager;
+import cn.com.superLei.aoparms.annotation.Retry;
+import cn.com.superLei.aoparms.annotation.SingleClick;
 
 /**
  * Activity for scanning and displaying available Bluetooth LE devices.
@@ -139,7 +126,8 @@ public class BleActivity extends BaseActivity {
                 });
     }
 
-    @SingleClick //过滤重复点击
+    //过滤重复点击
+    @SingleClick
     @OnClick({R.id.startAdvertise, R.id.stopAdvertise})
     public void onAdvertiseClick(View view) {
         switch (view.getId()) {
@@ -155,7 +143,6 @@ public class BleActivity extends BaseActivity {
                 break;
         }
     }
-
 
     @SingleClick //过滤重复点击
     @CheckConnect //检查是否连接
@@ -320,9 +307,27 @@ public class BleActivity extends BaseActivity {
     /**
      * 发送数据
      */
-    private void sendData() {
-        final List<BleDevice> list = mBle.getConnetedDevices();
-        RetryUtils.call(() -> mBle.write(list.get(0), "Hello Android!".getBytes(), null), 3, 50);
+    @Retry(count = 3, delay = 100, asyn = true)
+    private boolean sendData() {
+        List<BleDevice> list = mBle.getConnetedDevices();
+        return mBle.write(list.get(0), "Hello Android!".getBytes(), null);
+    }
+
+    /**
+     * 主动读取数据
+     *
+     * @param device 设备对象
+     */
+    @Retry(count = 3, delay = 100, asyn = true)
+    public boolean read(BleDevice device) {
+        return mBle.read(device, new BleReadCallback<BleDevice>() {
+            @Override
+            public void onReadSuccess(BluetoothGattCharacteristic characteristic) {
+                super.onReadSuccess(characteristic);
+                byte[] data = characteristic.getValue();
+                L.w(TAG, "onReadSuccess: " + Arrays.toString(data));
+            }
+        });
     }
 
     /**
@@ -351,22 +356,6 @@ public class BleActivity extends BaseActivity {
     }
 
     /**
-     * 主动读取数据
-     *
-     * @param device 设备对象
-     */
-    public void read(BleDevice device) {
-        RetryUtils.call(() -> mBle.read(device, new BleReadCallback<BleDevice>() {
-            @Override
-            public void onReadSuccess(BluetoothGattCharacteristic characteristic) {
-                super.onReadSuccess(characteristic);
-                byte[] data = characteristic.getValue();
-                L.w(TAG, "onReadSuccess: " + Arrays.toString(data));
-            }
-        }), 3, 50);
-    }
-
-    /**
      * 扫描的回调
      */
     private BleScanCallback<BleDevice> scanCallback = new BleScanCallback<BleDevice>() {
@@ -386,14 +375,14 @@ public class BleActivity extends BaseActivity {
             L.e(TAG, "onStop: ");
         }
 
-        @Override
+        /*@Override
         public void onParsedData(BleDevice device, ScanRecord scanRecord) {
             super.onParsedData(device, scanRecord);
             byte[] data = scanRecord.getManufacturerSpecificData(65520);//参数为厂商id
             if (data != null) {
                 Log.e(TAG, "onParsedData: " + ByteUtils.BinaryToHexString(data));
             }
-        }
+        }*/
     };
 
     /**
