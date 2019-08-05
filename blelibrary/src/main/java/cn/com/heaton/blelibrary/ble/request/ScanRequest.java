@@ -59,10 +59,10 @@ public class ScanRequest<T extends BleDevice> {
                     .build();
             mScannerCallback  = new BLEScanCallback();
             mFilters = new ArrayList<>();
-            UUID uuidService = Ble.options().getUuidService();
-            mFilters.add(new ScanFilter.Builder()
-                    .setServiceUuid(ParcelUuid.fromString(uuidService.toString()))//8.0以上手机后台扫描，必须开启
-                    .build());
+//            UUID uuidService = Ble.options().getUuidService();
+//            mFilters.add(new ScanFilter.Builder()
+//                    .setServiceUuid(ParcelUuid.fromString(uuidService.toString()))//8.0以上手机后台扫描，必须开启
+//                    .build());
         }
         if (mBleObserver == null){
             this.mBleObserver = new BluetoothChangedObserver(Ble.getInstance().getContext());

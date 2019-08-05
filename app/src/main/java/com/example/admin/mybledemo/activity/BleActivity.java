@@ -90,6 +90,22 @@ public class BleActivity extends BaseActivity {
                 .create(getApplicationContext());
         //3、检查蓝牙是否支持及打开
         checkBluetoothStatus();
+        //监听蓝牙开关状态
+        initBleStatus();
+    }
+
+    private void initBleStatus() {
+        mBle.setBleStatusCallback(new BleStatusCallback() {
+            @Override
+            public void onBluetoothStatusOn() {
+                L.i(TAG, "onBluetoothStatusOn: 蓝牙开启>>>>>");
+            }
+
+            @Override
+            public void onBluetoothStatusOff() {
+                L.i(TAG, "onBluetoothStatusOff: 蓝牙关闭>>>>>");
+            }
+        });
     }
 
     //检查蓝牙是否支持及打开
