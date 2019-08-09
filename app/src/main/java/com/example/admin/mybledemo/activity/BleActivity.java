@@ -9,6 +9,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Environment;
+import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
@@ -48,8 +49,12 @@ import cn.com.heaton.blelibrary.ble.callback.BleReadRssiCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleScanCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleWriteEntityCallback;
 import cn.com.heaton.blelibrary.ota.OtaManager;
+import cn.com.superLei.aoparms.annotation.Permission;
+import cn.com.superLei.aoparms.annotation.PermissionDenied;
+import cn.com.superLei.aoparms.annotation.PermissionNoAskDenied;
 import cn.com.superLei.aoparms.annotation.Retry;
 import cn.com.superLei.aoparms.annotation.SingleClick;
+import cn.com.superLei.aoparms.common.permission.AopPermissionUtils;
 
 /**
  * Activity for scanning and displaying available Bluetooth LE devices.
@@ -57,12 +62,13 @@ import cn.com.superLei.aoparms.annotation.SingleClick;
 @ContentView(R.layout.activity_ble)
 public class BleActivity extends BaseActivity {
     private String TAG = BleActivity.class.getSimpleName();
+    public static final int REQUEST_PERMISSION_LOCATION = 2;
+    public static final int REQUEST_PERMISSION_WRITE = 3;
     @ViewInit(R.id.listView)
     ListView mListView;
     private LeDeviceListAdapter mLeDeviceListAdapter;
     private Ble<BleDevice> mBle;
-    private String path = Environment.getExternalStorageDirectory()
-            + "/aceDownload/";
+    private String path = Environment.getExternalStorageDirectory()+"/AndroidBleOTA/";
 
     @Override
     protected void onInitView() {
@@ -71,6 +77,34 @@ public class BleActivity extends BaseActivity {
         //1、请求蓝牙相关权限
         requestPermission();
     }
+
+    //请求权限
+    @Permission(value = {Manifest.permission.ACCESS_COARSE_LOCATION},
+            requestCode = REQUEST_PERMISSION_LOCATION,
+            rationale = "需要蓝牙相关权限")
+    public void requestPermission() {
+        initBle();
+    }
+
+    @PermissionDenied
+    public void permissionDenied(int requestCode, List<String> denyList){
+        if (requestCode == REQUEST_PERMISSION_LOCATION){
+            Log.e(TAG, "permissionDenied>>>:定位权限被拒 "+denyList.toString());
+        }else if (requestCode == REQUEST_PERMISSION_WRITE){
+            Log.e(TAG, "permissionDenied>>>:读写权限被拒 "+denyList.toString());
+        }
+    }
+
+    @PermissionNoAskDenied
+    public void permissionNoAskDenied(int requestCode, List<String> denyNoAskList){
+        if (requestCode == REQUEST_PERMISSION_LOCATION){
+            Log.e(TAG, "permissionNoAskDenied 定位权限被拒>>>: "+denyNoAskList.toString());
+        }else if (requestCode == REQUEST_PERMISSION_WRITE){
+            Log.e(TAG, "permissionDenied>>>:读写权限被拒>>> "+denyNoAskList.toString());
+        }
+        AopPermissionUtils.showGoSetting(this, "为了更好的体验，建议前往设置页面打开权限");
+    }
+
 
     //初始化蓝牙
     private void initBle() {
@@ -123,23 +157,6 @@ public class BleActivity extends BaseActivity {
             //5、若已打开，则进行扫描
             mBle.startScan(scanCallback);
         }
-    }
-
-    //请求权限
-    private void requestPermission() {
-        requestPermission(new String[]{Manifest.permission.BLUETOOTH_ADMIN,
-                        Manifest.permission.ACCESS_COARSE_LOCATION},
-                "请求蓝牙相关权限", new GrantedResult() {
-                    @Override
-                    public void onResult(boolean granted) {
-                        if (granted) {
-                            //2、初始化蓝牙
-                            initBle();
-                        } else {
-                            finish();
-                        }
-                    }
-                });
     }
 
     //过滤重复点击
@@ -300,23 +317,16 @@ public class BleActivity extends BaseActivity {
     /**
      * OTA升级
      */
-    private void updateOta() {
+    @Permission(value = {Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
+            requestCode = REQUEST_PERMISSION_WRITE,
+            rationale = "读写SD卡权限被拒绝,将会影响OTA升级功能哦!")
+    public void updateOta() {
         //此处为了方便把OTA升级文件直接放到assets文件夹下，拷贝到/aceDownload/文件夹中  以便使用
-        requestPermission(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                "读写SD卡相关权限", new GrantedResult() {
-                    @Override
-                    public void onResult(boolean granted) {
-                        if (granted) {
-                            FileUtils.copyAssets2SD(BleActivity.this, path);
-                        } else {
-                            ToastUtil.showToast("读写SD卡权限被拒绝,将会影响OTA升级功能哦!");
-                        }
-                    }
-                });
+        FileUtils.copyAssets2SD(BleActivity.this, path);
+        SystemClock.sleep(200);
         File file = new File(path + C.Constance.OTA_NEW_PATH);
         OtaManager mOtaManager = new OtaManager(BleActivity.this);
-        boolean result = mOtaManager.startOtaUpdate(file, (BleDevice) mBle.getConnetedDevices().get(0), mBle);
+        boolean result = mOtaManager.startOtaUpdate(file, mBle.getConnetedDevices().get(0), mBle);
         L.e("OTA升级结果:", result + "");
     }
 
@@ -325,6 +335,7 @@ public class BleActivity extends BaseActivity {
      */
     @Retry(count = 3, delay = 100, asyn = true)
     private boolean sendData() {
+        Log.e(TAG, "sendData: >>>>");
         List<BleDevice> list = mBle.getConnetedDevices();
         return mBle.write(list.get(0), "Hello Android!".getBytes(), null);
     }

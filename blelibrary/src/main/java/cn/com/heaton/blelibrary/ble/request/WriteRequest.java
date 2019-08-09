@@ -82,6 +82,7 @@ public class WriteRequest<T extends BleDevice> implements IMessage {
                 isWritingEntity = true;
                 int index = 0;
                 int length = data.length;
+                int availableLength = length;
                 while (index < length){
                     if (!isWritingEntity){
                         if (mBleEntityLisenter != null){
@@ -89,12 +90,14 @@ public class WriteRequest<T extends BleDevice> implements IMessage {
                         }
                         return false;
                     }
-                    byte[] txBuffer = new byte[packLength];
-                    for (int i=0; i<packLength; i++){
+                    int onePackLength = (availableLength >= packLength ? packLength : availableLength);
+                    byte[] txBuffer = new byte[onePackLength];
+                    for (int i=0; i<onePackLength; i++){
                         if(index < length){
                             txBuffer[i] = data[index++];
                         }
                     }
+                    availableLength-=onePackLength;
                     boolean result = service.wirteCharacteristic(address, txBuffer);
                     if(!result){
                         if(mBleEntityLisenter != null){
