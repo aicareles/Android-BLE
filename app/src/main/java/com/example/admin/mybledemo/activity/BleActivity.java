@@ -33,10 +33,12 @@ import com.example.admin.mybledemo.utils.ToastUtil;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+
 import cn.com.heaton.blelibrary.ble.Ble;
 import cn.com.heaton.blelibrary.ble.callback.BleStatusCallback;
 import cn.com.heaton.blelibrary.ble.model.BleDevice;
@@ -48,6 +50,7 @@ import cn.com.heaton.blelibrary.ble.callback.BleReadCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleReadRssiCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleScanCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleWriteEntityCallback;
+import cn.com.heaton.blelibrary.ble.model.EntityData;
 import cn.com.heaton.blelibrary.ota.OtaManager;
 import cn.com.superLei.aoparms.annotation.Permission;
 import cn.com.superLei.aoparms.annotation.PermissionDenied;
@@ -68,7 +71,7 @@ public class BleActivity extends BaseActivity {
     ListView mListView;
     private LeDeviceListAdapter mLeDeviceListAdapter;
     private Ble<BleDevice> mBle;
-    private String path = Environment.getExternalStorageDirectory()+"/AndroidBleOTA/";
+    private String path = Environment.getExternalStorageDirectory() + "/AndroidBleOTA/";
 
     @Override
     protected void onInitView() {
@@ -87,20 +90,20 @@ public class BleActivity extends BaseActivity {
     }
 
     @PermissionDenied
-    public void permissionDenied(int requestCode, List<String> denyList){
-        if (requestCode == REQUEST_PERMISSION_LOCATION){
-            Log.e(TAG, "permissionDenied>>>:定位权限被拒 "+denyList.toString());
-        }else if (requestCode == REQUEST_PERMISSION_WRITE){
-            Log.e(TAG, "permissionDenied>>>:读写权限被拒 "+denyList.toString());
+    public void permissionDenied(int requestCode, List<String> denyList) {
+        if (requestCode == REQUEST_PERMISSION_LOCATION) {
+            Log.e(TAG, "permissionDenied>>>:定位权限被拒 " + denyList.toString());
+        } else if (requestCode == REQUEST_PERMISSION_WRITE) {
+            Log.e(TAG, "permissionDenied>>>:读写权限被拒 " + denyList.toString());
         }
     }
 
     @PermissionNoAskDenied
-    public void permissionNoAskDenied(int requestCode, List<String> denyNoAskList){
-        if (requestCode == REQUEST_PERMISSION_LOCATION){
-            Log.e(TAG, "permissionNoAskDenied 定位权限被拒>>>: "+denyNoAskList.toString());
-        }else if (requestCode == REQUEST_PERMISSION_WRITE){
-            Log.e(TAG, "permissionDenied>>>:读写权限被拒>>> "+denyNoAskList.toString());
+    public void permissionNoAskDenied(int requestCode, List<String> denyNoAskList) {
+        if (requestCode == REQUEST_PERMISSION_LOCATION) {
+            Log.e(TAG, "permissionNoAskDenied 定位权限被拒>>>: " + denyNoAskList.toString());
+        } else if (requestCode == REQUEST_PERMISSION_WRITE) {
+            Log.e(TAG, "permissionDenied>>>:读写权限被拒>>> " + denyNoAskList.toString());
         }
         AopPermissionUtils.showGoSetting(this, "为了更好的体验，建议前往设置页面打开权限");
     }
@@ -111,7 +114,7 @@ public class BleActivity extends BaseActivity {
         mBle = Ble.options()
                 .setLogBleExceptions(true)//设置是否输出打印蓝牙日志
                 .setThrowBleException(true)//设置是否抛出蓝牙异常
-                .setAutoConnect(true)//设置是否自动连接
+                .setAutoConnect(false)//设置是否自动连接
                 .setFilterScan(true)//设置是否过滤扫描到的设备
                 .setConnectFailedRetryCount(3)
                 .setConnectTimeout(10 * 1000)//设置连接超时时长
@@ -179,7 +182,7 @@ public class BleActivity extends BaseActivity {
 
     @SingleClick //过滤重复点击
     @CheckConnect //检查是否连接
-    @OnClick({R.id.readRssi, R.id.sendData, R.id.updateOta, R.id.requestMtu, R.id.sendEntityData, R.id.restart})
+    @OnClick({R.id.readRssi, R.id.sendData, R.id.updateOta, R.id.requestMtu, R.id.sendEntityData, R.id.sendAutoEntityData})
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.readRssi:
@@ -195,15 +198,10 @@ public class BleActivity extends BaseActivity {
                 requestMtu();
                 break;
             case R.id.sendEntityData:
-                try {
-                    showProgress();
-                    sendEntityData();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                sendEntityData(false);
                 break;
-            case R.id.restart:
-                recreate();
+            case R.id.sendAutoEntityData:
+                sendEntityData(true);
                 break;
             default:
                 break;
@@ -259,43 +257,83 @@ public class BleActivity extends BaseActivity {
 
     private void hideProgress() {
         if (dialog != null) {
-            dialog.dismiss();
+            dialog.cancel();
+            dialog = null;
+            Log.e(TAG, "hideProgress: ");
         }
     }
 
     /**
      * 分包发送数据
+     * @param autoWriteMode 是否分包自动发送数据(entityData中的delay无效)
      */
-    private void sendEntityData() throws IOException {
-        byte[] data = ByteUtils.toByteArray(getAssets().open("WhiteChristmas.bin"));
-        Log.e(TAG, "sendEntityData: " + data.length);
-        mBle.writeEntity(mBle.getConnetedDevices().get(0), data, 20, 50, new BleWriteEntityCallback<BleDevice>() {
-            @Override
-            public void onWriteSuccess() {
-                L.e("writeEntity", "onWriteSuccess");
-                hideProgress();
-            }
+    private void sendEntityData(boolean autoWriteMode) {
+        EntityData entityData = getEntityData(autoWriteMode);
+        if (entityData == null)return;
+        showProgress();
+        mBle.writeEntity(entityData, writeEntityCallback);
+    }
 
-            @Override
-            public void onWriteFailed() {
-                L.e("writeEntity", "onWriteFailed");
-                hideProgress();
-            }
+    private BleWriteEntityCallback<BleDevice> writeEntityCallback = new BleWriteEntityCallback<BleDevice>() {
+        @Override
+        public void onWriteSuccess() {
+            L.e("writeEntity", "onWriteSuccess");
+            hideProgress();
+            toToast("发送成功");
+        }
 
-            @Override
-            public void onWriteProgress(double progress) {
-                Log.e("writeEntity", "当前发送进度: " + progress);
-                setDialogProgress((int) (progress * 100));
-            }
+        @Override
+        public void onWriteFailed() {
+            L.e("writeEntity", "onWriteFailed");
+            hideProgress();
+            toToast("发送失败");
+        }
 
+        @Override
+        public void onWriteProgress(double progress) {
+            Log.e("writeEntity", "当前发送进度: " + progress);
+            setDialogProgress((int) (progress * 100));
+        }
+
+        @Override
+        public void onWriteCancel() {
+            Log.e(TAG, "onWriteCancel: ");
+            hideProgress();
+            toToast("发送取消");
+        }
+    };
+
+    private void toToast(String msg) {
+        runOnUiThread(new Runnable() {
             @Override
-            public void onWriteCancel() {
-                Log.e(TAG, "onWriteCancel: ");
-                hideProgress();
+            public void run() {
+                ToastUtil.showToast(msg);
             }
         });
     }
 
+    private EntityData getEntityData(boolean autoWriteMode){
+        InputStream inputStream = null;
+        try {
+            inputStream = getAssets().open("WhiteChristmas.bin");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (inputStream == null){
+            ToastUtil.showToast("不能发现OTA文件!");
+            return null;
+        }
+        byte[] data = ByteUtils.toByteArray(inputStream);
+        Log.e(TAG, "OTA data length: " + data.length);
+        BleDevice device = mBle.getConnetedDevices().get(0);
+        return new EntityData.Builder()
+                .setAutoWriteMode(autoWriteMode)
+                .setAddress(device.getBleAddress())
+                .setData(data)
+                .setPackLength(20)
+                .setDelay(50L)
+                .build();
+    }
     /**
      * 设置请求MTU
      */
@@ -431,6 +469,7 @@ public class BleActivity extends BaseActivity {
         public void onConnectException(BleDevice device, int errorCode) {
             super.onConnectException(device, errorCode);
             ToastUtil.showToast("连接异常，异常状态码:" + errorCode);
+            hideProgress();
         }
 
         @Override

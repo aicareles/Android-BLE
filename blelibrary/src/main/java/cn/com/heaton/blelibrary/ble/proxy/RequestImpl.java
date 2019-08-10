@@ -116,12 +116,6 @@ public class RequestImpl<T extends BleDevice> implements RequestLisenter<T>{
         request.cancelWriteEntity();
     }
 
-//    @Override
-//    public boolean writeAutoEntity(T device, byte[] data, int packLength) {
-//        WriteRequest<T> request = Rproxy.getInstance().getRequest(WriteRequest.class);
-//        return request.writeAutoEntity(device, data, packLength);
-//    }
-
     @Override
     public boolean setMtu(String address, int mtu, BleMtuCallback<T> callback) {
         MtuRequest<T> request = Rproxy.getInstance().getRequest(MtuRequest.class);

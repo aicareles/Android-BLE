@@ -49,13 +49,21 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/ll_function"
-        android:text="发送大数据"/>
+        android:text="分包发送"/>
+
+    <Button
+        android:id="@+id/sendAutoEntityData"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/ll_function"
+        android:layout_toRightOf="@+id/sendEntityData"
+        android:text="自动分包发送"/>
 
     <Button
         android:id="@+id/startAdvertise"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toEndOf="@+id/sendEntityData"
+        android:layout_toEndOf="@+id/sendAutoEntityData"
         android:layout_below="@+id/ll_function"
         android:text="开启广播"/>
 
@@ -66,14 +74,6 @@
         android:layout_below="@+id/ll_function"
         android:layout_toRightOf="@+id/startAdvertise"
         android:text="停止广播"/>
-
-    <Button
-        android:id="@+id/restart"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/ll_function"
-        android:layout_toRightOf="@+id/stopAdvertise"
-        android:text="重启app"/>
 
     <ListView
         android:id="@+id/listView"

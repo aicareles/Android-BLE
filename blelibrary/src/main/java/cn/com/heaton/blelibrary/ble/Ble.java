@@ -264,6 +264,12 @@ public class Ble<T extends BleDevice> {
         mRequest.writeEntity(device, data, packLength, delay, callback);
     }
 
+    /**
+     * 写入大数据量数据，需要延迟(分包)
+     * 自动模式下写入大数据量数据，无需延迟，根据系统底层返回结果进行连续写入(分包)
+     * @param entityData 数据实体
+     * @param callback 写入回调
+     */
     public void writeEntity(EntityData entityData, BleWriteEntityCallback<T> callback){
         mRequest.writeEntity(entityData, callback);
     }
@@ -286,10 +292,6 @@ public class Ble<T extends BleDevice> {
     public void stopAdvertising() {
         mRequest.stopAdvertising();
     }
-
-//    public boolean writeAutoEntity(T device, final byte[]data, int packLength){
-//        return mRequest.writeAutoEntity(device, data, packLength);
-//    }
 
     /*获取当前类的类型*/
     public Class<T> getClassType(){

@@ -153,11 +153,9 @@ public class BluetoothLeService extends Service {
         @Override
         public void onCharacteristicWrite(BluetoothGatt gatt,
                                           BluetoothGattCharacteristic characteristic, int status) {
-            System.out.println("--------write success----- status:" + status);
+            L.i(TAG, "--------write success----- status:" + status);
             synchronized (mLocker) {
-                if (BuildConfig.DEBUG) {
-                    L.i(TAG, gatt.getDevice().getAddress() + " -- onCharacteristicWrite: " + status);
-                }
+                L.i(TAG, gatt.getDevice().getAddress() + " -- onCharacteristicWrite: " + status);
                 if (status == BluetoothGatt.GATT_SUCCESS) {
                     if (mOptions.uuid_ota_write_cha.equals(characteristic.getUuid())) {
                         if (mOtaListener != null) {

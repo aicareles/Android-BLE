@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">MyBleDemo</string>
+    <string name="app_name">Android BLE Demo</string>
 
     <string name="ble_not_supported">BLE is not supported</string>
     <string name="label_data">Data:</string>
