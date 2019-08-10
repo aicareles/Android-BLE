@@ -28,6 +28,30 @@
 ```
 
 ### 二、历史版本介绍：
+[![Version](https://img.shields.io/badge/BleLib-v2.6.1-blue.svg)](https://bintray.com/superliu/maven/BleLib/2.6.1)
+```
+添加自动分包发送接口(无需添加延迟，自动根据系统底层返回结果处理)
+    EntityData entityData = new EntityData.Builder()
+                .setLastPackComplete(true)//最后一包是否自动补零,默认false
+                .setAutoWriteMode(autoWriteMode)//是否设置自动模式发送,默认false
+                .setAddress(device.getBleAddress())
+                .setData(data)//大数据文件的字节数组
+                .setPackLength(20)//每包发送字节数
+                .setDelay(50L)//自动模式下无需设置delay
+                .build();
+    mBle.writeEntity(entityData, new BleWriteEntityCallback<BleDevice>() {
+         @Override
+         public void onWriteSuccess() {
+              ...
+         }
+
+         @Override
+         public void onWriteFailed() {
+              ...
+         }
+    });
+
+```
 [![Version](https://img.shields.io/badge/BleLib-v2.6.0-blue.svg)](https://bintray.com/superliu/maven/BleLib/2.6.0)
 ```
 优化频繁收到通知数据，偶尔丢包的问题
@@ -271,7 +295,7 @@
 [![License](https://img.shields.io/badge/license-Apache%202-green.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 [![Download](https://api.bintray.com/packages/superliu/maven/BleLib/images/download.svg)](https://bintray.com/superliu/maven/BleLib/_latestVersion)
 ```groovy
-compile 'cn.com.superLei:blelibrary:2.6.0'
+compile 'cn.com.superLei:blelibrary:2.6.1'
 ```
 
 #### 1.初始化蓝牙(判断设备是否支持BLE，蓝牙是否打开以及6.0动态授权蓝牙权限等)<br>
