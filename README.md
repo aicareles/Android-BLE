@@ -435,7 +435,7 @@ Log.e("OTA升级结果:", result + "");
 ```
 ### 四、Demo效果演示图：
 
-![Demo预览图.gif](https://s31.aconvert.com/convert/p3r68-cdx67/78o23-aczjp.gif)
+![Demo预览图.gif](https://user-gold-cdn.xitu.io/2019/8/12/16c84908c766ffef?w=720&h=1280&f=gif&s=3905090)
 
 ### 五、微信打赏：
 ![](https://upload-images.jianshu.io/upload_images/3884117-5d22ae84180a93ed.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/240)
