@@ -8,25 +8,22 @@ import android.bluetooth.le.ScanFilter;
 import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
 import android.os.Build;
-import android.os.Message;
-import android.os.ParcelUuid;
 import android.support.annotation.RequiresApi;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import cn.com.heaton.blelibrary.ble.Ble;
-import cn.com.heaton.blelibrary.ble.callback.BleStatusCallback;
-import cn.com.heaton.blelibrary.ble.callback.wrapper.BluetoothChangedObserver;
-import cn.com.heaton.blelibrary.ble.model.ScanRecord;
 import cn.com.heaton.blelibrary.ble.BleFactory;
 import cn.com.heaton.blelibrary.ble.BleHandler;
 import cn.com.heaton.blelibrary.ble.BleStates;
 import cn.com.heaton.blelibrary.ble.L;
 import cn.com.heaton.blelibrary.ble.annotation.Implement;
 import cn.com.heaton.blelibrary.ble.callback.BleScanCallback;
+import cn.com.heaton.blelibrary.ble.callback.BleStatusCallback;
+import cn.com.heaton.blelibrary.ble.callback.wrapper.BluetoothChangedObserver;
 import cn.com.heaton.blelibrary.ble.model.BleDevice;
+import cn.com.heaton.blelibrary.ble.model.ScanRecord;
 
 /**
  *
@@ -69,6 +66,7 @@ public class ScanRequest<T extends BleDevice> {
             this.mBleObserver.setBluetoothStatusLisenter(mBluetoothStatusLisenter);
             this.mBleObserver.registerReceiver();
         }
+
     }
 
     public void startScan(BleScanCallback<T> callback, long scanPeriod) {

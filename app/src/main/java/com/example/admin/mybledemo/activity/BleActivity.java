@@ -121,9 +121,9 @@ public class BleActivity extends BaseActivity {
                 .setScanPeriod(12 * 1000)//设置扫描时长
                 .setUuidService(UUID.fromString("0000fee9-0000-1000-8000-00805f9b34fb"))//设置主服务的uuid
                 .setUuidWriteCha(UUID.fromString("d44bc439-abfd-45a2-b575-925416129600"))//设置可写特征的uuid
-                .setUuidOtaService(UUID.fromString("0000fd00-0000-1000-8000-00805f9b34fb"))
-                .setUuidOtaNotifyCha(UUID.fromString("0000fd02-0000-1000-8000-00805f9b34fb"))
-                .setUuidOtaWriteCha(UUID.fromString("0000fd01-0000-1000-8000-00805f9b34fb"))
+//                .setUuidOtaService(UUID.fromString("0000fd00-0000-1000-8000-00805f9b34fb"))
+//                .setUuidOtaNotifyCha(UUID.fromString("0000fd02-0000-1000-8000-00805f9b34fb"))
+//                .setUuidOtaWriteCha(UUID.fromString("0000fd01-0000-1000-8000-00805f9b34fb"))
                 .create(getApplicationContext());
         //3、检查蓝牙是否支持及打开
         checkBluetoothStatus();
@@ -320,11 +320,11 @@ public class BleActivity extends BaseActivity {
             e.printStackTrace();
         }
         if (inputStream == null){
-            ToastUtil.showToast("不能发现OTA文件!");
+            ToastUtil.showToast("不能发现文件!");
             return null;
         }
         byte[] data = ByteUtils.toByteArray(inputStream);
-        Log.e(TAG, "OTA data length: " + data.length);
+        Log.e(TAG, "data length: " + data.length);
         BleDevice device = mBle.getConnetedDevices().get(0);
         return new EntityData.Builder()
                 .setAutoWriteMode(autoWriteMode)
@@ -490,6 +490,12 @@ public class BleActivity extends BaseActivity {
             L.e(TAG, "onChanged==uuid:" + uuid.toString());
             L.e(TAG, "onChanged==address:" + device.getBleAddress());
             L.e(TAG, "onChanged==data:" + Arrays.toString(characteristic.getValue()));
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    ToastUtil.showToast(String.format("收到设备通知数据: %s", ByteUtils.BinaryToHexString(characteristic.getValue())));
+                }
+            });
         }
     };
 
@@ -521,7 +527,7 @@ public class BleActivity extends BaseActivity {
             case R.id.menu_disconnect_all:
                 if (mBle != null) {
                     ArrayList<BleDevice> list = mBle.getConnetedDevices();
-                    Log.e(TAG, "onOptionsItemSelected:>>>> " + list.size());
+                    L.e(TAG, "onOptionsItemSelected:>>>> " + list.size());
                     for (int i = 0; i < list.size(); i++) {
                         mBle.disconnect(list.get(i));
                     }

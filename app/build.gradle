@@ -34,7 +34,7 @@ android {
 
     android.applicationVariants.all { variant ->
         variant.outputs.all {
-            outputFileName = "BLE-v${defaultConfig.versionName}}.apk"
+            outputFileName = "BLE-v${defaultConfig.versionName}.apk"
         }
     }
 
