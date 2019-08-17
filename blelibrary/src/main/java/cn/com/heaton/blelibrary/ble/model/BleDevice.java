@@ -1,8 +1,9 @@
 package cn.com.heaton.blelibrary.ble.model;
 
 import android.bluetooth.BluetoothDevice;
-
-import java.io.Serializable;
+import android.os.Parcel;
+import android.os.Parcelable;
+import android.support.annotation.RestrictTo;
 
 import cn.com.heaton.blelibrary.ble.BleStates;
 
@@ -10,8 +11,7 @@ import cn.com.heaton.blelibrary.ble.BleStates;
  *
  * Created by LiuLei on 2016/11/26.
  */
-
-public class BleDevice implements Serializable{
+public class BleDevice implements Parcelable {
 
     public final static String          TAG                      = BleDevice.class.getSimpleName();
     private static final long serialVersionUID = -2576082824642358033L;
@@ -40,7 +40,7 @@ public class BleDevice implements Serializable{
     private boolean isAutoConnectting = false;
 
     /*解析后的广播包数据*/
-    public ScanRecord scanRecord;
+    private ScanRecord scanRecord;
 
     /**
      * Use the address and name of the BluetoothDevice object
@@ -48,10 +48,33 @@ public class BleDevice implements Serializable{
      *
      * @param device BleDevice
      */
-    protected BleDevice(BluetoothDevice device) {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public BleDevice(BluetoothDevice device) {
         this.mBleAddress = device.getAddress();
         this.mBleName = device.getName();
     }
+
+    protected BleDevice(Parcel in) {
+        mConnectionState = in.readInt();
+        mBleAddress = in.readString();
+        mBleName = in.readString();
+        mBleAlias = in.readString();
+        mAutoConnect = in.readByte() != 0;
+        isAutoConnectting = in.readByte() != 0;
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final Creator<BleDevice> CREATOR = new Creator<BleDevice>() {
+        @Override
+        public BleDevice createFromParcel(Parcel in) {
+            return new BleDevice(in);
+        }
+
+        @Override
+        public BleDevice[] newArray(int size) {
+            return new BleDevice[size];
+        }
+    };
 
     public boolean isConnected() {
         return mConnectionState == BleStates.BleStatus.CONNECTED;
@@ -127,5 +150,20 @@ public class BleDevice implements Serializable{
                 ", mBleAlias='" + mBleAlias + '\'' +
                 ", mAutoConnect=" + mAutoConnect +
                 '}';
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(mConnectionState);
+        dest.writeString(mBleAddress);
+        dest.writeString(mBleName);
+        dest.writeString(mBleAlias);
+        dest.writeByte((byte) (mAutoConnect ? 1 : 0));
+        dest.writeByte((byte) (isAutoConnectting ? 1 : 0));
     }
 }

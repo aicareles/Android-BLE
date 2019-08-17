@@ -114,8 +114,8 @@ public class BleActivity extends BaseActivity {
         mBle = Ble.options()
                 .setLogBleExceptions(true)//设置是否输出打印蓝牙日志
                 .setThrowBleException(true)//设置是否抛出蓝牙异常
-                .setAutoConnect(false)//设置是否自动连接
-                .setFilterScan(true)//设置是否过滤扫描到的设备
+                .setAutoConnect(true)//设置是否自动连接
+                .setFilterScan(false)//设置是否过滤扫描到的设备
                 .setConnectFailedRetryCount(3)
                 .setConnectTimeout(10 * 1000)//设置连接超时时长
                 .setScanPeriod(12 * 1000)//设置扫描时长
@@ -426,7 +426,7 @@ public class BleActivity extends BaseActivity {
     private BleScanCallback<BleDevice> scanCallback = new BleScanCallback<BleDevice>() {
         @Override
         public void onLeScan(final BleDevice device, int rssi, byte[] scanRecord) {
-            Log.e(TAG, "onLeScan: " + device.getBleName());
+            L.i(TAG, "onLeScan: " + device.getBleName());
             if (TextUtils.isEmpty(device.getBleName())) return;
             synchronized (mBle.getLocker()) {
                 mLeDeviceListAdapter.addDevice(device);
@@ -434,11 +434,16 @@ public class BleActivity extends BaseActivity {
             }
         }
 
-        @Override
+        /*@Override
         public void onStop() {
             super.onStop();
             L.e(TAG, "onStop: ");
-        }
+        }*/
+
+        /*@Override
+        public void onScanFailed(int errorCode) {
+            L.e(TAG, "onScanFailed: "+errorCode);
+        }*/
 
         /*@Override
         public void onParsedData(BleDevice device, ScanRecord scanRecord) {

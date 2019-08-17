@@ -9,7 +9,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import cn.com.heaton.blelibrary.ble.Ble;
-import cn.com.heaton.blelibrary.ble.BleFactory;
 import cn.com.heaton.blelibrary.ble.BleStates;
 import cn.com.heaton.blelibrary.ble.BluetoothLeService;
 import cn.com.heaton.blelibrary.ble.L;
@@ -68,7 +67,8 @@ public class ConnectRequest<T extends BleDevice> implements ConnectWrapperLisent
             return false;
         }
         BluetoothDevice device = adapter.getRemoteDevice(address);
-        T bleDevice = (T) BleFactory.create(BleDevice.class, device);
+//        T bleDevice = (T) BleFactory.create(BleDevice.class, device);
+        T bleDevice = (T) new BleDevice(device);
         return connect(bleDevice, lisenter);
     }
 

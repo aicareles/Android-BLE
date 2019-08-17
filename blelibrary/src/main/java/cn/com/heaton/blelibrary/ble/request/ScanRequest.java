@@ -8,13 +8,14 @@ import android.bluetooth.le.ScanFilter;
 import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
 import android.os.Build;
+import android.os.ParcelUuid;
 import android.support.annotation.RequiresApi;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import cn.com.heaton.blelibrary.ble.Ble;
-import cn.com.heaton.blelibrary.ble.BleFactory;
 import cn.com.heaton.blelibrary.ble.BleHandler;
 import cn.com.heaton.blelibrary.ble.BleStates;
 import cn.com.heaton.blelibrary.ble.L;
@@ -24,9 +25,9 @@ import cn.com.heaton.blelibrary.ble.callback.BleStatusCallback;
 import cn.com.heaton.blelibrary.ble.callback.wrapper.BluetoothChangedObserver;
 import cn.com.heaton.blelibrary.ble.model.BleDevice;
 import cn.com.heaton.blelibrary.ble.model.ScanRecord;
+import cn.com.heaton.blelibrary.ble.utils.BleUtils;
 
 /**
- *
  * Created by LiuLei on 2017/10/21.
  */
 @Implement(ScanRequest.class)
@@ -42,26 +43,28 @@ public class ScanRequest<T extends BleDevice> {
     private List<ScanFilter> mFilters;
     //    private AtomicBoolean isContains = new AtomicBoolean(false);
     private ArrayList<T> mScanDevices = new ArrayList<>();
-    /**blutooth status observer*/
+    /**
+     * blutooth status observer
+     */
     private BluetoothChangedObserver mBleObserver;
     private BleStatusCallback mBleStatusCallback;
 
     protected ScanRequest() {
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             //mScanner will be null if Bluetooth has been closed
             mScanner = mBluetoothAdapter.getBluetoothLeScanner();
             mScannerSetting = new ScanSettings.Builder()
                     .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
                     .build();
-            mScannerCallback  = new BLEScanCallback();
+            mScannerCallback = new BLEScanCallback();
             mFilters = new ArrayList<>();
 //            UUID uuidService = Ble.options().getUuidService();
 //            mFilters.add(new ScanFilter.Builder()
 //                    .setServiceUuid(ParcelUuid.fromString(uuidService.toString()))//8.0以上手机后台扫描，必须开启
 //                    .build());
         }
-        if (mBleObserver == null){
+        if (mBleObserver == null) {
             this.mBleObserver = new BluetoothChangedObserver(Ble.getInstance().getContext());
             this.mBleObserver.setBluetoothStatusLisenter(mBluetoothStatusLisenter);
             this.mBleObserver.registerReceiver();
@@ -70,8 +73,8 @@ public class ScanRequest<T extends BleDevice> {
     }
 
     public void startScan(BleScanCallback<T> callback, long scanPeriod) {
-        if(mScanning)return;
-        if(callback != null){
+        if (mScanning) return;
+        if (callback != null) {
             mScanCallback = callback;
         }
         mScanning = true;
@@ -79,7 +82,7 @@ public class ScanRequest<T extends BleDevice> {
         BleHandler.of().postDelayed(new Runnable() {
             @Override
             public void run() {
-                if(mScanning){
+                if (mScanning) {
                     stopScan();
                 }
             }
@@ -96,20 +99,41 @@ public class ScanRequest<T extends BleDevice> {
                         .setServiceUuid(ParcelUuid.fromString("0000ae00-0000-1000-8000-00805f9b34fb"))
                         .setManufacturerData(0x5254, manufacture)
                         .build());*/
+                setScanSettings();
                 mScanner.startScan(mFilters, mScannerSetting, mScannerCallback);
             }
         }
-        if(callback != null){
+        if (callback != null) {
             mScanCallback.onStart();
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    private void setScanSettings() {
+        boolean background = BleUtils.isBackground(Ble.getInstance().getContext());
+        L.i(TAG, "currently in the background:>>>>>"+background);
+        if (background){
+            UUID uuidService = Ble.options().getUuidService();
+            mFilters.add(new ScanFilter.Builder()
+                    .setServiceUuid(ParcelUuid.fromString(uuidService.toString()))//8.0以上手机后台扫描，必须开启
+                    .build());
+            mScannerSetting = new ScanSettings.Builder()
+                    .setScanMode(ScanSettings.SCAN_MODE_LOW_POWER)
+                    .build();
+        }else {
+            mFilters = new ArrayList<>();
+            mScannerSetting = new ScanSettings.Builder()
+                    .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
+                    .build();
         }
     }
 
     public void stopScan() {
         if (!mScanning) return;
         mScanning = false;
-        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP){
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             mBluetoothAdapter.stopLeScan(mLeScanCallback);
-        }else {
+        } else {
             if (mBluetoothAdapter.isEnabled()) {
                 if (mScanner == null) {
                     mScanner = mBluetoothAdapter.getBluetoothLeScanner();
@@ -118,7 +142,7 @@ public class ScanRequest<T extends BleDevice> {
             }
         }
         mScanDevices.clear();
-        if(mScanCallback != null){
+        if (mScanCallback != null) {
             mScanCallback.onStop();
         }
     }
@@ -134,9 +158,11 @@ public class ScanRequest<T extends BleDevice> {
             BluetoothDevice device = result.getDevice();
             byte[] scanRecord = result.getScanRecord().getBytes();
             T bleDevice = dispatcherScanResult(device, result.getRssi(), scanRecord);
-            ScanRecord parseRecord = ScanRecord.parseFromBytes(scanRecord);
-            if (parseRecord != null && mScanCallback != null){
-                mScanCallback.onParsedData(bleDevice, parseRecord);
+            if (Ble.options().isParseScanData){
+                ScanRecord parseRecord = ScanRecord.parseFromBytes(scanRecord);
+                if (parseRecord != null && mScanCallback != null) {
+                    mScanCallback.onParsedData(bleDevice, parseRecord);
+                }
             }
         }
 
@@ -150,6 +176,9 @@ public class ScanRequest<T extends BleDevice> {
         @Override
         public void onScanFailed(int errorCode) {
             L.e("Scan Failed", "Error Code: " + errorCode);
+            if (mScanCallback != null){
+                mScanCallback.onScanFailed(errorCode);
+            }
         }
     }
 
@@ -165,14 +194,15 @@ public class ScanRequest<T extends BleDevice> {
         if (device == null) return null;
         T bleDevice = getDevice(device.getAddress());
         if (bleDevice == null) {
-            bleDevice = (T) BleFactory.create(BleDevice.class, device);
-            if(mScanCallback != null){
+//            bleDevice = (T) BleFactory.create(BleDevice.class, device);
+            bleDevice = (T) new BleDevice(device);
+            if (mScanCallback != null) {
                 mScanCallback.onLeScan(bleDevice, rssi, scanRecord);
             }
             mScanDevices.add(bleDevice);
-        }else {
-            if (!Ble.options().isFilterScan){//无需过滤
-                if(mScanCallback != null){
+        } else {
+            if (!Ble.options().isFilterScan) {//无需过滤
+                if (mScanCallback != null) {
                     mScanCallback.onLeScan(bleDevice, rssi, scanRecord);
                 }
             }
@@ -197,16 +227,16 @@ public class ScanRequest<T extends BleDevice> {
             mBluetoothStatusLisenter = new BluetoothChangedObserver.BluetoothStatusLisenter() {
         @Override
         public void onBluetoothStatusChanged(int status) {
-            L.i(TAG,"onBluetoothStatusChanged>>>"+status);
-            if(status == BleStates.BleStatus.BlutoothStatusOff){
-                if (mScanning){
+            L.i(TAG, "onBluetoothStatusChanged>>>" + status);
+            if (status == BleStates.BleStatus.BlutoothStatusOff) {
+                if (mScanning) {
                     stopScan();
                 }
-                if (mBleStatusCallback != null){
+                if (mBleStatusCallback != null) {
                     mBleStatusCallback.onBluetoothStatusOff();
                 }
-            }else {
-                if (mBleStatusCallback != null){
+            } else {
+                if (mBleStatusCallback != null) {
                     mBleStatusCallback.onBluetoothStatusOn();
                 }
             }
@@ -217,8 +247,8 @@ public class ScanRequest<T extends BleDevice> {
         this.mBleStatusCallback = callback;
     }
 
-    public void unRegisterReceiver(){
-        if (mBleObserver != null){
+    public void unRegisterReceiver() {
+        if (mBleObserver != null) {
             mBleObserver.unregisterReceiver();
         }
     }

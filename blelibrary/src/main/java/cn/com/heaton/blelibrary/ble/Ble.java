@@ -595,6 +595,10 @@ public class Ble<T extends BleDevice> {
          */
         public boolean logBleExceptions = true;
         /**
+         * 日志TAG，用于过滤日志信息
+         */
+        public String logTAG = "AndroidBLE";
+        /**
          * 是否抛出蓝牙异常
          */
         public boolean throwBleException = true;
@@ -623,6 +627,10 @@ public class Ble<T extends BleDevice> {
          */
         public boolean isFilterScan = false;
         /**
+         * 是否解析广播包  (发送接收广播包时可以打开)
+         */
+        public boolean isParseScanData = false;
+        /**
          * 广播包,厂商id
          */
         @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -631,6 +639,14 @@ public class Ble<T extends BleDevice> {
         public Options setScanPeriod(long scanPeriod){
             this.scanPeriod = scanPeriod;
             return this;
+        }
+
+        public String getLogTAG() {
+            return logTAG;
+        }
+
+        public void setLogTAG(String logTAG) {
+            this.logTAG = logTAG;
         }
 
         public boolean isLogBleExceptions() {
@@ -698,6 +714,14 @@ public class Ble<T extends BleDevice> {
         public Options setFilterScan(boolean filterScan) {
             isFilterScan = filterScan;
             return this;
+        }
+
+        public boolean isParseScanData() {
+            return isParseScanData;
+        }
+
+        public void setParseScanData(boolean parseScanData) {
+            isParseScanData = parseScanData;
         }
 
         @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
