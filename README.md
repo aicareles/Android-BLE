@@ -438,8 +438,8 @@ Log.e("OTA升级结果:", result + "");
 ![Demo预览图.gif](https://user-gold-cdn.xitu.io/2019/8/12/16c84908c766ffef?w=360&h=640&f=gif&s=3905090)
 
 ### 五、如果你觉得不错，对你有过帮助，请给我一点打赏鼓励，支持我维护的动力：
-![](https://upload-images.jianshu.io/upload_images/3884117-5d22ae84180a93ed.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/640)
-![](https://upload-images.jianshu.io/upload_images/3884117-1f6c1c0fb5885252.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/640)
+![](https://upload-images.jianshu.io/upload_images/3884117-5d22ae84180a93ed.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/320)
+![](https://upload-images.jianshu.io/upload_images/3884117-1f6c1c0fb5885252.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/320)
 ```
 注：打赏后可留言/联系本人，提供您的需求以及建议，本人会进行定期的更新优化库的体验，多谢支持!
 ```
