@@ -645,8 +645,9 @@ public class Ble<T extends BleDevice> {
             return logTAG;
         }
 
-        public void setLogTAG(String logTAG) {
+        public Options setLogTAG(String logTAG) {
             this.logTAG = logTAG;
+            return this;
         }
 
         public boolean isLogBleExceptions() {
@@ -720,8 +721,9 @@ public class Ble<T extends BleDevice> {
             return isParseScanData;
         }
 
-        public void setParseScanData(boolean parseScanData) {
+        public Options setParseScanData(boolean parseScanData) {
             isParseScanData = parseScanData;
+            return this;
         }
 
         @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -730,8 +732,9 @@ public class Ble<T extends BleDevice> {
         }
 
         @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-        public void setManufacturerId(int manufacturerId) {
+        public Options setManufacturerId(int manufacturerId) {
             this.manufacturerId = manufacturerId;
+            return this;
         }
 
         UUID[] uuid_services_extra = new UUID[]{};

@@ -114,6 +114,7 @@ public class BleActivity extends BaseActivity {
         mBle = Ble.options()
                 .setLogBleExceptions(true)//设置是否输出打印蓝牙日志
                 .setThrowBleException(true)//设置是否抛出蓝牙异常
+                .setLogTAG("AndroidBLE")//设置全局蓝牙操作日志TAG
                 .setAutoConnect(true)//设置是否自动连接
                 .setFilterScan(false)//设置是否过滤扫描到的设备
                 .setConnectFailedRetryCount(3)
@@ -121,9 +122,6 @@ public class BleActivity extends BaseActivity {
                 .setScanPeriod(12 * 1000)//设置扫描时长
                 .setUuidService(UUID.fromString("0000fee9-0000-1000-8000-00805f9b34fb"))//设置主服务的uuid
                 .setUuidWriteCha(UUID.fromString("d44bc439-abfd-45a2-b575-925416129600"))//设置可写特征的uuid
-//                .setUuidOtaService(UUID.fromString("0000fd00-0000-1000-8000-00805f9b34fb"))
-//                .setUuidOtaNotifyCha(UUID.fromString("0000fd02-0000-1000-8000-00805f9b34fb"))
-//                .setUuidOtaWriteCha(UUID.fromString("0000fd01-0000-1000-8000-00805f9b34fb"))
                 .create(getApplicationContext());
         //3、检查蓝牙是否支持及打开
         checkBluetoothStatus();
