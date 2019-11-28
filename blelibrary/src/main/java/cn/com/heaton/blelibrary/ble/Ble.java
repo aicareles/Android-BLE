@@ -3,24 +3,14 @@ package cn.com.heaton.blelibrary.ble;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.os.Build;
-import android.os.IBinder;
-import android.os.SystemClock;
 import android.support.annotation.IntRange;
 import android.support.annotation.RequiresApi;
-import android.util.Log;
 
-import java.lang.reflect.GenericArrayType;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -33,10 +23,13 @@ import cn.com.heaton.blelibrary.ble.callback.BleScanCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleStatusCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleWriteCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleWriteEntityCallback;
+import cn.com.heaton.blelibrary.ble.callback.wrapper.BluetoothChangedObserver;
+import cn.com.heaton.blelibrary.ble.exception.BleException;
 import cn.com.heaton.blelibrary.ble.model.BleDevice;
 import cn.com.heaton.blelibrary.ble.model.EntityData;
+import cn.com.heaton.blelibrary.ble.queue.RequestTask;
+import cn.com.heaton.blelibrary.ble.queue.WriteQueue;
 import cn.com.heaton.blelibrary.ble.request.ConnectRequest;
-import cn.com.heaton.blelibrary.ble.exception.BleServiceException;
 import cn.com.heaton.blelibrary.ble.proxy.RequestImpl;
 import cn.com.heaton.blelibrary.ble.proxy.RequestLisenter;
 import cn.com.heaton.blelibrary.ble.proxy.RequestProxy;
@@ -47,63 +40,55 @@ import cn.com.heaton.blelibrary.ble.request.ScanRequest;
  * 这个类对外提供所有的蓝牙操作API
  * Created by jerry on 2016/12/7.
  */
-public class Ble<T extends BleDevice> {
+public final class Ble<T extends BleDevice> {
 
-    /** Log tag, apps may override it. */
     private final static String TAG = "Ble";
-
     private static volatile Ble sInstance;
-
-    private static volatile Options sOptions;
-
-    private Context mContext;
-
-    private RequestLisenter<T> mRequest;
-
-    private final Object mLocker = new Object();
-
-    private BluetoothLeService mBluetoothLeService;
-
-    /**打开蓝牙标志位*/
+    private static volatile Options options;
+    private static final long DEFALUT_WRITE_DELAY = 50L;
+    private Context context;
+    private RequestLisenter<T> request;
+    private final Object locker = new Object();
+    private BleRequestImpl bleRequestImpl;
+    //打开蓝牙标志位
     public static final int REQUEST_ENABLE_BT = 1;
-
-    private BluetoothAdapter mBluetoothAdapter;
+    private BluetoothAdapter bluetoothAdapter;
+    private BluetoothChangedObserver bleObserver;
 
     /**
      * Initializes a newly created {@code Ble} object so that it represents
      * a bluetooth management class .  Note that use of this constructor is
      * unnecessary since Can not be externally constructed.
      */
-    private Ble() {
-        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        ///暂时注销代码后维护可能会重新使用代码
-       /* Type superClass = getClass().getGenericSuperclass();
-        Type type = ((ParameterizedType) superClass).getActualTypeArguments()[0];
-        mDeviceClass = getClass(type,0);*/
-    }
+    private Ble(){}
 
     /**
      *  蓝牙初始化
      * @param context 上下文对象
      * @return 初始化是否成功
      */
-    public boolean init(Context context, Options options){
-        sOptions = (options == null ? options() : options);
-        mContext = context;
-        L.init(sOptions);
+    public void init(Context context, Options options) {
+        if (this.context != null){
+            BleLog.e(TAG, "Ble is Initialized!");
+            throw new BleException("Ble is Initialized!");
+        }
+        this.context = context;
+        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        Ble.options = (options == null ? options() : options);
+        BleLog.init();
         //设置动态代理
-        mRequest = (RequestLisenter) RequestProxy.getInstance()
-                .bindProxy(context, RequestImpl.getInstance(sOptions));
-        boolean result = sInstance.startService(context);
-        L.w(TAG, "bind service result is"+ result);
-        return result;
+        request = (RequestLisenter) RequestProxy.newProxy()
+                .bindProxy(context, RequestImpl.newRequestImpl());
+        bleRequestImpl = BleRequestImpl.getBleRequest();
+        bleRequestImpl.initialize(context);
+        BleLog.i(TAG, "Ble init success!");
     }
 
     public static Ble<BleDevice> create(Context context){
         return create(context, options());
     }
 
-    public static Ble<BleDevice> create(Context context, Options options){
+    public static Ble<BleDevice> create(Context context, Options options) {
         Ble<BleDevice> ble = getInstance();
         ble.init(context, options);
         return ble;
@@ -114,9 +99,10 @@ public class Ble<T extends BleDevice> {
      * @param callback
      */
     public void setBleStatusCallback(BleStatusCallback callback){
-        ScanRequest request = Rproxy.getInstance().getRequest(ScanRequest.class);
-        if (request != null){
-            request.setBluetoothStatusCallback(callback);
+        if (bleObserver == null) {
+            this.bleObserver = new BluetoothChangedObserver(context);
+            this.bleObserver.setBleScanCallbackInner(callback);
+            this.bleObserver.registerReceiver();
         }
     }
 
@@ -125,14 +111,14 @@ public class Ble<T extends BleDevice> {
      * @param callback 扫描回调
      */
     public void startScan(BleScanCallback<T> callback){
-        mRequest.startScan(callback);
+        request.startScan(callback);
     }
 
     /**
      * 停止扫描
      */
     public void stopScan(){
-        mRequest.stopScan();
+        request.stopScan();
     }
 
     /**
@@ -141,8 +127,8 @@ public class Ble<T extends BleDevice> {
      * @param device 蓝牙设备对象
      */
     public void connect(T device, BleConnectCallback<T> callback) {
-        synchronized (mLocker) {
-            mRequest.connect(device, callback);
+        synchronized (locker) {
+            request.connect(device, callback);
         }
     }
 
@@ -153,25 +139,34 @@ public class Ble<T extends BleDevice> {
      * @param callback 连接回调
      */
     public void connect(String address,BleConnectCallback<T> callback){
-        synchronized (mLocker) {
-            mRequest.connect(address, callback);
+        synchronized (locker) {
+            request.connect(address, callback);
         }
     }
 
-    /**
-     * Reconnection equipment
-     * <p>
-     * TODO Later will add reconnection times
-     *
-     * @param device device
-     * @return Whether the connection is successful
-     */
-    public void reconnect(T device) {
-        connect(device, null);
+    public void connects(List<T> devices, BleConnectCallback<T> callback) {
+        ConnectRequest<T> request = Rproxy.getRequest(ConnectRequest.class);
+        if(request != null){
+            request.connect(devices, callback);
+        }
+    }
+
+    public void cancelConnectting(T device){
+        ConnectRequest<T> request = Rproxy.getRequest(ConnectRequest.class);
+        if(request != null){
+            request.cancelConnectting(device);
+        }
+    }
+
+    public void cancelConnecttings(List<T> devices){
+        ConnectRequest<T> request = Rproxy.getRequest(ConnectRequest.class);
+        if(request != null){
+            request.cancelConnecttings(devices);
+        }
     }
 
     public void resetReConnect(T device, boolean autoConnect){
-        ConnectRequest<T> request = Rproxy.getInstance().getRequest(ConnectRequest.class);
+        ConnectRequest<T> request = Rproxy.getRequest(ConnectRequest.class);
         if(request != null){
             request.resetReConnect(device, autoConnect);
         }
@@ -183,7 +178,7 @@ public class Ble<T extends BleDevice> {
      * @param device 蓝牙设备对象
      */
     public void disconnect(T device) {
-        mRequest.disconnect(device);
+        request.disconnect(device);
     }
 
     /**
@@ -192,7 +187,7 @@ public class Ble<T extends BleDevice> {
      * @param device 蓝牙设备对象
      */
     public void disconnect(T device, BleConnectCallback<T> callback) {
-        mRequest.disconnect(device, callback);
+        request.disconnect(device, callback);
     }
 
     /**
@@ -201,15 +196,15 @@ public class Ble<T extends BleDevice> {
      * @param callback 通知回调
      */
     public void startNotify(T device, BleNotiftCallback<T> callback){
-        mRequest.notify(device, callback);
+        request.notify(device, callback);
     }
 
     /**
      * 移除通知
      * @param  device 蓝牙设备对象
      */
-    public void cancelNotify(T device){
-        mRequest.unNotify(device);
+    public void cancelNotify(T device, BleNotiftCallback<T> callback){
+        request.cancelNotify(device, callback);
     }
 
     /**
@@ -218,7 +213,7 @@ public class Ble<T extends BleDevice> {
      * @param callback 读取结果回调
      */
     public boolean read(T device, BleReadCallback<T> callback){
-        return mRequest.read(device, callback);
+        return request.read(device, callback);
     }
 
     /**
@@ -227,7 +222,7 @@ public class Ble<T extends BleDevice> {
      * @param callback 读取远程RSSI结果回调
      */
     public void readRssi(T device, BleReadRssiCallback<T> callback){
-        mRequest.readRssi(device, callback);
+        request.readRssi(device, callback);
     }
 
     /**
@@ -237,7 +232,7 @@ public class Ble<T extends BleDevice> {
      * @return 是否设置成功
      */
     public boolean setMTU(String address, int mtu, BleMtuCallback<T> callback){
-        return mRequest.setMtu(address, mtu, callback);
+        return request.setMtu(address, mtu, callback);
     }
 
     /**
@@ -248,7 +243,15 @@ public class Ble<T extends BleDevice> {
      * @return 写入是否成功
      */
     public boolean write(T device, byte[]data, BleWriteCallback<T> callback){
-        return mRequest.write(device, data, callback);
+        return request.write(device, data, callback);
+    }
+
+    public void writeQueueDelay(long delay, RequestTask task){
+        WriteQueue.getInstance().put(delay, task);
+    }
+
+    public void writeQueue(RequestTask task){
+        writeQueueDelay(DEFALUT_WRITE_DELAY, task);
     }
 
     /**
@@ -261,7 +264,7 @@ public class Ble<T extends BleDevice> {
      */
     @Deprecated
     public void writeEntity(T device, final byte[]data, @IntRange(from = 1,to = 20)int packLength, int delay, BleWriteEntityCallback<T> callback){
-        mRequest.writeEntity(device, data, packLength, delay, callback);
+        request.writeEntity(device, data, packLength, delay, callback);
     }
 
     /**
@@ -271,11 +274,11 @@ public class Ble<T extends BleDevice> {
      * @param callback 写入回调
      */
     public void writeEntity(EntityData entityData, BleWriteEntityCallback<T> callback){
-        mRequest.writeEntity(entityData, callback);
+        request.writeEntity(entityData, callback);
     }
 
     public void cancelWriteEntity(){
-        mRequest.cancelWriteEntity();
+        request.cancelWriteEntity();
     }
 
     /**
@@ -283,51 +286,14 @@ public class Ble<T extends BleDevice> {
      * @param payload 负载数据
      */
     public void startAdvertising(byte[] payload) {
-        mRequest.startAdvertising(payload);
+        request.startAdvertising(payload);
     }
 
     /**
      * 停止发送广播包
      */
     public void stopAdvertising() {
-        mRequest.stopAdvertising();
-    }
-
-    /*获取当前类的类型*/
-    public Class<T> getClassType(){
-        Type genType = this.getClass().getGenericSuperclass();
-        Class<T> entityClass = (Class<T>)((ParameterizedType)genType).getActualTypeArguments()[0];
-        return entityClass;
-    }
-
-    /**
-     * Get the class object
-     *
-     * @param type TYPE
-     * @param i    LOCATION
-     * @return Object
-     */
-    private static Class getClass(Type type, int i) {
-        if (type instanceof ParameterizedType) { //Processing generic types
-            return getGenericClass((ParameterizedType) type, i);
-        } else if (type instanceof TypeVariable) {
-            return getClass(((TypeVariable) type).getBounds()[0], 0); // Handle the generic wipe object
-        } else {// Class itself is also type, forced transformation
-            return (Class) type;
-        }
-    }
-
-    private static Class getGenericClass(ParameterizedType parameterizedType, int i) {
-        Object genericClass = parameterizedType.getActualTypeArguments()[i];
-        if (genericClass instanceof ParameterizedType) { // Processing multistage generic
-            return (Class) ((ParameterizedType) genericClass).getRawType();
-        } else if (genericClass instanceof GenericArrayType) { // Processing array generics
-            return (Class) ((GenericArrayType) genericClass).getGenericComponentType();
-        } else if (genericClass instanceof TypeVariable) { //Handle the generic wipe object
-            return getClass(((TypeVariable) genericClass).getBounds()[0], 0);
-        } else {
-            return (Class) genericClass;
-        }
+        request.stopAdvertising();
     }
 
     public static <T extends BleDevice> Ble<T> getInstance(){
@@ -345,67 +311,9 @@ public class Ble<T extends BleDevice> {
      * 获取自定义蓝牙服务对象
      * @return 自定义蓝牙服务对象
      */
-    public BluetoothLeService getBleService() {
-        return mBluetoothLeService;
+    public BleRequestImpl getBleRequest() {
+        return bleRequestImpl;
     }
-
-    /**
-     * 开始绑定服务
-     *
-     * @return 绑定蓝牙服务是否成功
-     */
-    private boolean startService(Context context) {
-        Intent gattServiceIntent = new Intent(context, BluetoothLeService.class);
-        boolean bll = false;
-        if (context != null) {
-            bll = context.bindService(gattServiceIntent, mServiceConnection, Context.BIND_AUTO_CREATE);
-        }
-        if (bll) {
-            L.i(TAG, "service bind succseed!!!");
-        } else if(sOptions.throwBleException){
-            try {
-                throw new BleServiceException("Bluetooth service binding failed," +
-                        "Please check whether the service is registered in the manifest file!");
-            } catch (BleServiceException e) {
-                e.printStackTrace();
-            }
-        }
-        return bll;
-    }
-
-    /**
-     * 解绑蓝牙服务
-     */
-    public void unService(Context context) {
-        if (context != null && mBluetoothLeService != null) {
-            context.unbindService(mServiceConnection);
-            mBluetoothLeService = null;
-        }
-    }
-
-    private final ServiceConnection mServiceConnection = new ServiceConnection() {
-
-        @Override
-        public void onServiceConnected(ComponentName componentName,
-                                       IBinder service) {
-            mBluetoothLeService = ((BluetoothLeService.LocalBinder) service).getService();
-
-            if(sInstance != null)
-                mBluetoothLeService.initialize(sOptions);
-
-            L.e(TAG, "Service connection successful");
-            if (!mBluetoothLeService.initBLE()) {
-                L.e(TAG, "Unable to initBLE Bluetooth");
-            }
-            // Automatically connects to the device upon successful start-up
-            // initialization.
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName componentName) {
-            mBluetoothLeService = null;
-        }
-    };
 
     /**
      * 获取指定位置的蓝牙对象
@@ -413,9 +321,9 @@ public class Ble<T extends BleDevice> {
      * @return 指定位置蓝牙对象
      */
     public T getBleDevice(int index) {
-        ConnectRequest request = Rproxy.getInstance().getRequest(ConnectRequest.class);
+        ConnectRequest<T> request = Rproxy.getRequest(ConnectRequest.class);
         if(request != null){
-            return (T) request.getBleDevice(index);
+            return request.getBleDevice(index);
         }
         return null;
     }
@@ -426,9 +334,9 @@ public class Ble<T extends BleDevice> {
      * @return 对应的蓝牙对象
      */
     public T getBleDevice(String address){
-        ConnectRequest request = Rproxy.getInstance().getRequest(ConnectRequest.class);
+        ConnectRequest<T> request = Rproxy.getRequest(ConnectRequest.class);
         if(request != null){
-            return (T) request.getBleDevice(address);
+            return request.getBleDevice(address);
         }
         return null;
     }
@@ -439,34 +347,25 @@ public class Ble<T extends BleDevice> {
      * @return 对应蓝牙对象
      */
     public T getBleDevice(BluetoothDevice device) {
-        ConnectRequest request = Rproxy.getInstance().getRequest(ConnectRequest.class);
+        ConnectRequest<T> request = Rproxy.getRequest(ConnectRequest.class);
         if(request != null){
-            return (T) request.getBleDevice(device);
+            return request.getBleDevice(device);
         }
         return null;
     }
 
     /**
-     *   Get the device type   for example: BleDevice.class
-     * @return device type
-     */
-    //Temporarily comment out the code post-maintenance may re-use the code
-   /*  public Class<T> getDeviceClass(){
-        return mDeviceClass;
-    }*/
-
-    /**
      * 获取对应锁对象
      */
     public Object getLocker() {
-        return mLocker;
+        return locker;
     }
 
     /**
      * 是否正在扫描
      */
     public boolean isScanning() {
-        ScanRequest request = Rproxy.getInstance().getRequest(ScanRequest.class);
+        ScanRequest request = Rproxy.getRequest(ScanRequest.class);
         return request.isScanning();
     }
 
@@ -475,41 +374,55 @@ public class Ble<T extends BleDevice> {
      * @return 已经连接的设备集合
      */
 
-    public ArrayList<T> getConnetedDevices() {
-        ConnectRequest<T> request = Rproxy.getInstance().getRequest(ConnectRequest.class);
+    public List<T> getConnetedDevices() {
+        ConnectRequest<T> request = Rproxy.getRequest(ConnectRequest.class);
         if(request != null){
             return request.getConnetedDevices();
         }
-        return null;
+        return Collections.emptyList();
     }
 
     /**
-     * 当Application退出时，释放所有资源
-     * @param context 上下文对象
+     * 释放所有资源
      */
-    public void destory(Context context){
-        unService(context);
+    public void released(){
+        releaseGatts();
+        releaseBleObserver();
+        if (isScanning())stopScan();
+        bleRequestImpl.release();
+        bleRequestImpl = null;
+        Rproxy.release();
+        context = null;
+        BleLog.e(TAG, "AndroidBLE already released");
     }
 
     /**
      * Release Empty all resources
      */
-    /*public void clear() {
-        synchronized (mLocker) {
-            for (BleDevice bleDevice : mConnetedDevices) {
+    private void releaseGatts() {
+        BleLog.e(TAG, "BluetoothGatts is released");
+        synchronized (locker) {
+            List<T> connetedDevices = getConnetedDevices();
+            for (T bleDevice : connetedDevices) {
                 disconnect(bleDevice);
             }
-            mConnetedDevices.clear();
-            mConnectingDevices.clear();
         }
-    }*/
+    }
+
+    private void releaseBleObserver() {
+        BleLog.e(TAG, "BleObserver is released");
+        if (bleObserver != null) {
+            bleObserver.unregisterReceiver();
+            bleObserver = null;
+        }
+    }
 
     /**
      *
      * @return 是否支持蓝牙
      */
     public boolean isSupportBle(Context context) {
-        return (mBluetoothAdapter != null && context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE));
+        return (bluetoothAdapter != null && context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE));
     }
 
     /**
@@ -517,7 +430,7 @@ public class Ble<T extends BleDevice> {
      * @return 蓝牙是否打开
      */
     public boolean isBleEnable() {
-        return mBluetoothAdapter.isEnabled();
+        return bluetoothAdapter.isEnabled();
     }
 
     /**
@@ -539,7 +452,7 @@ public class Ble<T extends BleDevice> {
      */
     public void turnOnBlueToothNo(){
         if(!isBleEnable()){
-            mBluetoothAdapter.enable();
+            bluetoothAdapter.enable();
         }
     }
 
@@ -547,7 +460,7 @@ public class Ble<T extends BleDevice> {
      * 关闭蓝牙
      */
     public boolean turnOffBlueTooth() {
-        return !mBluetoothAdapter.isEnabled() || mBluetoothAdapter.disable();
+        return !bluetoothAdapter.isEnabled() || bluetoothAdapter.disable();
     }
 
     /**
@@ -556,34 +469,21 @@ public class Ble<T extends BleDevice> {
      * @return 是否清理成功
      */
     public boolean refreshDeviceCache(String address) {
-        if (mBluetoothLeService != null) {
-            return mBluetoothLeService.refreshDeviceCache(address);
-        }
-        return false;
-    }
-
-    /**
-     * 设置MTU
-     * @param address 蓝牙设备地址
-     * @param mtu mtu大小
-     * @return 是否设置成功
-     */
-    public boolean setMTU(String address, int mtu){
-        if (mBluetoothLeService != null){
-            return mBluetoothLeService.setMTU(address, mtu);
+        if (bleRequestImpl != null) {
+            return bleRequestImpl.refreshDeviceCache(address);
         }
         return false;
     }
 
     public static Options options(){
-        if(sOptions == null){
-            sOptions = new Options();
+        if(options == null){
+            options = new Options();
         }
-        return sOptions;
+        return options;
     }
 
     public Context getContext(){
-        return mContext;
+        return context;
     }
 
     /**
@@ -593,7 +493,7 @@ public class Ble<T extends BleDevice> {
         /**
          * 是否打印蓝牙日志
          */
-        public boolean logBleExceptions = true;
+        public boolean logBleEnable = true;
         /**
          * 日志TAG，用于过滤日志信息
          */
@@ -650,12 +550,12 @@ public class Ble<T extends BleDevice> {
             return this;
         }
 
-        public boolean isLogBleExceptions() {
-            return logBleExceptions;
+        public boolean isLogBleEnable() {
+            return logBleEnable;
         }
 
-        public Options setLogBleExceptions(boolean logBleExceptions) {
-            this.logBleExceptions = logBleExceptions;
+        public Options setLogBleEnable(boolean logBleEnable) {
+            this.logBleEnable = logBleEnable;
             return this;
         }
 

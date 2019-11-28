@@ -5,6 +5,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.RestrictTo;
 
+import cn.com.heaton.blelibrary.ble.Ble;
 import cn.com.heaton.blelibrary.ble.BleStates;
 
 /**
@@ -34,7 +35,7 @@ public class BleDevice implements Parcelable {
     private String mBleAlias;
 
     /*是否自动连接*/
-    private boolean mAutoConnect = false;//The default is not automatic connection
+    private boolean mAutoConnect = Ble.options().autoConnect;//The default is not automatic connection
 
     /*是否正在自动重连*/
     private boolean isAutoConnectting = false;
@@ -82,6 +83,10 @@ public class BleDevice implements Parcelable {
 
     public boolean isConnectting() {
         return mConnectionState == BleStates.BleStatus.CONNECTING;
+    }
+
+    public boolean isDisconnected() {
+        return mConnectionState == BleStates.BleStatus.DISCONNECT;
     }
 
     public boolean isAutoConnect() {

@@ -134,7 +134,7 @@ public class BleOtaUpdater implements OtaListener {
 				Log.e(TAG, "otaWrite:Stopped for some reason");
 			}
 			return false;
-		} else if (!this.mBleManager.getBleService().writeOtaData(mBleDevice.getBleAddress(),data)) {//Whether to write failed
+		} else if (!this.mBleManager.getBleRequest().writeOtaData(mBleDevice.getBleAddress(),data)) {//Whether to write failed
 			if(BuildConfig.DEBUG) {
 				Log.e(TAG, "Failed to write characteristic");
 			}
@@ -471,7 +471,7 @@ public class BleOtaUpdater implements OtaListener {
 			this.mFilePath = file;
 			this.mBleDevice = bleDevice;
 			this.mBleManager = bleManager;
-			this.mBleManager.getBleService().setOtaListener(this);
+			this.mBleManager.getBleRequest().setOtaListener(this);
 			this.mShouldStop = false;
 			this.mPercent = 0;
 			this.mByteRate = 0;

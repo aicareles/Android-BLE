@@ -19,14 +19,14 @@ public class AppProtocol {
 
     private static void write(BleDevice device, byte[] data){
         List<BleDevice> list = Ble.getInstance().getConnetedDevices();
-        if(null != list && list.size() > 0){
+        if(list.size() > 0){
             Ble.getInstance().write(device, getWriteData(data), bleDeviceBleWriteCallback);
         }
     }
 
     private static BleWriteCallback<BleDevice> bleDeviceBleWriteCallback = new BleWriteCallback<BleDevice>() {
         @Override
-        public void onWriteSuccess(BluetoothGattCharacteristic characteristic) {
+        public void onWriteSuccess(BleDevice device, BluetoothGattCharacteristic characteristic) {
 //            Log.e(TAG, "onWriteSuccess: ");
         }
     };

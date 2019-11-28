@@ -1,13 +1,12 @@
 package cn.com.heaton.blelibrary.ble.request;
 
+import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGattCharacteristic;
-import android.os.Message;
 
-import cn.com.heaton.blelibrary.ble.BleHandler;
+import cn.com.heaton.blelibrary.ble.callback.wrapper.ReadWrapperCallback;
 import cn.com.heaton.blelibrary.ble.model.BleDevice;
 import cn.com.heaton.blelibrary.ble.Ble;
-import cn.com.heaton.blelibrary.ble.BleStates;
-import cn.com.heaton.blelibrary.ble.BluetoothLeService;
+import cn.com.heaton.blelibrary.ble.BleRequestImpl;
 import cn.com.heaton.blelibrary.ble.annotation.Implement;
 import cn.com.heaton.blelibrary.ble.callback.BleReadCallback;
 
@@ -16,38 +15,34 @@ import cn.com.heaton.blelibrary.ble.callback.BleReadCallback;
  * Created by LiuLei on 2017/10/23.
  */
 @Implement(ReadRequest.class)
-public class ReadRequest<T extends BleDevice> implements IMessage {
+public class ReadRequest<T extends BleDevice> implements ReadWrapperCallback {
 
-    private BleReadCallback<T> mBleLisenter;
+    private BleReadCallback<T> bleReadCallback;
+    private Ble<T> ble = Ble.getInstance();
 
-    protected ReadRequest() {
-        BleHandler handler = BleHandler.of();
-        handler.setHandlerCallback(this);
-    }
+    protected ReadRequest() {}
 
-    public boolean read(T device, BleReadCallback<T> lisenter){
-        this.mBleLisenter = lisenter;
+    public boolean read(T device, BleReadCallback<T> callback){
+        this.bleReadCallback = callback;
         boolean result = false;
-        BluetoothLeService service = Ble.getInstance().getBleService();
-        if (Ble.getInstance() != null && service != null) {
-            result = service.readCharacteristic(device.getBleAddress());
+        BleRequestImpl bleRequest = BleRequestImpl.getBleRequest();
+        if (Ble.getInstance() != null && bleRequest != null) {
+            result = bleRequest.readCharacteristic(device.getBleAddress());
         }
         return result;
     }
 
     @Override
-    public void handleMessage(Message msg) {
-        switch (msg.what){
-            case BleStates.BleStatus.Read:
-                if(msg.obj instanceof BluetoothGattCharacteristic){
-                    BluetoothGattCharacteristic characteristic = (BluetoothGattCharacteristic) msg.obj;
-                    if(mBleLisenter != null){
-                        mBleLisenter.onReadSuccess(characteristic);
-                    }
-                }
-                break;
-            default:
-                break;
+    public void onReadSuccess(BluetoothDevice device, BluetoothGattCharacteristic characteristic) {
+        if(bleReadCallback != null){
+            bleReadCallback.onReadSuccess(ble.getBleDevice(device), characteristic);
+        }
+    }
+
+    @Override
+    public void onReadFailed(BluetoothDevice device, String message) {
+        if(bleReadCallback != null){
+            bleReadCallback.onReadFailed(ble.getBleDevice(device), message);
         }
     }
 }

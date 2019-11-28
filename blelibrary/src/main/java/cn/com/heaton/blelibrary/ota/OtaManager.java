@@ -39,15 +39,17 @@ public class OtaManager {
 	}
 
 	private static class MessageHandler extends Handler {
-		private WeakReference<OtaManager> weakReference;
+//		private WeakReference<OtaManager> weakReference;
+		private OtaManager otaManager;
 
 		public MessageHandler(OtaManager otaManager) {
-			weakReference = new WeakReference<>(otaManager);
+//			weakReference = new WeakReference<>(otaManager);
+			this.otaManager = otaManager;
 		}
 
 		@Override
 		public void dispatchMessage(Message msg) {
-			final OtaManager otaManager = weakReference.get();
+//			final OtaManager otaManager = weakReference.get();
 			if (otaManager != null) {
 				if (BuildConfig.DEBUG) {
 					Log.i(TAG, "dispatchMessage:" + msg.what);

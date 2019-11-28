@@ -1,7 +1,8 @@
 package com.i502tech.appkotlin
 
+import android.bluetooth.BluetoothGattCharacteristic
 import cn.com.heaton.blelibrary.ble.Ble
-import cn.com.heaton.blelibrary.ble.L
+import cn.com.heaton.blelibrary.ble.BleLog
 import cn.com.heaton.blelibrary.ble.callback.BleWriteCallback
 import cn.com.heaton.blelibrary.ble.model.BleDevice
 import cn.com.heaton.blelibrary.ble.utils.ByteUtils
@@ -13,8 +14,11 @@ import cn.com.heaton.blelibrary.ble.utils.ByteUtils
 
 object AppProtocol {
 
-    private val bleDeviceBleWriteCallback = BleWriteCallback<BleDevice> {
-                    L.w("AppProtocol", "onWriteSuccess: ")
+    private val bleDeviceBleWriteCallback = object :BleWriteCallback<BleDevice>() {
+        override fun onWriteSuccess(device: BleDevice?, characteristic: BluetoothGattCharacteristic?) {
+            BleLog.w("AppProtocol", "onWriteSuccess: ")
+        }
+
     }
 
     private fun write(device: BleDevice, data: ByteArray) {

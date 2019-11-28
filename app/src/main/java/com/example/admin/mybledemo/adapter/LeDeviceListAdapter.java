@@ -2,6 +2,7 @@ package com.example.admin.mybledemo.adapter;
 
 import android.app.Activity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,6 +48,9 @@ public class LeDeviceListAdapter extends BaseAdapter {
 //        }
     }
 
+    public List<BleDevice> getDevices(){
+        return mLeDevices;
+    }
 
     public void addDevices(List<BleDevice> devices){
         for(BleDevice device : devices){

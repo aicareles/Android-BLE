@@ -7,8 +7,8 @@ android {
         applicationId "com.example.admin.mybledemo"
         minSdkVersion 18
         targetSdkVersion 28
-        versionCode 9
-        versionName "2.6.1"
+        versionCode 10
+        versionName "2.7.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 

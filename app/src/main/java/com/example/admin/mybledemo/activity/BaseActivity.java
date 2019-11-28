@@ -10,7 +10,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.SparseArray;
 
 import com.example.admin.mybledemo.R;
-import com.example.admin.mybledemo.annotation.LLAnnotation;
 
 public abstract class BaseActivity extends AppCompatActivity {
 
@@ -18,14 +17,16 @@ public abstract class BaseActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
-        LLAnnotation.bind(this);
+        setContentView(layoutId());
         onInitView();
         initLinsenter();
     }
 
     protected abstract void onInitView();
 
-    protected void initLinsenter(){};
+    protected abstract int layoutId();
+
+    protected void initLinsenter(){}
 
     /*---------------------------------------------------------------------------以下是android6.0动态授权的封装十分好用---------------------------------------------------------------------------*/
     private int                   mPermissionIdx = 0x10;//请求权限索引

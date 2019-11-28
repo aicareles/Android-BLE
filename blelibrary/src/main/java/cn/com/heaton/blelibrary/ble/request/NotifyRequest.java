@@ -1,85 +1,69 @@
 package cn.com.heaton.blelibrary.ble.request;
 
-import android.bluetooth.BluetoothGatt;
+import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGattCharacteristic;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
+import cn.com.heaton.blelibrary.ble.Ble;
+import cn.com.heaton.blelibrary.ble.BleRequestImpl;
 import cn.com.heaton.blelibrary.ble.model.BleDevice;
 import cn.com.heaton.blelibrary.ble.utils.TaskExecutor;
 import cn.com.heaton.blelibrary.ble.annotation.Implement;
 import cn.com.heaton.blelibrary.ble.callback.BleNotiftCallback;
-import cn.com.heaton.blelibrary.ble.callback.wrapper.NotifyWrapperLisenter;
+import cn.com.heaton.blelibrary.ble.callback.wrapper.NotifyWrapperCallback;
 
 /**
  * Created by LiuLei on 2017/10/23.
  */
 @Implement(NotifyRequest.class)
-public class NotifyRequest<T extends BleDevice> implements NotifyWrapperLisenter<T> {
+public class NotifyRequest<T extends BleDevice> implements NotifyWrapperCallback {
 
     private static final String TAG = "NotifyRequest";
-
-    private List<BleNotiftCallback> mNotifyCallbacks = new ArrayList<>();
-    private HashMap<T, List<BleNotiftCallback>> mBleNotifyMaps = new HashMap<>();
+    private BleNotiftCallback<T> notiftCallback;
+    private Ble<T> ble = Ble.getInstance();
 
     protected NotifyRequest() {}
 
     public void notify(T device, BleNotiftCallback<T> callback) {
-        if (!mNotifyCallbacks.contains(callback)) {
-            List<BleNotiftCallback> bleCallbacks;
-            if (mBleNotifyMaps.containsKey(device)) {
-                bleCallbacks = mBleNotifyMaps.get(device);
-                bleCallbacks.add(callback);
-            } else {//不包含key
-                bleCallbacks = new ArrayList<>();
-                bleCallbacks.add(callback);
-                mBleNotifyMaps.put(device, bleCallbacks);
-            }
-            mNotifyCallbacks.add(callback);
-        }
+        notiftCallback = callback;
+        BleRequestImpl bleRequest = BleRequestImpl.getBleRequest();
+        bleRequest.setCharacteristicNotification(device.getBleAddress(), true);
     }
 
-    public void unNotify(T device) {
-        if (mBleNotifyMaps.containsKey(device)) {
-            //移除该设备的所有通知
-            mNotifyCallbacks.removeAll(mBleNotifyMaps.get(device));
-            mBleNotifyMaps.remove(device);
-        }
+    public void cancelNotify(T device, BleNotiftCallback<T> callback) {
+        notiftCallback = callback;
+        BleRequestImpl bleRequest = BleRequestImpl.getBleRequest();
+        bleRequest.setCharacteristicNotification(device.getBleAddress(), false);
     }
 
     @Override
-    public void onChanged(final T device, final BluetoothGattCharacteristic characteristic) {
-        for (BleNotiftCallback callback : mNotifyCallbacks) {
-            callback.onChanged(device, characteristic);
+    public void onChanged(final BluetoothDevice device, final BluetoothGattCharacteristic characteristic) {
+        if (null != notiftCallback){
+            T bleDevice = ble.getBleDevice(device);
+            notiftCallback.onChanged(bleDevice, characteristic);
         }
     }
 
     @Override
-    public void onReady(T device) {
-
-    }
-
-    @Override
-    public void onServicesDiscovered(final BluetoothGatt gatt) {
+    public void onNotifySuccess(final BluetoothDevice device) {
         TaskExecutor.mainThread(new Runnable() {
             @Override
             public void run() {
-                for (BleNotiftCallback callback : mNotifyCallbacks) {
-                    callback.onServicesDiscovered(gatt);
+                if (null != notiftCallback){
+                    T bleDevice = ble.getBleDevice(device);
+                    notiftCallback.onNotifySuccess(bleDevice);
                 }
             }
         });
     }
 
     @Override
-    public void onNotifySuccess(final BluetoothGatt gatt) {
+    public void onNotifyCanceled(final BluetoothDevice device) {
         TaskExecutor.mainThread(new Runnable() {
             @Override
             public void run() {
-                for (BleNotiftCallback callback : mNotifyCallbacks) {
-                    callback.onNotifySuccess(gatt);
+                if (null != notiftCallback){
+                    T bleDevice = ble.getBleDevice(device);
+                    notiftCallback.onNotifyCanceled(bleDevice);
                 }
             }
         });

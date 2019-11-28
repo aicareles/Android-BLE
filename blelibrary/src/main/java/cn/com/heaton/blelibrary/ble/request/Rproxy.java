@@ -7,12 +7,10 @@ import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-import cn.com.heaton.blelibrary.ble.L;
+import cn.com.heaton.blelibrary.ble.BleLog;
 import cn.com.heaton.blelibrary.ble.annotation.Implement;
 import dalvik.system.DexFile;
 
@@ -22,26 +20,18 @@ import dalvik.system.DexFile;
  */
 
 public class Rproxy {
-    private static final Rproxy s_instance = new Rproxy();
 
-    private Map<Class, Object> mRequestObjs;
+    private static Map<Class, Object> requestObjs;
 
-    public static Rproxy getInstance(){
-        return s_instance;
-    }
-
-    private Rproxy(){
-        mRequestObjs = new HashMap<>();
-    }
-
-    public void init(Class... clss){
+    public static void init(Class... clss){
+        requestObjs = new HashMap<>();
 //        List<Class> requestsClass = getRequestsClass(context, getClass().getPackage().getName());
         for(Class cls : clss){
             if(cls.isAnnotationPresent(Implement.class)){
                 for(Annotation ann : cls.getDeclaredAnnotations()){
                     if(ann instanceof Implement){
                         try {
-                            mRequestObjs.put(cls, ((Implement) ann).value().newInstance());
+                            requestObjs.put(cls, ((Implement) ann).value().newInstance());
                         } catch (InstantiationException e) {
                             e.printStackTrace();
                         } catch (IllegalAccessException e) {
@@ -53,8 +43,13 @@ public class Rproxy {
         }
     }
 
-    public <T>T getRequest(Class cls){
-        return (T) mRequestObjs.get(cls);
+    public static <T>T getRequest(Class cls){
+        return (T) requestObjs.get(cls);
+    }
+
+    public static void release(){
+        requestObjs.clear();
+        BleLog.e("Rproxy", "Request proxy cache is released");
     }
 
     private List<Class> getRequestsClass(Context context, String packageName){

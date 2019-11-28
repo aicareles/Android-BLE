@@ -3,6 +3,8 @@ package cn.com.heaton.blelibrary.ble.callback;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 
+import cn.com.heaton.blelibrary.ble.model.BleDevice;
+
 /**
  *
  * Created by LiuLei on 2017/10/23.
@@ -16,17 +18,9 @@ public abstract class BleNotiftCallback<T> {
      */
     public abstract void onChanged(T device, BluetoothGattCharacteristic characteristic);
 
-    /**
-     *  Set the notification feature to be successful and can send data
-     * @param device ble device object
-     */
-    public void onReady(T device){};
+    public void onNotifySuccess(T device){}
 
-    /**
-     *  Set the notification here when the service finds a callback       setNotify
-     * @param gatt
-     */
-    public void onServicesDiscovered(BluetoothGatt gatt){};
+    public void onNotifyCanceled(T device){}
 
-    public void onNotifySuccess(BluetoothGatt gatt){};
+    public void onNotifySuccess(BleDevice device, BluetoothGatt gatt){}
 }

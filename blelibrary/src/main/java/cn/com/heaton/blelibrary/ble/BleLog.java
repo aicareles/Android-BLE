@@ -10,15 +10,16 @@ import java.util.Locale;
  * Created by LiuLei on 2017/5/16.
  */
 
-public class L {
+public class BleLog {
 
     public static String TAG = "AndroidBLE";
     public static boolean isDebug;
 
-    public static void init(Ble.Options opts){
-        isDebug = opts.logBleExceptions;
-        if (!TextUtils.isEmpty(opts.logTAG))
-            TAG = opts.logTAG;
+    public static void init(){
+        Ble.Options options = Ble.options();
+        isDebug = options.logBleEnable;
+        if (!TextUtils.isEmpty(options.logTAG))
+            TAG = options.logTAG;
     }
 
     private static String getSubTag(Object o){
@@ -75,7 +76,7 @@ public class L {
         // It will be at least two frames up, so start there.
         for (int i = 2; i < trace.length; i++) {
             Class<?> clazz = trace[i].getClass();
-            if (!clazz.equals(L.class)) {
+            if (!clazz.equals(BleLog.class)) {
                 String callingClass = trace[i].getClassName();
                 callingClass = callingClass.substring(callingClass.lastIndexOf('.') + 1);
                 callingClass = callingClass.substring(callingClass.lastIndexOf('$') + 1);

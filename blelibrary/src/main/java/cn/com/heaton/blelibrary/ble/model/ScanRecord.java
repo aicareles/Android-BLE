@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import cn.com.heaton.blelibrary.ble.L;
+import cn.com.heaton.blelibrary.ble.BleLog;
 
 /**
  * description $desc$
@@ -298,7 +298,7 @@ public class ScanRecord {
             return new ScanRecord(serviceUuids, manufacturerData, serviceData,
                     advertiseFlag, txPowerLevel, localName, scanRecord);
         } catch (Exception e) {
-            L.e(TAG, "unable to parse scan record: " + Arrays.toString(scanRecord));
+            BleLog.e(TAG, "unable to parse scan record: " + Arrays.toString(scanRecord));
             // As the record is invalid, ignore all the parsed results for this packet
             // and return an empty record with raw scanRecord bytes in results
             return new ScanRecord(null, manufacturerData, null, -1, Integer.MIN_VALUE, null, scanRecord);

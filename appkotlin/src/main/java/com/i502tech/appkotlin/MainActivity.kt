@@ -15,7 +15,7 @@ import android.support.v4.content.ContextCompat
 import android.support.v7.widget.LinearLayoutManager
 import android.util.Log
 import cn.com.heaton.blelibrary.ble.Ble
-import cn.com.heaton.blelibrary.ble.L
+import cn.com.heaton.blelibrary.ble.BleLog
 import cn.com.heaton.blelibrary.ble.callback.*
 import cn.com.heaton.blelibrary.ble.model.BleDevice
 import cn.com.heaton.blelibrary.ble.utils.ByteUtils
@@ -110,7 +110,7 @@ class MainActivity : AppCompatActivity() {
     //初始化蓝牙
     private fun initBLE() {
         mBle = Ble.options().apply {
-            logBleExceptions = true
+            logBleEnable = true
             throwBleException = true
             autoConnect = true
             connectFailedRetryCount = 3
@@ -178,7 +178,7 @@ class MainActivity : AppCompatActivity() {
     private fun bleNotifyCallback(): BleNotiftCallback<BleDevice> {
         return object : BleNotiftCallback<BleDevice>(){
             override fun onChanged(device: BleDevice?, characteristic: BluetoothGattCharacteristic?) {
-                L.i("收到硬件数据>>>>>onChanged:",ByteUtils.BinaryToHexString(characteristic?.value))
+                BleLog.i("收到硬件数据>>>>>onChanged:",ByteUtils.BinaryToHexString(characteristic?.value))
             }
 
         }
@@ -225,12 +225,12 @@ class MainActivity : AppCompatActivity() {
         val data = ByteUtils.toByteArray(assets.open("WhiteChristmas.bin"))
         mBle.writeEntity(mBle.connetedDevices[0], data, 20, 50, object : BleWriteEntityCallback<BleDevice>() {
             override fun onWriteSuccess() {
-                L.e("writeEntity", "onWriteSuccess")
+                BleLog.e("writeEntity", "onWriteSuccess")
                 hideProgress()
             }
 
             override fun onWriteFailed() {
-                L.e("writeEntity", "onWriteFailed")
+                BleLog.e("writeEntity", "onWriteFailed")
                 hideProgress()
             }
 

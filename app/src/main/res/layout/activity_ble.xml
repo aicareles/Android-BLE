@@ -60,12 +60,21 @@
         android:text="自动分包发送"/>
 
     <Button
+        android:id="@+id/writeQueue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/ll_function"
+        android:layout_toRightOf="@+id/sendAutoEntityData"
+        android:text="添加到发送队列"/>
+
+    <Button
         android:id="@+id/startAdvertise"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_toEndOf="@+id/sendAutoEntityData"
         android:layout_below="@+id/ll_function"
-        android:text="开启广播"/>
+        android:text="开启广播"
+        android:visibility="gone"/>
 
     <Button
         android:id="@+id/stopAdvertise"
@@ -73,11 +82,12 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/ll_function"
         android:layout_toRightOf="@+id/startAdvertise"
-        android:text="停止广播"/>
+        android:text="停止广播"
+        android:visibility="gone"/>
 
     <ListView
         android:id="@+id/listView"
-        android:layout_below="@id/startAdvertise"
+        android:layout_below="@id/sendEntityData"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 

@@ -1,12 +1,11 @@
 package cn.com.heaton.blelibrary.ble.request;
 
-import android.os.Message;
+import android.bluetooth.BluetoothDevice;
 
 import cn.com.heaton.blelibrary.ble.Ble;
+import cn.com.heaton.blelibrary.ble.callback.wrapper.MtuWrapperCallback;
 import cn.com.heaton.blelibrary.ble.model.BleDevice;
-import cn.com.heaton.blelibrary.ble.BleHandler;
-import cn.com.heaton.blelibrary.ble.BleStates;
-import cn.com.heaton.blelibrary.ble.BluetoothLeService;
+import cn.com.heaton.blelibrary.ble.BleRequestImpl;
 import cn.com.heaton.blelibrary.ble.annotation.Implement;
 import cn.com.heaton.blelibrary.ble.callback.BleMtuCallback;
 
@@ -15,38 +14,27 @@ import cn.com.heaton.blelibrary.ble.callback.BleMtuCallback;
  * Created by LiuLei on 2017/10/23.
  */
 @Implement(MtuRequest.class)
-public class MtuRequest<T extends BleDevice> implements IMessage {
+public class MtuRequest<T extends BleDevice> implements MtuWrapperCallback {
 
-    private BleMtuCallback<T> mBleLisenter;
+    private BleMtuCallback<T> bleMtuCallback;
 
-    protected MtuRequest() {
-        BleHandler handler = BleHandler.of();
-        handler.setHandlerCallback(this);
-    }
+    protected MtuRequest() {}
 
-    public boolean setMtu(String address, int mtu, BleMtuCallback<T> lisenter){
-        this.mBleLisenter = lisenter;
+    public boolean setMtu(String address, int mtu, BleMtuCallback<T> callback){
+        this.bleMtuCallback = callback;
         boolean result = false;
-        BluetoothLeService service = Ble.getInstance().getBleService();
-        if (Ble.getInstance() != null && service != null) {
-            result = service.setMTU(address, mtu);
+        BleRequestImpl bleRequest = BleRequestImpl.getBleRequest();
+        if (Ble.getInstance() != null && bleRequest != null) {
+            result = bleRequest.setMtu(address, mtu);
         }
         return result;
     }
 
     @Override
-    public void handleMessage(Message msg) {
-        switch (msg.what){
-            case BleStates.BleStatus.MTUCHANGED:
-                if(msg.obj instanceof BleDevice){
-                    BleDevice device = (BleDevice) msg.obj;
-                    if(mBleLisenter != null){
-                        mBleLisenter.onMtuChanged(device, msg.arg1, msg.arg2);
-                    }
-                }
-                break;
-            default:
-                break;
+    public void onMtuChanged(BluetoothDevice device, int mtu, int status) {
+        if(null != bleMtuCallback){
+            T bleDevice = Ble.<T>getInstance().getBleDevice(device);
+            bleMtuCallback.onMtuChanged(bleDevice, mtu, status);
         }
     }
 }

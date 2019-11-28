@@ -26,7 +26,7 @@ public interface RequestLisenter<T> {
 
     void notify(T device, BleNotiftCallback<T> callback);
 
-    void unNotify(T device);
+    void cancelNotify(T device, BleNotiftCallback<T> callback);
 
     void disconnect(T device);
 

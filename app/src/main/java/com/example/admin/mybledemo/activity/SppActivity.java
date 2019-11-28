@@ -20,7 +20,7 @@ import com.example.admin.mybledemo.utils.TaskExecutor;
 
 import java.util.ArrayList;
 
-import cn.com.heaton.blelibrary.ble.L;
+import cn.com.heaton.blelibrary.ble.BleLog;
 import cn.com.heaton.blelibrary.spp.BtDevice;
 import cn.com.heaton.blelibrary.spp.BtManager;
 
@@ -50,6 +50,11 @@ public class SppActivity extends BaseActivity {
     protected void onInitView() {
         initBle();
         initView();
+    }
+
+    @Override
+    protected int layoutId() {
+        return 0;
     }
 
     @OnItemClick(R.id.listView)
@@ -182,7 +187,7 @@ public class SppActivity extends BaseActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_scan:
-                L.e(this, "点击了扫描按钮");
+                BleLog.e(this, "点击了扫描按钮");
                 if (mBtManager != null && !isScanning) {
                     mBtAdapter.clear();
 //                    mBtManager.release();
@@ -190,13 +195,13 @@ public class SppActivity extends BaseActivity {
                 }
                 break;
             case R.id.menu_stop:
-                L.e(this, "点击了停止扫描按钮");
+                BleLog.e(this, "点击了停止扫描按钮");
                 if (mBtManager != null) {
                     mBtManager.cancelDiscovery();
                 }
                 break;
             case R.id.menu_connect_all:
-                L.e(this, "点击了连接全部设备按钮");
+                BleLog.e(this, "点击了连接全部设备按钮");
                 if (mBtManager != null) {
                     for (int i = 0; i < mBtAdapter.getCount(); i++) {
                         BtDevice device = mBtAdapter.getDevice(i);
@@ -205,7 +210,7 @@ public class SppActivity extends BaseActivity {
                 }
                 break;
             case R.id.menu_disconnect_all:
-                L.e(this, "点击了断开全部设备按钮");
+                BleLog.e(this, "点击了断开全部设备按钮");
                 if (mBtManager != null) {
                     ArrayList<BtDevice> list = (ArrayList<BtDevice>) mBtManager.getConnectedDevices();
                     for (BtDevice device : list) {

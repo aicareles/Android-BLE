@@ -165,7 +165,7 @@ public class EntityData {
         }
     }
 
-    public static void validParms(EntityData entityData) throws BleWriteException {
+    public static void validParms(EntityData entityData) {
         String exception = "";
         if (TextUtils.isEmpty(entityData.address)){
             exception = "ble address isn't null";

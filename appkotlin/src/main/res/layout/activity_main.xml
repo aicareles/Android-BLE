@@ -9,10 +9,6 @@
     android:clipToPadding="true"
     tools:context="com.i502tech.appkotlin.MainActivity">
 
-    <!--<android.support.v7.widget.RecyclerView-->
-        <!--android:id="@+id/recycle_listView"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="match_parent"/>-->
     <LinearLayout
         android:id="@+id/ll_function"
         android:layout_width="match_parent"

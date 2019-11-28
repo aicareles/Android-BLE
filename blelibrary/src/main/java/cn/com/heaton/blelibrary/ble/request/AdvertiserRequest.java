@@ -9,9 +9,9 @@ import android.os.Build;
 import android.os.Handler;
 import android.support.annotation.RequiresApi;
 
+import cn.com.heaton.blelibrary.ble.BleLog;
 import cn.com.heaton.blelibrary.ble.model.BleDevice;
 import cn.com.heaton.blelibrary.ble.BleHandler;
-import cn.com.heaton.blelibrary.ble.L;
 import cn.com.heaton.blelibrary.ble.utils.TaskExecutor;
 import cn.com.heaton.blelibrary.ble.annotation.Implement;
 import cn.com.heaton.blelibrary.ble.exception.AdvertiserUnsupportException;
@@ -74,7 +74,7 @@ public class AdvertiserRequest<T extends BleDevice> {
             TaskExecutor.executeTask(new Runnable() {
                 @Override
                 public void run() {
-                    L.e(TAG, "stopAdvertising: 停止广播");
+                    BleLog.e(TAG, "stopAdvertising: 停止广播");
                     mAdvertiser.stopAdvertising(mAdvertiseCallback);
                 }
             });
@@ -96,22 +96,22 @@ public class AdvertiserRequest<T extends BleDevice> {
         @Override
         public void onStartSuccess(AdvertiseSettings settingsInEffect) {
             super.onStartSuccess(settingsInEffect);
-            L.e(TAG, "onStartSuccess: 开启广播成功");
+            BleLog.e(TAG, "onStartSuccess: 开启广播成功");
         }
 
         @Override
         public void onStartFailure(int errorCode) {
             super.onStartFailure(errorCode);
             if (errorCode == ADVERTISE_FAILED_DATA_TOO_LARGE) {
-                L.e(TAG, "Failed to start advertising as the advertise data to be broadcasted is larger than 31 bytes.");
+                BleLog.e(TAG, "Failed to start advertising as the advertise data to be broadcasted is larger than 31 bytes.");
             } else if (errorCode == ADVERTISE_FAILED_TOO_MANY_ADVERTISERS) {
-                L.e(TAG, "Failed to start advertising because no advertising instance is available.");
+                BleLog.e(TAG, "Failed to start advertising because no advertising instance is available.");
             } else if (errorCode == ADVERTISE_FAILED_ALREADY_STARTED) {
-                L.e(TAG, "Failed to start advertising as the advertising is already started");
+                BleLog.e(TAG, "Failed to start advertising as the advertising is already started");
             } else if (errorCode == ADVERTISE_FAILED_INTERNAL_ERROR) {
-                L.e(TAG, "Operation failed due to an internal error");
+                BleLog.e(TAG, "Operation failed due to an internal error");
             } else if (errorCode == ADVERTISE_FAILED_FEATURE_UNSUPPORTED) {
-                L.e(TAG, "This feature is not supported on this platform");
+                BleLog.e(TAG, "This feature is not supported on this platform");
             }
         }
     };

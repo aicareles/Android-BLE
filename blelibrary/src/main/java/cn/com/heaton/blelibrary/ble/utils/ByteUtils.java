@@ -34,14 +34,14 @@ public class ByteUtils {
     //将字节数组转换为16进制字符串
     public static String BinaryToHexString(byte[] bytes) {
         String hexStr = "0123456789ABCDEF";
-        String result = "";
+        StringBuilder result = new StringBuilder();
         String hex = "";
         for (byte b : bytes) {
             hex = String.valueOf(hexStr.charAt((b & 0xF0) >> 4));
             hex += String.valueOf(hexStr.charAt(b & 0x0F));
-            result += hex + " ";
+            result.append(hex).append(" ");
         }
-        return result;
+        return result.toString();
     }
 
     //3.short转换为byte数组

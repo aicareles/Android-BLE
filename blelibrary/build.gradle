@@ -8,8 +8,8 @@ android {
     defaultConfig {
         minSdkVersion 18
         targetSdkVersion 28
-        versionCode 51
-        versionName "2.6.1"
+        versionCode 52
+        versionName "2.7.0"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
@@ -42,7 +42,7 @@ tasks.withType(Javadoc) {
 //    options.addStringOption('links','http://docs.oracle.com/javase/7/docs/api')
 }
 
-version = "2.6.1"       //这个是版本号，必须填写
+version = "2.7.0"       //这个是版本号，必须填写
 def siteUrl = 'https://github.com/Alex-Jerry/Android-BLE'      // 项目的主页   这个是说明，可随便填
 def gitUrl = 'https://github.com/Alex-Jerry/Android-BLE'      // Git仓库的url  这个是说明，可随便填
 //implementation 'com.arshowbaby:mylibrary:1.0.0'中的com.arshowbaby

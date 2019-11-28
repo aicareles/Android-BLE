@@ -1,52 +1,41 @@
 package cn.com.heaton.blelibrary.ble.request;
 
-import android.os.Message;
+import android.bluetooth.BluetoothDevice;
 
-import cn.com.heaton.blelibrary.ble.BleHandler;
-import cn.com.heaton.blelibrary.ble.model.BleDevice;
 import cn.com.heaton.blelibrary.ble.Ble;
-import cn.com.heaton.blelibrary.ble.BleStates;
-import cn.com.heaton.blelibrary.ble.BluetoothLeService;
+import cn.com.heaton.blelibrary.ble.BleRequestImpl;
 import cn.com.heaton.blelibrary.ble.annotation.Implement;
 import cn.com.heaton.blelibrary.ble.callback.BleReadRssiCallback;
+import cn.com.heaton.blelibrary.ble.callback.wrapper.ReadRssiWrapperCallback;
+import cn.com.heaton.blelibrary.ble.model.BleDevice;
 
 /**
  *
  * Created by LiuLei on 2017/10/23.
  */
 @Implement(ReadRssiRequest.class)
-public class ReadRssiRequest<T extends BleDevice> implements IMessage {
+public class ReadRssiRequest<T extends BleDevice> implements ReadRssiWrapperCallback {
 
-    private BleReadRssiCallback<T> mBleLisenter;
+    private BleReadRssiCallback<T> readRssiCallback;
+    private Ble<T> ble = Ble.getInstance();
 
     protected ReadRssiRequest() {
-        BleHandler handler = BleHandler.of();
-        handler.setHandlerCallback(this);
     }
 
-    public boolean readRssi(T device, BleReadRssiCallback<T> lisenter){
-        this.mBleLisenter = lisenter;
+    public boolean readRssi(T device, BleReadRssiCallback<T> callback){
+        this.readRssiCallback = callback;
         boolean result = false;
-        BluetoothLeService service = Ble.getInstance().getBleService();
-        if (Ble.getInstance() != null && service != null) {
-            result = service.readRssi(device.getBleAddress());
+        BleRequestImpl bleRequest = BleRequestImpl.getBleRequest();
+        if (Ble.getInstance() != null && bleRequest != null) {
+            result = bleRequest.readRssi(device.getBleAddress());
         }
         return result;
     }
 
     @Override
-    public void handleMessage(Message msg) {
-        switch (msg.what){
-            case BleStates.BleStatus.ReadRssi:
-                if(msg.obj instanceof Integer){
-                    int rssi = (int) msg.obj;
-                    if(mBleLisenter != null){
-                        mBleLisenter.onReadRssiSuccess(rssi);
-                    }
-                }
-                break;
-            default:
-                break;
+    public void onReadRssiSuccess(BluetoothDevice device, int rssi) {
+        if(readRssiCallback != null){
+            readRssiCallback.onReadRssiSuccess(ble.getBleDevice(device), rssi);
         }
     }
 }

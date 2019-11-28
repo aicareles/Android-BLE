@@ -8,7 +8,7 @@ import android.content.IntentFilter;
 
 import java.lang.ref.WeakReference;
 
-import cn.com.heaton.blelibrary.ble.BleStates;
+import cn.com.heaton.blelibrary.ble.callback.BleStatusCallback;
 
 /**
  * 蓝牙状态发生变化时
@@ -17,19 +17,15 @@ import cn.com.heaton.blelibrary.ble.BleStates;
 
 public class BluetoothChangedObserver {
 
-    private BluetoothStatusLisenter mBluetoothStatusLisenter;
+    private BleStatusCallback mBluetoothStatusLisenter;
     private BleReceiver mBleReceiver;
     private Context mContext;
-
-    public interface BluetoothStatusLisenter {
-        void onBluetoothStatusChanged(int status);
-    }
 
     public BluetoothChangedObserver(Context context){
         this.mContext = context;
     }
 
-    public void setBluetoothStatusLisenter(BluetoothStatusLisenter bluetoothStatusLisenter) {
+    public void setBleScanCallbackInner(BleStatusCallback bluetoothStatusLisenter) {
         this.mBluetoothStatusLisenter = bluetoothStatusLisenter;
     }
 
@@ -62,9 +58,9 @@ public class BluetoothChangedObserver {
                 BluetoothChangedObserver observer = mObserverWeakReference.get();
                 int status = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1);
                 if (status == BluetoothAdapter.STATE_ON) {
-                    observer.mBluetoothStatusLisenter.onBluetoothStatusChanged(BleStates.BleStatus.BlutoothStatusOn);
+                    observer.mBluetoothStatusLisenter.onBluetoothStatusChanged(true);
                 }else if(status == BluetoothAdapter.STATE_OFF){
-                    observer.mBluetoothStatusLisenter.onBluetoothStatusChanged(BleStates.BleStatus.BlutoothStatusOff);
+                    observer.mBluetoothStatusLisenter.onBluetoothStatusChanged(false);
                 }
             }
         }
