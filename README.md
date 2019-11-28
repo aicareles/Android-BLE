@@ -160,7 +160,7 @@
 ```
 1、添加自动连接的接口(使用新的初始化写法)
     mBle = Ble.options()
-                 .setLogBleExceptions(true)
+                 .setLogBleEnable(true)
                  .setThrowBleException(true)
                  .setAutoConnect(true)//自动重连
                  .setConnectFailedRetryCount(3)
@@ -329,10 +329,11 @@ compile 'cn.com.superLei:blelibrary:2.6.1'
     private void initBle() {
         //方式1
         mBle = Ble.options()//开启配置
-                .setLogBleExceptions(true)//设置是否输出打印蓝牙日志（非正式打包请设置为true，以便于调试）
+                .setLogBleEnable(true)//设置是否输出打印蓝牙日志
                 .setThrowBleException(true)//设置是否抛出蓝牙异常
+                .setLogTAG("AndroidBLE")//设置全局蓝牙操作日志TAG
                 .setAutoConnect(true)//设置是否自动连接
-                .setFilterScan(true)//设置是否过滤扫描到的设备
+                .setFilterScan(false)//设置是否过滤扫描到的设备
                 .setConnectFailedRetryCount(3)
                 .setConnectTimeout(10 * 1000)//设置连接超时时长（默认10*1000 ms）
                 .setScanPeriod(12 * 1000)//设置扫描时长（默认10*1000 ms）
@@ -345,7 +346,7 @@ compile 'cn.com.superLei:blelibrary:2.6.1'
         mBle = Ble.create(getApplicationContext());
         //方式3(同方式1)
         Ble.Options options = Ble.options()
-                        .setLogBleExceptions(true)
+                        .setLogBleEnable(true)
                         .setAutoConnect(true)...;
         mBle = Ble.create(getApplicationContext(), options);
 
