@@ -43,6 +43,15 @@
     ble.connects(adapter.getDevices(), connectCallback);
 3.取消连接多个设备(取消正在连接/已加入队列中还未连接的设备)
     ble.cancelConnecttings(adapter.getDevices());
+4.更新部分:
+    BleConnectCallback<BleDevice> connectCallback = new BleConnectCallback<BleDevice>() {
+        @Override
+        public void onReady(BleDevice device) {
+            super.onReady(device);
+            /*连接成功后，在次回调中设置通知,否则收不到设备的数据*/
+            ble.startNotify(device, bleNotiftCallback);
+        }
+    };
 ```
 [![Version](https://img.shields.io/badge/BleLib-v2.6.1-blue.svg)](https://bintray.com/superliu/maven/BleLib/2.6.1)
 ```
