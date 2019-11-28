@@ -320,7 +320,7 @@
 [![License](https://img.shields.io/badge/license-Apache%202-green.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 [![Download](https://api.bintray.com/packages/superliu/maven/BleLib/images/download.svg)](https://bintray.com/superliu/maven/BleLib/_latestVersion)
 ```groovy
-compile 'cn.com.superLei:blelibrary:2.6.1'
+compile 'cn.com.superLei:blelibrary:latestVersion'
 ```
 
 #### 1.初始化蓝牙(判断设备是否支持BLE，蓝牙是否打开以及6.0动态授权蓝牙权限等)<br>
