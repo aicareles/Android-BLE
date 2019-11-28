@@ -44,8 +44,7 @@ class MainActivity : AppCompatActivity() {
         readRssi.setOnClickListener{
             if (mBle.connetedDevices.size > 0)
             mBle.readRssi(mBle.connetedDevices[0], object : BleReadRssiCallback<BleDevice>() {
-                override fun onReadRssiSuccess(rssi: Int) {
-                    super.onReadRssiSuccess(rssi)
+                override fun onReadRssiSuccess(device: BleDevice?, rssi: Int) {
                     toast("读取远程RSSI成功：$rssi")
                 }
             })

@@ -28,6 +28,22 @@
 ```
 
 ### 二、历史版本介绍：
+[![Version](https://img.shields.io/badge/BleLib-v3.0.0-blue.svg)](https://bintray.com/superliu/maven/BleLib/3.0.0)
+```
+1.添加写入队列(异步,可自定义队列每个任务延迟时间)
+    @CheckConnect //检查是否连接
+    private void writeQueue() {
+        String address = ble.getConnetedDevices().get(0).getBleAddress();
+        for (int i = 0; i < 30; i++) {
+            //ble.writeQueueDelay(50, RequestTask.newWriteTask(address, "hello android".getBytes()));
+            ble.writeQueue(RequestTask.newWriteTask(address, "hello android".getBytes()));
+        }
+    }
+2.同时连接多个
+    ble.connects(adapter.getDevices(), connectCallback);
+3.取消连接多个设备(取消正在连接/已加入队列中还未连接的设备)
+    ble.cancelConnecttings(adapter.getDevices());
+```
 [![Version](https://img.shields.io/badge/BleLib-v2.6.1-blue.svg)](https://bintray.com/superliu/maven/BleLib/2.6.1)
 ```
 添加自动分包发送接口(无需添加延迟，自动根据系统底层返回结果处理)

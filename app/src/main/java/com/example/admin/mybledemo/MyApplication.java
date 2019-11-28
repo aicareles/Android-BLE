@@ -6,6 +6,8 @@ import android.os.Bundle;
 
 import java.util.Stack;
 
+import cn.com.superLei.aoparms.AopArms;
+
 
 /**
  * 应用入口
@@ -43,6 +45,7 @@ public class MyApplication extends Application {
         super.onCreate();
         mApplication = this;
         store = new Stack<>();
+        AopArms.init(this);
         registerActivityLifecycleCallbacks(new SwitchBackgroundCallbacks());
 
     }
