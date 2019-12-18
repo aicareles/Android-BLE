@@ -6,16 +6,16 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import java.math.BigDecimal;
 import java.util.concurrent.Callable;
 
+import cn.com.heaton.blelibrary.ble.callback.wrapper.BleWrapperCallback;
 import cn.com.heaton.blelibrary.ble.callback.wrapper.WriteWrapperCallback;
 import cn.com.heaton.blelibrary.ble.model.BleDevice;
 import cn.com.heaton.blelibrary.ble.Ble;
 import cn.com.heaton.blelibrary.ble.BleRequestImpl;
 import cn.com.heaton.blelibrary.ble.model.EntityData;
-import cn.com.heaton.blelibrary.ble.utils.TaskExecutor;
+import cn.com.heaton.blelibrary.ble.utils.ThreadUtils;
 import cn.com.heaton.blelibrary.ble.annotation.Implement;
 import cn.com.heaton.blelibrary.ble.callback.BleWriteCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleWriteEntityCallback;
-import cn.com.heaton.blelibrary.ble.exception.BleException;
 import cn.com.heaton.blelibrary.ble.exception.BleWriteException;
 
 /**
@@ -23,16 +23,18 @@ import cn.com.heaton.blelibrary.ble.exception.BleWriteException;
  * Created by LiuLei on 2017/10/23.
  */
 @Implement(WriteRequest.class)
-public class WriteRequest<T extends BleDevice> implements WriteWrapperCallback {
+public class WriteRequest<T extends BleDevice> implements WriteWrapperCallback<T> {
 
     private BleWriteCallback<T> bleWriteCallback;
     private BleWriteEntityCallback<T> bleWriteEntityCallback;
     private boolean isWritingEntity;
     private boolean isAutoWriteMode = false;//当前是否为自动写入模式
     private final Object lock = new Object();
-    private Ble<T> ble = Ble.getInstance();
+    private BleWrapperCallback<T> bleWrapperCallback;
 
-    protected WriteRequest() {}
+    protected WriteRequest() {
+        bleWrapperCallback = Ble.options().bleWrapperCallback;
+    }
 
     public boolean write(T device,byte[]data, BleWriteCallback<T> lisenter){
         this.bleWriteCallback = lisenter;
@@ -46,7 +48,7 @@ public class WriteRequest<T extends BleDevice> implements WriteWrapperCallback {
 
     /*public void writeAsyn(final T device, final byte[]data, BleWriteCallback<T> lisenter){
         this.bleWriteCallback = lisenter;
-        TaskExecutor.executeTask(new Runnable() {
+        ThreadUtils.executeTask(new Runnable() {
             @Override
             public void run() {
                 BleRequestImpl bleRequest = BleRequestImpl.getBleRequest();
@@ -151,14 +153,15 @@ public class WriteRequest<T extends BleDevice> implements WriteWrapperCallback {
                 return true;
             }
         };
-        TaskExecutor.submit(callable);
+        ThreadUtils.submit(callable);
     }
 
     @Override
-    public void onWriteSuccess(BluetoothDevice device, BluetoothGattCharacteristic characteristic) {
+    public void onWriteSuccess(T device, BluetoothGattCharacteristic characteristic) {
         if(bleWriteCallback != null){
-            bleWriteCallback.onWriteSuccess(ble.getBleDevice(device), characteristic);
+            bleWriteCallback.onWriteSuccess(device, characteristic);
         }
+        bleWrapperCallback.onWriteSuccess(device, characteristic);
         if (isAutoWriteMode){
             synchronized (lock){
                 lock.notify();
@@ -167,10 +170,11 @@ public class WriteRequest<T extends BleDevice> implements WriteWrapperCallback {
     }
 
     @Override
-    public void onWiteFailed(BluetoothDevice device, String message) {
+    public void onWiteFailed(T device, String message) {
         if(bleWriteCallback != null){
-            bleWriteCallback.onWiteFailed(ble.getBleDevice(device), message);
+            bleWriteCallback.onWiteFailed(device, message);
         }
+        bleWrapperCallback.onWiteFailed(device, message);
     }
 
 }

@@ -23,6 +23,8 @@ import cn.com.heaton.blelibrary.ble.BleHandler;
 import cn.com.heaton.blelibrary.ble.BleLog;
 import cn.com.heaton.blelibrary.ble.annotation.Implement;
 import cn.com.heaton.blelibrary.ble.callback.BleScanCallback;
+import cn.com.heaton.blelibrary.ble.callback.wrapper.BleWrapperCallback;
+import cn.com.heaton.blelibrary.ble.callback.wrapper.DefaultBleWrapperCallback;
 import cn.com.heaton.blelibrary.ble.model.BleDevice;
 import cn.com.heaton.blelibrary.ble.model.ScanRecord;
 import cn.com.heaton.blelibrary.ble.utils.BleUtils;
@@ -36,28 +38,21 @@ public class ScanRequest<T extends BleDevice> {
     private static final String TAG = "ScanRequest";
     private static final String HANDLER_TOKEN = "stop_token";
     private boolean scanning;
-    private BluetoothAdapter bluetoothAdapter;
+    private BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
     private BluetoothLeScanner scanner;
     private ScanSettings scanSettings;
     private BleScanCallback<T> bleScanCallback;
     private List<ScanFilter> filters;
     private ArrayList<T> scanDevices = new ArrayList<>();
     private Handler handler = BleHandler.of();
+    private BleWrapperCallback<T> bleWrapperCallback;
 
     protected ScanRequest() {
-        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            //scanner will be null if Bluetooth has been closed
-            scanner = bluetoothAdapter.getBluetoothLeScanner();
-            scanSettings = new ScanSettings.Builder()
-                    .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
-                    .build();
-            filters = new ArrayList<>();
-        }
-
+        bleWrapperCallback = Ble.options().bleWrapperCallback;
     }
 
     public void startScan(BleScanCallback<T> callback, long scanPeriod) {
+        if (!isEnableInternal()) return;
         if (scanning) return;
         bleScanCallback = callback;
         scanning = true;
@@ -73,28 +68,32 @@ public class ScanRequest<T extends BleDevice> {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             bluetoothAdapter.startLeScan(leScanCallback);
         } else {
-            if (bluetoothAdapter.isEnabled()) {
-                if (scanner == null) {
-                    scanner = bluetoothAdapter.getBluetoothLeScanner();
-                }
-                /*byte[] manufacture = {0x00, 0x2A};
-                filters.add(new ScanFilter.Builder()
-                        .setServiceUuid(ParcelUuid.fromString("0000ae00-0000-1000-8000-00805f9b34fb"))
-                        .setManufacturerData(0x5254, manufacture)
-                        .build());*/
-                setScanSettings();
-                scanner.startScan(filters, scanSettings, scannerCallback);
+            if (scanner == null) {
+                scanner = bluetoothAdapter.getBluetoothLeScanner();
             }
+            setScanSettings();
+            scanner.startScan(filters, scanSettings, scannerCallback);
         }
         if (bleScanCallback != null) {
             bleScanCallback.onStart();
         }
+        bleWrapperCallback.onStart();
+    }
+
+    private boolean isEnableInternal() {
+        if (!bluetoothAdapter.isEnabled()) {
+            if (bleScanCallback != null) {
+                bleScanCallback.onScanFailed(-1);
+                return false;
+            }
+        }
+        return true;
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private void setScanSettings() {
         boolean background = BleUtils.isBackground(Ble.getInstance().getContext());
-        BleLog.i(TAG, "currently in the background:>>>>>"+background);
+        BleLog.d(TAG, "currently in the background:>>>>>"+background);
         if (background){
             UUID uuidService = Ble.options().getUuidService();
             filters.add(new ScanFilter.Builder()
@@ -112,24 +111,24 @@ public class ScanRequest<T extends BleDevice> {
     }
 
     public void stopScan() {
+        if (!isEnableInternal()) return;
         if (!scanning) return;
         scanning = false;
         handler.removeCallbacksAndMessages(HANDLER_TOKEN);
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             bluetoothAdapter.stopLeScan(leScanCallback);
         } else {
-            if (bluetoothAdapter.isEnabled()) {
-                if (scanner == null) {
-                    scanner = bluetoothAdapter.getBluetoothLeScanner();
-                }
-                scanner.stopScan(scannerCallback);
+            if (scanner == null) {
+                scanner = bluetoothAdapter.getBluetoothLeScanner();
             }
+            scanner.stopScan(scannerCallback);
         }
-        scanDevices.clear();
         if (bleScanCallback != null) {
             bleScanCallback.onStop();
             bleScanCallback = null;
         }
+        bleWrapperCallback.onStop();
+        scanDevices.clear();
     }
 
     public boolean isScanning() {
@@ -148,13 +147,14 @@ public class ScanRequest<T extends BleDevice> {
                 if (parseRecord != null && bleScanCallback != null) {
                     bleScanCallback.onParsedData(bleDevice, parseRecord);
                 }
+                bleWrapperCallback.onParsedData(bleDevice, parseRecord);
             }
         }
 
         @Override
         public void onBatchScanResults(List<ScanResult> results) {
             for (ScanResult sr : results) {
-                BleLog.i("ScanResult - Results", sr.toString());
+                BleLog.d("ScanResult - Results", sr.toString());
             }
         }
 
@@ -164,6 +164,7 @@ public class ScanRequest<T extends BleDevice> {
             if (bleScanCallback != null){
                 bleScanCallback.onScanFailed(errorCode);
             }
+            bleWrapperCallback.onScanFailed(errorCode);
         }
     };
 
@@ -183,12 +184,14 @@ public class ScanRequest<T extends BleDevice> {
             if (bleScanCallback != null) {
                 bleScanCallback.onLeScan(bleDevice, rssi, scanRecord);
             }
+            bleWrapperCallback.onLeScan(bleDevice, rssi, scanRecord);
             scanDevices.add(bleDevice);
         } else {
             if (!Ble.options().isFilterScan) {//无需过滤
                 if (bleScanCallback != null) {
                     bleScanCallback.onLeScan(bleDevice, rssi, scanRecord);
                 }
+                bleWrapperCallback.onLeScan(bleDevice, rssi, scanRecord);
             }
         }
         return bleDevice;

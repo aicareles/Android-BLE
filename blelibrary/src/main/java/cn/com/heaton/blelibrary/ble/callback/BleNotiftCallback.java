@@ -1,9 +1,6 @@
 package cn.com.heaton.blelibrary.ble.callback;
 
-import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
-
-import cn.com.heaton.blelibrary.ble.model.BleDevice;
 
 /**
  *
@@ -22,5 +19,4 @@ public abstract class BleNotiftCallback<T> {
 
     public void onNotifyCanceled(T device){}
 
-    public void onNotifySuccess(BleDevice device, BluetoothGatt gatt){}
 }

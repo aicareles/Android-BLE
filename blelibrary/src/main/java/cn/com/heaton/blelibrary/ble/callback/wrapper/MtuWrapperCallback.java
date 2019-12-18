@@ -1,13 +1,11 @@
 package cn.com.heaton.blelibrary.ble.callback.wrapper;
 
-import android.bluetooth.BluetoothDevice;
-
 /**
  * Created by LiuLei on 2018/6/2.
  */
 
-public interface MtuWrapperCallback {
+public interface MtuWrapperCallback<T> {
 
-    void onMtuChanged(BluetoothDevice device, int mtu, int status);
+    void onMtuChanged(T device, int mtu, int status);
 
 }

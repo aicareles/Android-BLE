@@ -1,20 +1,13 @@
-package com.example.admin.mybledemo.adapter;
+package com.example.admin.mybledemo;
 
-import android.app.Activity;
+import android.content.Context;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.TextView;
-
-
-import com.example.admin.mybledemo.R;
-import com.example.admin.mybledemo.utils.ToastUtil;
-
-import java.util.ArrayList;
 import java.util.List;
 
 import cn.com.heaton.blelibrary.ble.Ble;
@@ -26,46 +19,13 @@ import cn.com.heaton.blelibrary.ble.model.BleDevice;
  */
 
 
-public class LeDeviceListAdapter extends BaseAdapter {
-    private ArrayList<BleDevice> mLeDevices;
-    private LayoutInflater mInflator;
+public class DeviceAdapter extends BaseAdapter {
+    private List<BleDevice> mLeDevices;
+    private Context mContext;
 
-    public LeDeviceListAdapter(Activity context) {
-        super();
-        mLeDevices = new ArrayList<BleDevice>();
-        mInflator = context.getLayoutInflater();
-    }
-
-    public void addDevice(BleDevice device) {
-        for (BleDevice d : mLeDevices){
-            if(d.getBleAddress().equals(device.getBleAddress())){
-                return;
-            }
-        }
-        mLeDevices.add(device);
-//        if (!mLeDevices.contains(device)) {
-//            mLeDevices.add(device);
-//        }
-    }
-
-    public List<BleDevice> getDevices(){
-        return mLeDevices;
-    }
-
-    public void addDevices(List<BleDevice> devices){
-        for(BleDevice device : devices){
-            if(!mLeDevices.contains(device)){
-                mLeDevices.add(device);
-            }
-        }
-    }
-
-    public BleDevice getDevice(int position) {
-        return mLeDevices.get(position);
-    }
-
-    public void clear() {
-        mLeDevices.clear();
+    public DeviceAdapter(Context context, List<BleDevice> devices) {
+        mLeDevices = devices;
+        mContext = context;
     }
 
     @Override
@@ -74,7 +34,7 @@ public class LeDeviceListAdapter extends BaseAdapter {
     }
 
     @Override
-    public Object getItem(int i) {
+    public BleDevice getItem(int i) {
         return mLeDevices.get(i);
     }
 
@@ -86,9 +46,8 @@ public class LeDeviceListAdapter extends BaseAdapter {
     @Override
     public View getView(int i, View view, ViewGroup viewGroup) {
         final ViewHolder viewHolder;
-        // General ListView optimization code.
         if (view == null) {
-            view = mInflator.inflate(R.layout.listitem_device, null);
+            view = LayoutInflater.from(mContext).inflate(R.layout.listitem_device, null);
             viewHolder = new ViewHolder();
             viewHolder.deviceAddress = (TextView) view.findViewById(R.id.device_address);
             viewHolder.deviceName = (TextView) view.findViewById(R.id.device_name);
@@ -120,22 +79,20 @@ public class LeDeviceListAdapter extends BaseAdapter {
         }else {
             viewHolder.cancelReConnect.setText("重连");
         }
-
         viewHolder.deviceAddress.setText(device.getBleAddress());
-
         viewHolder.cancelReConnect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (device.isAutoConnect()){
                     Ble.getInstance().resetReConnect(device, false);
-                    ToastUtil.showToast("已取消重连");
+                    Utils.showToast("已取消重连");
                     viewHolder.cancelReConnect.setText("重连");
                     if (!device.isConnected()){
                         viewHolder.deviceState.setText("未连接");
                     }
                 }else {
                     Ble.getInstance().resetReConnect(device, true);
-                    ToastUtil.showToast("开启重连");
+                    Utils.showToast("开启重连");
                     viewHolder.cancelReConnect.setText("取消重连");
                 }
             }

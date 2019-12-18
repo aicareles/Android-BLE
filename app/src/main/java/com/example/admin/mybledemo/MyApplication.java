@@ -1,11 +1,10 @@
 package com.example.admin.mybledemo;
 
-import android.app.Activity;
 import android.app.Application;
-import android.os.Bundle;
 
-import java.util.Stack;
+import java.util.UUID;
 
+import cn.com.heaton.blelibrary.ble.Ble;
 import cn.com.superLei.aoparms.AopArms;
 
 
@@ -38,67 +37,32 @@ public class MyApplication extends Application {
 
     private static MyApplication mApplication;
 
-    public Stack<Activity> store;
-
     @Override
     public void onCreate() {
         super.onCreate();
         mApplication = this;
-        store = new Stack<>();
         AopArms.init(this);
-        registerActivityLifecycleCallbacks(new SwitchBackgroundCallbacks());
+        initBle();
+    }
 
+    //初始化蓝牙
+    private void initBle() {
+        Ble.options().setLogBleEnable(true)//设置是否输出打印蓝牙日志
+                .setThrowBleException(true)//设置是否抛出蓝牙异常
+                .setLogTAG("AndroidBLE")//设置全局蓝牙操作日志TAG
+                .setAutoConnect(false)//设置是否自动连接
+                .setFilterScan(false)//设置是否过滤扫描到的设备
+                .setConnectFailedRetryCount(3)
+                .setConnectTimeout(10 * 1000)//设置连接超时时长
+                .setScanPeriod(12 * 1000)//设置扫描时长
+                .setUuidService(UUID.fromString("0000fee9-0000-1000-8000-00805f9b34fb"))//设置主服务的uuid
+                .setUuidWriteCha(UUID.fromString("d44bc439-abfd-45a2-b575-925416129600"))//设置可写特征的uuid
+                .setBleWrapperCallback(new MyBleWrapperCallback())
+                .create(mApplication);
     }
 
     public static MyApplication getInstance() {
         return mApplication;
-    }
-
-    private class SwitchBackgroundCallbacks implements Application.ActivityLifecycleCallbacks {
-
-        @Override
-        public void onActivityCreated(Activity activity, Bundle bundle) {
-            store.add(activity);
-        }
-
-        @Override
-        public void onActivityStarted(Activity activity) {
-
-        }
-
-        @Override
-        public void onActivityResumed(Activity activity) {
-
-        }
-
-        @Override
-        public void onActivityPaused(Activity activity) {
-
-        }
-
-        @Override
-        public void onActivityStopped(Activity activity) {
-
-        }
-
-        @Override
-        public void onActivitySaveInstanceState(Activity activity, Bundle bundle) {
-
-        }
-
-        @Override
-        public void onActivityDestroyed(Activity activity) {
-            store.remove(activity);
-        }
-    }
-
-    /**
-     * 获取当前的Activity
-     *
-     * @return
-     */
-    public Activity getCurActivity() {
-        return store.lastElement();
     }
 
 }

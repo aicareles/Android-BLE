@@ -14,7 +14,7 @@ import cn.com.heaton.blelibrary.ble.callback.BleMtuCallback;
  * Created by LiuLei on 2017/10/23.
  */
 @Implement(MtuRequest.class)
-public class MtuRequest<T extends BleDevice> implements MtuWrapperCallback {
+public class MtuRequest<T extends BleDevice> implements MtuWrapperCallback<T> {
 
     private BleMtuCallback<T> bleMtuCallback;
 
@@ -31,10 +31,10 @@ public class MtuRequest<T extends BleDevice> implements MtuWrapperCallback {
     }
 
     @Override
-    public void onMtuChanged(BluetoothDevice device, int mtu, int status) {
+    public void onMtuChanged(T device, int mtu, int status) {
         if(null != bleMtuCallback){
-            T bleDevice = Ble.<T>getInstance().getBleDevice(device);
-            bleMtuCallback.onMtuChanged(bleDevice, mtu, status);
+//            T bleDevice = Ble.<T>getInstance().getBleDevice(device);
+            bleMtuCallback.onMtuChanged(device, mtu, status);
         }
     }
 }

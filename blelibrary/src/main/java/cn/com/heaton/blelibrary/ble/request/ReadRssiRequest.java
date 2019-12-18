@@ -1,8 +1,5 @@
 package cn.com.heaton.blelibrary.ble.request;
 
-import android.bluetooth.BluetoothDevice;
-
-import cn.com.heaton.blelibrary.ble.Ble;
 import cn.com.heaton.blelibrary.ble.BleRequestImpl;
 import cn.com.heaton.blelibrary.ble.annotation.Implement;
 import cn.com.heaton.blelibrary.ble.callback.BleReadRssiCallback;
@@ -14,10 +11,9 @@ import cn.com.heaton.blelibrary.ble.model.BleDevice;
  * Created by LiuLei on 2017/10/23.
  */
 @Implement(ReadRssiRequest.class)
-public class ReadRssiRequest<T extends BleDevice> implements ReadRssiWrapperCallback {
+public class ReadRssiRequest<T extends BleDevice> implements ReadRssiWrapperCallback<T> {
 
     private BleReadRssiCallback<T> readRssiCallback;
-    private Ble<T> ble = Ble.getInstance();
 
     protected ReadRssiRequest() {
     }
@@ -26,16 +22,16 @@ public class ReadRssiRequest<T extends BleDevice> implements ReadRssiWrapperCall
         this.readRssiCallback = callback;
         boolean result = false;
         BleRequestImpl bleRequest = BleRequestImpl.getBleRequest();
-        if (Ble.getInstance() != null && bleRequest != null) {
+        if (bleRequest != null) {
             result = bleRequest.readRssi(device.getBleAddress());
         }
         return result;
     }
 
     @Override
-    public void onReadRssiSuccess(BluetoothDevice device, int rssi) {
+    public void onReadRssiSuccess(T device, int rssi) {
         if(readRssiCallback != null){
-            readRssiCallback.onReadRssiSuccess(ble.getBleDevice(device), rssi);
+            readRssiCallback.onReadRssiSuccess(device, rssi);
         }
     }
 }

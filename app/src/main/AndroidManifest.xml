@@ -16,7 +16,7 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activity.MainActivity">
+        <activity android:name=".BleActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -24,22 +24,8 @@
             </intent-filter>
         </activity>
 
-        <!--<activity-->
-            <!--android:name=".activity.BaseActivity"-->
-            <!--android:theme="@android:style/Theme.Light.NoTitleBar" />-->
-
         <activity
-            android:name=".activity.BleActivity"
-            android:screenOrientation="portrait"
-            android:label="Ble界面"/>
-
-        <activity
-            android:name=".activity.SppActivity"
-            android:screenOrientation="portrait"
-            android:label="SPP界面"/>
-
-        <activity
-            android:name=".activity.IntroducedActivity"
+            android:name=".IntroducedActivity"
             android:screenOrientation="portrait" />
 
     </application>

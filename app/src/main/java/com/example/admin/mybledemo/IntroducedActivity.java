@@ -1,4 +1,4 @@
-package com.example.admin.mybledemo.activity;
+package com.example.admin.mybledemo;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;

@@ -23,6 +23,8 @@ import cn.com.heaton.blelibrary.ble.callback.BleScanCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleStatusCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleWriteCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleWriteEntityCallback;
+import cn.com.heaton.blelibrary.ble.callback.wrapper.BleWrapperCallback;
+import cn.com.heaton.blelibrary.ble.callback.wrapper.DefaultBleWrapperCallback;
 import cn.com.heaton.blelibrary.ble.callback.wrapper.BluetoothChangedObserver;
 import cn.com.heaton.blelibrary.ble.exception.BleException;
 import cn.com.heaton.blelibrary.ble.model.BleDevice;
@@ -69,7 +71,7 @@ public final class Ble<T extends BleDevice> {
      */
     public void init(Context context, Options options) {
         if (this.context != null){
-            BleLog.e(TAG, "Ble is Initialized!");
+            BleLog.d(TAG, "Ble is Initialized!");
             throw new BleException("Ble is Initialized!");
         }
         this.context = context;
@@ -81,7 +83,7 @@ public final class Ble<T extends BleDevice> {
                 .bindProxy(context, RequestImpl.newRequestImpl());
         bleRequestImpl = BleRequestImpl.getBleRequest();
         bleRequestImpl.initialize(context);
-        BleLog.i(TAG, "Ble init success!");
+        BleLog.d(TAG, "Ble init success!");
     }
 
     public static Ble<BleDevice> create(Context context){
@@ -190,6 +192,15 @@ public final class Ble<T extends BleDevice> {
         request.disconnect(device, callback);
     }
 
+    public void disconnectAll(){
+        List<T> connetedDevices = getConnetedDevices();
+        if (!connetedDevices.isEmpty()){
+            for (T device: connetedDevices) {
+                request.disconnect(device);
+            }
+        }
+    }
+
     /**
      * 连接成功后，开始设置通知
      * @param device 蓝牙设备对象
@@ -244,6 +255,10 @@ public final class Ble<T extends BleDevice> {
      */
     public boolean write(T device, byte[]data, BleWriteCallback<T> callback){
         return request.write(device, data, callback);
+    }
+
+    public boolean writeByUuid(T device, byte[]data, UUID uuid){
+        return bleRequestImpl.wirteCharacteristicByUuid(device.getBleAddress(), data, uuid);
     }
 
     public void writeQueueDelay(long delay, RequestTask task){
@@ -316,19 +331,6 @@ public final class Ble<T extends BleDevice> {
     }
 
     /**
-     * 获取指定位置的蓝牙对象
-     * @param index 指定位置
-     * @return 指定位置蓝牙对象
-     */
-    public T getBleDevice(int index) {
-        ConnectRequest<T> request = Rproxy.getRequest(ConnectRequest.class);
-        if(request != null){
-            return request.getBleDevice(index);
-        }
-        return null;
-    }
-
-    /**
      * 根据蓝牙地址获取蓝牙对象
      * @param address 蓝牙地址
      * @return 对应的蓝牙对象
@@ -393,14 +395,14 @@ public final class Ble<T extends BleDevice> {
         bleRequestImpl = null;
         Rproxy.release();
         context = null;
-        BleLog.e(TAG, "AndroidBLE already released");
+        BleLog.d(TAG, "AndroidBLE already released");
     }
 
     /**
      * Release Empty all resources
      */
     private void releaseGatts() {
-        BleLog.e(TAG, "BluetoothGatts is released");
+        BleLog.d(TAG, "BluetoothGatts is released");
         synchronized (locker) {
             List<T> connetedDevices = getConnetedDevices();
             for (T bleDevice : connetedDevices) {
@@ -410,7 +412,7 @@ public final class Ble<T extends BleDevice> {
     }
 
     private void releaseBleObserver() {
-        BleLog.e(TAG, "BleObserver is released");
+        BleLog.d(TAG, "BleObserver is released");
         if (bleObserver != null) {
             bleObserver.unregisterReceiver();
             bleObserver = null;
@@ -536,6 +538,8 @@ public final class Ble<T extends BleDevice> {
         @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
         public int manufacturerId = 65520; // 0xfff0
 
+        public BleWrapperCallback bleWrapperCallback = new DefaultBleWrapperCallback();
+
         public Options setScanPeriod(long scanPeriod){
             this.scanPeriod = scanPeriod;
             return this;
@@ -634,6 +638,15 @@ public final class Ble<T extends BleDevice> {
         @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
         public Options setManufacturerId(int manufacturerId) {
             this.manufacturerId = manufacturerId;
+            return this;
+        }
+
+        public BleWrapperCallback getBleWrapperCallback() {
+            return bleWrapperCallback;
+        }
+
+        public Options setBleWrapperCallback(DefaultBleWrapperCallback defaultBleWrapperCallback) {
+            this.bleWrapperCallback = defaultBleWrapperCallback;
             return this;
         }
 

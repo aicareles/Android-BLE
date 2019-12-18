@@ -7,7 +7,7 @@
     android:orientation="vertical"
     android:fitsSystemWindows="true"
     android:clipToPadding="true"
-    tools:context="com.example.admin.mybledemo.activity.BleActivity">
+    tools:context="com.example.admin.mybledemo.BleActivity">
 
     <!--<android.support.v7.widget.RecyclerView-->
         <!--android:id="@+id/recycle_listView"-->

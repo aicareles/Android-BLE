@@ -3,6 +3,7 @@ package cn.com.heaton.blelibrary.ble.request;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGattCharacteristic;
 
+import cn.com.heaton.blelibrary.ble.callback.wrapper.BleWrapperCallback;
 import cn.com.heaton.blelibrary.ble.callback.wrapper.ReadWrapperCallback;
 import cn.com.heaton.blelibrary.ble.model.BleDevice;
 import cn.com.heaton.blelibrary.ble.Ble;
@@ -15,12 +16,14 @@ import cn.com.heaton.blelibrary.ble.callback.BleReadCallback;
  * Created by LiuLei on 2017/10/23.
  */
 @Implement(ReadRequest.class)
-public class ReadRequest<T extends BleDevice> implements ReadWrapperCallback {
+public class ReadRequest<T extends BleDevice> implements ReadWrapperCallback<T> {
 
     private BleReadCallback<T> bleReadCallback;
-    private Ble<T> ble = Ble.getInstance();
+    private BleWrapperCallback<T> bleWrapperCallback;
 
-    protected ReadRequest() {}
+    protected ReadRequest() {
+        bleWrapperCallback = Ble.options().bleWrapperCallback;
+    }
 
     public boolean read(T device, BleReadCallback<T> callback){
         this.bleReadCallback = callback;
@@ -33,16 +36,18 @@ public class ReadRequest<T extends BleDevice> implements ReadWrapperCallback {
     }
 
     @Override
-    public void onReadSuccess(BluetoothDevice device, BluetoothGattCharacteristic characteristic) {
+    public void onReadSuccess(T device, BluetoothGattCharacteristic characteristic) {
         if(bleReadCallback != null){
-            bleReadCallback.onReadSuccess(ble.getBleDevice(device), characteristic);
+            bleReadCallback.onReadSuccess(device, characteristic);
         }
+        bleWrapperCallback.onReadSuccess(device, characteristic);
     }
 
     @Override
-    public void onReadFailed(BluetoothDevice device, String message) {
+    public void onReadFailed(T device, String message) {
         if(bleReadCallback != null){
-            bleReadCallback.onReadFailed(ble.getBleDevice(device), message);
+            bleReadCallback.onReadFailed(device, message);
         }
+        bleWrapperCallback.onReadFailed(device, message);
     }
 }

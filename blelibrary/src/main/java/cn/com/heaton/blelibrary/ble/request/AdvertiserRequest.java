@@ -12,7 +12,7 @@ import android.support.annotation.RequiresApi;
 import cn.com.heaton.blelibrary.ble.BleLog;
 import cn.com.heaton.blelibrary.ble.model.BleDevice;
 import cn.com.heaton.blelibrary.ble.BleHandler;
-import cn.com.heaton.blelibrary.ble.utils.TaskExecutor;
+import cn.com.heaton.blelibrary.ble.utils.ThreadUtils;
 import cn.com.heaton.blelibrary.ble.annotation.Implement;
 import cn.com.heaton.blelibrary.ble.exception.AdvertiserUnsupportException;
 
@@ -55,7 +55,7 @@ public class AdvertiserRequest<T extends BleDevice> {
     public void startAdvertising(final byte[] payload) {
         mHandler.removeCallbacks(stopAvertiseRunnable);
         if(mAdvertiser != null){
-            TaskExecutor.executeTask(new Runnable() {
+            ThreadUtils.asyn(new Runnable() {
                 @Override
                 public void run() {
                     mAdvertiser.stopAdvertising(mAdvertiseCallback);
@@ -71,10 +71,10 @@ public class AdvertiserRequest<T extends BleDevice> {
 
     public void stopAdvertising() {
         if(mAdvertiser != null){
-            TaskExecutor.executeTask(new Runnable() {
+            ThreadUtils.asyn(new Runnable() {
                 @Override
                 public void run() {
-                    BleLog.e(TAG, "stopAdvertising: 停止广播");
+                    BleLog.d(TAG, "stopAdvertising: 停止广播");
                     mAdvertiser.stopAdvertising(mAdvertiseCallback);
                 }
             });
@@ -96,7 +96,7 @@ public class AdvertiserRequest<T extends BleDevice> {
         @Override
         public void onStartSuccess(AdvertiseSettings settingsInEffect) {
             super.onStartSuccess(settingsInEffect);
-            BleLog.e(TAG, "onStartSuccess: 开启广播成功");
+            BleLog.d(TAG, "onStartSuccess: 开启广播成功");
         }
 
         @Override
