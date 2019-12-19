@@ -177,7 +177,7 @@ class MainActivity : AppCompatActivity() {
     private fun bleNotifyCallback(): BleNotiftCallback<BleDevice> {
         return object : BleNotiftCallback<BleDevice>(){
             override fun onChanged(device: BleDevice?, characteristic: BluetoothGattCharacteristic?) {
-                BleLog.i("收到硬件数据>>>>>onChanged:",ByteUtils.BinaryToHexString(characteristic?.value))
+                BleLog.i("收到硬件数据>>>>>onChanged:",ByteUtils.toHexString(characteristic?.value))
             }
 
         }
@@ -221,7 +221,7 @@ class MainActivity : AppCompatActivity() {
 
     @Throws(IOException::class)
     private fun sendEntityData() {
-        val data = ByteUtils.toByteArray(assets.open("WhiteChristmas.bin"))
+        val data = ByteUtils.stream2Bytes(assets.open("WhiteChristmas.bin"))
         mBle.writeEntity(mBle.connetedDevices[0], data, 20, 50, object : BleWriteEntityCallback<BleDevice>() {
             override fun onWriteSuccess() {
                 BleLog.e("writeEntity", "onWriteSuccess")

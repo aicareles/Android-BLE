@@ -14,7 +14,7 @@ public class MyBleWrapperCallback extends DefaultBleWrapperCallback<BleDevice> {
     @Override
     public void onChanged(BleDevice device, BluetoothGattCharacteristic characteristic) {
         super.onChanged(device, characteristic);
-        Log.d(TAG, "onChanged: "+ ByteUtils.BinaryToHexString(characteristic.getValue()));
+        Log.d(TAG, "onChanged: "+ ByteUtils.toHexString(characteristic.getValue()));
     }
 
     @Override

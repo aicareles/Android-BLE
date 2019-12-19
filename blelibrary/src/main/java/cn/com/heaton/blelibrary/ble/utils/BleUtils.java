@@ -15,28 +15,6 @@ import java.util.List;
  */
 public class BleUtils {
 
-    public static final String PROPERTY_SIGNED_WRITE = "authenticatedSignedWrites";
-    public static final String PROPERTY_BROADCAST = "broadcast";
-    public static final String PROPERTY_EXTENDED_PROPS = "extendedProperties";
-    public static final String PROPERTY_INDICATE = "indicate";
-    public static final String PROPERTY_NOTIFY = "notify";
-    public static final String PROPERTY_READ = "read";
-    public static final String PROPERTY_WRITE = "write";
-    public static final String PROPERTY_WRITE_NO_RESPONSE = "writeWithoutResponse";
-
-    private static HashMap<Integer, String> propertys = new HashMap<Integer, String>();
-    static {
-        propertys.put(1, PROPERTY_BROADCAST);
-        propertys.put(2, PROPERTY_READ);
-        propertys.put(4, PROPERTY_WRITE_NO_RESPONSE);
-        propertys.put(8, PROPERTY_WRITE);
-        propertys.put(16, PROPERTY_NOTIFY);
-        propertys.put(32, PROPERTY_INDICATE);
-        propertys.put(64, PROPERTY_SIGNED_WRITE);
-        propertys.put(128, PROPERTY_EXTENDED_PROPS);
-    }
-
-
     public static boolean isBackground(Context context) {
         ActivityManager activityManager = (ActivityManager) context
                 .getSystemService(Context.ACTIVITY_SERVICE);
@@ -52,15 +30,6 @@ public class BleUtils {
             }
         }
         return false;
-    }
-
-    public static String lookup(int propertySum, int property) {
-        if ((propertySum & property) == property) {
-            String propertyName = propertys.get(property);
-            return propertyName == null ? null : propertyName;
-        } else {
-            return null;
-        }
     }
 
     public static boolean isGpsOpen(Context context) {

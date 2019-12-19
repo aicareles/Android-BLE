@@ -5,6 +5,8 @@ import android.app.Application;
 import java.util.UUID;
 
 import cn.com.heaton.blelibrary.ble.Ble;
+import cn.com.heaton.blelibrary.ble.utils.BleUtils;
+import cn.com.heaton.blelibrary.ble.utils.UuidUtils;
 import cn.com.superLei.aoparms.AopArms;
 
 
@@ -55,7 +57,7 @@ public class MyApplication extends Application {
                 .setConnectFailedRetryCount(3)
                 .setConnectTimeout(10 * 1000)//设置连接超时时长
                 .setScanPeriod(12 * 1000)//设置扫描时长
-                .setUuidService(UUID.fromString("0000fee9-0000-1000-8000-00805f9b34fb"))//设置主服务的uuid
+                .setUuidService(UuidUtils.uuid16To128("fee9", true))//设置主服务的uuid
                 .setUuidWriteCha(UUID.fromString("d44bc439-abfd-45a2-b575-925416129600"))//设置可写特征的uuid
                 .setBleWrapperCallback(new MyBleWrapperCallback())
                 .create(mApplication);

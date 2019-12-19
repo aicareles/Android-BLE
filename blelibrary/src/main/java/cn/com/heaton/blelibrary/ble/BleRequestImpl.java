@@ -195,7 +195,7 @@ public final class BleRequestImpl<T extends BleDevice> {
             synchronized (locker) {
                 if (gatt.getDevice() == null)return;
                 BleLog.d(TAG, gatt.getDevice().getAddress() + " -- onCharacteristicChanged: "
-                        + (characteristic.getValue() != null ? ByteUtils.BinaryToHexString(characteristic.getValue()) : ""));
+                        + (characteristic.getValue() != null ? ByteUtils.toHexString(characteristic.getValue()) : ""));
                 T bleDevice = getBleDeviceInternal(gatt.getDevice());
                 if (notifyWrapperCallback != null) {
                     notifyWrapperCallback.onChanged(bleDevice, characteristic);
@@ -479,7 +479,7 @@ public final class BleRequestImpl<T extends BleDevice> {
             try {
                 characteristic.setValue(value);
                 boolean result = bluetoothGatt.writeCharacteristic(characteristic);
-                BleLog.d(TAG, address + " -- write data:" + ByteUtils.BinaryToHexString(value));
+                BleLog.d(TAG, address + " -- write data:" + ByteUtils.toHexString(value));
                 BleLog.d(TAG, address + " -- write result:" + result);
                 return result;
             } catch (Exception e) {
@@ -581,6 +581,9 @@ public final class BleRequestImpl<T extends BleDevice> {
                     if((characteristic.getProperties() & BluetoothGattCharacteristic.PROPERTY_NOTIFY) != 0){
                         descriptor.setValue(enabled?BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE:BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE);
                     }else if((characteristic.getProperties() & BluetoothGattCharacteristic.PROPERTY_INDICATE) != 0){
+                        //两个都是通知的意思，notify和indication的区别在于，notify只是将你要发的数据发送给手机，没有确认机制，
+                        //不会保证数据发送是否到达。而indication的方式在手机收到数据时会主动回一个ack回来。即有确认机制，只有收
+                        //到这个ack你才能继续发送下一个数据。这保证了数据的正确到达，也起到了流控的作用。所以在打开通知的时候，需要设置一下。
                         descriptor.setValue(enabled?BluetoothGattDescriptor.ENABLE_INDICATION_VALUE:BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE);
                     }
                     gatt.writeDescriptor(descriptor);

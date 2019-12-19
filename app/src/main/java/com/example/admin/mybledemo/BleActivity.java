@@ -44,6 +44,7 @@ import cn.com.heaton.blelibrary.ble.callback.BleWriteEntityCallback;
 import cn.com.heaton.blelibrary.ble.model.EntityData;
 import cn.com.heaton.blelibrary.ble.queue.RequestTask;
 import cn.com.heaton.blelibrary.ble.utils.ByteUtils;
+import cn.com.heaton.blelibrary.ble.utils.CrcUtils;
 import cn.com.heaton.blelibrary.ota.OtaManager;
 import cn.com.superLei.aoparms.annotation.Permission;
 import cn.com.superLei.aoparms.annotation.PermissionDenied;
@@ -317,7 +318,7 @@ public class BleActivity extends AppCompatActivity implements View.OnClickListen
             Utils.showToast("不能发现文件!");
             return null;
         }
-        byte[] data = ByteUtils.toByteArray(inputStream);
+        byte[] data = ByteUtils.stream2Bytes(inputStream);
         Log.e(TAG, "data length: " + data.length);
         BleDevice device = ble.getConnetedDevices().get(0);
         return new EntityData.Builder()
@@ -367,10 +368,17 @@ public class BleActivity extends AppCompatActivity implements View.OnClickListen
      * 发送数据
      */
     @Retry(count = 3, delay = 100, asyn = true)
-    private boolean sendData() {
-        Log.e(TAG, "sendData: >>>>");
-        List<BleDevice> list = ble.getConnetedDevices();
-        return ble.write(list.get(0), "Hello Android!".getBytes(), new BleWriteCallback<BleDevice>() {
+    private void sendData() {
+        byte[] data = new byte[20];
+        data[0] = 0x01;
+        data[1] = (byte) 0xfe;
+        data[2] = 0x08;
+        data[3] = 0x35;
+        data[4] = (byte) 0xf1;
+        data[5] = (byte) CrcUtils.CRC8.CRC8(data, 0, data.length);
+        Log.e(TAG, "sendData: "+ByteUtils.toHexString(data));
+//        return ble.write(list.get(0), "Hello Android!".getBytes(), new BleWriteCallback<BleDevice>() {
+        ble.write(ble.getConnetedDevices().get(0), data, new BleWriteCallback<BleDevice>() {
             @Override
             public void onWriteSuccess(BleDevice device, BluetoothGattCharacteristic characteristic) {
                 Log.e(TAG, "onWriteSuccess: ");
@@ -459,7 +467,7 @@ public class BleActivity extends AppCompatActivity implements View.OnClickListen
             super.onParsedData(device, scanRecord);
             byte[] data = scanRecord.getManufacturerSpecificData(65520);//参数为厂商id
             if (data != null) {
-                Log.e(TAG, "onParsedData: " + ByteUtils.BinaryToHexString(data));
+                Log.e(TAG, "onParsedData: " + ByteUtils.bytes2HexStrWithSpace(data));
             }
         }*/
     };
@@ -515,7 +523,7 @@ public class BleActivity extends AppCompatActivity implements View.OnClickListen
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    Utils.showToast(String.format("收到设备通知数据: %s", ByteUtils.BinaryToHexString(characteristic.getValue())));
+                    Utils.showToast(String.format("收到设备通知数据: %s", ByteUtils.toHexString(characteristic.getValue())));
                 }
             });
         }
