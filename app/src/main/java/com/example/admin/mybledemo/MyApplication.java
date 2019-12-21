@@ -59,7 +59,6 @@ public class MyApplication extends Application {
                 .setScanPeriod(12 * 1000)//设置扫描时长
                 .setUuidService(UuidUtils.uuid16To128("fee9", true))//设置主服务的uuid
                 .setUuidWriteCha(UUID.fromString("d44bc439-abfd-45a2-b575-925416129600"))//设置可写特征的uuid
-                .setBleWrapperCallback(new MyBleWrapperCallback())
                 .create(mApplication);
     }
 
