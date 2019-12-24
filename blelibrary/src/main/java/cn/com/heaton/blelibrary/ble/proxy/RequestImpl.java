@@ -14,7 +14,6 @@ import cn.com.heaton.blelibrary.ble.callback.BleScanCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleWriteCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleWriteEntityCallback;
 import cn.com.heaton.blelibrary.ble.model.EntityData;
-import cn.com.heaton.blelibrary.ble.request.AdvertiserRequest;
 import cn.com.heaton.blelibrary.ble.request.*;
 
 /**
@@ -29,9 +28,9 @@ public class RequestImpl<T extends BleDevice> implements RequestLisenter<T>{
     }
 
     @Override
-    public void startScan(BleScanCallback<T> callback) {
+    public void startScan(BleScanCallback<T> callback, long scanPeriod) {
         ScanRequest<T> request = Rproxy.getRequest(ScanRequest.class);
-        request.startScan(callback, Ble.options().scanPeriod);
+        request.startScan(callback, scanPeriod);
     }
 
     @Override
@@ -116,19 +115,5 @@ public class RequestImpl<T extends BleDevice> implements RequestLisenter<T>{
     public boolean setMtu(String address, int mtu, BleMtuCallback<T> callback) {
         MtuRequest<T> request = Rproxy.getRequest(MtuRequest.class);
         return request.setMtu(address, mtu, callback);
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    @Override
-    public void startAdvertising(byte[] payload) {
-        AdvertiserRequest<T> request = Rproxy.getRequest(AdvertiserRequest.class);
-        request.startAdvertising(payload);
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    @Override
-    public void stopAdvertising() {
-        AdvertiserRequest<T> request = Rproxy.getRequest(AdvertiserRequest.class);
-        request.stopAdvertising();
     }
 }

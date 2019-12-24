@@ -1,5 +1,6 @@
 package cn.com.heaton.blelibrary.ble.request;
 
+import android.annotation.TargetApi;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.le.AdvertiseCallback;
 import android.bluetooth.le.AdvertiseData;
@@ -17,25 +18,24 @@ import cn.com.heaton.blelibrary.ble.annotation.Implement;
 import cn.com.heaton.blelibrary.ble.exception.AdvertiserUnsupportException;
 
 /**
+ * TODO 2020/02/01
  * description $desc$
  * created by jerry on 2019/02/21.
  */
 
 @Implement(AdvertiserRequest.class)
-@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+@TargetApi(Build.VERSION_CODES.LOLLIPOP)
 public class AdvertiserRequest<T extends BleDevice> {
     private static final String TAG = "AdvertiserRequest";
 
-    private Handler mHandler;
-    private BluetoothAdapter bluetoothAdapter;
+    private Handler mHandler = BleHandler.of();
+    private BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
     private BluetoothLeAdvertiser mAdvertiser;
     private AdvertiseSettings myAdvertiseSettings;
     private AdvertiseData myAdvertiseData;
 
-    protected AdvertiserRequest() {
-        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+    private void setAdvertiserSettings(){
         mAdvertiser = bluetoothAdapter.getBluetoothLeAdvertiser();
-        mHandler = BleHandler.of();
         if (mAdvertiser == null) {
             try {
                 throw new AdvertiserUnsupportException("Device does not support Avertise!");
@@ -52,32 +52,41 @@ public class AdvertiserRequest<T extends BleDevice> {
                 .build();
     }
 
-    public void startAdvertising(final byte[] payload) {
-        mHandler.removeCallbacks(stopAvertiseRunnable);
-        if(mAdvertiser != null){
-            ThreadUtils.asyn(new Runnable() {
-                @Override
-                public void run() {
-                    mAdvertiser.stopAdvertising(mAdvertiseCallback);
-                    myAdvertiseData = new AdvertiseData.Builder()
-                            .addManufacturerData(65520, payload)
-                            .setIncludeDeviceName(true)
-                            .build();
-                    mAdvertiser.startAdvertising(myAdvertiseSettings, myAdvertiseData, mAdvertiseCallback);
-                }
-            });
+    public void startAdvertising(final byte[] payload, final AdvertiseSettings advertiseSettings){
+        if (bluetoothAdapter.isEnabled()){
+            mHandler.removeCallbacks(stopAvertiseRunnable);
+            if(mAdvertiser != null){
+                ThreadUtils.asyn(new Runnable() {
+                    @Override
+                    public void run() {
+                        mAdvertiser.stopAdvertising(mAdvertiseCallback);
+                        myAdvertiseData = new AdvertiseData.Builder()
+                                .addManufacturerData(65520, payload)
+                                .setIncludeDeviceName(true)
+                                .build();
+                        mAdvertiser.startAdvertising(advertiseSettings, myAdvertiseData, mAdvertiseCallback);
+                    }
+                });
+            }
         }
     }
 
+    public void startAdvertising(byte[] payload) {
+        setAdvertiserSettings();
+        startAdvertising(payload, myAdvertiseSettings);
+    }
+
     public void stopAdvertising() {
-        if(mAdvertiser != null){
-            ThreadUtils.asyn(new Runnable() {
-                @Override
-                public void run() {
-                    BleLog.d(TAG, "stopAdvertising: 停止广播");
-                    mAdvertiser.stopAdvertising(mAdvertiseCallback);
-                }
-            });
+        if (bluetoothAdapter.isEnabled()){
+            if(mAdvertiser != null){
+                ThreadUtils.asyn(new Runnable() {
+                    @Override
+                    public void run() {
+                        BleLog.d(TAG, "stopAdvertising: 停止广播");
+                        mAdvertiser.stopAdvertising(mAdvertiseCallback);
+                    }
+                });
+            }
         }
     }
 
@@ -92,6 +101,7 @@ public class AdvertiserRequest<T extends BleDevice> {
         }
     };
 
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private AdvertiseCallback mAdvertiseCallback = new AdvertiseCallback() {
         @Override
         public void onStartSuccess(AdvertiseSettings settingsInEffect) {

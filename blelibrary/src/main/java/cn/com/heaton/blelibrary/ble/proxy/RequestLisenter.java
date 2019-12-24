@@ -16,7 +16,7 @@ import cn.com.heaton.blelibrary.ble.model.EntityData;
 
 public interface RequestLisenter<T> {
 
-    void startScan(BleScanCallback<T> callback);
+    void startScan(BleScanCallback<T> callback, long scanPeriod);
 
     void stopScan();
 
@@ -46,7 +46,4 @@ public interface RequestLisenter<T> {
 
     boolean setMtu(String address, int mtu, BleMtuCallback<T> callback);
 
-    void startAdvertising(byte[] payload);
-
-    void stopAdvertising();
 }

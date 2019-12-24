@@ -177,7 +177,7 @@ public class BleActivity extends AppCompatActivity implements View.OnClickListen
             startActivityForResult(enableBtIntent, Ble.REQUEST_ENABLE_BT);
         } else {
             //5、若已打开，则进行扫描
-            ble.startScan(scanCallback);
+            ble.startScan(scanCallback, -1);
         }
     }
 

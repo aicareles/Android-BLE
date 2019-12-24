@@ -113,7 +113,11 @@ public final class Ble<T extends BleDevice> {
      * @param callback 扫描回调
      */
     public void startScan(BleScanCallback<T> callback){
-        request.startScan(callback);
+        request.startScan(callback, options().scanPeriod);
+    }
+
+    public void startScan(BleScanCallback<T> callback, long scanPeriod){
+        request.startScan(callback, scanPeriod);
     }
 
     /**
@@ -294,21 +298,6 @@ public final class Ble<T extends BleDevice> {
 
     public void cancelWriteEntity(){
         request.cancelWriteEntity();
-    }
-
-    /**
-     * 开始发送广播包
-     * @param payload 负载数据
-     */
-    public void startAdvertising(byte[] payload) {
-        request.startAdvertising(payload);
-    }
-
-    /**
-     * 停止发送广播包
-     */
-    public void stopAdvertising() {
-        request.stopAdvertising();
     }
 
     public static <T extends BleDevice> Ble<T> getInstance(){

@@ -7,7 +7,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
 import cn.com.heaton.blelibrary.ble.BleLog;
-import cn.com.heaton.blelibrary.ble.request.AdvertiserRequest;
 import cn.com.heaton.blelibrary.ble.request.ConnectRequest;
 import cn.com.heaton.blelibrary.ble.request.MtuRequest;
 import cn.com.heaton.blelibrary.ble.request.NotifyRequest;
@@ -38,7 +37,7 @@ public class RequestProxy implements InvocationHandler{
         this.receiver = tar;
         //绑定委托对象，并返回代理类
         BleLog.d(TAG, "bindProxy: "+"Binding agent successfully");
-        Rproxy.init(AdvertiserRequest.class, ConnectRequest.class, MtuRequest.class,
+        Rproxy.init(ConnectRequest.class, MtuRequest.class,
                 NotifyRequest.class, ReadRequest.class, ReadRssiRequest.class, ScanRequest.class, WriteRequest.class);
         return Proxy.newProxyInstance(
                 tar.getClass().getClassLoader(),
