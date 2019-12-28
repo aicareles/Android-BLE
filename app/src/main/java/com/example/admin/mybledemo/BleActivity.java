@@ -23,6 +23,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -269,6 +270,15 @@ public class BleActivity extends AppCompatActivity {
                 break;
             case R.id.menu_share:
                 Utils.shareAPK(this);
+                break;
+            case R.id.menu_contribute:
+                ImageView imageView = new ImageView(this);
+                imageView.setImageResource(R.drawable.wechat);
+                new AlertDialog.Builder(BleActivity.this)
+                        .setTitle("打赏/联系作者")
+                        .setView(imageView)
+                        .create()
+                        .show();
                 break;
         }
         return super.onOptionsItemSelected(item);
