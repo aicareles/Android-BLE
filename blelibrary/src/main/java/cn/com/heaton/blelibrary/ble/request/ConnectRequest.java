@@ -2,6 +2,7 @@ package cn.com.heaton.blelibrary.ble.request;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothGattService;
 import android.support.annotation.RestrictTo;
 import android.text.TextUtils;
 
@@ -267,19 +268,12 @@ public class ConnectRequest<T extends BleDevice> implements ConnectWrapperCallba
     }
 
     @Override
-    public void onServicesDiscovered(final T device) {
+    public void onServicesDiscovered(final T device, final List<BluetoothGattService> gattServices) {
         BleLog.d(TAG, "onServicesDiscovered>>>> "+device.getBleName());
         if (null != connectCallback){
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    if (null != connectCallback){
-                        connectCallback.onServicesDiscovered(device);
-                    }
-                    bleWrapperCallback.onServicesDiscovered(device);
-                }
-            });
+            connectCallback.onServicesDiscovered(device, gattServices);
         }
+        bleWrapperCallback.onServicesDiscovered(device, gattServices);
     }
 
     private void addBleDevice(T device) {

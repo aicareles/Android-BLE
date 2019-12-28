@@ -4,6 +4,7 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGattCharacteristic;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 import java.util.concurrent.Callable;
 
 import cn.com.heaton.blelibrary.ble.callback.wrapper.BleWrapperCallback;
@@ -36,12 +37,22 @@ public class WriteRequest<T extends BleDevice> implements WriteWrapperCallback<T
         bleWrapperCallback = Ble.options().bleWrapperCallback;
     }
 
-    public boolean write(T device,byte[]data, BleWriteCallback<T> lisenter){
-        this.bleWriteCallback = lisenter;
+    public boolean write(T device, byte[]data, BleWriteCallback<T> callback){
+        this.bleWriteCallback = callback;
         boolean result = false;
         BleRequestImpl bleRequest = BleRequestImpl.getBleRequest();
         if (bleRequest != null) {
             result = bleRequest.wirteCharacteristic(device.getBleAddress(),data);
+        }
+        return result;
+    }
+
+    public boolean writeByUuid(T device, byte[]data, UUID serviceUUID, UUID characteristicUUID, BleWriteCallback<T> callback){
+        this.bleWriteCallback = callback;
+        boolean result = false;
+        BleRequestImpl bleRequest = BleRequestImpl.getBleRequest();
+        if (bleRequest != null) {
+            result = bleRequest.wirteCharacteristicByUuid(device.getBleAddress(), data, serviceUUID, characteristicUUID);
         }
         return result;
     }
@@ -170,11 +181,11 @@ public class WriteRequest<T extends BleDevice> implements WriteWrapperCallback<T
     }
 
     @Override
-    public void onWiteFailed(T device, String message) {
+    public void onWiteFailed(T device, int failedCode) {
         if(bleWriteCallback != null){
-            bleWriteCallback.onWiteFailed(device, message);
+            bleWriteCallback.onWiteFailed(device, failedCode);
         }
-        bleWrapperCallback.onWiteFailed(device, message);
+        bleWrapperCallback.onWiteFailed(device, failedCode);
     }
 
 }

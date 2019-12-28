@@ -1,94 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/activity_main"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:fitsSystemWindows="true"
-    android:clipToPadding="true"
-    tools:context="com.example.admin.mybledemo.BleActivity">
+    android:layout_height="match_parent">
 
     <!--<android.support.v7.widget.RecyclerView-->
         <!--android:id="@+id/recycle_listView"-->
         <!--android:layout_width="match_parent"-->
         <!--android:layout_height="match_parent"/>-->
+
     <LinearLayout
-        android:id="@+id/ll_function"
+        android:id="@+id/ll_adapter_tip"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="50dp"
+        android:gravity="center_vertical"
+        android:background="@color/colorWarn"
+        android:visibility="gone">
 
-        <Button
-            android:id="@+id/sendData"
+        <TextView
+            android:id="@+id/tv_tip"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:textColor="@color/white"
+            android:text="Bluetooth adapter is disabled."/>
+
+        <TextView
+            android:id="@+id/tv_adapter_states"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="发送"/>
-
-        <Button
-            android:id="@+id/updateOta"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="更新OTA"/>
-
-        <Button
-            android:id="@+id/readRssi"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="读取RSSI"/>
-
-        <Button
-            android:id="@+id/requestMtu"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="请求MTU"/>
+            android:layout_marginEnd="10dp"
+            android:textColor="@color/white"
+            android:text="ENABLE"/>
 
     </LinearLayout>
 
-    <Button
-        android:id="@+id/sendEntityData"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/ll_function"
-        android:text="分包发送"/>
-
-    <Button
-        android:id="@+id/sendAutoEntityData"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/ll_function"
-        android:layout_toRightOf="@+id/sendEntityData"
-        android:text="自动分包发送"/>
-
-    <Button
-        android:id="@+id/writeQueue"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/ll_function"
-        android:layout_toRightOf="@+id/sendAutoEntityData"
-        android:text="添加到发送队列"/>
-
-    <Button
-        android:id="@+id/startAdvertise"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_toEndOf="@+id/sendAutoEntityData"
-        android:layout_below="@+id/ll_function"
-        android:text="开启广播"
-        android:visibility="gone"/>
-
-    <Button
-        android:id="@+id/stopAdvertise"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/ll_function"
-        android:layout_toRightOf="@+id/startAdvertise"
-        android:text="停止广播"
-        android:visibility="gone"/>
-
-    <ListView
-        android:id="@+id/listView"
-        android:layout_below="@id/sendEntityData"
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/swipeLayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:layout_below="@+id/ll_adapter_tip">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:listitem="@layout/item_scan"/>
+
+    </android.support.v4.widget.SwipeRefreshLayout>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/floatingButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="20dp"
+        app:srcCompat="@drawable/ic_bluetooth_audio_black_24dp" />
 
 </RelativeLayout>

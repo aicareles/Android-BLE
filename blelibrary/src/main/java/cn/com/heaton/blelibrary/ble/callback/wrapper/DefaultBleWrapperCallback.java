@@ -1,6 +1,9 @@
 package cn.com.heaton.blelibrary.ble.callback.wrapper;
 
 import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothGattService;
+
+import java.util.List;
 
 import cn.com.heaton.blelibrary.ble.model.BleDevice;
 
@@ -27,7 +30,7 @@ public class DefaultBleWrapperCallback<T extends BleDevice> extends BleWrapperCa
     }
 
     @Override
-    public void onServicesDiscovered(T device) {
+    public void onServicesDiscovered(T device, List<BluetoothGattService> gattServices) {
 
     }
 
@@ -51,7 +54,7 @@ public class DefaultBleWrapperCallback<T extends BleDevice> extends BleWrapperCa
     }
 
     @Override
-    public void onWiteFailed(T device, String message) {
+    public void onWiteFailed(T device, int failedCode) {
 
     }
 
@@ -61,7 +64,7 @@ public class DefaultBleWrapperCallback<T extends BleDevice> extends BleWrapperCa
     }
 
     @Override
-    public void onReadFailed(T device, String message) {
+    public void onReadFailed(T device, int failedCode) {
 
     }
 

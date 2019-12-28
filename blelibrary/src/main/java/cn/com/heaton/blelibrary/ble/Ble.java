@@ -18,10 +18,12 @@ import cn.com.heaton.blelibrary.ble.callback.BleConnectCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleMtuCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleNotiftCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleReadCallback;
+import cn.com.heaton.blelibrary.ble.callback.BleReadDescCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleReadRssiCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleScanCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleStatusCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleWriteCallback;
+import cn.com.heaton.blelibrary.ble.callback.BleWriteDescCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleWriteEntityCallback;
 import cn.com.heaton.blelibrary.ble.callback.wrapper.BleWrapperCallback;
 import cn.com.heaton.blelibrary.ble.callback.wrapper.DefaultBleWrapperCallback;
@@ -35,6 +37,8 @@ import cn.com.heaton.blelibrary.ble.request.ConnectRequest;
 import cn.com.heaton.blelibrary.ble.proxy.RequestImpl;
 import cn.com.heaton.blelibrary.ble.proxy.RequestLisenter;
 import cn.com.heaton.blelibrary.ble.proxy.RequestProxy;
+import cn.com.heaton.blelibrary.ble.request.DescriptorRequest;
+import cn.com.heaton.blelibrary.ble.request.ReadRequest;
 import cn.com.heaton.blelibrary.ble.request.Rproxy;
 import cn.com.heaton.blelibrary.ble.request.ScanRequest;
 
@@ -171,7 +175,12 @@ public final class Ble<T extends BleDevice> {
         }
     }
 
-    public void resetReConnect(T device, boolean autoConnect){
+    /**
+     * 动态设置是否自动连接
+     * @param device 设备对象
+     * @param autoConnect 是否自动连接
+     */
+    public void autoConnect(T device, boolean autoConnect){
         ConnectRequest<T> request = Rproxy.getRequest(ConnectRequest.class);
         if(request != null){
             request.resetReConnect(device, autoConnect);
@@ -209,6 +218,7 @@ public final class Ble<T extends BleDevice> {
      * 连接成功后，开始设置通知
      * @param device 蓝牙设备对象
      * @param callback 通知回调
+     * @deprecated Use {@link Ble#enableNotify(T, boolean, BleNotiftCallback)} instead.
      */
     public void startNotify(T device, BleNotiftCallback<T> callback){
         request.notify(device, callback);
@@ -217,9 +227,32 @@ public final class Ble<T extends BleDevice> {
     /**
      * 移除通知
      * @param  device 蓝牙设备对象
+     * @deprecated Use {@link Ble#enableNotify(T, boolean, BleNotiftCallback)} instead.
      */
     public void cancelNotify(T device, BleNotiftCallback<T> callback){
         request.cancelNotify(device, callback);
+    }
+
+    /**
+     * 设置通知
+     * @param device 蓝牙设备对象
+     * @param enable 打开/关闭
+     * @param callback 通知回调
+     */
+    public void enableNotify(T device, boolean enable, BleNotiftCallback<T> callback){
+        request.enableNotify(device, enable, callback);
+    }
+
+    /**
+     * 通过uuid设置指定通知
+     * @param device 蓝牙设备对象
+     * @param enable 打开/关闭
+     * @param serviceUUID 服务uuid
+     * @param characteristicUUID 通知特征uuid
+     * @param callback 通知回调
+     */
+    public void enableNotifyByUuid(T device, boolean enable, UUID serviceUUID, UUID characteristicUUID, BleNotiftCallback<T> callback){
+        request.enableNotifyByUuid(device, enable, serviceUUID, characteristicUUID, callback);
     }
 
     /**
@@ -229,6 +262,33 @@ public final class Ble<T extends BleDevice> {
      */
     public boolean read(T device, BleReadCallback<T> callback){
         return request.read(device, callback);
+    }
+
+    /**
+     * 写入到指定uuid数据
+     * @param device 蓝牙设备对象
+     * @param serviceUUID 服务uuid
+     * @param characteristicUUID 写入特征uuid
+     * @param callback 写入回调
+     */
+    public boolean readByUuid(T device, UUID serviceUUID, UUID characteristicUUID, BleReadCallback<T> callback){
+        return request.readByUuid(device, serviceUUID, characteristicUUID, callback);
+    }
+
+    public boolean readDesByUuid(T device, UUID serviceUUID, UUID characteristicUUID, UUID descriptorUUID, BleReadDescCallback<T> callback){
+        DescriptorRequest<T> request = Rproxy.getRequest(DescriptorRequest.class);
+        if(request != null){
+            return request.readDes(device, serviceUUID, characteristicUUID, descriptorUUID, callback);
+        }
+        return false;
+    }
+
+    public boolean writeDesByUuid(T device, byte[] data, UUID serviceUUID, UUID characteristicUUID, UUID descriptorUUID, BleWriteDescCallback<T> callback){
+        DescriptorRequest<T> request = Rproxy.getRequest(DescriptorRequest.class);
+        if(request != null){
+            return request.writeDes(device, data, serviceUUID, characteristicUUID, descriptorUUID, callback);
+        }
+        return false;
     }
 
     /**
@@ -261,8 +321,16 @@ public final class Ble<T extends BleDevice> {
         return request.write(device, data, callback);
     }
 
-    public boolean writeByUuid(T device, byte[]data, UUID uuid){
-        return bleRequestImpl.wirteCharacteristicByUuid(device.getBleAddress(), data, uuid);
+    /**
+     * 写入到指定uuid数据
+     * @param device 蓝牙设备对象
+     * @param data 数据
+     * @param serviceUUID 服务uuid
+     * @param characteristicUUID 写入特征uuid
+     * @param callback 写入回调
+     */
+    public boolean writeByUuid(T device, byte[]data, UUID serviceUUID, UUID characteristicUUID, BleWriteCallback<T> callback){
+        return request.writeByUuid(device, data, serviceUUID, characteristicUUID, callback);
     }
 
     public void writeQueueDelay(long delay, RequestTask task){
@@ -280,8 +348,8 @@ public final class Ble<T extends BleDevice> {
      * @param packLength 每包需要发送的长度
      * @param delay 每包之间的时间间隔
      * @param callback 发送结果回调
+     * @deprecated Use {@link Ble#writeEntity(EntityData, BleWriteEntityCallback)} instead.
      */
-    @Deprecated
     public void writeEntity(T device, final byte[]data, @IntRange(from = 1,to = 20)int packLength, int delay, BleWriteEntityCallback<T> callback){
         request.writeEntity(device, data, packLength, delay, callback);
     }

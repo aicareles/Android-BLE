@@ -1,7 +1,17 @@
 package com.example.admin.mybledemo;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -9,7 +19,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
+import java.util.List;
 
+import cn.com.heaton.blelibrary.ble.utils.UuidUtils;
 import cn.com.superLei.aoparms.annotation.Async;
 
 public class Utils {
@@ -34,6 +46,55 @@ public class Utils {
             mToast.setDuration(Toast.LENGTH_SHORT);
         }
         mToast.show();
+    }
+
+    public static String getUuid(String uuid128){
+        if (UuidUtils.isBaseUUID(uuid128)){
+            return "UUID: 0x"+UuidUtils.uuid128To16(uuid128, true);
+        }
+        return uuid128;
+    }
+
+    public static int dp2px(float dpValue) {
+        final float scale = MyApplication.getInstance().getResources().getDisplayMetrics().density;
+        return (int) (dpValue * scale + 0.5f);
+    }
+
+    public static void shareAPK(Activity activity){
+        PackageInfo packageInfo = getPackageInfo(activity);
+        if (packageInfo != null){
+            File apkFile = new File(packageInfo.applicationInfo.sourceDir);
+            Intent intent = new Intent();
+            intent.setAction(Intent.ACTION_SEND);
+            intent.setType("*/*");
+            intent.putExtra(Intent.EXTRA_STREAM, FileProvider7.getUriForFile(activity, apkFile));
+            activity.startActivity(intent);
+        }
+    }
+
+    private static PackageInfo getPackageInfo(Context context) {
+        PackageManager packageManager = context.getPackageManager();
+        PackageInfo packageInfo = null;
+        try {
+            String packageName = getPackageName(context);
+            packageInfo = packageManager.getPackageInfo(packageName, PackageManager.GET_ACTIVITIES);
+            return packageInfo;
+        }catch (PackageManager.NameNotFoundException e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private static String getPackageName(Context context) {
+        try {
+            PackageManager packageManager = context.getPackageManager();
+            PackageInfo packageInfo = packageManager.getPackageInfo(
+                    context.getPackageName(), 0);
+            return packageInfo.packageName;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     /**

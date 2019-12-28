@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/tv_desc_type"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Characteristic User Description"
+        android:textColor="@color/text_gray"
+        android:textStyle="bold"/>
+
+    <ImageView
+        android:id="@+id/iv_read"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toStartOf="@+id/iv_write"
+        android:src="@drawable/ic_read" />
+
+    <ImageView
+        android:id="@+id/iv_write"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="15dp"
+        android:layout_marginStart="15dp"
+        android:src="@drawable/ic_write" />
+
+    <TextView
+        android:id="@+id/iv_desc_uuid"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tv_desc_type"
+        android:layout_marginTop="5dp"
+        android:textColor="@color/text_gray"
+        android:textStyle="bold"/>
+
+    <TextView
+        android:id="@+id/tv_read_value"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/iv_desc_uuid"
+        android:layout_marginTop="5dp"
+        android:textColor="@color/text_gray"
+        android:textStyle="bold"
+        android:visibility="gone"/>
+
+</RelativeLayout>

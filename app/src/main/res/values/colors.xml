@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
+    <color name="colorPrimary">#008577</color>
+    <color name="colorPrimaryDark">#00574B</color>
+    <color name="colorAccent">#D81B60</color>
+
+
+    <color name="colorWarn">#B22222</color>
 
     <color name="colorPrimaryDarkTheme">#4a4959</color>
     <color name="colorPrimaryDarkDarkTheme">#525065</color>
@@ -13,6 +16,8 @@
     <color name="window_background">#FFFFFF</color>
     <color name="white">@android:color/white</color>
 
+    <color name="text">#909090</color>
+    <color name="text_gray">#303030</color>
 
     <color name="colorPrimaryBlack">#000000</color>
     <color name="colorPrimaryDarkBlack">#000000</color>

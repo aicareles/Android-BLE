@@ -1,21 +1,13 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <item android:id="@+id/menu_scan"
-        android:title="@string/menu_scan"
-        app:showAsAction="never"/>
-    <item android:id="@+id/menu_stop"
-        android:title="@string/menu_stop"
-        app:showAsAction="never"/>
-    <item android:id="@+id/menu_connect_all"
-        android:title="@string/menu_connect_all"
-        app:showAsAction="never"/>
-    <item android:id="@+id/menu_disconnect_all"
-        android:title="@string/menu_disconnect_all"
-        app:showAsAction="never"/>
     <item android:id="@+id/menu_introduced"
         android:title="@string/menu_introduced"
         app:showAsAction="never"/>
     <item android:id="@+id/menu_share"
         android:title="@string/menu_share"
         app:showAsAction="never"/>
+    <item android:id="@+id/menu_contribute"
+        android:title="@string/menu_contribute"
+        app:showAsAction="never"
+        android:visible="false"/>
 </menu>

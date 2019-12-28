@@ -1,7 +1,8 @@
 package cn.com.heaton.blelibrary.ble.request;
 
-import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGattCharacteristic;
+
+import java.util.UUID;
 
 import cn.com.heaton.blelibrary.ble.callback.wrapper.BleWrapperCallback;
 import cn.com.heaton.blelibrary.ble.callback.wrapper.ReadWrapperCallback;
@@ -35,6 +36,16 @@ public class ReadRequest<T extends BleDevice> implements ReadWrapperCallback<T> 
         return result;
     }
 
+    public boolean readByUuid(T device, UUID serviceUUID, UUID characteristicUUID, BleReadCallback<T> callback){
+        this.bleReadCallback = callback;
+        boolean result = false;
+        BleRequestImpl bleRequest = BleRequestImpl.getBleRequest();
+        if (Ble.getInstance() != null && bleRequest != null) {
+            result = bleRequest.readCharacteristicByUuid(device.getBleAddress(), serviceUUID, characteristicUUID);
+        }
+        return result;
+    }
+
     @Override
     public void onReadSuccess(T device, BluetoothGattCharacteristic characteristic) {
         if(bleReadCallback != null){
@@ -44,10 +55,10 @@ public class ReadRequest<T extends BleDevice> implements ReadWrapperCallback<T> 
     }
 
     @Override
-    public void onReadFailed(T device, String message) {
+    public void onReadFailed(T device, int failedCode) {
         if(bleReadCallback != null){
-            bleReadCallback.onReadFailed(device, message);
+            bleReadCallback.onReadFailed(device, failedCode);
         }
-        bleWrapperCallback.onReadFailed(device, message);
+        bleWrapperCallback.onReadFailed(device, failedCode);
     }
 }

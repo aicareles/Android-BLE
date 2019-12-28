@@ -9,7 +9,7 @@ public class UuidUtils {
         return uuid.toLowerCase().matches("0000([0-9a-f][0-9a-f][0-9a-f][0-9a-f])-0000-1000-8000-00805f9b34fb");
     }
 
-    public static UUID uuid128To16(String uuid, boolean lower_case) {
+    public static String uuid128To16(String uuid, boolean lower_case) {
         String uuid_16 = "";
         if (uuid.length() == 36) {
             if (lower_case) {
@@ -17,18 +17,18 @@ public class UuidUtils {
             }else {
                 uuid_16 = uuid.substring(4, 8).toUpperCase();
             }
-            return UUID.fromString(uuid_16);
+            return uuid_16;
         }
         return null;
     }
 
-    public static UUID uuid16To128(String uuid, boolean lower_case) {
+    public static String uuid16To128(String uuid, boolean lower_case) {
         String uuid_128 = "";
         if (lower_case) {
             uuid_128 = ("0000([0-9a-f][0-9a-f][0-9a-f][0-9a-f])-0000-1000-8000-00805f9b34fb".substring(0, 4) + uuid + "0000([0-9a-f][0-9a-f][0-9a-f][0-9a-f])-0000-1000-8000-00805f9b34fb".substring(38)).toLowerCase();
         }else {
             uuid_128 = ("0000([0-9a-f][0-9a-f][0-9a-f][0-9a-f])-0000-1000-8000-00805f9b34fb".substring(0, 4) + uuid + "0000([0-9a-f][0-9a-f][0-9a-f][0-9a-f])-0000-1000-8000-00805f9b34fb".substring(38)).toUpperCase();
         }
-        return UUID.fromString(uuid_128);
+        return uuid_128;
     }
 }

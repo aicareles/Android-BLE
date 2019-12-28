@@ -3,6 +3,8 @@ package cn.com.heaton.blelibrary.ble.proxy;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 
+import java.util.UUID;
+
 import cn.com.heaton.blelibrary.ble.model.BleDevice;
 import cn.com.heaton.blelibrary.ble.Ble;
 import cn.com.heaton.blelibrary.ble.callback.BleConnectCallback;
@@ -54,13 +56,25 @@ public class RequestImpl<T extends BleDevice> implements RequestLisenter<T>{
     @Override
     public void notify(T device, BleNotiftCallback<T> callback) {
         NotifyRequest<T> request = Rproxy.getRequest(NotifyRequest.class);
-        request.notify(device, callback);
+        request.notify(device, true, callback);
     }
 
     @Override
     public void cancelNotify(T device, BleNotiftCallback<T> callback) {
         NotifyRequest<T> request = Rproxy.getRequest(NotifyRequest.class);
-        request.cancelNotify(device, callback);
+        request.notify(device, false, callback);
+    }
+
+    @Override
+    public void enableNotify(T device, boolean enable, BleNotiftCallback<T> callback) {
+        NotifyRequest<T> request = Rproxy.getRequest(NotifyRequest.class);
+        request.notify(device, enable, callback);
+    }
+
+    @Override
+    public void enableNotifyByUuid(T device, boolean enable, UUID serviceUUID, UUID characteristicUUID, BleNotiftCallback<T> callback) {
+        NotifyRequest<T> request = Rproxy.getRequest(NotifyRequest.class);
+        request.notifyByUuid(device, enable, serviceUUID, characteristicUUID, callback);
     }
 
     @Override
@@ -82,6 +96,12 @@ public class RequestImpl<T extends BleDevice> implements RequestLisenter<T>{
     }
 
     @Override
+    public boolean readByUuid(T device, UUID serviceUUID, UUID characteristicUUID, BleReadCallback<T> callback) {
+        ReadRequest<T> request = Rproxy.getRequest(ReadRequest.class);
+        return request.readByUuid(device, serviceUUID, characteristicUUID, callback);
+    }
+
+    @Override
     public boolean readRssi(T device, BleReadRssiCallback<T> callback) {
         ReadRssiRequest<T> request = Rproxy.getRequest(ReadRssiRequest.class);
         return request.readRssi(device, callback);
@@ -91,6 +111,12 @@ public class RequestImpl<T extends BleDevice> implements RequestLisenter<T>{
     public boolean write(T device, byte[] data, BleWriteCallback<T> callback) {
         WriteRequest<T> request = Rproxy.getRequest(WriteRequest.class);
         return request.write(device, data, callback);
+    }
+
+    @Override
+    public boolean writeByUuid(T device, byte[] data, UUID serviceUUID, UUID characteristicUUID, BleWriteCallback<T> callback) {
+        WriteRequest<T> request = Rproxy.getRequest(WriteRequest.class);
+        return request.writeByUuid(device, data, serviceUUID, characteristicUUID, callback);
     }
 
     @Override
