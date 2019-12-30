@@ -32,11 +32,17 @@
 
     </LinearLayout>
 
+    <com.example.admin.mybledemo.FilterView
+        android:id="@+id/filterView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/ll_adapter_tip"/>
+
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/swipeLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/ll_adapter_tip">
+        android:layout_below="@+id/filterView">
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recyclerView"

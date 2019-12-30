@@ -37,6 +37,7 @@ import cn.com.heaton.blelibrary.ble.BleLog;
 import cn.com.heaton.blelibrary.ble.callback.BleScanCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleStatusCallback;
 import cn.com.heaton.blelibrary.ble.model.BleDevice;
+import cn.com.heaton.blelibrary.ble.model.ScanRecord;
 import cn.com.heaton.blelibrary.ble.utils.BleUtils;
 import cn.com.superLei.aoparms.annotation.Permission;
 import cn.com.superLei.aoparms.annotation.PermissionDenied;
@@ -56,6 +57,7 @@ public class BleActivity extends AppCompatActivity {
     private SwipeRefreshLayout swipeLayout;
     private FloatingActionButton floatingActionButton;
     private RecyclerView recyclerView;
+    private FilterView filterView;
     private ScanAdapter adapter;
     private List<BleRssiDevice> bleRssiDevices;
     private Ble<BleDevice> ble = Ble.getInstance();
@@ -73,9 +75,11 @@ public class BleActivity extends AppCompatActivity {
 
     private void initAdapter() {
         bleRssiDevices = new ArrayList<>();
-        adapter = new ScanAdapter(this, R.layout.item_scan, bleRssiDevices);
+        adapter = new ScanAdapter(this, bleRssiDevices);
         recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         recyclerView.addItemDecoration(new DividerItemDecoration(this,DividerItemDecoration.VERTICAL));
+        recyclerView.getItemAnimator().setChangeDuration(300);
+        recyclerView.getItemAnimator().setMoveDuration(300);
         recyclerView.setAdapter(adapter);
     }
 
@@ -85,6 +89,8 @@ public class BleActivity extends AppCompatActivity {
         tvAdapterStates = findViewById(R.id.tv_adapter_states);
         recyclerView = findViewById(R.id.recyclerView);
         floatingActionButton = findViewById(R.id.floatingButton);
+        filterView = findViewById(R.id.filterView);
+        filterView.init(this);
     }
 
     private void initLinsenter() {
@@ -94,15 +100,6 @@ public class BleActivity extends AppCompatActivity {
                 Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
                 startActivityForResult(enableBtIntent, Ble.REQUEST_ENABLE_BT);
             }
-        });
-        adapter.setOnItemClickListener((parent, view, device, position) -> {
-            if (ble.isScanning()) {
-                ble.stopScan();
-            }
-            startActivity(new Intent(
-                    BleActivity.this,
-                    DeviceInfoActivity.class)
-                    .putExtra(DeviceInfoActivity.EXTRA_TAG, device.getDevice()));
         });
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -117,6 +114,7 @@ public class BleActivity extends AppCompatActivity {
                 rescan();
             }
         });
+
     }
 
     //请求权限
@@ -222,7 +220,7 @@ public class BleActivity extends AppCompatActivity {
                         return;
                     }
                 }
-                BleRssiDevice rssiDevice = new BleRssiDevice(device, rssi);
+                BleRssiDevice rssiDevice = new BleRssiDevice(device, ScanRecord.parseFromBytes(scanRecord), rssi);
                 bleRssiDevices.add(rssiDevice);
                 adapter.notifyDataSetChanged();
             }
