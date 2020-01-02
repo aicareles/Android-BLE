@@ -1,6 +1,13 @@
 package com.example.admin.mybledemo;
 
 import android.app.Application;
+import android.content.Context;
+
+import com.pgyersdk.Pgyer;
+import com.pgyersdk.PgyerActivityManager;
+import com.pgyersdk.crash.PgyCrashManager;
+import com.pgyersdk.crash.PgyerCrashObservable;
+import com.pgyersdk.crash.PgyerObserver;
 
 import java.util.UUID;
 
@@ -45,6 +52,7 @@ public class MyApplication extends Application {
         mApplication = this;
         AopArms.init(this);
         initBle();
+        initPgy();
     }
 
     //初始化蓝牙
@@ -60,6 +68,23 @@ public class MyApplication extends Application {
                 .setUuidService(UUID.fromString(UuidUtils.uuid16To128("fee9", true)))//设置主服务的uuid
                 .setUuidWriteCha(UUID.fromString("d44bc439-abfd-45a2-b575-925416129600"))//设置可写特征的uuid
                 .create(mApplication);
+    }
+
+    private void initPgy() {
+        PgyCrashManager.register();
+        PgyerCrashObservable.get().attach(new PgyerObserver() {
+            @Override
+            public void receivedCrash(Thread thread, Throwable throwable) {
+
+            }
+        });
+        PgyerActivityManager.set(this);
+    }
+
+    @Override
+    protected void attachBaseContext(Context context) {
+        super.attachBaseContext(context);
+        Pgyer.setAppId("b22d78f4563a1906c9c2605d9186c768");
     }
 
     public static MyApplication getInstance() {

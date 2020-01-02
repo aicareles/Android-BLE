@@ -10,12 +10,10 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.example.admin.mybledemo.BleActivity;
 import com.example.admin.mybledemo.BleRssiDevice;
-import com.example.admin.mybledemo.DeviceInfoActivity;
+import com.example.admin.mybledemo.ui.DeviceInfoActivity;
 import com.example.admin.mybledemo.R;
 
-import java.util.Arrays;
 import java.util.List;
 
 import cn.com.heaton.blelibrary.ble.Ble;

@@ -3,7 +3,8 @@
 ### Email：jerryee0911@qq.com
 
 ### 扫描下载APK:
-![二维码.png](https://www.pgyer.com/app/qrcode/Dr8d)
+![二维码.png](
+https://android-resource.oss-cn-qingdao.aliyuncs.com/GitClub/image/mJW4.png?Expires=1577947521&OSSAccessKeyId=TMP.hhbo7QSce5gPRayo3tJUYViA69964YTNBHGVNQd8PJ6L8PVwXatiaKGcL52pcneAzwAwv8jASidyskmj3g5HypuBK8AFrBRBN7Hi8krKU8pbGWNa4fxDaHsERWtJWC.tmp&Signature=ni2nOP8Ordl5srIw9LnvBJ1I5lY%3D)
 
 #### 一、先来看张BleLib库的api之间的关系图：
 ![BleLib库结构图.png](http://upload-images.jianshu.io/upload_images/3884117-2c5a0b95cda75158.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/840)
