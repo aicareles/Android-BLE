@@ -74,8 +74,8 @@ public class BleActivity extends AppCompatActivity {
         initView();
         initAdapter();
         initLinsenter();
+        initBleStatus();
         requestPermission();
-        update();
     }
 
     @Permission(value = {Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
@@ -139,7 +139,7 @@ public class BleActivity extends AppCompatActivity {
             rationale = "需要蓝牙相关权限")
     public void requestPermission() {
         checkBlueStatus();
-        initBleStatus();
+        update();
     }
 
     @PermissionDenied
