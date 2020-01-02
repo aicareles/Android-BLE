@@ -2,7 +2,7 @@
 ### 有个人项目或者定制化需求的可加QQ:823581722 进行联系
 ### Email：jerryee0911@qq.com
 
-### 扫描下载APK:
+### 扫描下载APK:(安装密码:android)
 ![二维码.png](
 https://android-resource.oss-cn-qingdao.aliyuncs.com/GitClub/image/mJW4.png?Expires=1577947521&OSSAccessKeyId=TMP.hhbo7QSce5gPRayo3tJUYViA69964YTNBHGVNQd8PJ6L8PVwXatiaKGcL52pcneAzwAwv8jASidyskmj3g5HypuBK8AFrBRBN7Hi8krKU8pbGWNa4fxDaHsERWtJWC.tmp&Signature=ni2nOP8Ordl5srIw9LnvBJ1I5lY%3D)
 
