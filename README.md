@@ -462,7 +462,6 @@ Log.e("OTA升级结果:", result + "");
 ```
 ### 四、工具类截图：
 
-![工具类预览图1.png](https://github.com/Alex-Jerry/Android-BLE/raw/master/screenshots/1.jpeg)
 ![工具类预览图2.png](https://github.com/Alex-Jerry/Android-BLE/raw/master/screenshots/2.jpeg)
 ![工具类预览图3.png](https://github.com/Alex-Jerry/Android-BLE/raw/master/screenshots/3.jpeg)
 ![工具类预览图4.png](https://github.com/Alex-Jerry/Android-BLE/raw/master/screenshots/4.jpeg)
