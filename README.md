@@ -462,9 +462,9 @@ Log.e("OTA升级结果:", result + "");
 ```
 ### 四、工具类截图：
 
-![工具类预览图2.png](https://github.com/Alex-Jerry/Android-BLE/raw/master/screenshots/2.jpeg)
-![工具类预览图3.png](https://github.com/Alex-Jerry/Android-BLE/raw/master/screenshots/3.jpeg)
-![工具类预览图4.png](https://github.com/Alex-Jerry/Android-BLE/raw/master/screenshots/4.jpeg)
+![](https://www.pgyer.com/image/view/app_screenshots/d72c86ea0d47a770d353219afe63f5b3-528)
+![](https://www.pgyer.com/image/view/app_screenshots/02d4a22f7e19aea2dccc0791c5fcd85b-528)
+![](https://www.pgyer.com/image/view/app_screenshots/ff9aae940594298cb5c77e8f2a0e7658-528)
 
 ### 五、如果你觉得不错，对你有过帮助，请给我一点打赏鼓励，支持我维护的动力：
 ![](https://upload-images.jianshu.io/upload_images/3884117-5d22ae84180a93ed.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/320)
