@@ -327,6 +327,15 @@ public final class BleRequestImpl<T extends BleDevice> {
         handler.removeCallbacksAndMessages(address);
     }
 
+    private boolean verifyBluetoothState() {
+        BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        if (bluetoothAdapter == null || !bluetoothAdapter.isEnabled()) {
+            BleLog.e(TAG, "Bluetooth is not turned on");
+            return false;
+        }
+        return true;
+    }
+
     /**
      * 连接蓝牙
      *

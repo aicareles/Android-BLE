@@ -11,6 +11,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -41,13 +42,20 @@ public class ChildAdapter extends RecyclerAdapter<BluetoothGattCharacteristic> {
     }
 
     @Override
-    public void convert(RecyclerViewHolder hepler, BluetoothGattCharacteristic characteristic) {
-        TextView tvCharUuid = hepler.getView(R.id.tv_char_uuid);
-        TextView tvCharProperties = hepler.getView(R.id.tv_properties);
-        TextView tvReadValue = hepler.getView(R.id.tv_read_value);
-        ImageView ivRead = hepler.getView(R.id.iv_read);
-        ImageView ivWrite = hepler.getView(R.id.iv_write);
-        ImageView ivNotify = hepler.getView(R.id.iv_notify);
+    public RecyclerViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        RecyclerViewHolder holder = super.onCreateViewHolder(parent, viewType);
+
+        return holder;
+    }
+
+    @Override
+    public void convert(RecyclerViewHolder holder, BluetoothGattCharacteristic characteristic) {
+        TextView tvCharUuid = holder.getView(R.id.tv_char_uuid);
+        TextView tvCharProperties = holder.getView(R.id.tv_properties);
+        TextView tvReadValue = holder.getView(R.id.tv_read_value);
+        ImageView ivRead = holder.getView(R.id.iv_read);
+        ImageView ivWrite = holder.getView(R.id.iv_write);
+        ImageView ivNotify = holder.getView(R.id.iv_notify);
 
         ivRead.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -144,7 +152,7 @@ public class ChildAdapter extends RecyclerAdapter<BluetoothGattCharacteristic> {
             }
         });
 
-        LinearLayout llDesc = hepler.getView(R.id.ll_desc);
+        LinearLayout llDesc = holder.getView(R.id.ll_desc);
 
         tvCharUuid.setText(Utils.getUuid(characteristic.getUuid().toString()));
 

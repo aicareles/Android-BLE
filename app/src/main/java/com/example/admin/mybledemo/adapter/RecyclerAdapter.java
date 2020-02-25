@@ -74,12 +74,12 @@ public abstract class RecyclerAdapter<T> extends RecyclerView.Adapter<RecyclerVi
     }
 
     @Override
-    public void onBindViewHolder(RecyclerViewHolder hepler, int position) {
-        hepler.updatePosition(position);
-        convert(hepler, mDatas.get(position));
+    public void onBindViewHolder(RecyclerViewHolder holder, int position) {
+        holder.updatePosition(position);
+        convert(holder, mDatas.get(position));
     }
 
-    public abstract void convert(RecyclerViewHolder hepler, T t);
+    public abstract void convert(RecyclerViewHolder holder, T t);
 
     @Override
     public int getItemCount() {

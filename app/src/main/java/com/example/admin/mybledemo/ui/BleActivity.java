@@ -134,7 +134,7 @@ public class BleActivity extends AppCompatActivity {
     }
 
     //请求权限
-    @Permission(value = {Manifest.permission.ACCESS_COARSE_LOCATION},
+    @Permission(value = {Manifest.permission.ACCESS_COARSE_LOCATION,Manifest.permission.ACCESS_FINE_LOCATION},
             requestCode = REQUEST_PERMISSION_LOCATION,
             rationale = "需要蓝牙相关权限")
     public void requestPermission() {
