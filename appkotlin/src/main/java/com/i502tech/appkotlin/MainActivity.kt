@@ -156,8 +156,6 @@ class MainActivity : AppCompatActivity() {
     private fun connectCallback(): BleConnectCallback<BleDevice> {
         return object : BleConnectCallback<BleDevice>(){
             override fun onConnectionChanged(device: BleDevice?) {
-                if (device?.isConnected == true)
-                    mBle.startNotify(device, bleNotifyCallback())
                 adapter.notifyDataSetChanged()
             }
 
@@ -169,6 +167,11 @@ class MainActivity : AppCompatActivity() {
             override fun onConnectTimeOut(device: BleDevice?) {
                 super.onConnectTimeOut(device)
                 toast("连接异常，异常状态码:${device?.bleName}")
+            }
+
+            override fun onReady(device: BleDevice?) {
+                super.onReady(device)
+                mBle.startNotify(device, bleNotifyCallback())
             }
 
         }
