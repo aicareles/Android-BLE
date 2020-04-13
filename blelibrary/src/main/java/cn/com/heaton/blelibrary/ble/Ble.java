@@ -3,6 +3,7 @@ package cn.com.heaton.blelibrary.ble;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.le.ScanFilter;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -26,10 +27,10 @@ import cn.com.heaton.blelibrary.ble.callback.BleWriteCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleWriteDescCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleWriteEntityCallback;
 import cn.com.heaton.blelibrary.ble.callback.wrapper.BleWrapperCallback;
-import cn.com.heaton.blelibrary.ble.callback.wrapper.DefaultBleWrapperCallback;
 import cn.com.heaton.blelibrary.ble.callback.wrapper.BluetoothChangedObserver;
 import cn.com.heaton.blelibrary.ble.exception.BleException;
 import cn.com.heaton.blelibrary.ble.model.BleDevice;
+import cn.com.heaton.blelibrary.ble.model.BleFactory;
 import cn.com.heaton.blelibrary.ble.model.EntityData;
 import cn.com.heaton.blelibrary.ble.queue.RequestTask;
 import cn.com.heaton.blelibrary.ble.queue.WriteQueue;
@@ -38,7 +39,6 @@ import cn.com.heaton.blelibrary.ble.proxy.RequestImpl;
 import cn.com.heaton.blelibrary.ble.proxy.RequestLisenter;
 import cn.com.heaton.blelibrary.ble.proxy.RequestProxy;
 import cn.com.heaton.blelibrary.ble.request.DescriptorRequest;
-import cn.com.heaton.blelibrary.ble.request.ReadRequest;
 import cn.com.heaton.blelibrary.ble.request.Rproxy;
 import cn.com.heaton.blelibrary.ble.request.ScanRequest;
 
@@ -90,12 +90,12 @@ public final class Ble<T extends BleDevice> {
         BleLog.d(TAG, "Ble init success!");
     }
 
-    public static Ble<BleDevice> create(Context context){
+    public static <T extends BleDevice> Ble<T> create(Context context){
         return create(context, options());
     }
 
-    public static Ble<BleDevice> create(Context context, Options options) {
-        Ble<BleDevice> ble = getInstance();
+    public static <T extends BleDevice> Ble<T> create(Context context, Options options) {
+        Ble<T> ble = getInstance();
         ble.init(context, options);
         return ble;
     }
@@ -584,7 +584,9 @@ public final class Ble<T extends BleDevice> {
         /**
          * 是否过滤扫描设备
          */
-        public boolean isFilterScan = false;
+        public boolean isIgnoreRepeat = false;
+
+        public ScanFilter scanFilter;
         /**
          * 是否解析广播包  (发送接收广播包时可以打开)
          */
@@ -595,7 +597,9 @@ public final class Ble<T extends BleDevice> {
         @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
         public int manufacturerId = 65520; // 0xfff0
 
-        public BleWrapperCallback bleWrapperCallback = new DefaultBleWrapperCallback();
+        public BleWrapperCallback bleWrapperCallback;
+
+        private BleFactory factory;
 
         public Options setScanPeriod(long scanPeriod){
             this.scanPeriod = scanPeriod;
@@ -669,12 +673,21 @@ public final class Ble<T extends BleDevice> {
             return this;
         }
 
-        public boolean isFilterScan() {
-            return isFilterScan;
+        public boolean isIgnoreRepeat() {
+            return isIgnoreRepeat;
         }
 
-        public Options setFilterScan(boolean filterScan) {
-            isFilterScan = filterScan;
+        public Options setIgnoreRepeat(boolean ignoreRepeat) {
+            isIgnoreRepeat = ignoreRepeat;
+            return this;
+        }
+
+        public ScanFilter getScanFilter() {
+            return scanFilter;
+        }
+
+        public Options setScanFilter(ScanFilter scanFilter) {
+            this.scanFilter = scanFilter;
             return this;
         }
 
@@ -702,8 +715,28 @@ public final class Ble<T extends BleDevice> {
             return bleWrapperCallback;
         }
 
-        public Options setBleWrapperCallback(DefaultBleWrapperCallback defaultBleWrapperCallback) {
-            this.bleWrapperCallback = defaultBleWrapperCallback;
+        public Options setBleWrapperCallback(BleWrapperCallback bleWrapperCallback) {
+            this.bleWrapperCallback = bleWrapperCallback;
+            return this;
+        }
+
+        public BleFactory getFactory(){
+            if (factory == null){
+                factory = new BleFactory() {
+                    @Override
+                    public BleDevice create(String address, String name) {
+                        return super.create(address, name);
+                    }
+                };
+            }
+            return factory;
+        }
+
+        /**
+         * 自定义device时，必须设置factory，不然会造成强制转换异常
+         */
+        public Options setFactory(BleFactory factory) {
+            this.factory = factory;
             return this;
         }
 
@@ -799,7 +832,7 @@ public final class Ble<T extends BleDevice> {
             return this;
         }
 
-        public Ble<BleDevice> create(Context context){
+        public <T extends BleDevice> Ble<T> create(Context context){
             return Ble.create(context);
         }
 

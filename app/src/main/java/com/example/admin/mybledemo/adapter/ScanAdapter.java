@@ -30,7 +30,7 @@ public class ScanAdapter extends RecyclerAdapter<BleRssiDevice> {
     }
 
     @Override
-    public void convert(RecyclerViewHolder hepler, BleRssiDevice rssiDevice) {
+    public void convert(RecyclerViewHolder hepler, BleRssiDevice device) {
         TextView rssi = hepler.getView(R.id.tv_rssi);
         TextView name = hepler.getView(R.id.tv_name);
         TextView address = hepler.getView(R.id.tv_address);
@@ -45,8 +45,8 @@ public class ScanAdapter extends RecyclerAdapter<BleRssiDevice> {
         TextView tv_manufacturer_data = hepler.getView(R.id.tv_manufacturer_data);
 
 
-        BleDevice device = rssiDevice.getDevice();
-        rssi.setText(String.format("%ddBm", rssiDevice.getRssi()));
+//        BleDevice device = rssiDevice.getDevice();
+        rssi.setText(String.format("%ddBm", device.getRssi()));
         if (TextUtils.isEmpty(device.getBleName())){
             name.setText("未知设备");
         }else {
@@ -90,7 +90,7 @@ public class ScanAdapter extends RecyclerAdapter<BleRssiDevice> {
             }
         });
 
-        ScanRecord scanRecord = rssiDevice.getScanRecord();
+        ScanRecord scanRecord = device.getScanRecord();
         Log.e("scanRecord", "convert: "+scanRecord.toString());
         if (scanRecord != null){
             scanRecord.getAdvertiseFlags();

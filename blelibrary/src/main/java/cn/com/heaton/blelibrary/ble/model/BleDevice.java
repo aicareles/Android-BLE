@@ -46,13 +46,10 @@ public class BleDevice implements Parcelable {
     /**
      * Use the address and name of the BluetoothDevice object
      * to construct the address and name of the {@code BleDevice} object
-     *
-     * @param device BleDevice
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public BleDevice(BluetoothDevice device) {
-        this.mBleAddress = device.getAddress();
-        this.mBleName = device.getName();
+    protected BleDevice(String address, String name) {
+        this.mBleAddress = address;
+        this.mBleName = name;
     }
 
     protected BleDevice(Parcel in) {

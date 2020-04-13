@@ -2,34 +2,20 @@ package cn.com.heaton.blelibrary.ble.request;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.le.BluetoothLeScanner;
-import android.bluetooth.le.ScanCallback;
-import android.bluetooth.le.ScanFilter;
-import android.bluetooth.le.ScanResult;
-import android.bluetooth.le.ScanSettings;
 import android.os.Build;
 import android.os.Handler;
-import android.os.ParcelUuid;
-import android.support.annotation.RequiresApi;
 import android.support.v4.os.HandlerCompat;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-
 import cn.com.heaton.blelibrary.ble.Ble;
-import cn.com.heaton.blelibrary.ble.BleFactory;
 import cn.com.heaton.blelibrary.ble.BleHandler;
-import cn.com.heaton.blelibrary.ble.BleLog;
 import cn.com.heaton.blelibrary.ble.annotation.Implement;
 import cn.com.heaton.blelibrary.ble.callback.BleScanCallback;
 import cn.com.heaton.blelibrary.ble.callback.wrapper.BleWrapperCallback;
-import cn.com.heaton.blelibrary.ble.callback.wrapper.DefaultBleWrapperCallback;
 import cn.com.heaton.blelibrary.ble.callback.wrapper.ScanWrapperCallback;
 import cn.com.heaton.blelibrary.ble.model.BleDevice;
 import cn.com.heaton.blelibrary.ble.model.ScanRecord;
 import cn.com.heaton.blelibrary.ble.scan.BleScannerCompat;
-import cn.com.heaton.blelibrary.ble.utils.BleUtils;
 
 /**
  * Created by LiuLei on 2017/10/21.
@@ -47,7 +33,8 @@ public class ScanRequest<T extends BleDevice> implements ScanWrapperCallback {
     private BleWrapperCallback<T> bleWrapperCallback;
 
     protected ScanRequest() {
-        bleWrapperCallback = Ble.options().bleWrapperCallback;
+        Ble.Options options = Ble.options();
+        bleWrapperCallback = options.bleWrapperCallback;
     }
 
     public void startScan(BleScanCallback<T> callback, long scanPeriod) {
@@ -92,7 +79,10 @@ public class ScanRequest<T extends BleDevice> implements ScanWrapperCallback {
         if (bleScanCallback != null) {
             bleScanCallback.onStart();
         }
-        bleWrapperCallback.onStart();
+
+        if(bleWrapperCallback != null){
+            bleWrapperCallback.onStart();
+        }
     }
 
     @Override
@@ -102,7 +92,9 @@ public class ScanRequest<T extends BleDevice> implements ScanWrapperCallback {
             bleScanCallback.onStop();
             bleScanCallback = null;
         }
-        bleWrapperCallback.onStop();
+        if(bleWrapperCallback != null){
+            bleWrapperCallback.onStop();
+        }
         scanDevices.clear();
     }
 
@@ -111,18 +103,25 @@ public class ScanRequest<T extends BleDevice> implements ScanWrapperCallback {
         if (device == null) return;
         T bleDevice = getDevice(device.getAddress());
         if (bleDevice == null) {
-            bleDevice = BleFactory.create(device);
+            bleDevice = (T) Ble.options().getFactory().create(device.getAddress(), device.getName());
             if (bleScanCallback != null) {
                 bleScanCallback.onLeScan(bleDevice, rssi, scanRecord);
             }
-            bleWrapperCallback.onLeScan(bleDevice, rssi, scanRecord);
+
+            if (bleWrapperCallback != null){
+                bleWrapperCallback.onLeScan(bleDevice, rssi, scanRecord);
+            }
+
             scanDevices.add(bleDevice);
         } else {
-            if (!Ble.options().isFilterScan) {//无需过滤
+            if (!Ble.options().isIgnoreRepeat) {//无需过滤
                 if (bleScanCallback != null) {
                     bleScanCallback.onLeScan(bleDevice, rssi, scanRecord);
                 }
-                bleWrapperCallback.onLeScan(bleDevice, rssi, scanRecord);
+
+                if (bleWrapperCallback != null){
+                    bleWrapperCallback.onLeScan(bleDevice, rssi, scanRecord);
+                }
             }
         }
     }

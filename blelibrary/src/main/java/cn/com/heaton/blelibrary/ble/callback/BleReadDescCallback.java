@@ -9,8 +9,8 @@ import android.bluetooth.BluetoothGattDescriptor;
 
 public abstract class BleReadDescCallback<T> {
 
-    public void onReadDescSuccess(T dedvice, BluetoothGattDescriptor descriptor){}
+    public void onDescReadSuccess(T device, BluetoothGattDescriptor descriptor){}
 
-    public void onReadDescFailed(T device, int failedCode){}
+    public void onDescReadFailed(T device, int failedCode){}
 
 }

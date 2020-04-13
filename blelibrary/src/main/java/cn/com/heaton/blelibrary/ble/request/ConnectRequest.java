@@ -2,6 +2,7 @@ package cn.com.heaton.blelibrary.ble.request;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattService;
 import android.support.annotation.RestrictTo;
 import android.text.TextUtils;
@@ -11,7 +12,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import cn.com.heaton.blelibrary.ble.Ble;
-import cn.com.heaton.blelibrary.ble.BleFactory;
 import cn.com.heaton.blelibrary.ble.BleLog;
 import cn.com.heaton.blelibrary.ble.BleStates;
 import cn.com.heaton.blelibrary.ble.BleRequestImpl;
@@ -72,7 +72,7 @@ public class ConnectRequest<T extends BleDevice> implements ConnectWrapperCallba
             return false;
         }
         BluetoothDevice device = adapter.getRemoteDevice(address);
-        T bleDevice = BleFactory.create(device);
+        T bleDevice = (T) Ble.options().getFactory().create(device.getAddress(), device.getName());
         return connect(bleDevice, callback);
     }
 
@@ -205,7 +205,10 @@ public class ConnectRequest<T extends BleDevice> implements ConnectWrapperCallba
                 if (null != connectCallback){
                     connectCallback.onConnectionChanged(bleDevice);
                 }
-                bleWrapperCallback.onConnectionChanged(bleDevice);
+
+                if (bleWrapperCallback != null){
+                    bleWrapperCallback.onConnectionChanged(bleDevice);
+                }
             }
         });
 
@@ -262,18 +265,24 @@ public class ConnectRequest<T extends BleDevice> implements ConnectWrapperCallba
                 if (null != connectCallback){
                     connectCallback.onReady(bleDevice);
                 }
-                bleWrapperCallback.onReady(bleDevice);
+
+                if (bleWrapperCallback != null){
+                    bleWrapperCallback.onReady(bleDevice);
+                }
             }
         });
     }
 
     @Override
-    public void onServicesDiscovered(final T device, final List<BluetoothGattService> gattServices) {
+    public void onServicesDiscovered(final T device, BluetoothGatt gatt) {
         BleLog.d(TAG, "onServicesDiscovered>>>> "+device.getBleName());
         if (null != connectCallback){
-            connectCallback.onServicesDiscovered(device, gattServices);
+            connectCallback.onServicesDiscovered(device, gatt);
         }
-        bleWrapperCallback.onServicesDiscovered(device, gattServices);
+
+        if (bleWrapperCallback != null){
+            bleWrapperCallback.onServicesDiscovered(device, gatt);
+        }
     }
 
     private void addBleDevice(T device) {

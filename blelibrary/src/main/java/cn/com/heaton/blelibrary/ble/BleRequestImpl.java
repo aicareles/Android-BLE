@@ -137,7 +137,7 @@ public final class BleRequestImpl<T extends BleDevice> {
                 notifyCharacteristics.clear();
                 notifyIndex = 0;
                 //Start setting notification feature
-                displayGattServices(gatt.getDevice(), getSupportedGattServices(gatt.getDevice().getAddress()));
+                displayGattServices(gatt);
             } else {
                 BleLog.e(TAG, "onServicesDiscovered received: " + status);
             }
@@ -176,7 +176,7 @@ public final class BleRequestImpl<T extends BleDevice> {
                     }
                 }else {
                     if (null != writeWrapperCallback){
-                        writeWrapperCallback.onWiteFailed(bleDevice, status);
+                        writeWrapperCallback.onWriteFailed(bleDevice, status);
                     }
                 }
             }
@@ -661,11 +661,9 @@ public final class BleRequestImpl<T extends BleDevice> {
         }
     }
 
-    /**
-     * @param device 蓝牙
-     * @param gattServices 蓝牙服务集合
-     */
-    private void displayGattServices(final BluetoothDevice device, List<BluetoothGattService> gattServices) {
+    private void displayGattServices(BluetoothGatt gatt) {
+        BluetoothDevice device = gatt.getDevice();
+        List<BluetoothGattService> gattServices = gatt.getServices();
         if (gattServices == null || device == null) {
             BleLog.e(TAG, "displayGattServices gattServices or device is null");
             close(device.getAddress());
@@ -678,7 +676,7 @@ public final class BleRequestImpl<T extends BleDevice> {
         }
         if (connectWrapperCallback != null) {
             T bleDevice = getBleDeviceInternal(device);
-            connectWrapperCallback.onServicesDiscovered(bleDevice, gattServices);
+            connectWrapperCallback.onServicesDiscovered(bleDevice, gatt);
         }
         // Loops through available GATT Services.
         for (BluetoothGattService gattService : gattServices) {

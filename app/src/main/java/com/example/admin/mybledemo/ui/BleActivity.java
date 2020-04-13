@@ -40,7 +40,6 @@ import cn.com.heaton.blelibrary.ble.Ble;
 import cn.com.heaton.blelibrary.ble.BleLog;
 import cn.com.heaton.blelibrary.ble.callback.BleScanCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleStatusCallback;
-import cn.com.heaton.blelibrary.ble.model.BleDevice;
 import cn.com.heaton.blelibrary.ble.model.ScanRecord;
 import cn.com.heaton.blelibrary.ble.utils.BleUtils;
 import cn.com.superLei.aoparms.annotation.Permission;
@@ -64,7 +63,7 @@ public class BleActivity extends AppCompatActivity {
     private FilterView filterView;
     private ScanAdapter adapter;
     private List<BleRssiDevice> bleRssiDevices;
-    private Ble<BleDevice> ble = Ble.getInstance();
+    private Ble<BleRssiDevice> ble = Ble.getInstance();
     private ObjectAnimator animator;
 
     @Override
@@ -218,16 +217,16 @@ public class BleActivity extends AppCompatActivity {
         }
     }
 
-    private BleScanCallback<BleDevice> scanCallback = new BleScanCallback<BleDevice>() {
+    private BleScanCallback<BleRssiDevice> scanCallback = new BleScanCallback<BleRssiDevice>() {
         @Override
-        public void onLeScan(final BleDevice device, int rssi, byte[] scanRecord) {
+        public void onLeScan(final BleRssiDevice device, int rssi, byte[] scanRecord) {
             BleLog.i(TAG, "onLeScan: " + device.getBleName());
             if (TextUtils.isEmpty(device.getBleName())) return;
             synchronized (ble.getLocker()) {
                 for (int i = 0; i < bleRssiDevices.size(); i++) {
                     BleRssiDevice rssiDevice = bleRssiDevices.get(i);
-                    BleDevice bleDevice = rssiDevice.getDevice();
-                    if (TextUtils.equals(bleDevice.getBleAddress(), device.getBleAddress())){
+//                    BleDevice bleDevice = rssiDevice.getDevice();
+                    if (TextUtils.equals(rssiDevice.getBleAddress(), device.getBleAddress())){
                         if (rssiDevice.getRssi() != rssi && System.currentTimeMillis()-rssiDevice.getRssiUpdateTime() >1000L){
                             rssiDevice.setRssiUpdateTime(System.currentTimeMillis());
                             rssiDevice.setRssi(rssi);
@@ -236,8 +235,10 @@ public class BleActivity extends AppCompatActivity {
                         return;
                     }
                 }
-                BleRssiDevice rssiDevice = new BleRssiDevice(device, ScanRecord.parseFromBytes(scanRecord), rssi);
-                bleRssiDevices.add(rssiDevice);
+//                BleRssiDevice rssiDevice = new BleRssiDevice(device, ScanRecord.parseFromBytes(scanRecord), rssi);
+                device.setScanRecord(ScanRecord.parseFromBytes(scanRecord));
+                device.setRssi(rssi);
+                bleRssiDevices.add(device);
                 adapter.notifyDataSetChanged();
             }
         }

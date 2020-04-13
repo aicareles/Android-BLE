@@ -49,27 +49,33 @@ public class NotifyRequest<T extends BleDevice> implements NotifyWrapperCallback
     @Override
     public void onChanged(final T device, final BluetoothGattCharacteristic characteristic) {
         if (null != notiftCallback){
-//            T bleDevice = ble.getBleDevice(device);
             notiftCallback.onChanged(device, characteristic);
         }
-        bleWrapperCallback.onChanged(device, characteristic);
+
+        if (bleWrapperCallback != null){
+            bleWrapperCallback.onChanged(device, characteristic);
+        }
     }
 
     @Override
     public void onNotifySuccess(final T device) {
         if (null != notiftCallback){
-//            T bleDevice = ble.getBleDevice(device);
             notiftCallback.onNotifySuccess(device);
         }
-        bleWrapperCallback.onNotifySuccess(device);
+
+        if (bleWrapperCallback != null){
+            bleWrapperCallback.onNotifySuccess(device);
+        }
     }
 
     @Override
     public void onNotifyCanceled(T device) {
         if (null != notiftCallback){
-//            T bleDevice = ble.getBleDevice(device);
             notiftCallback.onNotifyCanceled(device);
         }
-        bleWrapperCallback.onNotifyCanceled(device);
+
+        if (bleWrapperCallback != null){
+            bleWrapperCallback.onNotifyCanceled(device);
+        }
     }
 }

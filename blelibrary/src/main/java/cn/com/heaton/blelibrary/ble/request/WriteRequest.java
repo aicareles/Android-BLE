@@ -1,6 +1,5 @@
 package cn.com.heaton.blelibrary.ble.request;
 
-import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGattCharacteristic;
 
 import java.math.BigDecimal;
@@ -172,7 +171,10 @@ public class WriteRequest<T extends BleDevice> implements WriteWrapperCallback<T
         if(bleWriteCallback != null){
             bleWriteCallback.onWriteSuccess(device, characteristic);
         }
-        bleWrapperCallback.onWriteSuccess(device, characteristic);
+
+        if (bleWrapperCallback != null){
+            bleWrapperCallback.onWriteSuccess(device, characteristic);
+        }
         if (isAutoWriteMode){
             synchronized (lock){
                 lock.notify();
@@ -181,11 +183,14 @@ public class WriteRequest<T extends BleDevice> implements WriteWrapperCallback<T
     }
 
     @Override
-    public void onWiteFailed(T device, int failedCode) {
+    public void onWriteFailed(T device, int failedCode) {
         if(bleWriteCallback != null){
             bleWriteCallback.onWiteFailed(device, failedCode);
         }
-        bleWrapperCallback.onWiteFailed(device, failedCode);
+
+        if (bleWrapperCallback != null){
+            bleWrapperCallback.onWriteFailed(device, failedCode);
+        }
     }
 
 }

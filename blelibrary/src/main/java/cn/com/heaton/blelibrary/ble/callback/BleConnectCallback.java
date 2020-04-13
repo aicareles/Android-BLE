@@ -1,5 +1,6 @@
 package cn.com.heaton.blelibrary.ble.callback;
 
+import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattService;
 
 import java.util.List;
@@ -27,7 +28,7 @@ public abstract class BleConnectCallback<T> {
      *  Set the notification here when the service finds a callback       setNotify
      * @param device
      */
-    public void onServicesDiscovered(T device, List<BluetoothGattService> gattServices){}
+    public void onServicesDiscovered(T device, BluetoothGatt gatt){}
 
     /**
      *  When the callback when the error, such as app can only connect four devices

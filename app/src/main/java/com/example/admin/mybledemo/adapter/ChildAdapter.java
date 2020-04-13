@@ -220,8 +220,8 @@ public class ChildAdapter extends RecyclerAdapter<BluetoothGattCharacteristic> {
                                     descriptor.getUuid(),
                                     new BleReadDescCallback<BleDevice>() {
                                         @Override
-                                        public void onReadDescSuccess(BleDevice dedvice, BluetoothGattDescriptor descriptor) {
-                                            super.onReadDescSuccess(dedvice, descriptor);
+                                        public void onDescReadSuccess(BleDevice device, BluetoothGattDescriptor descriptor) {
+                                            super.onDescReadSuccess(device, descriptor);
                                             if (TextUtils.isEmpty(descriptor.getUuid().toString()))return;
                                             ThreadUtils.ui(new Runnable() {
                                                 @Override
@@ -238,8 +238,8 @@ public class ChildAdapter extends RecyclerAdapter<BluetoothGattCharacteristic> {
                                         }
 
                                         @Override
-                                        public void onReadDescFailed(BleDevice device, int failedCode) {
-                                            super.onReadDescFailed(device, failedCode);
+                                        public void onDescReadFailed(BleDevice device, int failedCode) {
+                                            super.onDescReadFailed(device, failedCode);
                                             toast("读取描述失败:"+failedCode);
                                         }
                                     });
@@ -339,14 +339,14 @@ public class ChildAdapter extends RecyclerAdapter<BluetoothGattCharacteristic> {
                 descriptor.getUuid(),
                 new BleWriteDescCallback<BleDevice>() {
                     @Override
-                    public void onWriteDescSuccess(BleDevice dedvice, BluetoothGattDescriptor descriptor) {
-                        super.onWriteDescSuccess(dedvice, descriptor);
+                    public void onDescWriteSuccess(BleDevice device, BluetoothGattDescriptor descriptor) {
+                        super.onDescWriteSuccess(device, descriptor);
                         toast("写入描述成功");
                     }
 
                     @Override
-                    public void onWriteDescFailed(BleDevice device, int failedCode) {
-                        super.onWriteDescFailed(device, failedCode);
+                    public void onDescWriteFailed(BleDevice device, int failedCode) {
+                        super.onDescWriteFailed(device, failedCode);
                         toast("写入描述失败:"+failedCode);
                     }
                 });

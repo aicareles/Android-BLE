@@ -1,5 +1,6 @@
 package com.example.admin.mybledemo.ui;
 
+import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.os.Bundle;
@@ -107,13 +108,13 @@ public class DeviceInfoActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onServicesDiscovered(BleDevice device, List<BluetoothGattService> services) {
-            super.onServicesDiscovered(device, services);
+        public void onServicesDiscovered(BleDevice device, BluetoothGatt gatt) {
+            super.onServicesDiscovered(device, gatt);
 
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    gattServices.addAll(services);
+                    gattServices.addAll(gatt.getServices());
                     adapter.notifyDataSetChanged();
                 }
             });

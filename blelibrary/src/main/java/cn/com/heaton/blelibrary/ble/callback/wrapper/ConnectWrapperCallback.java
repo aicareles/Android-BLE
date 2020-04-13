@@ -1,6 +1,6 @@
 package cn.com.heaton.blelibrary.ble.callback.wrapper;
 
-import android.bluetooth.BluetoothGattService;
+import android.bluetooth.BluetoothGatt;
 
 import java.util.List;
 
@@ -30,5 +30,5 @@ public interface ConnectWrapperCallback<T> {
      *  Set the notification here when the service finds a callback       setNotify
      * @param device
      */
-    void onServicesDiscovered(T device, List<BluetoothGattService> gattServices);
+    void onServicesDiscovered(T device, BluetoothGatt gatt);
 }

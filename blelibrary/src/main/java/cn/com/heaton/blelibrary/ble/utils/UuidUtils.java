@@ -9,6 +9,10 @@ public class UuidUtils {
         return uuid.toLowerCase().matches("0000([0-9a-f][0-9a-f][0-9a-f][0-9a-f])-0000-1000-8000-00805f9b34fb");
     }
 
+    public static String uuid128To16(String uuid) {
+        return uuid128To16(uuid, true);
+    }
+
     public static String uuid128To16(String uuid, boolean lower_case) {
         String uuid_16 = "";
         if (uuid.length() == 36) {
@@ -20,6 +24,10 @@ public class UuidUtils {
             return uuid_16;
         }
         return null;
+    }
+
+    public static String uuid16To128(String uuid) {
+        return uuid16To128(uuid, true);
     }
 
     public static String uuid16To128(String uuid, boolean lower_case) {

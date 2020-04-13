@@ -9,6 +9,7 @@ import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
 import android.os.Build;
 import android.os.ParcelUuid;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +27,7 @@ class BluetoothScannerImplLollipop extends BleScannerCompat {
 
     private BluetoothLeScanner scanner;
     private ScanSettings scanSettings;
-    private List<ScanFilter> filters;
+    private List<ScanFilter> filters = new ArrayList<>();
 
     @Override
     public void startScan(ScanWrapperCallback scanWrapperCallback) {
@@ -50,6 +51,7 @@ class BluetoothScannerImplLollipop extends BleScannerCompat {
     private ScanCallback scannerCallback = new ScanCallback() {
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
+            Log.e(TAG, "onScanResult: "+result.getScanRecord().getDeviceName());
             BluetoothDevice device = result.getDevice();
             byte[] scanRecord = result.getScanRecord().getBytes();
             if (scanWrapperCallback != null){
@@ -82,16 +84,25 @@ class BluetoothScannerImplLollipop extends BleScannerCompat {
     private void setScanSettings() {
         boolean background = BleUtils.isBackground(Ble.getInstance().getContext());
         BleLog.d(TAG, "currently in the background:>>>>>"+background);
+
+        ScanFilter filter = Ble.options().scanFilter;
+        if (filter != null){
+            filters.add(filter);
+        }
         if (background){
             UUID uuidService = Ble.options().getUuidService();
-            filters.add(new ScanFilter.Builder()
-                    .setServiceUuid(ParcelUuid.fromString(uuidService.toString()))//8.0以上手机后台扫描，必须开启
-                    .build());
+            if (filter == null){
+                filters.add(new ScanFilter.Builder()
+                        .setServiceUuid(ParcelUuid.fromString(uuidService.toString()))//8.0以上手机后台扫描，必须开启
+                        .build());
+            }
             scanSettings = new ScanSettings.Builder()
                     .setScanMode(ScanSettings.SCAN_MODE_LOW_POWER)
                     .build();
         }else {
-            filters = new ArrayList<>();
+            if (filter == null){
+                filters.clear();
+            }
             scanSettings = new ScanSettings.Builder()
                     .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
                     .build();

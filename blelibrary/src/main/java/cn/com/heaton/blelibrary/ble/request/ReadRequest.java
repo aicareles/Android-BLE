@@ -28,22 +28,14 @@ public class ReadRequest<T extends BleDevice> implements ReadWrapperCallback<T> 
 
     public boolean read(T device, BleReadCallback<T> callback){
         this.bleReadCallback = callback;
-        boolean result = false;
         BleRequestImpl bleRequest = BleRequestImpl.getBleRequest();
-        if (Ble.getInstance() != null && bleRequest != null) {
-            result = bleRequest.readCharacteristic(device.getBleAddress());
-        }
-        return result;
+        return bleRequest.readCharacteristic(device.getBleAddress());
     }
 
     public boolean readByUuid(T device, UUID serviceUUID, UUID characteristicUUID, BleReadCallback<T> callback){
         this.bleReadCallback = callback;
-        boolean result = false;
         BleRequestImpl bleRequest = BleRequestImpl.getBleRequest();
-        if (Ble.getInstance() != null && bleRequest != null) {
-            result = bleRequest.readCharacteristicByUuid(device.getBleAddress(), serviceUUID, characteristicUUID);
-        }
-        return result;
+        return bleRequest.readCharacteristicByUuid(device.getBleAddress(), serviceUUID, characteristicUUID);
     }
 
     @Override
@@ -51,7 +43,10 @@ public class ReadRequest<T extends BleDevice> implements ReadWrapperCallback<T> 
         if(bleReadCallback != null){
             bleReadCallback.onReadSuccess(device, characteristic);
         }
-        bleWrapperCallback.onReadSuccess(device, characteristic);
+
+        if (bleWrapperCallback != null){
+            bleWrapperCallback.onReadSuccess(device, characteristic);
+        }
     }
 
     @Override
@@ -59,6 +54,9 @@ public class ReadRequest<T extends BleDevice> implements ReadWrapperCallback<T> 
         if(bleReadCallback != null){
             bleReadCallback.onReadFailed(device, failedCode);
         }
-        bleWrapperCallback.onReadFailed(device, failedCode);
+
+        if (bleWrapperCallback != null){
+            bleWrapperCallback.onReadFailed(device, failedCode);
+        }
     }
 }

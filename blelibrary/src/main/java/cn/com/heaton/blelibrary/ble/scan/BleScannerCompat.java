@@ -25,9 +25,12 @@ public abstract class BleScannerCompat {
         scanWrapperCallback.onStart();
     }
 
+    //TODO 添加过滤扫描设备的接口(uuid,设备名,设备地址等)
+
     public void stopScan(){
         if (scanWrapperCallback != null){
             scanWrapperCallback.onStop();
         }
     }
+
 }

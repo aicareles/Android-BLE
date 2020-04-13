@@ -2,10 +2,10 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/BleDemo.iml" filepath="$PROJECT_DIR$/BleDemo.iml" />
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/appkotlin/appkotlin.iml" filepath="$PROJECT_DIR$/appkotlin/appkotlin.iml" />
-      <module fileurl="file://$PROJECT_DIR$/blelibrary/blelibrary.iml" filepath="$PROJECT_DIR$/blelibrary/blelibrary.iml" />
+      <module fileurl="file://$PROJECT_DIR$/BleDemo.iml" filepath="$PROJECT_DIR$/BleDemo.iml" group="BleDemo" />
+      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" group="BleDemo/app" />
+      <module fileurl="file://$PROJECT_DIR$/appkotlin/appkotlin.iml" filepath="$PROJECT_DIR$/appkotlin/appkotlin.iml" group="BleDemo/appkotlin" />
+      <module fileurl="file://$PROJECT_DIR$/blelibrary/blelibrary.iml" filepath="$PROJECT_DIR$/blelibrary/blelibrary.iml" group="BleDemo/blelibrary" />
     </modules>
   </component>
 </project>
