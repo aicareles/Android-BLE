@@ -38,16 +38,15 @@ public class BleRssiDevice extends BleDevice{
     private int rssi;
     ...
 }
-必须在初始化时设置
-    Ble.options().setFactory(new BleFactory() {//实现自定义BleDevice时必须设置
-        @Override
-        public BleRssiDevice create(String address, String name) {
-            return new BleRssiDevice(address, name);//自定义BleDevice的子类
-        }
-    })
+必须在初始化时设置:
+Ble.options().setFactory(new BleFactory() {//实现自定义BleDevice时必须设置
+    @Override
+    public BleRssiDevice create(String address, String name) {
+        return new BleRssiDevice(address, name);//自定义BleDevice的子类
+    }
+})
 
 2.添加实现所有回调接口的Callback（可用于OTA升级等，完全解耦项目）
-
 public class MyBleWrapperCallback extends BleWrapperCallback<BleDevice> {
     ...
 }
