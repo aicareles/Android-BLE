@@ -29,6 +29,32 @@ https://android-resource.oss-cn-qingdao.aliyuncs.com/GitClub/image/mJW4.png?Expi
 ```
 
 ### 二、历史版本介绍：
+[![Version](https://img.shields.io/badge/BleLib-v3.0.5-blue.svg)](https://bintray.com/superliu/maven/BleLib/3.0.5)
+```
+1.添加自定义BleDevice接口（实现BleDeviceFactory接口）
+public class BleRssiDevice extends BleDevice{
+    //添加自定义属性值
+    private int deviceType;
+    private int rssi;
+    ...
+}
+必须在初始化时设置
+```
+    Ble.options().setFactory(new BleFactory() {//实现自定义BleDevice时必须设置
+        @Override
+        public BleRssiDevice create(String address, String name) {
+            return new BleRssiDevice(address, name);//自定义BleDevice的子类
+        }
+    })
+```
+2.添加实现所有回调接口的Callback（可用于OTA升级等，完全解耦项目）
+```
+public class MyBleWrapperCallback extends BleWrapperCallback<BleDevice> {
+    ...
+}
+
+Ble.options().setBleWrapperCallback(new MyBleWrapperCallback())
+```
 [![Version](https://img.shields.io/badge/BleLib-v3.0.0-blue.svg)](https://bintray.com/superliu/maven/BleLib/3.0.0)
 ```
 1.添加写入队列(异步,可自定义队列每个任务延迟时间)
