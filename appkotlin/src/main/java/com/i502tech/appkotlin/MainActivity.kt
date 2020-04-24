@@ -8,23 +8,29 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
+import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
+import android.text.TextUtils
 import android.util.Log
 import cn.com.heaton.blelibrary.ble.Ble
 import cn.com.heaton.blelibrary.ble.BleLog
 import cn.com.heaton.blelibrary.ble.callback.*
 import cn.com.heaton.blelibrary.ble.model.BleDevice
 import cn.com.heaton.blelibrary.ble.utils.ByteUtils
+import cn.com.heaton.blelibrary.ble.utils.UuidUtils
 import kotlinx.android.synthetic.main.activity_main.*
 import java.io.IOException
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
-    private val REQUESTCODE: Int = 0x01
+    companion object{
+        const val TAG = "MainActivity"
+        const val REQUESTCODE: Int = 0x01
+    }
+
     private lateinit var mBle: Ble<BleDevice>
     private var listDatas = mutableListOf<BleDevice>()
     private val adapter = DeviceAdapter(listDatas)
@@ -33,9 +39,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
         requestBLEPermission()
-
         initView()
         initLinsenter()
     }
@@ -60,10 +64,10 @@ class MainActivity : AppCompatActivity() {
             if (mBle.connetedDevices.size > 0)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 //此处第二个参数  不是特定的   比如你也可以设置500   但是如果设备不支持500个字节则会返回最大支持数
-                mBle.setMTU(mBle.connetedDevices[0].bleAddress, 96, object : BleMtuCallback<BleDevice>() {
+                mBle.setMTU(mBle.connetedDevices[0].bleAddress, 500, object : BleMtuCallback<BleDevice>() {
                     override fun onMtuChanged(device: BleDevice, mtu: Int, status: Int) {
                         super.onMtuChanged(device, mtu, status)
-                        toast("最大支持MTU：$mtu")
+                        toast("设置MTU：$mtu")
                     }
                 })
             } else {
@@ -84,6 +88,11 @@ class MainActivity : AppCompatActivity() {
             listDatas.addAll(mBle.connetedDevices)
             mBle.startScan(bleScanCallback())
         }
+        /*writeQueue.setOnClickListener {
+            for(index in 1..200){
+                mBle.writeQueueDelay(50, RequestTask.newWriteTask(mBle.connetedDevices[0].bleAddress, ByteArray(20)))
+            }
+        }*/
     }
 
     private fun initView() {
@@ -94,7 +103,7 @@ class MainActivity : AppCompatActivity() {
             device.apply {
                 if (isConnected){
                     mBle.disconnect(this)
-                }else if (!isConnectting){
+                }else if (!isConnecting){
                     mBle.connect(this, connectCallback())
                 }
             }
@@ -102,7 +111,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun requestBLEPermission() {
-        ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.BLUETOOTH_ADMIN, Manifest.permission.ACCESS_COARSE_LOCATION), REQUESTCODE)
+        ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.BLUETOOTH_ADMIN,
+                Manifest.permission.ACCESS_COARSE_LOCATION), REQUESTCODE)
     }
 
 
@@ -115,8 +125,8 @@ class MainActivity : AppCompatActivity() {
             connectFailedRetryCount = 3
             connectTimeout = 10000L
             scanPeriod = 12000L
-            uuidService = UUID.fromString("0000fee9-0000-1000-8000-00805f9b34fb")
-            uuidWriteCha = UUID.fromString("d44bc439-abfd-45a2-b575-925416129600")
+            uuidService = UUID.fromString(UuidUtils.uuid16To128("fd00", true))
+            uuidWriteCha = UUID.fromString(UuidUtils.uuid16To128("fd01", true))
         }.create(applicationContext)
         //3、检查蓝牙是否支持及打开
         checkBluetoothStatus()
@@ -142,8 +152,13 @@ class MainActivity : AppCompatActivity() {
     private fun bleScanCallback(): BleScanCallback<BleDevice> {
         return object : BleScanCallback<BleDevice>() {
             override fun onLeScan(device: BleDevice?, rssi: Int, scanRecord: ByteArray?) {
+                if (TextUtils.isEmpty(device?.bleName)){
+                    return
+                }
                 for (d in listDatas) {
-                    if (d.bleAddress == device?.bleAddress)return
+                    if (d.bleAddress == device?.bleAddress){
+                        return
+                    }
                 }
                 device?.let {
                     listDatas.add(it)
@@ -171,7 +186,8 @@ class MainActivity : AppCompatActivity() {
 
             override fun onReady(device: BleDevice?) {
                 super.onReady(device)
-                mBle.startNotify(device, bleNotifyCallback())
+//                mBle.startNotify(device, bleNotifyCallback())
+                mBle.enableNotify(device, true, bleNotifyCallback())
             }
 
         }
@@ -183,6 +199,10 @@ class MainActivity : AppCompatActivity() {
                 BleLog.i("收到硬件数据>>>>>onChanged:",ByteUtils.toHexString(characteristic?.value))
             }
 
+            override fun onNotifySuccess(device: BleDevice?) {
+                super.onNotifySuccess(device)
+                BleLog.i(TAG, "设置通知成功:"+device?.bleName)
+            }
         }
     }
 

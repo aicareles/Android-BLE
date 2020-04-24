@@ -15,6 +15,7 @@ import cn.com.heaton.blelibrary.ble.callback.BleStatusCallback;
 import cn.com.heaton.blelibrary.ble.model.BleDevice;
 import cn.com.heaton.blelibrary.ble.request.ConnectRequest;
 import cn.com.heaton.blelibrary.ble.request.Rproxy;
+import cn.com.heaton.blelibrary.ble.request.ScanRequest;
 
 /**
  * 蓝牙状态发生变化时
@@ -67,11 +68,14 @@ public class BluetoothChangedObserver {
                     observer.mBluetoothStatusLisenter.onBluetoothStatusChanged(true);
                 }else if(status == BluetoothAdapter.STATE_OFF){
                     observer.mBluetoothStatusLisenter.onBluetoothStatusChanged(false);
-                    //解决原声android系统,直接断开系统蓝牙不回调onConnectionStateChange接口问题
-                    ConnectRequest request = Rproxy.getRequest(ConnectRequest.class);
-                    if (request != null){
-                        request.disconnectBluetooth();
+                    //如果正在扫描，则停止扫描
+                    ScanRequest scanRequest = Rproxy.getRequest(ScanRequest.class);
+                    if (scanRequest.isScanning()){
+                        scanRequest.onStop();
                     }
+                    //解决原生android系统,直接断开系统蓝牙不回调onConnectionStateChange接口问题
+                    ConnectRequest request = Rproxy.getRequest(ConnectRequest.class);
+                    request.disconnectBluetooth();
                 }
             }
         }

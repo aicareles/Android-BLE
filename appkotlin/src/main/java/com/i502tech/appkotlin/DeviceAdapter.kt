@@ -33,7 +33,7 @@ class DeviceAdapter(var items: List<BleDevice>) : RecyclerView.Adapter<DeviceAda
             holder.itemView.device_address.text = bleAddress
             when {
                 device.isConnected -> holder.itemView.state.text = "已连接"
-                device.isConnectting -> holder.itemView.state.text = "正在连接中..."
+                device.isConnecting -> holder.itemView.state.text = "正在连接中..."
                 else -> holder.itemView.state.text = "未连接"
             }
         }

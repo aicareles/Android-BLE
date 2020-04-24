@@ -51,8 +51,7 @@
             android:screenOrientation="portrait" />
 
         <activity android:name=".ui.DeviceInfoActivity"
-            android:screenOrientation="portrait"
-            android:parentActivityName=".ui.BleActivity"/>
+            android:screenOrientation="portrait" />
 
     </application>
 

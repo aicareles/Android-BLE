@@ -38,22 +38,14 @@ public class WriteRequest<T extends BleDevice> implements WriteWrapperCallback<T
 
     public boolean write(T device, byte[]data, BleWriteCallback<T> callback){
         this.bleWriteCallback = callback;
-        boolean result = false;
         BleRequestImpl bleRequest = BleRequestImpl.getBleRequest();
-        if (bleRequest != null) {
-            result = bleRequest.wirteCharacteristic(device.getBleAddress(),data);
-        }
-        return result;
+        return bleRequest.wirteCharacteristic(device.getBleAddress(),data);
     }
 
     public boolean writeByUuid(T device, byte[]data, UUID serviceUUID, UUID characteristicUUID, BleWriteCallback<T> callback){
         this.bleWriteCallback = callback;
-        boolean result = false;
         BleRequestImpl bleRequest = BleRequestImpl.getBleRequest();
-        if (bleRequest != null) {
-            result = bleRequest.wirteCharacteristicByUuid(device.getBleAddress(), data, serviceUUID, characteristicUUID);
-        }
-        return result;
+        return bleRequest.wirteCharacteristicByUuid(device.getBleAddress(), data, serviceUUID, characteristicUUID);
     }
 
     /*public void writeAsyn(final T device, final byte[]data, BleWriteCallback<T> lisenter){
@@ -76,14 +68,14 @@ public class WriteRequest<T extends BleDevice> implements WriteWrapperCallback<T
         }
     }
 
-    public void writeEntity(EntityData entityData, BleWriteEntityCallback<T> lisenter) {
+    public void writeEntity(EntityData entityData, BleWriteEntityCallback<T> callback) {
         EntityData.validParms(entityData);
-        this.bleWriteEntityCallback = lisenter;
+        this.bleWriteEntityCallback = callback;
         executeEntity(entityData);
     }
 
-    public void writeEntity(final T device, final byte[]data, final int packLength, final int delay, BleWriteEntityCallback<T> lisenter){
-        this.bleWriteEntityCallback = lisenter;
+    public void writeEntity(final T device, final byte[]data, final int packLength, final int delay, BleWriteEntityCallback<T> callback){
+        this.bleWriteEntityCallback = callback;
         if(data == null || data.length == 0) {
             throw new BleWriteException("Send Entity cannot be empty");
         }

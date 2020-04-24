@@ -16,7 +16,7 @@ public interface ConnectWrapperCallback<T> {
      *  at the same time forcing the user to connect more than four devices will call back the method
      *  @param device ble device object
      */
-    void onConnectException(T device);
+    void onConnectException(T device, int errorCode);
 
     void onConnectTimeOut(T device);
 

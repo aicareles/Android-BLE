@@ -1,29 +1,30 @@
 package cn.com.heaton.blelibrary.ble.model;
 
-import android.bluetooth.BluetoothDevice;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.RestrictTo;
 
 import cn.com.heaton.blelibrary.ble.Ble;
-import cn.com.heaton.blelibrary.ble.BleStates;
 
 /**
- *
  * Created by LiuLei on 2016/11/26.
  */
 public class BleDevice implements Parcelable {
 
-    public final static String          TAG                      = BleDevice.class.getSimpleName();
+    public static final int CONNECTED = 1;
+    public static final int CONNECTING = 2;
+    public static final int DISCONNECT = 0;
+
+    public final static String TAG = BleDevice.class.getSimpleName();
     private static final long serialVersionUID = -2576082824642358033L;
 
     /**
-     *  连接状态
-     *  2503 未连接状态
-     *  2504 正在连接
-     *  2505 连接成功
+     * 连接状态
+     * 2503 未连接状态
+     * 2504 正在连接
+     * 2505 连接成功
      */
-    private int mConnectionState = BleStates.BleStatus.DISCONNECT;
+    private int mConnectionState = DISCONNECT;
 
     /*蓝牙地址*/
     private String mBleAddress;
@@ -38,7 +39,7 @@ public class BleDevice implements Parcelable {
     private boolean mAutoConnect = Ble.options().autoConnect;//The default is not automatic connection
 
     /*是否正在自动重连*/
-    private boolean isAutoConnectting = false;
+    private boolean isAutoConnecting = false;
 
     /*解析后的广播包数据*/
     private ScanRecord scanRecord;
@@ -58,7 +59,7 @@ public class BleDevice implements Parcelable {
         mBleName = in.readString();
         mBleAlias = in.readString();
         mAutoConnect = in.readByte() != 0;
-        isAutoConnectting = in.readByte() != 0;
+        isAutoConnecting = in.readByte() != 0;
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -75,15 +76,15 @@ public class BleDevice implements Parcelable {
     };
 
     public boolean isConnected() {
-        return mConnectionState == BleStates.BleStatus.CONNECTED;
+        return mConnectionState == CONNECTED;
     }
 
-    public boolean isConnectting() {
-        return mConnectionState == BleStates.BleStatus.CONNECTING;
+    public boolean isConnecting() {
+        return mConnectionState == CONNECTING;
     }
 
     public boolean isDisconnected() {
-        return mConnectionState == BleStates.BleStatus.DISCONNECT;
+        return mConnectionState == DISCONNECT;
     }
 
     public boolean isAutoConnect() {
@@ -94,22 +95,21 @@ public class BleDevice implements Parcelable {
         this.mAutoConnect = mAutoConnect;
     }
 
-    public boolean isAutoConnectting() {
-        return isAutoConnectting;
+    public boolean isAutoConnecting() {
+        return isAutoConnecting;
     }
 
-    public void setAutoConnectting(boolean autoConnectting) {
-        isAutoConnectting = autoConnectting;
+    public void setAutoConnecting(boolean autoConnecting) {
+        isAutoConnecting = autoConnecting;
     }
 
     public int getConnectionState() {
         return mConnectionState;
     }
 
-    public void setConnectionState(@BleStates.BleStatus int state){
+    public void setConnectionState(int state) {
         mConnectionState = state;
     }
-
 
     public String getBleAddress() {
         return mBleAddress;
@@ -166,6 +166,6 @@ public class BleDevice implements Parcelable {
         dest.writeString(mBleName);
         dest.writeString(mBleAlias);
         dest.writeByte((byte) (mAutoConnect ? 1 : 0));
-        dest.writeByte((byte) (isAutoConnectting ? 1 : 0));
+        dest.writeByte((byte) (isAutoConnecting ? 1 : 0));
     }
 }

@@ -15,11 +15,11 @@ public class BleLog {
     public static String TAG = "AndroidBLE";
     public static boolean isDebug;
 
-    public static void init(){
-        Ble.Options options = Ble.options();
+    public static void init(Ble.Options options){
         isDebug = options.logBleEnable;
-        if (!TextUtils.isEmpty(options.logTAG))
+        if (!TextUtils.isEmpty(options.logTAG)){
             TAG = options.logTAG;
+        }
     }
 
     private static String getSubTag(Object o){

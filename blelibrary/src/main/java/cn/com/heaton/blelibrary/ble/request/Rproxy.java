@@ -4,6 +4,8 @@ import android.content.Context;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -44,7 +46,32 @@ public class Rproxy {
     }
 
     public static <T>T getRequest(Class cls){
-        return (T) requestObjs.get(cls);
+        T t = (T) requestObjs.get(cls);
+        if (t != null){
+            return t;
+        }
+        return getRequestByReflect(cls);
+    }
+
+    private static <T>T getRequestByReflect(Class cls){
+        try {
+            Constructor constructor = cls.getDeclaredConstructor();
+            constructor.setAccessible(true);
+            T request = null;
+            try {
+                request = (T) constructor.newInstance();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (InstantiationException e) {
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            }
+            return request;
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        }
+        throw new NoClassDefFoundError("Class not Request Type");
     }
 
     public static void release(){

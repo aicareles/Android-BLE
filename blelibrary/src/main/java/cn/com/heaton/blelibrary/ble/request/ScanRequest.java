@@ -1,5 +1,6 @@
 package cn.com.heaton.blelibrary.ble.request;
 
+import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.os.Build;
@@ -9,6 +10,7 @@ import android.support.v4.os.HandlerCompat;
 import java.util.ArrayList;
 import cn.com.heaton.blelibrary.ble.Ble;
 import cn.com.heaton.blelibrary.ble.BleHandler;
+import cn.com.heaton.blelibrary.ble.BleStates;
 import cn.com.heaton.blelibrary.ble.annotation.Implement;
 import cn.com.heaton.blelibrary.ble.callback.BleScanCallback;
 import cn.com.heaton.blelibrary.ble.callback.wrapper.BleWrapperCallback;
@@ -16,6 +18,7 @@ import cn.com.heaton.blelibrary.ble.callback.wrapper.ScanWrapperCallback;
 import cn.com.heaton.blelibrary.ble.model.BleDevice;
 import cn.com.heaton.blelibrary.ble.model.ScanRecord;
 import cn.com.heaton.blelibrary.ble.scan.BleScannerCompat;
+import cn.com.heaton.blelibrary.ble.utils.BleUtils;
 
 /**
  * Created by LiuLei on 2017/10/21.
@@ -40,8 +43,22 @@ public class ScanRequest<T extends BleDevice> implements ScanWrapperCallback {
     public void startScan(BleScanCallback<T> callback, long scanPeriod) {
         if (callback == null) throw new IllegalArgumentException("BleScanCallback can not be null!");
         bleScanCallback = callback;
-        if (!isEnableInternal()) return;
-        if (scanning) return;
+        //TODO
+        if (!BleUtils.isPermission(Ble.getInstance().getContext(), Manifest.permission.ACCESS_COARSE_LOCATION)){
+            if (bleScanCallback != null){
+                bleScanCallback.onScanFailed(BleStates.BlePermissionError);
+            }
+            return;
+        }
+        if (!isEnableInternal()) {
+            return;
+        }
+        if (scanning) {
+            if (bleScanCallback != null){
+                bleScanCallback.onScanFailed(BleStates.ScanAlready);
+            }
+            return;
+        }
         // Stops scanning after a pre-defined scan period.
         if (scanPeriod >= 0){
             HandlerCompat.postDelayed(handler, new Runnable() {
@@ -59,7 +76,7 @@ public class ScanRequest<T extends BleDevice> implements ScanWrapperCallback {
     private boolean isEnableInternal() {
         if (!bluetoothAdapter.isEnabled()) {
             if (bleScanCallback != null) {
-                bleScanCallback.onScanFailed(-1);
+                bleScanCallback.onScanFailed(BleStates.BluetoothNotOpen);
                 return false;
             }
         }
@@ -67,8 +84,15 @@ public class ScanRequest<T extends BleDevice> implements ScanWrapperCallback {
     }
 
     public void stopScan() {
-        if (!isEnableInternal()) return;
-        if (!scanning) return;
+        if (!isEnableInternal()) {
+            return;
+        }
+        if (!scanning) {
+            if (bleScanCallback != null) {
+                bleScanCallback.onScanFailed(BleStates.ScanStopAlready);
+            }
+            return;
+        }
         handler.removeCallbacksAndMessages(HANDLER_TOKEN);
         BleScannerCompat.getScanner().stopScan();
     }
@@ -155,6 +179,10 @@ public class ScanRequest<T extends BleDevice> implements ScanWrapperCallback {
             }
         }
         return null;
+    }
+
+    public void cancelScanCallback(){
+        bleScanCallback = null;
     }
 
 }

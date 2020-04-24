@@ -4,6 +4,7 @@ import java.util.concurrent.DelayQueue;
 
 import cn.com.heaton.blelibrary.ble.BleLog;
 
+//TODO  优化 --- 执行完后  自动退出队列  销毁线程
 abstract class Queue {
 
     protected DelayQueue<Task> delayQueue = new DelayQueue<>();

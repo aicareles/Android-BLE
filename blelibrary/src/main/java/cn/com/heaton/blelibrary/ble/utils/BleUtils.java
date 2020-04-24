@@ -4,10 +4,13 @@ import android.app.ActivityManager;
 import android.content.Context;
 import android.os.Build;
 import android.provider.Settings;
+import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 
 import java.util.HashMap;
 import java.util.List;
+
+import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
 /**
  * description $desc$
@@ -49,6 +52,9 @@ public class BleUtils {
         }
     }
 
-
+    //判断某个权限是否打开
+    public static boolean isPermission(Context context, String permission) {
+        return Build.VERSION.SDK_INT < Build.VERSION_CODES.M || ContextCompat.checkSelfPermission(context, permission) == PERMISSION_GRANTED;
+    }
 
 }

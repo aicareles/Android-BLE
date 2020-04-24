@@ -11,7 +11,6 @@ import android.os.Build;
 import android.support.annotation.IntRange;
 import android.support.annotation.RequiresApi;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -61,6 +60,11 @@ public final class Ble<T extends BleDevice> {
     private BluetoothAdapter bluetoothAdapter;
     private BluetoothChangedObserver bleObserver;
 
+    public interface InitCallback {
+        void success();
+        void failed(int failedCode);
+    }
+
     /**
      * Initializes a newly created {@code Ble} object so that it represents
      * a bluetooth management class .  Note that use of this constructor is
@@ -73,30 +77,52 @@ public final class Ble<T extends BleDevice> {
      * @param context 上下文对象
      * @return 初始化是否成功
      */
-    public void init(Context context, Options options) {
+    public void init(Context context, Options options, InitCallback callback) {
+        if (context == null){
+            throw new BleException("context is null");
+        }
         if (this.context != null){
-            BleLog.d(TAG, "Ble is Initialized!");
-            throw new BleException("Ble is Initialized!");
+            BleLog.e(TAG, "Ble is Initialized!");
+            if (callback != null){
+                callback.failed(BleStates.InitAlready);
+            }
+            return;
         }
         this.context = context;
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        if (bluetoothAdapter == null){
+            if (callback != null){
+                BleLog.e(TAG, "bluetoothAdapter is not available!");
+                callback.failed(BleStates.NotAvailable);
+            }
+            return;
+        }
+        if (!isSupportBle(context)){
+            if (callback != null){
+                BleLog.e(TAG, "not support ble!");
+                callback.failed(BleStates.NotSupportBLE);
+            }
+            return;
+        }
         Ble.options = (options == null ? options() : options);
-        BleLog.init();
+        BleLog.init(Ble.options);
         //设置动态代理
-        request = (RequestLisenter) RequestProxy.newProxy()
-                .bindProxy(context, RequestImpl.newRequestImpl());
+        request = (RequestLisenter<T>) RequestProxy.newProxy().bindProxy(context, RequestImpl.newRequestImpl());
         bleRequestImpl = BleRequestImpl.getBleRequest();
         bleRequestImpl.initialize(context);
-        BleLog.d(TAG, "Ble init success!");
+        BleLog.d(TAG, "Ble init success");
+        if (callback != null){
+            callback.success();
+        }
     }
 
-    public static <T extends BleDevice> Ble<T> create(Context context){
-        return create(context, options());
+    public static <T extends BleDevice> Ble<T> create(Context context, InitCallback callback){
+        return create(context, options(), callback);
     }
 
-    public static <T extends BleDevice> Ble<T> create(Context context, Options options) {
+    public static <T extends BleDevice> Ble<T> create(Context context, Options options, InitCallback callback) {
         Ble<T> ble = getInstance();
-        ble.init(context, options);
+        ble.init(context, options, callback);
         return ble;
     }
 
@@ -156,23 +182,17 @@ public final class Ble<T extends BleDevice> {
 
     public void connects(List<T> devices, BleConnectCallback<T> callback) {
         ConnectRequest<T> request = Rproxy.getRequest(ConnectRequest.class);
-        if(request != null){
-            request.connect(devices, callback);
-        }
+        request.connect(devices, callback);
     }
 
-    public void cancelConnectting(T device){
+    public void cancelConnecting(T device){
         ConnectRequest<T> request = Rproxy.getRequest(ConnectRequest.class);
-        if(request != null){
-            request.cancelConnectting(device);
-        }
+        request.cancelConnecting(device);
     }
 
-    public void cancelConnecttings(List<T> devices){
+    public void cancelConnectings(List<T> devices){
         ConnectRequest<T> request = Rproxy.getRequest(ConnectRequest.class);
-        if(request != null){
-            request.cancelConnecttings(devices);
-        }
+        request.cancelConnectings(devices);
     }
 
     /**
@@ -182,9 +202,7 @@ public final class Ble<T extends BleDevice> {
      */
     public void autoConnect(T device, boolean autoConnect){
         ConnectRequest<T> request = Rproxy.getRequest(ConnectRequest.class);
-        if(request != null){
-            request.resetReConnect(device, autoConnect);
-        }
+        request.resetReConnect(device, autoConnect);
     }
 
     /**
@@ -206,9 +224,9 @@ public final class Ble<T extends BleDevice> {
     }
 
     public void disconnectAll(){
-        List<T> connetedDevices = getConnetedDevices();
-        if (!connetedDevices.isEmpty()){
-            for (T device: connetedDevices) {
+        List<T> connectedDevices = getConnetedDevices();
+        if (!connectedDevices.isEmpty()){
+            for (T device: connectedDevices) {
                 request.disconnect(device);
             }
         }
@@ -277,18 +295,12 @@ public final class Ble<T extends BleDevice> {
 
     public boolean readDesByUuid(T device, UUID serviceUUID, UUID characteristicUUID, UUID descriptorUUID, BleReadDescCallback<T> callback){
         DescriptorRequest<T> request = Rproxy.getRequest(DescriptorRequest.class);
-        if(request != null){
-            return request.readDes(device, serviceUUID, characteristicUUID, descriptorUUID, callback);
-        }
-        return false;
+        return request.readDes(device, serviceUUID, characteristicUUID, descriptorUUID, callback);
     }
 
     public boolean writeDesByUuid(T device, byte[] data, UUID serviceUUID, UUID characteristicUUID, UUID descriptorUUID, BleWriteDescCallback<T> callback){
         DescriptorRequest<T> request = Rproxy.getRequest(DescriptorRequest.class);
-        if(request != null){
-            return request.writeDes(device, data, serviceUUID, characteristicUUID, descriptorUUID, callback);
-        }
-        return false;
+        return request.writeDes(device, data, serviceUUID, characteristicUUID, descriptorUUID, callback);
     }
 
     /**
@@ -296,8 +308,8 @@ public final class Ble<T extends BleDevice> {
      * @param device 蓝牙设备对象
      * @param callback 读取远程RSSI结果回调
      */
-    public void readRssi(T device, BleReadRssiCallback<T> callback){
-        request.readRssi(device, callback);
+    public boolean readRssi(T device, BleReadRssiCallback<T> callback){
+        return request.readRssi(device, callback);
     }
 
     /**
@@ -394,10 +406,7 @@ public final class Ble<T extends BleDevice> {
      */
     public T getBleDevice(String address){
         ConnectRequest<T> request = Rproxy.getRequest(ConnectRequest.class);
-        if(request != null){
-            return request.getBleDevice(address);
-        }
-        return null;
+        return request.getBleDevice(address);
     }
 
     /**
@@ -407,8 +416,8 @@ public final class Ble<T extends BleDevice> {
      */
     public T getBleDevice(BluetoothDevice device) {
         ConnectRequest<T> request = Rproxy.getRequest(ConnectRequest.class);
-        if(request != null){
-            return request.getBleDevice(device);
+        if(device != null){
+            return request.getBleDevice(device.getAddress());
         }
         return null;
     }
@@ -435,10 +444,7 @@ public final class Ble<T extends BleDevice> {
 
     public List<T> getConnetedDevices() {
         ConnectRequest<T> request = Rproxy.getRequest(ConnectRequest.class);
-        if(request != null){
-            return request.getConnetedDevices();
-        }
-        return Collections.emptyList();
+        return request.getConnetedDevices();
     }
 
     /**
@@ -477,11 +483,32 @@ public final class Ble<T extends BleDevice> {
     }
 
     /**
+     * cancel Callback
+     * @param callback (BleScanCallback、BleConnectCallback)
+     */
+    public void cancelCallback(Object callback){
+        if (callback instanceof BleScanCallback){
+            ScanRequest request = Rproxy.getRequest(ScanRequest.class);
+            request.cancelScanCallback();
+        }else if (callback instanceof BleConnectCallback){
+            ConnectRequest<T> request = Rproxy.getRequest(ConnectRequest.class);
+            request.cancelConnectCallback();
+        }
+    }
+
+    private BluetoothAdapter getBluetoothAdapter(){
+        if (bluetoothAdapter == null){
+            bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        }
+        return bluetoothAdapter;
+    }
+
+    /**
      *
      * @return 是否支持蓝牙
      */
     public boolean isSupportBle(Context context) {
-        return (bluetoothAdapter != null && context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE));
+        return (getBluetoothAdapter() != null && context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE));
     }
 
     /**
@@ -489,7 +516,8 @@ public final class Ble<T extends BleDevice> {
      * @return 蓝牙是否打开
      */
     public boolean isBleEnable() {
-        return bluetoothAdapter.isEnabled();
+        BluetoothAdapter bluetoothAdapter = getBluetoothAdapter();
+        return bluetoothAdapter != null && bluetoothAdapter.isEnabled();
     }
 
     /**
@@ -511,7 +539,9 @@ public final class Ble<T extends BleDevice> {
      */
     public void turnOnBlueToothNo(){
         if(!isBleEnable()){
-            bluetoothAdapter.enable();
+            if (bluetoothAdapter != null){
+                bluetoothAdapter.enable();
+            }
         }
     }
 
@@ -519,7 +549,10 @@ public final class Ble<T extends BleDevice> {
      * 关闭蓝牙
      */
     public boolean turnOffBlueTooth() {
-        return !bluetoothAdapter.isEnabled() || bluetoothAdapter.disable();
+        if (isBleEnable()){
+            return bluetoothAdapter.disable();
+        }
+        return true;
     }
 
     /**
@@ -580,7 +613,9 @@ public final class Ble<T extends BleDevice> {
         /**
          * 蓝牙连接失败重试次数
          */
-        public int connectFailedRetryCount = 3;
+        public int connectFailedRetryCount;
+
+        public int maxConnectNum = 7;
         /**
          * 是否过滤扫描设备
          */
@@ -668,8 +703,17 @@ public final class Ble<T extends BleDevice> {
             return connectFailedRetryCount;
         }
 
-        public Options setConnectFailedRetryCount(int connectFailedRetryCount) {
+        public Options setConnectFailedRetryCount(@IntRange(from = 0, to = 5)int connectFailedRetryCount) {
             this.connectFailedRetryCount = connectFailedRetryCount;
+            return this;
+        }
+
+        public int getMaxConnectNum() {
+            return maxConnectNum;
+        }
+
+        public Options setMaxConnectNum(@IntRange(from = 1, to = 7)int maxConnectNum) {
+            this.maxConnectNum = maxConnectNum;
             return this;
         }
 
@@ -833,7 +877,11 @@ public final class Ble<T extends BleDevice> {
         }
 
         public <T extends BleDevice> Ble<T> create(Context context){
-            return Ble.create(context);
+            return create(context, null);
+        }
+
+        public <T extends BleDevice> Ble<T> create(Context context, InitCallback callback){
+            return Ble.create(context, callback);
         }
 
     }

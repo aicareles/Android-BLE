@@ -220,12 +220,10 @@ public class BleActivity extends AppCompatActivity {
     private BleScanCallback<BleRssiDevice> scanCallback = new BleScanCallback<BleRssiDevice>() {
         @Override
         public void onLeScan(final BleRssiDevice device, int rssi, byte[] scanRecord) {
-            BleLog.i(TAG, "onLeScan: " + device.getBleName());
             if (TextUtils.isEmpty(device.getBleName())) return;
             synchronized (ble.getLocker()) {
                 for (int i = 0; i < bleRssiDevices.size(); i++) {
                     BleRssiDevice rssiDevice = bleRssiDevices.get(i);
-//                    BleDevice bleDevice = rssiDevice.getDevice();
                     if (TextUtils.equals(rssiDevice.getBleAddress(), device.getBleAddress())){
                         if (rssiDevice.getRssi() != rssi && System.currentTimeMillis()-rssiDevice.getRssiUpdateTime() >1000L){
                             rssiDevice.setRssiUpdateTime(System.currentTimeMillis());
@@ -235,7 +233,6 @@ public class BleActivity extends AppCompatActivity {
                         return;
                     }
                 }
-//                BleRssiDevice rssiDevice = new BleRssiDevice(device, ScanRecord.parseFromBytes(scanRecord), rssi);
                 device.setScanRecord(ScanRecord.parseFromBytes(scanRecord));
                 device.setRssi(rssi);
                 bleRssiDevices.add(device);
@@ -253,6 +250,12 @@ public class BleActivity extends AppCompatActivity {
         public void onStop() {
             super.onStop();
             stopBannerLoadingAnim();
+        }
+
+        @Override
+        public void onScanFailed(int errorCode) {
+            super.onScanFailed(errorCode);
+            Log.e(TAG, "onScanFailed: "+errorCode);
         }
     };
 
@@ -310,18 +313,6 @@ public class BleActivity extends AppCompatActivity {
 
         }
         super.onActivityResult(requestCode, resultCode, data);
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        /*if (ble != null) {
-            ble.released();
-            scanCallback = null;
-            connectCallback = null;
-            writeEntityCallback = null;
-            bleNotiftCallback = null;
-        }*/
     }
 
 }

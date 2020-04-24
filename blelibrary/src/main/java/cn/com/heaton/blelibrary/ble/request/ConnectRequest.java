@@ -1,9 +1,6 @@
 package cn.com.heaton.blelibrary.ble.request;
 
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
-import android.bluetooth.BluetoothGattService;
 import android.support.annotation.RestrictTo;
 import android.text.TextUtils;
 
@@ -38,7 +35,7 @@ public class ConnectRequest<T extends BleDevice> implements ConnectWrapperCallba
     private ArrayList<T> connetedDevices = new ArrayList<>();
     private ArrayList<T> autoDevices = new ArrayList<>();
     private BleConnectTask<T> task = new BleConnectTask<>();
-    private BleRequestImpl bleRequest = BleRequestImpl.getBleRequest();
+    private BleRequestImpl<T> bleRequest = BleRequestImpl.getBleRequest();
     private BleWrapperCallback<T> bleWrapperCallback;
 
     protected ConnectRequest() {
@@ -55,25 +52,44 @@ public class ConnectRequest<T extends BleDevice> implements ConnectWrapperCallba
     }
 
     public boolean connect(T device, BleConnectCallback<T> callback) {
-        addBleDevice(device);
         connectCallback = callback;
-        boolean result = false;
-
-        if (bleRequest != null) {
-            result = bleRequest.connect(device.getBleAddress());
+        if (device == null){
+            doConnectException(device, BleStates.DeviceNull);
+            return false;
         }
-        return result;
+        if (!Ble.getInstance().isBleEnable()){
+            doConnectException(device, BleStates.BluetoothNotOpen);
+            return false;
+        }
+        if (connetedDevices.size() >= Ble.options().getMaxConnectNum()){
+            BleLog.e(TAG, "Maximum number of connections Exception");
+            doConnectException(device, BleStates.MaxConnectNumException);
+            return false;
+        }
+        addBleToPool(device);
+        return bleRequest.connect(device);
+    }
+
+    private void doConnectException(T device, int errorCode){
+        if (connectCallback != null){
+            connectCallback.onConnectException(device, errorCode);
+        }
     }
 
     public boolean connect(String address, BleConnectCallback<T> callback) {
-        BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
-        if (adapter == null) {
-            BleLog.e(TAG, "BluetoothAdapter not initialized");
+        connectCallback = callback;
+        if (!Ble.getInstance().isBleEnable()){
+            doConnectException(null, BleStates.BluetoothNotOpen);
             return false;
         }
-        BluetoothDevice device = adapter.getRemoteDevice(address);
-        T bleDevice = (T) Ble.options().getFactory().create(device.getAddress(), device.getName());
-        return connect(bleDevice, callback);
+        if (connetedDevices.size() >= Ble.options().getMaxConnectNum()){
+            BleLog.e(TAG, "Maximum number of connections Exception");
+            doConnectException(null, BleStates.MaxConnectNumException);
+            return false;
+        }
+        T bleDevice = (T) Ble.options().getFactory().create(address, "");
+        addBleToPool(bleDevice);
+        return bleRequest.connect(bleDevice);
     }
 
     /**
@@ -82,32 +98,31 @@ public class ConnectRequest<T extends BleDevice> implements ConnectWrapperCallba
      * @param callback
      */
     public void connect(List<T> devices, final BleConnectCallback<T> callback) {
-        if (bleRequest != null) {
-            task.excute(devices, new BleConnectTask.NextCallback<T>() {
-                @Override
-                public void onNext(T device) {
-                    connect(device, callback);
-                }
-            });
-        }
+        task.excute(devices, new BleConnectTask.NextCallback<T>() {
+            @Override
+            public void onNext(T device) {
+                connect(device, callback);
+            }
+        });
     }
 
     /**
      * 取消正在连接的设备
      * @param device
      */
-    public void cancelConnectting(T device) {
-        boolean connectting = device.isConnectting();
+    public void cancelConnecting(T device) {
+        boolean connecting = device.isConnecting();
         boolean ready_connect = task.isContains(device);
-        if (connectting || ready_connect){
+        if (connecting || ready_connect){
             if (null != connectCallback){
+                BleLog.d(TAG, "cancel connecting device："+device.getBleName());
                 connectCallback.onConnectCancel(device);
             }
-            if (connectting){
+            if (connecting){
                 disconnect(device.getBleAddress());
                 bleRequest.cancelTimeout(device.getBleAddress());
-                device.setConnectionState(BleStates.BleStatus.DISCONNECT);
-                connectCallback.onConnectionChanged(device);
+                device.setConnectionState(BleDevice.DISCONNECT);
+                onConnectionChanged(device);
             }
             if (ready_connect){
                 task.cancelOne(device);
@@ -115,9 +130,9 @@ public class ConnectRequest<T extends BleDevice> implements ConnectWrapperCallba
         }
     }
 
-    public void cancelConnecttings(List<T> devices){
+    public void cancelConnectings(List<T> devices){
         for (T device: devices){
-            cancelConnectting(device);
+            cancelConnecting(device);
         }
     }
 
@@ -126,16 +141,14 @@ public class ConnectRequest<T extends BleDevice> implements ConnectWrapperCallba
      * @param address 蓝牙地址
      */
     public void disconnect(String address){
-        if (bleRequest != null) {
-            //Traverse the connected device collection to disconnect automatically cancel the automatic connection
-            ArrayList<T> connetedDevices = getConnetedDevices();
-            for (T bleDevice : connetedDevices) {
-                if (bleDevice.getBleAddress().equals(address)) {
-                    bleDevice.setAutoConnect(false);
-                }
+        //Traverse the connected device collection to disconnect automatically cancel the automatic connection
+        ArrayList<T> connetedDevices = getConnetedDevices();
+        for (T bleDevice : connetedDevices) {
+            if (bleDevice.getBleAddress().equals(address)) {
+                bleDevice.setAutoConnect(false);
             }
-            bleRequest.disconnect(address);
         }
+        bleRequest.disconnect(address);
     }
 
     /**
@@ -168,7 +181,7 @@ public class ConnectRequest<T extends BleDevice> implements ConnectWrapperCallba
         if (!connetedDevices.isEmpty()){
             for (T device: connetedDevices) {
                 if (null != connectCallback){
-                    device.setConnectionState(BleStates.BleStatus.DISCONNECT);
+                    device.setConnectionState(BleDevice.DISCONNECT);
                     BleLog.e(TAG, "System Bluetooth is disconnected>>>> "+device.getBleName());
                     connectCallback.onConnectionChanged(device);
                 }
@@ -185,7 +198,6 @@ public class ConnectRequest<T extends BleDevice> implements ConnectWrapperCallba
 
     @Override
     public void onConnectionChanged(final T bleDevice) {
-//        final T bleDevice = getBleDevice(device);
         if (bleDevice == null)return;
         if (bleDevice.isConnected()){
             connetedDevices.add(bleDevice);
@@ -215,17 +227,8 @@ public class ConnectRequest<T extends BleDevice> implements ConnectWrapperCallba
     }
 
     @Override
-    public void onConnectException(final T bleDevice) {
-//        final T bleDevice = getBleDevice(device);
+    public void onConnectException(final T bleDevice, final int errorCode) {
         if (bleDevice == null)return;
-        final int errorCode;
-        if (bleDevice.isConnected()) {//Mcu connection is broken or the signal is weak and other reasons disconnect
-            errorCode = BleStates.BleStatus.ConnectException;
-        } else if (bleDevice.isConnectting()) {//Connection failed
-            errorCode = BleStates.BleStatus.ConnectFailed;
-        } else {//Abnormal state (in theory, there is no such situation)
-            errorCode = BleStates.BleStatus.ConnectError;
-        }
         BleLog.e(TAG, "ConnectException>>>> "+bleDevice.getBleName()+"\n异常码:"+errorCode);
         runOnUiThread(new Runnable() {
             @Override
@@ -239,7 +242,6 @@ public class ConnectRequest<T extends BleDevice> implements ConnectWrapperCallba
 
     @Override
     public void onConnectTimeOut(final T bleDevice) {
-//        final T bleDevice = getBleDevice(device);
         if (bleDevice == null)return;
         BleLog.e(TAG, "ConnectTimeOut>>>> "+bleDevice.getBleName());
         runOnUiThread(new Runnable() {
@@ -250,13 +252,12 @@ public class ConnectRequest<T extends BleDevice> implements ConnectWrapperCallba
                 }
             }
         });
-        bleDevice.setConnectionState(BleStates.BleStatus.DISCONNECT);
+        bleDevice.setConnectionState(BleDevice.DISCONNECT);
         onConnectionChanged(bleDevice);
     }
 
     @Override
     public void onReady(final T bleDevice) {
-//        final T bleDevice = getBleDevice(device);
         if (bleDevice == null)return;
         BleLog.d(TAG, "onReady>>>> "+bleDevice.getBleName());
         runOnUiThread(new Runnable() {
@@ -285,17 +286,20 @@ public class ConnectRequest<T extends BleDevice> implements ConnectWrapperCallba
         }
     }
 
-    private void addBleDevice(T device) {
-        if (device == null)throw new IllegalArgumentException("device is not null");
-        if (getBleDevice(device.getBleAddress()) == null) {
-            devices.add(device);
-            BleLog.d(TAG, "addBleDevice>>>> Added a device to the device pool");
+    private void addBleToPool(T device) {
+        for (T bleDevice : devices){
+            if(bleDevice.getBleAddress().equals(device.getBleAddress())){
+                BleLog.d(TAG, "addBleToPool>>>> device pool already exist device");
+                return;
+            }
         }
+        devices.add(device);
+        BleLog.d(TAG, "addBleToPool>>>> added a new device to the device pool");
     }
 
     public T getBleDevice(String address) {
         if(TextUtils.isEmpty(address)){
-            BleLog.w(TAG,"By address to get BleDevice but address is null");
+            BleLog.e(TAG,"By address to get BleDevice but address is null");
             return null;
         }
         synchronized (devices){
@@ -306,24 +310,10 @@ public class ConnectRequest<T extends BleDevice> implements ConnectWrapperCallba
                     }
                 }
             }
-            BleLog.w(TAG,"By address to get BleDevice and BleDevice isn't exist");
+            BleLog.e(TAG,"By address to get BleDevice and BleDevice isn't exist");
             return null;
         }
 
-    }
-
-    /**
-     * 获取蓝牙对象
-     *
-     * @param device 原生蓝牙对象
-     * @return 蓝牙对象
-     */
-    public T getBleDevice(BluetoothDevice device) {
-        if (device == null) {
-            BleLog.w(TAG, "By BluetoothDevice to get BleDevice but BluetoothDevice is null");
-            return null;
-        }
-        return getBleDevice(device.getAddress());
     }
 
     /**
@@ -370,11 +360,15 @@ public class ConnectRequest<T extends BleDevice> implements ConnectWrapperCallba
         device.setAutoConnect(autoConnect);
         if (!autoConnect){
             removeAutoPool(device);
-            if (device.isConnectting()){
+            if (device.isConnecting()){
                 disconnect(device);
             }
         }else {//重连
             addAutoPool(device);
         }
+    }
+
+    public void cancelConnectCallback(){
+        connectCallback = null;
     }
 }

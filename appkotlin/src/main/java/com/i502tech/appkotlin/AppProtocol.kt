@@ -13,10 +13,15 @@ import cn.com.heaton.blelibrary.ble.utils.ByteUtils
  */
 
 object AppProtocol {
+    val TAG = "AppProtocol"
 
     private val bleDeviceBleWriteCallback = object :BleWriteCallback<BleDevice>() {
         override fun onWriteSuccess(device: BleDevice?, characteristic: BluetoothGattCharacteristic?) {
-            BleLog.w("AppProtocol", "onWriteSuccess: ")
+            BleLog.w(TAG, "onWriteSuccess: ")
+        }
+
+        override fun onWiteFailed(device: BleDevice?, failedCode: Int) {
+            BleLog.e(TAG, "onWiteFailed:$failedCode")
         }
 
     }

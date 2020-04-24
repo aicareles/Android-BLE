@@ -41,11 +41,11 @@ class BluetoothScannerImplLollipop extends BleScannerCompat {
 
     @Override
     public void stopScan() {
-        super.stopScan();
         if (scanner == null) {
             scanner = bluetoothAdapter.getBluetoothLeScanner();
         }
         scanner.stopScan(scannerCallback);
+        super.stopScan();
     }
 
     private ScanCallback scannerCallback = new ScanCallback() {

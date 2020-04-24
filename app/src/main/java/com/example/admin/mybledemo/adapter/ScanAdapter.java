@@ -102,9 +102,10 @@ public class ScanAdapter extends RecyclerAdapter<BleRssiDevice> {
                 tv_uuid.setText(String.format("Service Uuids: %s", TextUtils.join(", ", serviceUuids)));
             }
             String localName = scanRecord.getDeviceName();
-            if (!TextUtils.isEmpty(localName)){
-                tv_local_name.setText("Local Name: "+localName);
+            if (TextUtils.isEmpty(localName)){
+                localName = device.getBleName();
             }
+            tv_local_name.setText("Local Name: "+localName);
             if (scanRecord.getTxPowerLevel()>-100 && scanRecord.getTxPowerLevel()<=0){
                 tv_tx_power_level.setText(String.format("Tx Power Level: %d dBm", scanRecord.getTxPowerLevel()));
             }

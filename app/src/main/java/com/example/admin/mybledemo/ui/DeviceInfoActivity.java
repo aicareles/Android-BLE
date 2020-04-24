@@ -1,7 +1,6 @@
 package com.example.admin.mybledemo.ui;
 
 import android.bluetooth.BluetoothGatt;
-import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -11,21 +10,17 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.MenuItem;
 
 import com.example.admin.mybledemo.R;
 import com.example.admin.mybledemo.Utils;
 import com.example.admin.mybledemo.adapter.DeviceInfoAdapter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 
 import cn.com.heaton.blelibrary.ble.Ble;
-import cn.com.heaton.blelibrary.ble.BleLog;
 import cn.com.heaton.blelibrary.ble.callback.BleConnectCallback;
-import cn.com.heaton.blelibrary.ble.callback.BleNotiftCallback;
 import cn.com.heaton.blelibrary.ble.model.BleDevice;
-import cn.com.heaton.blelibrary.ble.utils.ByteUtils;
 
 public class DeviceInfoActivity extends AppCompatActivity {
 
@@ -50,13 +45,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
         ble = Ble.getInstance();
         bleDevice = getIntent().getParcelableExtra(EXTRA_TAG);
         if (bleDevice == null) return;
-        if (bleDevice.isConnected()) {
-            ble.disconnect(bleDevice);
-        } else if (bleDevice.isConnectting()) {
-            ble.cancelConnectting(bleDevice);
-        } else if (bleDevice.isDisconnected()) {
-            ble.connect(bleDevice, connectCallback);
-        }
+        ble.connect(bleDevice, connectCallback);
     }
 
     private void initView() {
@@ -80,7 +69,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
             Log.e(TAG, "onConnectionChanged: " + device.getConnectionState());
             if (device.isConnected()) {
                 actionBar.setSubtitle("已连接");
-            }else if (device.isConnectting()){
+            }else if (device.isConnecting()){
                 actionBar.setSubtitle("连接中...");
             }
             else if (device.isDisconnected()){
@@ -142,17 +131,30 @@ public class DeviceInfoActivity extends AppCompatActivity {
                 @Override
                 public void onNotifySuccess(BleDevice device) {
                     super.onNotifySuccess(device);
+                    BleLog.e(TAG, "onNotifySuccess: "+device.getBleName());
                 }
             });*/
         }
     };
 
     @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:// 点击返回图标事件
+                this.finish();
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
+        ble.cancelCallback(connectCallback);
         if (bleDevice != null){
-            if (bleDevice.isConnectting()){
-                ble.cancelConnectting(bleDevice);
+            if (bleDevice.isConnecting()){
+                ble.cancelConnecting(bleDevice);
             }else if (bleDevice.isConnected()){
                 ble.disconnect(bleDevice);
             }
