@@ -2,10 +2,10 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/BleDemo.iml" filepath="$PROJECT_DIR$/BleDemo.iml" group="BleDemo" />
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" group="BleDemo/app" />
-      <module fileurl="file://$PROJECT_DIR$/appkotlin/appkotlin.iml" filepath="$PROJECT_DIR$/appkotlin/appkotlin.iml" group="BleDemo/appkotlin" />
-      <module fileurl="file://$PROJECT_DIR$/blelibrary/blelibrary.iml" filepath="$PROJECT_DIR$/blelibrary/blelibrary.iml" group="BleDemo/blelibrary" />
+      <module fileurl="file://$PROJECT_DIR$/Android-BLE.iml" filepath="$PROJECT_DIR$/Android-BLE.iml" group="Android-BLE" />
+      <module fileurl="file://$PROJECT_DIR$/core/core.iml" filepath="$PROJECT_DIR$/core/core.iml" group="Android-BLE/core" />
+      <module fileurl="file://$PROJECT_DIR$/java-sample/java-sample.iml" filepath="$PROJECT_DIR$/java-sample/java-sample.iml" group="Android-BLE/java-sample" />
+      <module fileurl="file://$PROJECT_DIR$/kotlin-sample/kotlin-sample.iml" filepath="$PROJECT_DIR$/kotlin-sample/kotlin-sample.iml" group="Android-BLE/kotlin-sample" />
     </modules>
   </component>
 </project>

@@ -1,1 +1,1 @@
-include ':app', ':blelibrary', ':appkotlin'
+include ':java-sample', ':core', ':kotlin-sample'

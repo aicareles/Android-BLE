@@ -11,9 +11,9 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/app" />
-            <option value="$PROJECT_DIR$/appkotlin" />
-            <option value="$PROJECT_DIR$/blelibrary" />
+            <option value="$PROJECT_DIR$/core" />
+            <option value="$PROJECT_DIR$/java-sample" />
+            <option value="$PROJECT_DIR$/kotlin-sample" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />
