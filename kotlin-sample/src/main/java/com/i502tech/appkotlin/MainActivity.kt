@@ -19,16 +19,17 @@ import cn.com.heaton.blelibrary.ble.Ble
 import cn.com.heaton.blelibrary.ble.BleLog
 import cn.com.heaton.blelibrary.ble.callback.*
 import cn.com.heaton.blelibrary.ble.model.BleDevice
+import cn.com.heaton.blelibrary.ble.model.BleFactory
+import cn.com.heaton.blelibrary.ble.model.EntityData
 import cn.com.heaton.blelibrary.ble.utils.ByteUtils
 import cn.com.heaton.blelibrary.ble.utils.UuidUtils
 import kotlinx.android.synthetic.main.activity_main.*
-import java.io.IOException
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
     companion object{
-        const val TAG = "MainActivity"
-        const val REQUESTCODE: Int = 0x01
+        private const val TAG = "MainActivity"
+        private const val REQUEST_CODE: Int = 0x01
     }
 
     private lateinit var mBle: Ble<BleDevice>
@@ -112,7 +113,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun requestBLEPermission() {
         ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.BLUETOOTH_ADMIN,
-                Manifest.permission.ACCESS_COARSE_LOCATION), REQUESTCODE)
+                Manifest.permission.ACCESS_COARSE_LOCATION), REQUEST_CODE)
     }
 
 
@@ -125,9 +126,25 @@ class MainActivity : AppCompatActivity() {
             connectFailedRetryCount = 3
             connectTimeout = 10000L
             scanPeriod = 12000L
-            uuidService = UUID.fromString(UuidUtils.uuid16To128("fd00", true))
-            uuidWriteCha = UUID.fromString(UuidUtils.uuid16To128("fd01", true))
-        }.create(applicationContext)
+            uuidService = UUID.fromString(UuidUtils.uuid16To128("fd00"))
+            uuidWriteCha = UUID.fromString(UuidUtils.uuid16To128("fd01"))
+            bleWrapperCallback = MyBleWrapperCallback()
+            factory = object : BleFactory<MyDevice>() {
+                //实现自定义BleDevice时必须设置
+                override fun create(address: String, name: String): MyDevice{
+                    return MyDevice(address, name) //自定义BleDevice的子类
+                }
+            }
+        }.create(applicationContext, object :Ble.InitCallback{
+            override fun failed(failedCode: Int) {
+                BleLog.i(TAG, "init failed: $failedCode")
+            }
+
+            override fun success() {
+                BleLog.i(TAG, "init success")
+            }
+
+        })
         //3、检查蓝牙是否支持及打开
         checkBluetoothStatus()
     }
@@ -186,7 +203,6 @@ class MainActivity : AppCompatActivity() {
 
             override fun onReady(device: BleDevice?) {
                 super.onReady(device)
-//                mBle.startNotify(device, bleNotifyCallback())
                 mBle.enableNotify(device, true, bleNotifyCallback())
             }
 
@@ -208,7 +224,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == REQUESTCODE) {
+        if (requestCode == REQUEST_CODE) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 if (grantResults[0] != PackageManager.PERMISSION_GRANTED) {
                     // 判断用户是否 点击了不再提醒。(检测该权限是否还可以申请)
@@ -229,8 +245,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == REQUESTCODE) {
-            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (requestCode == REQUEST_CODE) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 val i = ContextCompat.checkSelfPermission (this, Manifest.permission.ACCESS_COARSE_LOCATION)
                 if (i != PackageManager.PERMISSION_GRANTED) {
                     // 提示用户应该去应用设置界面手动开启权限
@@ -242,10 +258,14 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    @Throws(IOException::class)
     private fun sendEntityData() {
-        val data = ByteUtils.stream2Bytes(assets.open("WhiteChristmas.bin"))
-        mBle.writeEntity(mBle.connectedDevices[0], data, 20, 50, object : BleWriteEntityCallback<BleDevice>() {
+        val payload = ByteUtils.stream2Bytes(assets.open("WhiteChristmas.bin"))
+        val entityData = EntityData.Builder().apply {
+            address = mBle.connectedDevices[0].bleAddress
+            data = payload
+            delay = 50
+        }.build()
+        mBle.writeEntity(entityData, object : BleWriteEntityCallback<BleDevice>() {
             override fun onWriteSuccess() {
                 BleLog.e("writeEntity", "onWriteSuccess")
                 hideProgress()
