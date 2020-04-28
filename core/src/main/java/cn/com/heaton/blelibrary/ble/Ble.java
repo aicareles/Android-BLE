@@ -16,7 +16,7 @@ import java.util.UUID;
 
 import cn.com.heaton.blelibrary.ble.callback.BleConnectCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleMtuCallback;
-import cn.com.heaton.blelibrary.ble.callback.BleNotiftCallback;
+import cn.com.heaton.blelibrary.ble.callback.BleNotiyCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleReadCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleReadDescCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleReadRssiCallback;
@@ -247,18 +247,18 @@ public final class Ble<T extends BleDevice> {
      * 连接成功后，开始设置通知
      * @param device 蓝牙设备对象
      * @param callback 通知回调
-     * @deprecated Use {@link Ble#enableNotify(T, boolean, BleNotiftCallback)} instead.
+     * @deprecated Use {@link Ble#enableNotify(T, boolean, BleNotiyCallback)} instead.
      */
-    public void startNotify(T device, BleNotiftCallback<T> callback){
+    public void startNotify(T device, BleNotiyCallback<T> callback){
         request.notify(device, callback);
     }
 
     /**
      * 移除通知
      * @param  device 蓝牙设备对象
-     * @deprecated Use {@link Ble#enableNotify(T, boolean, BleNotiftCallback)} instead.
+     * @deprecated Use {@link Ble#enableNotify(T, boolean, BleNotiyCallback)} instead.
      */
-    public void cancelNotify(T device, BleNotiftCallback<T> callback){
+    public void cancelNotify(T device, BleNotiyCallback<T> callback){
         request.cancelNotify(device, callback);
     }
 
@@ -268,7 +268,7 @@ public final class Ble<T extends BleDevice> {
      * @param enable 打开/关闭
      * @param callback 通知回调
      */
-    public void enableNotify(T device, boolean enable, BleNotiftCallback<T> callback){
+    public void enableNotify(T device, boolean enable, BleNotiyCallback<T> callback){
         request.enableNotify(device, enable, callback);
     }
 
@@ -280,7 +280,7 @@ public final class Ble<T extends BleDevice> {
      * @param characteristicUUID 通知特征uuid
      * @param callback 通知回调
      */
-    public void enableNotifyByUuid(T device, boolean enable, UUID serviceUUID, UUID characteristicUUID, BleNotiftCallback<T> callback){
+    public void enableNotifyByUuid(T device, boolean enable, UUID serviceUUID, UUID characteristicUUID, BleNotiyCallback<T> callback){
         request.enableNotifyByUuid(device, enable, serviceUUID, characteristicUUID, callback);
     }
 
@@ -788,7 +788,7 @@ public final class Ble<T extends BleDevice> {
         UUID uuid_service = UUID.fromString("0000fee9-0000-1000-8000-00805f9b34fb");
         UUID uuid_write_cha = UUID.fromString("d44bc439-abfd-45a2-b575-925416129600");
         UUID uuid_read_cha = UUID.fromString("d44bc439-abfd-45a2-b575-925416129600");
-        UUID uuid_notify = UUID.fromString("d44bc439-abfd-45a2-b575-925416129601");
+        UUID uuid_notify_cha = UUID.fromString("d44bc439-abfd-45a2-b575-925416129601");
         UUID uuid_notify_desc = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
 
         UUID uuid_ota_service = UUID.fromString("0000fee8-0000-1000-8000-00805f9b34fb");
@@ -831,12 +831,12 @@ public final class Ble<T extends BleDevice> {
             return this;
         }
 
-        public UUID getUuidNotify() {
-            return uuid_notify;
+        public UUID getUuidNotifyCha() {
+            return uuid_notify_cha;
         }
 
-        public Options setUuidNotify(UUID uuid_notify) {
-            this.uuid_notify = uuid_notify;
+        public Options setUuidNotifyCha(UUID uuid_notify_cha) {
+            this.uuid_notify_cha = uuid_notify_cha;
             return this;
         }
 

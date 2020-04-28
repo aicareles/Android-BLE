@@ -1,73 +1,65 @@
-####  对蓝牙感兴趣可以加群讨论学习(QQ：494309361 已满)
-### 有个人项目或者定制化需求的可加QQ:823581722 进行联系
-### Email：jerryee0911@qq.com
-
-### 扫描下载APK:(安装密码:android)
-![二维码.png](
-https://android-resource.oss-cn-qingdao.aliyuncs.com/GitClub/image/mJW4.png?Expires=1577947521&OSSAccessKeyId=TMP.hhbo7QSce5gPRayo3tJUYViA69964YTNBHGVNQd8PJ6L8PVwXatiaKGcL52pcneAzwAwv8jASidyskmj3g5HypuBK8AFrBRBN7Hi8krKU8pbGWNa4fxDaHsERWtJWC.tmp&Signature=ni2nOP8Ordl5srIw9LnvBJ1I5lY%3D)
-
 
 # Android-BLE
 [![License](https://img.shields.io/badge/license-Apache%202-green.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 [![Download](https://api.bintray.com/packages/superliu/maven/BleLib/images/download.svg)](https://bintray.com/superliu/maven/BleLib/_latestVersion)
 
-Android-BLE蓝牙框架,提供了扫描、连接、使能/除能通知、发送/读取数据、接收数据,读取rssi,设置mtu等蓝牙相关的所有操作接口,内部优化了连接队列,以及快速写入队列,
-并支持多服务通讯,可扩展配置蓝牙相关操作。
+Android-BLE Bluetooth framework, including scanning, connecting, enabling / disabling notifications, sending / reading data, receiving data, reading rssi, setting mtu and other Bluetooth-related operation interfaces, internally optimized connection queue, and fast write queue,
+And support multi-service communication, can be extended to configure Bluetooth related operations.
 
 ## Android-BLE   API
-* **Ble** - 最重要的类,对外提供所有的蓝牙操作接口.
-* **BleDevice** - 封装了蓝牙对象类,包含蓝牙连接状态以及基本蓝牙信息.
-* **BleLog** - 内部日志类,开发环境下打开可查看蓝牙相关操作信息.
-* **BleStates** - 蓝牙操作异常状态码信息类.(扫描、连接、读写等异常状态码).
-* **ByteUtils** - 各种字节数据转换的工具类.
+* **Ble** - The most important class provides all Bluetooth operation interfaces to the outside world.
+* **BleDevice** - Bluetooth object class, including Bluetooth connection status and basic Bluetooth information.
+* **BleLog** - Internal log class, open in the development environment to view Bluetooth related operation information.
+* **BleStates** - Bluetooth operation abnormal status code information class. (Abnormal status codes such as scan, connection, read and write)
+* **ByteUtils** - Various byte data conversion tools
 
-## 接入文档
-### 1. 在 **build.gradle** 中添加下面依赖.
+## Documentation/[中文](https://github.com/aicareles/Android-BLE/wiki/BLE%E5%BA%93%E4%BD%BF%E7%94%A8%E6%AD%A5%E9%AA%A4)
+### 1. Edit **build.gradle** file and add dependency.
 ``` groovy
 implementation 'cn.com.superLei:blelibrary:latestVersion'
 ```
-### 2. 在Application中初始化.
+### 2. Init the Bluetooth library in Application.
 ```
 private void initBle() {
-        Ble ble = Ble.options()//开启配置
-                .setLogBleEnable(true)//设置是否输出打印蓝牙日志（非正式打包请设置为true，以便于调试）
-                .setThrowBleException(true)//设置是否抛出蓝牙异常 （默认true）
-                .setAutoConnect(false)//设置是否自动连接 （默认false）
-                .setIgnoreRepeat(false)//设置是否过滤扫描到的设备(已扫描到的不会再次扫描)
-                .setConnectTimeout(10 * 1000)//设置连接超时时长（默认10*1000 ms）
-                .setMaxConnectNum(7)//最大连接数量
-                .setScanPeriod(12 * 1000)//设置扫描时长（默认10*1000 ms）
-                .setScanFilter(scanFilter)//设置扫描过滤
-               .setUuidService(UUID.fromString(UuidUtils.uuid16To128("fd00")))//设置主服务的uuid（必填）
-                .setUuidWriteCha(UUID.fromString(UuidUtils.uuid16To128("fd01")))//设置可写特征的uuid （必填,否则写入失败）
-                .setUuidReadCha(UUID.fromString(UuidUtils.uuid16To128("fd02")))//设置可读特征的uuid （选填）
-                .setUuidNotifyCha(UUID.fromString(UuidUtils.uuid16To128("fd03")))//设置可通知特征的uuid （选填，库中默认已匹配可通知特征的uuid）
-               .setFactory(new BleFactory() {//实现自定义BleDevice时必须设置
+        Ble ble = Ble.options()//Open configuration
+                .setLogBleEnable(true)//Set whether to print Bluetooth log
+                .setThrowBleException(true)//Set whether to throw Bluetooth exception
+                .setAutoConnect(false)
+                .setIgnoreRepeat(false)//filter the scanned devices
+                .setConnectTimeout(10 * 1000)//connection timeout
+                .setMaxConnectNum(7)//Maximum number of connections
+                .setScanPeriod(12 * 1000)//scan duration
+                .setScanFilter(scanFilter)//scan filter
+               .setUuidService(UUID.fromString(UuidUtils.uuid16To128("fd00")))//uuid of main service (Required)
+                .setUuidWriteCha(UUID.fromString(UuidUtils.uuid16To128("fd01")))//uuid for writable features (Required)
+                .setUuidReadCha(UUID.fromString(UuidUtils.uuid16To128("fd02")))//uuid for readable features (Optional)
+                .setUuidNotifyCha(UUID.fromString(UuidUtils.uuid16To128("fd03")))//uuid for notification feature (Optional)
+               .setFactory(new BleFactory() {
                     @Override
                     public MyDevice create(String address, String name) {
-                        return new MyDevice(address, name);//自定义BleDevice的子类
+                        return new MyDevice(address, name);
                     }
                 })
-                .setBleWrapperCallback(new MyBleWrapperCallback())//设置全部蓝牙相关操作回调（例： OTA升级可以再这里实现,与项目其他功能逻辑完全解耦）
+                .setBleWrapperCallback(new MyBleWrapperCallback())
                 .create(mApplication, new Ble.InitCallback() {
                     @Override
                     public void success() {
-                        BleLog.e("MainApplication", "初始化成功");
+                        BleLog.e("MainApplication", "init success");
                     }
 
                     @Override
                     public void failed(int failedCode) {
-                        BleLog.e("MainApplication", "初始化失败：" + failedCode);
+                        BleLog.e("MainApplication", "init failed：" + failedCode);
                     }
                 });
      }
 ```
-### 3. 开始使用.
-#### 1.扫描
+### 3. Start use.
+#### 1.scan
 ```
 ble.startScan(scanCallback);
 ```
-#### 扫描回调 (注: 记得打开蓝牙并检查是否授予蓝牙权限)
+#### scan callback (Note: turn on bluetooth and check bluetooth permissions)
 ```
 BleScanCallback<BleDevice> scanCallback = new BleScanCallback<BleDevice>() {
         @Override
@@ -92,27 +84,27 @@ BleScanCallback<BleDevice> scanCallback = new BleScanCallback<BleDevice>() {
         }
     };
 ```
-#### 2.连接/断开
+#### 2.connect/disconnect
 ```
-//连接设备
+//Connect a device
 ble.connect(device, connectCallback);
 
-//连接多个设备
+//Connect multiple devices
 ble.connects(devices, connectCallback);
 
-//取消正在连接的设备
+//Cancel the connecting device
 ble.cancelConnecting(device);
 
-//取消正在连接的多个设备
+//Cancel the connecting devices
 ble.cancelConnectings(devices);
 
-//断开设备
+//disconnect a device
 ble.disconnect(device);
 
-//断开所有设备
+//disconnect all devices
 ble.disconnectAll();
 ```
-#### 连接/断开回调
+#### connect/disconnect callback
 ```
 private BleConnCallback<BleDevice> connectCallback = new BleConnCallback<BleDevice>() {
         @Override
@@ -151,7 +143,7 @@ private BleConnCallback<BleDevice> connectCallback = new BleConnCallback<BleDevi
         }
     };
 ```
-#### 3.使能/除能通知
+#### 3.enable/disable notification
 ```
 ble.enableNotify(device, true, new BleNotifyCallback<BleDevice>() {
         @Override
@@ -168,7 +160,7 @@ ble.enableNotify(device, true, new BleNotifyCallback<BleDevice>() {
         }
     });
 ```
-#### 4.读取数据
+#### 4.read data
 ```
 ble.read(device, new BleReadCallback<BleRssiDevice>() {
             @Override
@@ -182,9 +174,9 @@ ble.read(device, new BleReadCallback<BleRssiDevice>() {
             }
         })
 ```
-#### 5.写入数据
+#### 5.write data
 ```
-//写入一包数据
+//write a package payload
 ble.write(device, data, new BleWriteCallback<BleRssiDevice>() {
     @Override
     public void onWriteSuccess(BleRssiDevice device, BluetoothGattCharacteristic characteristic) {
@@ -197,7 +189,7 @@ ble.write(device, data, new BleWriteCallback<BleRssiDevice>() {
     }
 });
 
-//写入大数据(文件、图片等)
+//write large file/payload
 byte[]data = toByteArray(getAssets().open("WhiteChristmas.bin"));
 ble.writeEntity(mBle.getConnectedDevices().get(0), data, 20, 50, new BleWriteEntityCallback<BleDevice>() {
     @Override
@@ -219,12 +211,12 @@ ble.writeEntity(mBle.getConnectedDevices().get(0), data, 20, 50, new BleWriteEnt
     }
 });
 
-//写入数据到队列中 (默认发送间隔50ms)
+//write data to the queue (The default interval is 50ms)
 ble.writeQueue(RequestTask.newWriteTask(address, data));
-//写入数据到队列中 (自定义间隔时间)
+//write data to the queue with delay
 ble.writeQueueDelay(delay, RequestTask.newWriteTask(address, data));
 
-//通过特定服务和特征值uuid写入数据
+//Custom write data by service and characteristic uuid
 ble.writeByUuid(device, data, serviceUuid, charUuid, new BleWriteCallback<BleRssiDevice>() {
     @Override
     public void onWriteSuccess(BleRssiDevice device, BluetoothGattCharacteristic characteristic) {
@@ -237,22 +229,22 @@ ble.writeByUuid(device, data, serviceUuid, charUuid, new BleWriteCallback<BleRss
     }
 });
 ```
-#### 6. 移除监听(scan、connect)
+#### 6. remove callback (scan、connect)
 ```
 ble.cancelCallback(connectCallback);
-或
+or
 ble.cancelCallback(scanCallback);
 ```
-#### 8. 释放资源
+#### 8. release
 ```
  ble.released();
 ```
 
-## 历史版本介绍：
-[历史版本](https://github.com/aicareles/Android-BLE/wiki/BLE%E5%BA%93%E5%8E%86%E5%8F%B2%E7%89%88%E6%9C%AC%E4%BB%8B%E7%BB%8D)
+## History version introduction：
+[History version](https://github.com/aicareles/Android-BLE/wiki/BLE%E5%BA%93%E5%8E%86%E5%8F%B2%E7%89%88%E6%9C%AC%E4%BB%8B%E7%BB%8D)
 
-## BLE蓝牙常见问题及解决方案
-请通过该 [Wiki BLE Page][Wiki] 了解更多信息.
+## BLE Common problems and solutions
+Please see this [Wiki BLE Page][Wiki] for more infos.
 
 [Wiki]:https://github.com/aicareles/Android-BLE/wiki#连接常见问题
 

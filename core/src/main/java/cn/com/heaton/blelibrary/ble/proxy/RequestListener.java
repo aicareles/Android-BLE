@@ -1,10 +1,9 @@
 package cn.com.heaton.blelibrary.ble.proxy;
-import java.util.List;
 import java.util.UUID;
 
 import cn.com.heaton.blelibrary.ble.callback.BleConnectCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleMtuCallback;
-import cn.com.heaton.blelibrary.ble.callback.BleNotiftCallback;
+import cn.com.heaton.blelibrary.ble.callback.BleNotiyCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleReadCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleReadRssiCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleScanCallback;
@@ -27,13 +26,13 @@ public interface RequestListener<T> {
 
     boolean connect(String address, BleConnectCallback<T> callback);
 
-    void notify(T device, BleNotiftCallback<T> callback);
+    void notify(T device, BleNotiyCallback<T> callback);
 
-    void cancelNotify(T device, BleNotiftCallback<T> callback);
+    void cancelNotify(T device, BleNotiyCallback<T> callback);
 
-    void enableNotify(T device, boolean enable, BleNotiftCallback<T> callback);
+    void enableNotify(T device, boolean enable, BleNotiyCallback<T> callback);
 
-    void enableNotifyByUuid(T device, boolean enable, UUID serviceUUID, UUID characteristicUUID, BleNotiftCallback<T> callback);
+    void enableNotifyByUuid(T device, boolean enable, UUID serviceUUID, UUID characteristicUUID, BleNotiyCallback<T> callback);
 
     void disconnect(T device);
 

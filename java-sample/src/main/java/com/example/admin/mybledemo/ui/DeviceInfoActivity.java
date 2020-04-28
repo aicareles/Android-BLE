@@ -1,6 +1,7 @@
 package com.example.admin.mybledemo.ui;
 
 import android.bluetooth.BluetoothGatt;
+import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -17,10 +18,14 @@ import com.example.admin.mybledemo.Utils;
 import com.example.admin.mybledemo.adapter.DeviceInfoAdapter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import cn.com.heaton.blelibrary.ble.Ble;
+import cn.com.heaton.blelibrary.ble.BleLog;
 import cn.com.heaton.blelibrary.ble.callback.BleConnectCallback;
+import cn.com.heaton.blelibrary.ble.callback.BleNotiyCallback;
 import cn.com.heaton.blelibrary.ble.model.BleDevice;
+import cn.com.heaton.blelibrary.ble.utils.ByteUtils;
 
 public class DeviceInfoActivity extends AppCompatActivity {
 
@@ -114,7 +119,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
         public void onReady(BleDevice device) {
             super.onReady(device);
             //连接成功后，设置通知
-            /*ble.enableNotify(device, true, new BleNotiftCallback<BleDevice>() {
+            ble.enableNotify(device, true, new BleNotiyCallback<BleDevice>() {
                 @Override
                 public void onChanged(BleDevice device, BluetoothGattCharacteristic characteristic) {
                     UUID uuid = characteristic.getUuid();
@@ -133,7 +138,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
                     super.onNotifySuccess(device);
                     BleLog.e(TAG, "onNotifySuccess: "+device.getBleName());
                 }
-            });*/
+            });
         }
     };
 

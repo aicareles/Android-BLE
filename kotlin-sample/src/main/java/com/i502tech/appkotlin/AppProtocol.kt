@@ -20,7 +20,7 @@ object AppProtocol {
             BleLog.w(TAG, "onWriteSuccess: ")
         }
 
-        override fun onWiteFailed(device: BleDevice?, failedCode: Int) {
+        override fun onWriteFailed(device: BleDevice?, failedCode: Int) {
             BleLog.e(TAG, "onWiteFailed:$failedCode")
         }
 

@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.UUID;
 
 import cn.com.heaton.blelibrary.ble.Ble;
-import cn.com.heaton.blelibrary.ble.callback.BleNotiftCallback;
+import cn.com.heaton.blelibrary.ble.callback.BleNotiyCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleReadCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleReadDescCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleWriteCallback;
@@ -111,7 +111,7 @@ public class ChildAdapter extends RecyclerAdapter<BluetoothGattCharacteristic> {
                         enable,
                         serviceUuid,
                         characteristicUuid,
-                        new BleNotiftCallback<BleDevice>() {
+                        new BleNotiyCallback<BleDevice>() {
                             @Override
                             public void onChanged(BleDevice device, BluetoothGattCharacteristic characteristic) {
                                 ThreadUtils.ui(new Runnable() {
@@ -323,8 +323,8 @@ public class ChildAdapter extends RecyclerAdapter<BluetoothGattCharacteristic> {
                     }
 
                     @Override
-                    public void onWiteFailed(BleDevice device, int failedCode) {
-                        super.onWiteFailed(device, failedCode);
+                    public void onWriteFailed(BleDevice device, int failedCode) {
+                        super.onWriteFailed(device, failedCode);
                         toast("写入特征失败:"+failedCode);
                     }
                 });

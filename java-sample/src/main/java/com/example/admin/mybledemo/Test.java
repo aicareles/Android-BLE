@@ -75,7 +75,7 @@ public class Test extends AppCompatActivity {
             }
 
             @Override
-            public void onWiteFailed(BleDevice device, int failedCode) {
+            public void onWriteFailed(BleDevice device, int failedCode) {
                 Log.e(TAG, "onWiteFailed: " + failedCode);
             }
         });
