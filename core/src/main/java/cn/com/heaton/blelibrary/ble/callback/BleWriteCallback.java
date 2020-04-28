@@ -9,5 +9,5 @@ import android.bluetooth.BluetoothGattCharacteristic;
 
 public abstract class BleWriteCallback<T> {
     public abstract void onWriteSuccess(T device, BluetoothGattCharacteristic characteristic);
-    public void onWiteFailed(T device, int failedCode){}
+    public void onWriteFailed(T device, int failedCode){}
 }

@@ -5,6 +5,7 @@ import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothGattCharacteristic;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -38,9 +39,13 @@ import java.util.List;
 
 import cn.com.heaton.blelibrary.ble.Ble;
 import cn.com.heaton.blelibrary.ble.BleLog;
+import cn.com.heaton.blelibrary.ble.callback.BleConnectCallback;
+import cn.com.heaton.blelibrary.ble.callback.BleReadCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleScanCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleStatusCallback;
+import cn.com.heaton.blelibrary.ble.callback.BleWriteCallback;
 import cn.com.heaton.blelibrary.ble.model.ScanRecord;
+import cn.com.heaton.blelibrary.ble.queue.RequestTask;
 import cn.com.heaton.blelibrary.ble.utils.BleUtils;
 import cn.com.superLei.aoparms.annotation.Permission;
 import cn.com.superLei.aoparms.annotation.PermissionDenied;
@@ -75,6 +80,9 @@ public class BleActivity extends AppCompatActivity {
         initLinsenter();
         initBleStatus();
         requestPermission();
+
+
+
     }
 
     @Permission(value = {Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
@@ -215,6 +223,9 @@ public class BleActivity extends AppCompatActivity {
             adapter.notifyDataSetChanged();
             ble.startScan(scanCallback);
         }
+
+
+
     }
 
     private BleScanCallback<BleRssiDevice> scanCallback = new BleScanCallback<BleRssiDevice>() {

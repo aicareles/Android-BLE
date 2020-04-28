@@ -134,8 +134,8 @@ public class ConnectRequest<T extends BleDevice> implements ConnectWrapperCallba
      */
     public void disconnect(String address){
         //Traverse the connected device collection to disconnect automatically cancel the automatic connection
-        ArrayList<T> connetedDevices = getConnectedDevices();
-        for (T bleDevice : connetedDevices) {
+        ArrayList<T> connectedDevices = getConnectedDevices();
+        for (T bleDevice : connectedDevices) {
             if (bleDevice.getBleAddress().equals(address)) {
                 bleDevice.setAutoConnect(false);
             }

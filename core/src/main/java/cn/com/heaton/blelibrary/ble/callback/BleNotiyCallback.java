@@ -7,7 +7,7 @@ import android.bluetooth.BluetoothGattCharacteristic;
  * Created by LiuLei on 2017/10/23.
  */
 
-public abstract class BleNotiftCallback<T> {
+public abstract class BleNotiyCallback<T> {
     /**
      *  MCU data sent to the app when the data callback call is setNotify
      * @param device ble device object

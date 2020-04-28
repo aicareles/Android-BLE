@@ -84,6 +84,8 @@ public class MyApplication extends Application {
                 .setScanFilter(scanFilter)
                 .setUuidService(UUID.fromString(UuidUtils.uuid16To128("fd00")))//设置主服务的uuid
                 .setUuidWriteCha(UUID.fromString(UuidUtils.uuid16To128("fd01")))//设置可写特征的uuid
+//                .setUuidReadCha(UUID.fromString(UuidUtils.uuid16To128("fd02")))//设置可读特征的uuid （选填）
+                .setUuidNotifyCha(UUID.fromString(UuidUtils.uuid16To128("fd03")))//设置可通知特征的uuid （选填，库中默认已匹配可通知特征的uuid）
                 .setFactory(new BleFactory() {//实现自定义BleDevice时必须设置
                     @Override
                     public BleRssiDevice create(String address, String name) {

@@ -177,7 +177,7 @@ public class WriteRequest<T extends BleDevice> implements WriteWrapperCallback<T
     @Override
     public void onWriteFailed(T device, int failedCode) {
         if(bleWriteCallback != null){
-            bleWriteCallback.onWiteFailed(device, failedCode);
+            bleWriteCallback.onWriteFailed(device, failedCode);
         }
 
         if (bleWrapperCallback != null){
