@@ -209,8 +209,8 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun bleNotifyCallback(): BleNotiyCallback<BleDevice> {
-        return object : BleNotiyCallback<BleDevice>(){
+    private fun bleNotifyCallback(): BleNotifyCallback<BleDevice> {
+        return object : BleNotifyCallback<BleDevice>(){
             override fun onChanged(device: BleDevice?, characteristic: BluetoothGattCharacteristic?) {
                 BleLog.i("收到硬件数据>>>>>onChanged:",ByteUtils.toHexString(characteristic?.value))
             }

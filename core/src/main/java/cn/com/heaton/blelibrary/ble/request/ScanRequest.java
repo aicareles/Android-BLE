@@ -18,7 +18,7 @@ import cn.com.heaton.blelibrary.ble.callback.wrapper.ScanWrapperCallback;
 import cn.com.heaton.blelibrary.ble.model.BleDevice;
 import cn.com.heaton.blelibrary.ble.model.ScanRecord;
 import cn.com.heaton.blelibrary.ble.scan.BleScannerCompat;
-import cn.com.heaton.blelibrary.ble.utils.BleUtils;
+import cn.com.heaton.blelibrary.ble.utils.Utils;
 
 /**
  * Created by LiuLei on 2017/10/21.
@@ -44,7 +44,7 @@ public class ScanRequest<T extends BleDevice> implements ScanWrapperCallback {
         if (callback == null) throw new IllegalArgumentException("BleScanCallback can not be null!");
         bleScanCallback = callback;
         //TODO
-        if (!BleUtils.isPermission(Ble.getInstance().getContext(), Manifest.permission.ACCESS_COARSE_LOCATION)){
+        if (!Utils.isPermission(Ble.getInstance().getContext(), Manifest.permission.ACCESS_COARSE_LOCATION)){
             if (bleScanCallback != null){
                 bleScanCallback.onScanFailed(BleStates.BlePermissionError);
             }

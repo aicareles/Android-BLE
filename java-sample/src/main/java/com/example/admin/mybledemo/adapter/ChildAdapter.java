@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.UUID;
 
 import cn.com.heaton.blelibrary.ble.Ble;
-import cn.com.heaton.blelibrary.ble.callback.BleNotiyCallback;
+import cn.com.heaton.blelibrary.ble.callback.BleNotifyCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleReadCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleReadDescCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleWriteCallback;
@@ -111,7 +111,7 @@ public class ChildAdapter extends RecyclerAdapter<BluetoothGattCharacteristic> {
                         enable,
                         serviceUuid,
                         characteristicUuid,
-                        new BleNotiyCallback<BleDevice>() {
+                        new BleNotifyCallback<BleDevice>() {
                             @Override
                             public void onChanged(BleDevice device, BluetoothGattCharacteristic characteristic) {
                                 ThreadUtils.ui(new Runnable() {

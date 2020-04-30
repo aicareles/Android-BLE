@@ -19,7 +19,7 @@ import cn.com.heaton.blelibrary.ble.Ble;
 import cn.com.heaton.blelibrary.ble.BleLog;
 import cn.com.heaton.blelibrary.ble.callback.wrapper.ScanWrapperCallback;
 import cn.com.heaton.blelibrary.ble.model.ScanRecord;
-import cn.com.heaton.blelibrary.ble.utils.BleUtils;
+import cn.com.heaton.blelibrary.ble.utils.Utils;
 
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
 class BluetoothScannerImplLollipop extends BleScannerCompat {
@@ -82,7 +82,7 @@ class BluetoothScannerImplLollipop extends BleScannerCompat {
     };
 
     private void setScanSettings() {
-        boolean background = BleUtils.isBackground(Ble.getInstance().getContext());
+        boolean background = Utils.isBackground(Ble.getInstance().getContext());
         BleLog.d(TAG, "currently in the background:>>>>>"+background);
 
         ScanFilter filter = Ble.options().scanFilter;

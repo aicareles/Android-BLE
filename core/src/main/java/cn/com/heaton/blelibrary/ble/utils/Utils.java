@@ -10,13 +10,15 @@ import android.text.TextUtils;
 import java.util.HashMap;
 import java.util.List;
 
+import cn.com.heaton.blelibrary.ble.model.BleDevice;
+
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
 /**
  * description $desc$
  * created by jerry on 2019/8/14.
  */
-public class BleUtils {
+public class Utils {
 
     public static boolean isBackground(Context context) {
         ActivityManager activityManager = (ActivityManager) context

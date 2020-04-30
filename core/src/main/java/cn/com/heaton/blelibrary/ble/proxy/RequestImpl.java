@@ -5,7 +5,7 @@ import java.util.UUID;
 import cn.com.heaton.blelibrary.ble.model.BleDevice;
 import cn.com.heaton.blelibrary.ble.callback.BleConnectCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleMtuCallback;
-import cn.com.heaton.blelibrary.ble.callback.BleNotiyCallback;
+import cn.com.heaton.blelibrary.ble.callback.BleNotifyCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleReadCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleReadRssiCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleScanCallback;
@@ -50,25 +50,25 @@ public class RequestImpl<T extends BleDevice> implements RequestListener<T> {
     }
 
     @Override
-    public void notify(T device, BleNotiyCallback<T> callback) {
+    public void notify(T device, BleNotifyCallback<T> callback) {
         NotifyRequest<T> request = Rproxy.getRequest(NotifyRequest.class);
         request.notify(device, true, callback);
     }
 
     @Override
-    public void cancelNotify(T device, BleNotiyCallback<T> callback) {
+    public void cancelNotify(T device, BleNotifyCallback<T> callback) {
         NotifyRequest<T> request = Rproxy.getRequest(NotifyRequest.class);
         request.notify(device, false, callback);
     }
 
     @Override
-    public void enableNotify(T device, boolean enable, BleNotiyCallback<T> callback) {
+    public void enableNotify(T device, boolean enable, BleNotifyCallback<T> callback) {
         NotifyRequest<T> request = Rproxy.getRequest(NotifyRequest.class);
         request.notify(device, enable, callback);
     }
 
     @Override
-    public void enableNotifyByUuid(T device, boolean enable, UUID serviceUUID, UUID characteristicUUID, BleNotiyCallback<T> callback) {
+    public void enableNotifyByUuid(T device, boolean enable, UUID serviceUUID, UUID characteristicUUID, BleNotifyCallback<T> callback) {
         NotifyRequest<T> request = Rproxy.getRequest(NotifyRequest.class);
         request.notifyByUuid(device, enable, serviceUUID, characteristicUUID, callback);
     }

@@ -9,7 +9,7 @@ import cn.com.heaton.blelibrary.ble.BleRequestImpl;
 import cn.com.heaton.blelibrary.ble.callback.wrapper.BleWrapperCallback;
 import cn.com.heaton.blelibrary.ble.model.BleDevice;
 import cn.com.heaton.blelibrary.ble.annotation.Implement;
-import cn.com.heaton.blelibrary.ble.callback.BleNotiyCallback;
+import cn.com.heaton.blelibrary.ble.callback.BleNotifyCallback;
 import cn.com.heaton.blelibrary.ble.callback.wrapper.NotifyWrapperCallback;
 
 /**
@@ -19,27 +19,27 @@ import cn.com.heaton.blelibrary.ble.callback.wrapper.NotifyWrapperCallback;
 public class NotifyRequest<T extends BleDevice> implements NotifyWrapperCallback<T> {
 
     private static final String TAG = "NotifyRequest";
-    private BleNotiyCallback<T> notiftCallback;
+    private BleNotifyCallback<T> notiftCallback;
     private BleWrapperCallback<T> bleWrapperCallback;
 
     protected NotifyRequest() {
         bleWrapperCallback = Ble.options().bleWrapperCallback;
     }
 
-    public void notify(T device, boolean enable, BleNotiyCallback<T> callback) {
+    public void notify(T device, boolean enable, BleNotifyCallback<T> callback) {
         notiftCallback = callback;
         BleRequestImpl bleRequest = BleRequestImpl.getBleRequest();
         bleRequest.setCharacteristicNotification(device.getBleAddress(), enable);
     }
 
-    public void notifyByUuid(T device, boolean enable, UUID serviceUUID, UUID characteristicUUID, BleNotiyCallback<T> callback) {
+    public void notifyByUuid(T device, boolean enable, UUID serviceUUID, UUID characteristicUUID, BleNotifyCallback<T> callback) {
         notiftCallback = callback;
         BleRequestImpl bleRequest = BleRequestImpl.getBleRequest();
         bleRequest.setCharacteristicNotificationByUuid(device.getBleAddress(),enable, serviceUUID, characteristicUUID);
     }
 
     @Deprecated
-    public void cancelNotify(T device, BleNotiyCallback<T> callback) {
+    public void cancelNotify(T device, BleNotifyCallback<T> callback) {
         notiftCallback = callback;
         BleRequestImpl bleRequest = BleRequestImpl.getBleRequest();
         bleRequest.setCharacteristicNotification(device.getBleAddress(), false);

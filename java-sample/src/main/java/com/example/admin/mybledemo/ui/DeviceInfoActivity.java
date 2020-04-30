@@ -23,7 +23,7 @@ import java.util.UUID;
 import cn.com.heaton.blelibrary.ble.Ble;
 import cn.com.heaton.blelibrary.ble.BleLog;
 import cn.com.heaton.blelibrary.ble.callback.BleConnectCallback;
-import cn.com.heaton.blelibrary.ble.callback.BleNotiyCallback;
+import cn.com.heaton.blelibrary.ble.callback.BleNotifyCallback;
 import cn.com.heaton.blelibrary.ble.model.BleDevice;
 import cn.com.heaton.blelibrary.ble.utils.ByteUtils;
 
@@ -119,7 +119,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
         public void onReady(BleDevice device) {
             super.onReady(device);
             //连接成功后，设置通知
-            ble.enableNotify(device, true, new BleNotiyCallback<BleDevice>() {
+            ble.enableNotify(device, true, new BleNotifyCallback<BleDevice>() {
                 @Override
                 public void onChanged(BleDevice device, BluetoothGattCharacteristic characteristic) {
                     UUID uuid = characteristic.getUuid();

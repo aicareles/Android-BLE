@@ -5,7 +5,6 @@ import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothGattCharacteristic;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -30,7 +29,6 @@ import android.widget.TextView;
 
 import com.example.admin.mybledemo.BleRssiDevice;
 import com.example.admin.mybledemo.R;
-import com.example.admin.mybledemo.Utils;
 import com.example.admin.mybledemo.adapter.ScanAdapter;
 import com.pgyersdk.update.PgyUpdateManager;
 
@@ -39,14 +37,10 @@ import java.util.List;
 
 import cn.com.heaton.blelibrary.ble.Ble;
 import cn.com.heaton.blelibrary.ble.BleLog;
-import cn.com.heaton.blelibrary.ble.callback.BleConnectCallback;
-import cn.com.heaton.blelibrary.ble.callback.BleReadCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleScanCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleStatusCallback;
-import cn.com.heaton.blelibrary.ble.callback.BleWriteCallback;
 import cn.com.heaton.blelibrary.ble.model.ScanRecord;
-import cn.com.heaton.blelibrary.ble.queue.RequestTask;
-import cn.com.heaton.blelibrary.ble.utils.BleUtils;
+import cn.com.heaton.blelibrary.ble.utils.Utils;
 import cn.com.superLei.aoparms.annotation.Permission;
 import cn.com.superLei.aoparms.annotation.PermissionDenied;
 import cn.com.superLei.aoparms.annotation.PermissionNoAskDenied;
@@ -189,7 +183,7 @@ public class BleActivity extends AppCompatActivity {
     //检查蓝牙是否支持及打开
     private void checkBlueStatus() {
         if (!ble.isSupportBle(this)) {
-            Utils.showToast(R.string.ble_not_supported);
+            com.example.admin.mybledemo.Utils.showToast(R.string.ble_not_supported);
             finish();
         }
         if (!ble.isBleEnable()) {
@@ -201,7 +195,7 @@ public class BleActivity extends AppCompatActivity {
 
     private void checkGpsStatus(){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
-                && !BleUtils.isGpsOpen(BleActivity.this)){
+                && !Utils.isGpsOpen(BleActivity.this)){
             new AlertDialog.Builder(BleActivity.this)
                     .setTitle("提示")
                     .setMessage("为了更精确的扫描到Bluetooth LE设备,请打开GPS定位")
@@ -298,7 +292,7 @@ public class BleActivity extends AppCompatActivity {
                 startActivity(new Intent(BleActivity.this, IntroducedActivity.class));
                 break;
             case R.id.menu_share:
-                Utils.shareAPK(this);
+                com.example.admin.mybledemo.Utils.shareAPK(this);
                 break;
             case R.id.menu_contribute:
                 ImageView imageView = new ImageView(this);
