@@ -1,5 +1,5 @@
 <resources>
-    <string name="lib_name">BleLibrary</string>
+    <string name="lib_name">blelib</string>
     <string name="ota_error">更新设备%1$s失败，请检查蓝牙连接</string>
     <string name="update_retry">重试</string>
     <string name="update_cancel">取消</string>
