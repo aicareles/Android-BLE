@@ -19,6 +19,7 @@
       <PegdownExtensions>
         <option name="ANCHORLINKS" value="true" />
         <option name="ATXHEADERSPACE" value="true" />
+        <option name="AUTOLINKS" value="true" />
         <option name="FENCED_CODE_BLOCKS" value="true" />
         <option name="INTELLIJ_DUMMY_IDENTIFIER" value="true" />
         <option name="RELAXEDHRULES" value="true" />
