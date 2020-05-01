@@ -3,10 +3,10 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Android-BLE.iml" filepath="$PROJECT_DIR$/Android-BLE.iml" group="Android-BLE" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/core/Android-BLE.core.iml" filepath="$PROJECT_DIR$/.idea/modules/core/Android-BLE.core.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/java-sample/Android-BLE.java-sample.iml" filepath="$PROJECT_DIR$/.idea/modules/java-sample/Android-BLE.java-sample.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/kotlin-sample/Android-BLE.kotlin-sample.iml" filepath="$PROJECT_DIR$/.idea/modules/kotlin-sample/Android-BLE.kotlin-sample.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Projects.Android-BLE.iml" filepath="$PROJECT_DIR$/.idea/modules/Projects.Android-BLE.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/core/Android-BLE.core.iml" filepath="$PROJECT_DIR$/.idea/modules/core/Android-BLE.core.iml" group="Android-BLE/core" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/java-sample/Android-BLE.java-sample.iml" filepath="$PROJECT_DIR$/.idea/modules/java-sample/Android-BLE.java-sample.iml" group="Android-BLE/java-sample" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/kotlin-sample/Android-BLE.kotlin-sample.iml" filepath="$PROJECT_DIR$/.idea/modules/kotlin-sample/Android-BLE.kotlin-sample.iml" group="Android-BLE/kotlin-sample" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Projects.Android-BLE.iml" filepath="$PROJECT_DIR$/.idea/modules/Projects.Android-BLE.iml" group="Android-BLE" />
       <module fileurl="file://$PROJECT_DIR$/core/core.iml" filepath="$PROJECT_DIR$/core/core.iml" group="Android-BLE/core" />
       <module fileurl="file://$PROJECT_DIR$/java-sample/java-sample.iml" filepath="$PROJECT_DIR$/java-sample/java-sample.iml" group="Android-BLE/java-sample" />
       <module fileurl="file://$PROJECT_DIR$/kotlin-sample/kotlin-sample.iml" filepath="$PROJECT_DIR$/kotlin-sample/kotlin-sample.iml" group="Android-BLE/kotlin-sample" />
