@@ -33,6 +33,7 @@ allprojects {
     repositories {
         google()
         jcenter()
+        maven { url "https://raw.githubusercontent.com/Pgyer/mvn_repo_pgyer/master" }
         maven { url "https://jitpack.io" }
     }
     tasks.withType(Javadoc) {
