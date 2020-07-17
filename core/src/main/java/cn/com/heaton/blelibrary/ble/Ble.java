@@ -121,6 +121,7 @@ public final class Ble<T extends BleDevice> {
         request = (RequestListener<T>) RequestProxy.newProxy().bindProxy(context, RequestImpl.newRequestImpl());
         bleRequestImpl = BleRequestImpl.getBleRequest();
         bleRequestImpl.initialize(context);
+        initBleObserver();
         BleLog.d(TAG, "Ble init success");
         if (callback != null){
             callback.success();
@@ -142,10 +143,8 @@ public final class Ble<T extends BleDevice> {
      * @param callback
      */
     public void setBleStatusCallback(BleStatusCallback callback){
-        if (bleObserver == null) {
-            this.bleObserver = new BluetoothChangedObserver(context);
-            this.bleObserver.setBleScanCallbackInner(callback);
-            this.bleObserver.registerReceiver();
+        if (bleObserver != null) {
+            bleObserver.setBleScanCallbackInner(callback);
         }
     }
 
@@ -213,7 +212,14 @@ public final class Ble<T extends BleDevice> {
      */
     public void autoConnect(T device, boolean autoConnect){
         ConnectRequest<T> request = Rproxy.getRequest(ConnectRequest.class);
-        request.resetReConnect(device, autoConnect);
+        request.resetAutoConnect(device, autoConnect);
+    }
+
+    public void cancelAutoConnects(){
+        ConnectRequest<T> request = Rproxy.getRequest(ConnectRequest.class);
+        if(request != null){
+            request.cancelAutoConnect();
+        }
     }
 
     /**
@@ -471,6 +477,13 @@ public final class Ble<T extends BleDevice> {
             for (T bleDevice : connetedDevices) {
                 disconnect(bleDevice);
             }
+        }
+    }
+
+    private void initBleObserver(){
+        if (bleObserver == null){
+            bleObserver = new BluetoothChangedObserver(context);
+            bleObserver.registerReceiver();
         }
     }
 

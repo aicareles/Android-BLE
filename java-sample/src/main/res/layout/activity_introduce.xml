@@ -5,23 +5,12 @@
     android:layout_height="match_parent">
 
     <TextView
+        android:id="@+id/introduction"
         android:layout_marginTop="30dp"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:padding="15dp"
         android:textSize="14sp"
-        android:textColor="@color/colorAccent"
-        android:text="温馨提示：\n
-1、有部分Android手机（6.0及以上）连接BLE蓝牙必须先打开GPS定位（具体原因可自行搜索）\n
-2、蓝牙连接错误的状态码可参考库中BleStates类中的详细说明。\n
-如下：\n
-Mcu连接断开或者是信号弱等原因断开（错误码：2523）\n
-连接失败（错误码：2521）\n
-状态异常（错误码：2522）\n
-连接超时（错误码：2510）\n
-等等。\n
-3、该库最新依赖请参照README.md文件中说明\n
-4、DEMO仅供参考，并不作为唯一标准（可能会产生问题），若发现库中错误可通过GitHub提交给作者进行修复"/>
-
+        android:textColor="@color/colorPrimaryDark" />
 
 </LinearLayout>

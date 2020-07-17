@@ -1,1 +1,1 @@
-[{"outputType":{"type":"APK"},"apkData":{"type":"MAIN","splits":[],"versionCode":12,"versionName":"3.0.2","enabled":true,"outputFile":"BLE-v3.0.2.apk","fullName":"release","baseName":"release"},"path":"BLE-v3.0.2.apk","properties":{}}]
+[{"outputType":{"type":"APK"},"apkInfo":{"type":"MAIN","splits":[],"versionCode":58},"path":"BLE-v3.1.0.apk","properties":{"packageId":"com.example.admin.mybledemo","split":"","minSdkVersion":"19"}}]

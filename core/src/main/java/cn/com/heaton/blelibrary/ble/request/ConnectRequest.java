@@ -22,7 +22,7 @@ import cn.com.heaton.blelibrary.ble.queue.RequestTask;
 import cn.com.heaton.blelibrary.ble.utils.ThreadUtils;
 
 /**
- *
+ *  TODO  断开蓝牙时,重新连接蓝牙不会自动重连,而且以后也不会重新连接bug
  * Created by LiuLei on 2017/10/21.
  */
 @Implement(ConnectRequest.class)
@@ -69,14 +69,20 @@ public class ConnectRequest<T extends BleDevice> implements ConnectWrapperCallba
             doConnectException(device, BleStates.MaxConnectNumException);
             return false;
         }
+        device.setAutoConnect(Ble.options().autoConnect);
         addBleToPool(device);
         return bleRequest.connect(device);
     }
 
-    private void doConnectException(T device, int errorCode){
-        if (connectCallback != null){
-            connectCallback.onConnectException(device, errorCode);
-        }
+    private void doConnectException(final T device, final int errorCode){
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (connectCallback != null){
+                    connectCallback.onConnectException(device, errorCode);
+                }
+            }
+        });
     }
 
     public boolean connect(String address, BleConnectCallback<T> callback) {
@@ -111,7 +117,8 @@ public class ConnectRequest<T extends BleDevice> implements ConnectWrapperCallba
                 connectCallback.onConnectCancel(device);
             }
             if (connecting){
-                disconnect(device.getBleAddress());
+//                disconnect(device.getBleAddress());
+                disconnect(device);
                 bleRequest.cancelTimeout(device.getBleAddress());
                 device.setConnectionState(BleDevice.DISCONNECT);
                 onConnectionChanged(device);
@@ -134,13 +141,19 @@ public class ConnectRequest<T extends BleDevice> implements ConnectWrapperCallba
      */
     public void disconnect(String address){
         //Traverse the connected device collection to disconnect automatically cancel the automatic connection
-        ArrayList<T> connectedDevices = getConnectedDevices();
+        /*ArrayList<T> connectedDevices = getConnectedDevices();
         for (T bleDevice : connectedDevices) {
             if (bleDevice.getBleAddress().equals(address)) {
                 bleDevice.setAutoConnect(false);
             }
         }
-        bleRequest.disconnect(address);
+        bleRequest.disconnect(address);*/
+        for (T bleDevice : connectedDevices) {
+            if (bleDevice.getBleAddress().equals(address)) {
+                disconnect(bleDevice);
+            }
+        }
+
     }
 
     /**
@@ -148,9 +161,10 @@ public class ConnectRequest<T extends BleDevice> implements ConnectWrapperCallba
      * @param device 设备对象
      */
     public void disconnect(BleDevice device) {
-        if (device != null){
+        /*if (device != null){
             disconnect(device.getBleAddress());
-        }
+        }*/
+        disconnect(device, connectCallback);
     }
 
     /**
@@ -159,8 +173,10 @@ public class ConnectRequest<T extends BleDevice> implements ConnectWrapperCallba
      */
     public void disconnect(BleDevice device, BleConnectCallback<T> callback) {
         if (device != null){
-            disconnect(device.getBleAddress());
             connectCallback = callback;
+//            disconnect(device.getBleAddress());
+            device.setAutoConnect(false);
+            bleRequest.disconnect(device.getBleAddress());
         }
     }
 
@@ -169,7 +185,7 @@ public class ConnectRequest<T extends BleDevice> implements ConnectWrapperCallba
      * 直接断开系统蓝牙不回调onConnectionStateChange接口问题
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public void disconnectBluetooth(){
+    public void closeBluetooth(){
         if (!connectedDevices.isEmpty()){
             for (T device: connectedDevices) {
                 if (null != connectCallback){
@@ -181,6 +197,17 @@ public class ConnectRequest<T extends BleDevice> implements ConnectWrapperCallba
             bleRequest.close();
             connectedDevices.clear();
             devices.clear();
+        }
+    }
+
+    /**
+     * 打开蓝牙后,重新连接异常断开时的设备
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public void openBluetooth(){
+        BleLog.i(TAG, "auto devices size："+autoDevices.size());
+        for (T device: autoDevices) {
+            addAutoPool(device);
         }
     }
 
@@ -222,14 +249,7 @@ public class ConnectRequest<T extends BleDevice> implements ConnectWrapperCallba
     public void onConnectException(final T bleDevice, final int errorCode) {
         if (bleDevice == null)return;
         BleLog.e(TAG, "ConnectException>>>> "+bleDevice.getBleName()+"\n异常码:"+errorCode);
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (null != connectCallback){
-                    connectCallback.onConnectException(bleDevice, errorCode);
-                }
-            }
-        });
+        doConnectException(bleDevice, errorCode);
     }
 
     @Override
@@ -342,12 +362,14 @@ public class ConnectRequest<T extends BleDevice> implements ConnectWrapperCallba
         if (device == null) return;
         if (device.isAutoConnect()) {
             BleLog.d(TAG, "addAutoPool: "+"Add automatic connection device to the connection pool");
-            autoDevices.add(device);
+            if (!autoDevices.contains(device)){
+                autoDevices.add(device);
+            }
             ConnectQueue.getInstance().put(DEFAULT_CONNECT_DELAY, RequestTask.newConnectTask(device.getBleAddress()));
         }
     }
 
-    public void resetReConnect(T device, boolean autoConnect){
+    public void resetAutoConnect(T device, boolean autoConnect){
         if (device == null)return;
         device.setAutoConnect(autoConnect);
         if (!autoConnect){
@@ -357,6 +379,16 @@ public class ConnectRequest<T extends BleDevice> implements ConnectWrapperCallba
             }
         }else {//重连
             addAutoPool(device);
+        }
+    }
+
+    //清空所有需要自动重连的设备
+    public void cancelAutoConnect(){
+        for (T device: devices) {
+            device.setAutoConnect(false);
+            if (device.isConnecting() || device.isConnected()){
+                disconnect(device);
+            }
         }
     }
 

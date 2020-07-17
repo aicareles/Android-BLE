@@ -2,16 +2,7 @@ package com.example.admin.mybledemo;
 
 import android.app.Application;
 import android.bluetooth.le.ScanFilter;
-import android.content.Context;
-import android.os.Build;
 import android.os.ParcelUuid;
-import android.support.annotation.RequiresApi;
-
-import com.pgyersdk.Pgyer;
-import com.pgyersdk.PgyerActivityManager;
-import com.pgyersdk.crash.PgyCrashManager;
-import com.pgyersdk.crash.PgyerCrashObservable;
-import com.pgyersdk.crash.PgyerObserver;
 
 import java.util.UUID;
 
@@ -58,19 +49,18 @@ public class MyApplication extends Application {
         mApplication = this;
         AopArms.init(this);
         initBle();
-        initPgy();
     }
 
     //初始化蓝牙
     private void initBle() {
-        ScanFilter scanFilter = null;
+        /*ScanFilter scanFilter = null;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
             scanFilter = new ScanFilter.Builder()
-//                    .setServiceUuid(ParcelUuid.fromString(UuidUtils.uuid16To128("fff0")))//8.0以上手机后台扫描，必须开启
+                    .setServiceUuid(ParcelUuid.fromString(UuidUtils.uuid16To128("fff0")))//8.0以上手机后台扫描，必须开启
 //                    .setDeviceAddress("00:3D:00:00:00:18")
 //                    .setDeviceName("QCAR")
                             .build();
-        }
+        }*/
         Ble.options()
                 .setLogBleEnable(true)//设置是否输出打印蓝牙日志
                 .setThrowBleException(true)//设置是否抛出蓝牙异常
@@ -81,7 +71,7 @@ public class MyApplication extends Application {
                 .setConnectTimeout(10 * 1000)//设置连接超时时长
                 .setScanPeriod(12 * 1000)//设置扫描时长
                 .setMaxConnectNum(7)//最大连接数量
-                .setScanFilter(scanFilter)
+//                .setScanFilter(scanFilter)
                 .setUuidService(UUID.fromString(UuidUtils.uuid16To128("fd00")))//设置主服务的uuid
                 .setUuidWriteCha(UUID.fromString(UuidUtils.uuid16To128("fd01")))//设置可写特征的uuid
 //                .setUuidReadCha(UUID.fromString(UuidUtils.uuid16To128("fd02")))//设置可读特征的uuid （选填）
@@ -104,23 +94,6 @@ public class MyApplication extends Application {
                         BleLog.e("MainApplication", "初始化失败：" + failedCode);
                     }
                 });
-    }
-
-    private void initPgy() {
-        PgyCrashManager.register();
-        PgyerCrashObservable.get().attach(new PgyerObserver() {
-            @Override
-            public void receivedCrash(Thread thread, Throwable throwable) {
-
-            }
-        });
-        PgyerActivityManager.set(this);
-    }
-
-    @Override
-    protected void attachBaseContext(Context context) {
-        super.attachBaseContext(context);
-        Pgyer.setAppId("b22d78f4563a1906c9c2605d9186c768");
     }
 
     public static MyApplication getInstance() {

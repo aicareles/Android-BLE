@@ -85,7 +85,7 @@ class BluetoothScannerImplLollipop extends BleScannerCompat {
         boolean background = Utils.isBackground(Ble.getInstance().getContext());
         BleLog.d(TAG, "currently in the background:>>>>>"+background);
 
-        ScanFilter filter = Ble.options().scanFilter;
+        ScanFilter filter = Ble.options().getScanFilter();
         if (filter != null){
             filters.add(filter);
         }

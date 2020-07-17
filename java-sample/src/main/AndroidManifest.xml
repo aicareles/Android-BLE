@@ -32,11 +32,6 @@
                 tools:replace="name,resource" />
         </provider>
 
-        <provider
-            android:name="com.pgyersdk.PgyerProvider"
-            android:authorities="${applicationId}.com.pgyer.provider"
-            android:exported="false" />
-
         <activity android:name=".ui.BleActivity"
             android:windowSoftInputMode="adjustPan">
             <intent-filter>

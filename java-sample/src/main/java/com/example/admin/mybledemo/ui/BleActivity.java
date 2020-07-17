@@ -6,6 +6,7 @@ import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
+import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -30,7 +31,6 @@ import android.widget.TextView;
 import com.example.admin.mybledemo.BleRssiDevice;
 import com.example.admin.mybledemo.R;
 import com.example.admin.mybledemo.adapter.ScanAdapter;
-import com.pgyersdk.update.PgyUpdateManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,6 +64,7 @@ public class BleActivity extends AppCompatActivity {
     private List<BleRssiDevice> bleRssiDevices;
     private Ble<BleRssiDevice> ble = Ble.getInstance();
     private ObjectAnimator animator;
+    private boolean isFilter = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -75,19 +76,6 @@ public class BleActivity extends AppCompatActivity {
         initBleStatus();
         requestPermission();
 
-
-
-    }
-
-    @Permission(value = {Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
-            requestCode = REQUEST_PERMISSION_WRITE,
-            rationale = "读写SD卡权限被拒绝,将会影响自动更新版本功能哦!")
-    private void update() {
-        new PgyUpdateManager.Builder()
-                .setForced(false)                //设置是否强制更新
-                .setUserCanRetry(false)         //失败后是否提示重新下载
-                .setDeleteHistroyApk(true)     // 检查更新前是否删除本地历史 Apk
-                .register();
     }
 
     private void initAdapter() {
@@ -107,10 +95,25 @@ public class BleActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recyclerView);
         floatingActionButton = findViewById(R.id.floatingButton);
         filterView = findViewById(R.id.filterView);
-        filterView.init(this);
     }
 
     private void initLinsenter() {
+        filterView.init(new FilterView.FilterListener() {
+            @Override
+            public void onAddressNameChanged(String addressOrName) {
+                isFilter = true;
+            }
+
+            @Override
+            public void onRssiChanged(int rssi) {
+                isFilter = true;
+            }
+
+            @Override
+            public void onCancel() {
+                isFilter = false;
+            }
+        });
         tvAdapterStates.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -140,7 +143,6 @@ public class BleActivity extends AppCompatActivity {
             rationale = "需要蓝牙相关权限")
     public void requestPermission() {
         checkBlueStatus();
-        update();
     }
 
     @PermissionDenied
@@ -217,15 +219,13 @@ public class BleActivity extends AppCompatActivity {
             adapter.notifyDataSetChanged();
             ble.startScan(scanCallback);
         }
-
-
-
     }
 
     private BleScanCallback<BleRssiDevice> scanCallback = new BleScanCallback<BleRssiDevice>() {
         @Override
         public void onLeScan(final BleRssiDevice device, int rssi, byte[] scanRecord) {
             if (TextUtils.isEmpty(device.getBleName())) return;
+
             synchronized (ble.getLocker()) {
                 for (int i = 0; i < bleRssiDevices.size(); i++) {
                     BleRssiDevice rssiDevice = bleRssiDevices.get(i);

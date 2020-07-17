@@ -382,7 +382,13 @@ public final class BleRequestImpl<T extends BleDevice> {
         bleDevice.setBleName(device.getName());
         connectWrapperCallback.onConnectionChanged(bleDevice);
         // We want to directly connect to the device, so we are setting the autoConnect parameter to false
-        BluetoothGatt bluetoothGatt = device.connectGatt(context, false, gattCallback);
+        BluetoothGatt bluetoothGatt;
+        //TODO 连接双通道蓝牙必须设置
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && device.getType() == BluetoothDevice.DEVICE_TYPE_DUAL) {
+            bluetoothGatt = device.connectGatt(context, false, gattCallback, BluetoothDevice.TRANSPORT_LE);
+        } else {
+            bluetoothGatt = device.connectGatt(context, false, gattCallback);
+        }
         if (bluetoothGatt != null) {
             gattHashMap.put(address, bluetoothGatt);
             BleLog.d(TAG, "Trying to create a new connection.");

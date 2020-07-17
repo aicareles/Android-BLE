@@ -54,6 +54,24 @@ public class ScanAdapter extends RecyclerAdapter<BleRssiDevice> {
         }
         address.setText(device.getBleAddress());
 
+        int deviceType = device.getDeviceType();
+        String type;
+        switch (deviceType){
+            case 1:
+                type = "Device type: Classic";
+                break;
+            case 2:
+                type = "Device type: LE only";
+                break;
+            case 3:
+                type = "Device type: Classic and LE only";
+                break;
+            default:
+                type = "Device type: UNKNOWN";
+                break;
+        }
+        tv_device_type.setText(type);
+
         if (hepler.getAdapterPosition() == opened){
             ll_detail.setVisibility(View.VISIBLE);
         } else {
@@ -94,7 +112,6 @@ public class ScanAdapter extends RecyclerAdapter<BleRssiDevice> {
         Log.e("scanRecord", "convert: "+scanRecord.toString());
         if (scanRecord != null){
             scanRecord.getAdvertiseFlags();
-            tv_device_type.setText("Device type: LE only");
             tv_advertise_type.setText("Advertising type: Legacy");
             tv_flags.setText("Flags:");
             List<ParcelUuid> serviceUuids = scanRecord.getServiceUuids();

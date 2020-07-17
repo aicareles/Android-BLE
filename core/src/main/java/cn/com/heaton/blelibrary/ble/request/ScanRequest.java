@@ -128,6 +128,7 @@ public class ScanRequest<T extends BleDevice> implements ScanWrapperCallback {
         T bleDevice = getDevice(device.getAddress());
         if (bleDevice == null) {
             bleDevice = (T) Ble.options().getFactory().create(device.getAddress(), device.getName());
+            bleDevice.setDeviceType(device.getType());
             if (bleScanCallback != null) {
                 bleScanCallback.onLeScan(bleDevice, rssi, scanRecord);
             }

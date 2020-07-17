@@ -1,1 +1,2 @@
-include ':java-sample', ':core', ':kotlin-sample'
+include ':java-sample', ':core'
+//, ':kotlin-sample'

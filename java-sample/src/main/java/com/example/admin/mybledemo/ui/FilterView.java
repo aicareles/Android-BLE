@@ -1,13 +1,17 @@
 package com.example.admin.mybledemo.ui;
 
 import android.app.Activity;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.le.ScanFilter;
 import android.content.Context;
 import android.graphics.drawable.ColorDrawable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,16 +25,18 @@ import android.widget.TextView;
 
 import com.example.admin.mybledemo.R;
 
+import cn.com.heaton.blelibrary.ble.Ble;
+
 public class FilterView extends BaseFrameLayout {
     private static final String TAG = "FilterView";
 
     private Context context;
-    private Activity activity;
     private PopupWindow popupWindow;
     private InputMethodManager imms;
 
     private TextView tvFilters;
     private ImageView ivExpand, ivClear;
+    private FilterListener filterListener;
 
 
     public FilterView(@NonNull Context context) {
@@ -46,8 +52,8 @@ public class FilterView extends BaseFrameLayout {
         super(context, attrs, defStyleAttr);
     }
 
-    public void init(Activity activity){
-        this.activity = activity;
+    public void init(FilterListener filterListener){
+        this.filterListener = filterListener;
     }
 
     @Override
@@ -77,7 +83,7 @@ public class FilterView extends BaseFrameLayout {
         ivClear.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                filterListener.onCancel();
             }
         });
     }
@@ -126,13 +132,31 @@ public class FilterView extends BaseFrameLayout {
 
                 @Override
                 public void afterTextChanged(Editable s) {
-
+                    Ble.Options options = Ble.options();
+                    Log.e(TAG, "afterTextChanged: "+s.toString());
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                        String add_name = s.toString();
+                        if (!TextUtils.isEmpty(add_name)){
+                            boolean isAddress = BluetoothAdapter.checkBluetoothAddress(add_name);
+                            ScanFilter.Builder builder = new ScanFilter.Builder();
+                            if (isAddress){
+                                builder.setDeviceAddress(add_name);
+                            }else {
+                                builder.setDeviceName(add_name);
+                            }
+                            options.setScanFilter(builder.build());
+                        }else {
+                            //清除过滤
+                            options.setScanFilter(null);
+                        }
+                        filterListener.onAddressNameChanged(add_name);
+                    }
                 }
             });
             ivClear.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
+                    etNameAddress.setText("");
                 }
             });
             sbRssi.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -148,7 +172,7 @@ public class FilterView extends BaseFrameLayout {
 
                 @Override
                 public void onStopTrackingTouch(SeekBar seekBar) {
-
+                    filterListener.onRssiChanged(seekBar.getProgress());
                 }
             });
 
@@ -159,6 +183,12 @@ public class FilterView extends BaseFrameLayout {
         } else {
             popupWindow.dismiss();
         }
+    }
+
+    public interface FilterListener {
+        void onAddressNameChanged(String addressOrName);
+        void onRssiChanged(int rssi);
+        void onCancel();
     }
 
 

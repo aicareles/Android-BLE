@@ -129,12 +129,12 @@ class MainActivity : AppCompatActivity() {
             uuidService = UUID.fromString(UuidUtils.uuid16To128("fd00"))
             uuidWriteCha = UUID.fromString(UuidUtils.uuid16To128("fd01"))
             bleWrapperCallback = MyBleWrapperCallback()
-            factory = object : BleFactory<MyDevice>() {
+            /*factory = object : BleFactory<MyDevice>() {
                 //实现自定义BleDevice时必须设置
                 override fun create(address: String, name: String): MyDevice{
                     return MyDevice(address, name) //自定义BleDevice的子类
                 }
-            }
+            }*/
         }.create(applicationContext, object :Ble.InitCallback{
             override fun failed(failedCode: Int) {
                 BleLog.i(TAG, "init failed: $failedCode")

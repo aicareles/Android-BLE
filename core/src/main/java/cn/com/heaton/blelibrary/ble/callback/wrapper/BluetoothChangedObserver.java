@@ -8,6 +8,7 @@ import android.content.IntentFilter;
 
 import java.lang.ref.WeakReference;
 
+import cn.com.heaton.blelibrary.ble.BleLog;
 import cn.com.heaton.blelibrary.ble.callback.BleStatusCallback;
 import cn.com.heaton.blelibrary.ble.request.ConnectRequest;
 import cn.com.heaton.blelibrary.ble.request.Rproxy;
@@ -48,7 +49,7 @@ public class BluetoothChangedObserver {
         }
     }
 
-    class BleReceiver extends BroadcastReceiver {
+    static class BleReceiver extends BroadcastReceiver {
         private WeakReference<BluetoothChangedObserver> mObserverWeakReference;
 
         public BleReceiver(BluetoothChangedObserver bluetoothChangedObserver){
@@ -61,9 +62,17 @@ public class BluetoothChangedObserver {
                 BluetoothChangedObserver observer = mObserverWeakReference.get();
                 int status = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1);
                 if (status == BluetoothAdapter.STATE_ON) {
-                    observer.bleStatusCallback.onBluetoothStatusChanged(true);
+                    BleLog.e("","系统蓝牙已开启");
+                    if (observer.bleStatusCallback != null){
+                        observer.bleStatusCallback.onBluetoothStatusChanged(true);
+                    }
+                    ConnectRequest request = Rproxy.getRequest(ConnectRequest.class);
+                    request.openBluetooth();
                 }else if(status == BluetoothAdapter.STATE_OFF){
-                    observer.bleStatusCallback.onBluetoothStatusChanged(false);
+                    BleLog.e("","系统蓝牙已关闭");
+                    if (observer.bleStatusCallback != null){
+                        observer.bleStatusCallback.onBluetoothStatusChanged(false);
+                    }
                     //如果正在扫描，则停止扫描
                     ScanRequest scanRequest = Rproxy.getRequest(ScanRequest.class);
                     if (scanRequest.isScanning()){
@@ -71,7 +80,7 @@ public class BluetoothChangedObserver {
                     }
                     //解决原生android系统,直接断开系统蓝牙不回调onConnectionStateChange接口问题
                     ConnectRequest request = Rproxy.getRequest(ConnectRequest.class);
-                    request.disconnectBluetooth();
+                    request.closeBluetooth();
                 }
             }
         }

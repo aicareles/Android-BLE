@@ -1,8 +1,12 @@
 package cn.com.heaton.blelibrary.ble.model;
 
+import android.bluetooth.BluetoothDevice;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.RestrictTo;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import cn.com.heaton.blelibrary.ble.Ble;
 
@@ -35,6 +39,14 @@ public class BleDevice implements Parcelable {
     /*蓝牙重命名名称（别名）*/
     private String mBleAlias;
 
+    /**
+     * DEVICE_TYPE_UNKNOWN = 0
+     * DEVICE_TYPE_CLASSIC = 1
+     * DEVICE_TYPE_LE = 2
+     * DEVICE_TYPE_DUAL = 3
+     */
+    private int mDeviceType = BluetoothDevice.DEVICE_TYPE_LE;
+
     /*是否自动连接*/
     private boolean mAutoConnect = Ble.options().autoConnect;//The default is not automatic connection
 
@@ -43,6 +55,11 @@ public class BleDevice implements Parcelable {
 
     /*解析后的广播包数据*/
     private ScanRecord scanRecord;
+
+    /**
+     * 自定义属性值
+     */
+    private Map<String, Object> mPropertyMap;
 
     /**
      * Use the address and name of the BluetoothDevice object
@@ -55,11 +72,14 @@ public class BleDevice implements Parcelable {
 
     protected BleDevice(Parcel in) {
         mConnectionState = in.readInt();
+        mDeviceType = in.readInt();
         mBleAddress = in.readString();
         mBleName = in.readString();
         mBleAlias = in.readString();
         mAutoConnect = in.readByte() != 0;
         isAutoConnecting = in.readByte() != 0;
+        mPropertyMap = new HashMap<>();
+        in.readMap(mPropertyMap, getClass().getClassLoader());
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -143,10 +163,33 @@ public class BleDevice implements Parcelable {
         this.scanRecord = scanRecord;
     }
 
+    public int getDeviceType() {
+        return mDeviceType;
+    }
+
+    public void setDeviceType(int deviceType) {
+        this.mDeviceType = deviceType;
+    }
+
+    public void put(String key, Object value){
+        if (mPropertyMap == null){
+            mPropertyMap = new HashMap<>();
+        }
+        mPropertyMap.put(key, value);
+    }
+
+    public Object get(String key){
+        if (mPropertyMap == null){
+            return null;
+        }
+        return mPropertyMap.get(key);
+    }
+
     @Override
     public String toString() {
         return "BleDevice{" +
                 "mConnectionState=" + mConnectionState +
+                "mDeviceType=" + mDeviceType +
                 ", mBleAddress='" + mBleAddress + '\'' +
                 ", mBleName='" + mBleName + '\'' +
                 ", mBleAlias='" + mBleAlias + '\'' +
@@ -162,10 +205,12 @@ public class BleDevice implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(mConnectionState);
+        dest.writeInt(mDeviceType);
         dest.writeString(mBleAddress);
         dest.writeString(mBleName);
         dest.writeString(mBleAlias);
         dest.writeByte((byte) (mAutoConnect ? 1 : 0));
         dest.writeByte((byte) (isAutoConnecting ? 1 : 0));
+        dest.writeMap(mPropertyMap);
     }
 }
