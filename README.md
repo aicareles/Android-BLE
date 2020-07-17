@@ -22,6 +22,9 @@ Android-BLE蓝牙框架,提供了扫描、连接、使能/除能通知、发送/
 * **BleStates** - 蓝牙操作异常状态码信息类.(扫描、连接、读写等异常状态码).
 * **ByteUtils** - 各种字节数据转换的工具类.
 
+## 异常状态码
+[BleStates](https://github.com/aicareles/Android-BLE/blob/master/core/src/main/java/cn/com/heaton/blelibrary/ble/BleStates.java)
+
 ## 接入文档
 ### 1. 在 **build.gradle** 中添加下面依赖.
 ``` groovy
