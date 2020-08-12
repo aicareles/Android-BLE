@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/Android-BLE.iml" filepath="$PROJECT_DIR$/Android-BLE.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Android-BLE.iml" filepath="$PROJECT_DIR$/Android-BLE.iml" group="Android-BLE" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/core/Android-BLE.core.iml" filepath="$PROJECT_DIR$/.idea/modules/core/Android-BLE.core.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/java-sample/Android-BLE.java-sample.iml" filepath="$PROJECT_DIR$/.idea/modules/java-sample/Android-BLE.java-sample.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/kotlin-sample/Android-BLE.kotlin-sample.iml" filepath="$PROJECT_DIR$/.idea/modules/kotlin-sample/Android-BLE.kotlin-sample.iml" />

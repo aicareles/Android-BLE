@@ -198,7 +198,6 @@ class MainActivity : AppCompatActivity() {
 
             override fun onConnectTimeOut(device: BleDevice?) {
                 super.onConnectTimeOut(device)
-                toast("连接异常，异常状态码:${device?.bleName}")
             }
 
             override fun onReady(device: BleDevice?) {
