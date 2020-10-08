@@ -21,12 +21,20 @@ Android-BLE蓝牙框架,提供了扫描、连接、使能/除能通知、发送/
 * **BleLog** - 内部日志类,开发环境下打开可查看蓝牙相关操作信息.
 * **BleStates** - 蓝牙操作异常状态码信息类.(扫描、连接、读写等异常状态码).
 * **ByteUtils** - 各种字节数据转换的工具类.
+* **CrcUtils** - 字节校验的crc各种算法的工具类.
+* **UuidUtils** - 蓝牙服务/特征uuid转换工具类.
 
 ## 异常状态码
 [BleStates](https://github.com/aicareles/Android-BLE/blob/master/core/src/main/java/cn/com/heaton/blelibrary/ble/BleStates.java)
 
+## 接入前提示
+```
+1. 如果项目中的设备是统一类型(服务,特征uuid相同),则推荐在初始化时把服务,特征的uuid配置完整。
+2. 如果项目中需要兼容多种设备类型(服务,特征uuid不相同),则在通信时需要使用byUuid的方式进行。
+```
+
 ## 接入文档
-### 1. 在 **build.gradle** 中添加下面依赖.
+### 1. 在 **build.gradle** 中添加下面依赖. [![Download](https://api.bintray.com/packages/superliu/maven/BleLib/images/download.svg)](https://bintray.com/superliu/maven/BleLib/_latestVersion)
 ``` groovy
 implementation 'cn.com.superLei:blelibrary:latestVersion'
 ```
@@ -42,11 +50,12 @@ private void initBle() {
                 .setMaxConnectNum(7)//最大连接数量
                 .setScanPeriod(12 * 1000)//设置扫描时长（默认10*1000 ms）
                 .setScanFilter(scanFilter)//设置扫描过滤
-               .setUuidService(UUID.fromString(UuidUtils.uuid16To128("fd00")))//设置主服务的uuid（必填）
+                .setUuidService(UUID.fromString(UuidUtils.uuid16To128("fd00")))//设置主服务的uuid（必填）
                 .setUuidWriteCha(UUID.fromString(UuidUtils.uuid16To128("fd01")))//设置可写特征的uuid （必填,否则写入失败）
                 .setUuidReadCha(UUID.fromString(UuidUtils.uuid16To128("fd02")))//设置可读特征的uuid （选填）
                 .setUuidNotifyCha(UUID.fromString(UuidUtils.uuid16To128("fd03")))//设置可通知特征的uuid （选填，库中默认已匹配可通知特征的uuid）
-               .setFactory(new BleFactory() {//实现自定义BleDevice时必须设置
+                .setUuidServicesExtra(new UUID[]{BATTERY_SERVICE_UUID})//设置额外的其他服务组，如电量服务等
+                .setFactory(new BleFactory() {//实现自定义BleDevice时必须设置
                     @Override
                     public MyDevice create(String address, String name) {
                         return new MyDevice(address, name);//自定义BleDevice的子类
