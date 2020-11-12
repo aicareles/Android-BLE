@@ -39,13 +39,13 @@ public class WriteRequest<T extends BleDevice> implements WriteWrapperCallback<T
     public boolean write(T device, byte[]data, BleWriteCallback<T> callback){
         this.bleWriteCallback = callback;
         BleRequestImpl bleRequest = BleRequestImpl.getBleRequest();
-        return bleRequest.wirteCharacteristic(device.getBleAddress(),data);
+        return bleRequest.writeCharacteristic(device.getBleAddress(),data);
     }
 
     public boolean writeByUuid(T device, byte[]data, UUID serviceUUID, UUID characteristicUUID, BleWriteCallback<T> callback){
         this.bleWriteCallback = callback;
         BleRequestImpl bleRequest = BleRequestImpl.getBleRequest();
-        return bleRequest.wirteCharacteristicByUuid(device.getBleAddress(), data, serviceUUID, characteristicUUID);
+        return bleRequest.writeCharacteristicByUuid(device.getBleAddress(), data, serviceUUID, characteristicUUID);
     }
 
     /*public void writeAsyn(final T device, final byte[]data, BleWriteCallback<T> lisenter){
@@ -121,7 +121,7 @@ public class WriteRequest<T extends BleDevice> implements WriteWrapperCallback<T
                         }
                     }
                     availableLength-=onePackLength;
-                    boolean result = bleRequest.wirteCharacteristic(address, txBuffer);
+                    boolean result = bleRequest.writeCharacteristic(address, txBuffer);
                     if(!result){
                         if(bleWriteEntityCallback != null){
                             bleWriteEntityCallback.onWriteFailed();

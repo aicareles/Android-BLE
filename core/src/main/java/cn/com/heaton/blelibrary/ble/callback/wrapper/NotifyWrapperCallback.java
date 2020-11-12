@@ -12,5 +12,7 @@ public interface NotifyWrapperCallback<T> {
 
     void onNotifySuccess(T device);
 
+    void onNotifyFailed(T device, int failedCode);
+
     void onNotifyCanceled(T device);
 }

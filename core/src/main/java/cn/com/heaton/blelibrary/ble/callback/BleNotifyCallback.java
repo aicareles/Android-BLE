@@ -17,6 +17,8 @@ public abstract class BleNotifyCallback<T> {
 
     public void onNotifySuccess(T device){}
 
+    public void onNotifyFailed(T device, int failedCode){}
+
     public void onNotifyCanceled(T device){}
 
 }

@@ -28,7 +28,7 @@ public final class WriteQueue extends Queue{
 
     @Override
     public void execute(RequestTask requestTask) {
-        bleRequest.wirteCharacteristic(requestTask.getAddress(), requestTask.getData());
+        bleRequest.writeCharacteristic(requestTask.getAddress(), requestTask.getData());
     }
 
 }

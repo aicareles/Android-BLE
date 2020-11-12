@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="CompilerConfiguration">
-    <bytecodeTargetLevel>
+    <bytecodeTargetLevel target="1.8">
       <module name="Android-BLE.core" target="1.7" />
       <module name="Android-BLE.java-sample" target="1.8" />
       <module name="Android-BLE.kotlin-sample" target="1.7" />

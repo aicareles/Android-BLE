@@ -32,6 +32,6 @@ public class BleStates {
     public static final int ConnectTimeOut = 2044;
     public static final int NotInitUuid = 2045;
 
-
+    public static final int CharaUuidNull = 2050;
 
 }
