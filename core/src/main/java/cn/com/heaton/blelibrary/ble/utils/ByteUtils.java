@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
+import java.util.Arrays;
 
 /**
  * 字节的转换
@@ -494,6 +495,16 @@ public class ByteUtils {
      */
     private static boolean isLittleEndian() {
         return ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN;
+    }
+
+    /**
+     * 拼接两个字节数组
+     * @return
+     */
+    public static byte[] concat(byte[] first, byte[] second){
+        byte[] result = Arrays.copyOf(first, first.length + second.length);
+        System.arraycopy(second, 0, result, first.length, second.length);
+        return result;
     }
 
 }

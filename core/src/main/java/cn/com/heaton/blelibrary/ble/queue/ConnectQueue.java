@@ -29,30 +29,10 @@ public final class ConnectQueue extends Queue{
         return sInstance;
     }
 
-    /**
-     * 添加任务，
-     * time 延迟时间,时间是毫秒
-     * q 问题
-     * 用户为问题设置延迟时间
-     */
-    /*@Override
-    public void put(long time, RequestTask requestTask) {
-        super.put(time, requestTask);
-    }*/
-
-    /*@Override
-    public void remove(RequestTask requestTask) {
-        super.remove(requestTask);
-    }*/
-
     @Override
     public void execute(RequestTask requestTask) {
         connectRequest.reconnect(requestTask.getAddress());
 //        BleLog.i("ConnectQueue", "正在重新连接设备:>>>"+"result:"+reconnect+">>>>"+requestTask.getAddress());
     }
 
-    /*@Override
-    public void clear(){
-        super.clear();
-    }*/
 }
