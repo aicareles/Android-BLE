@@ -65,7 +65,7 @@ public class MyApplication extends Application {
                 .setLogBleEnable(true)//设置是否输出打印蓝牙日志
                 .setThrowBleException(true)//设置是否抛出蓝牙异常
                 .setLogTAG("AndroidBLE")//设置全局蓝牙操作日志TAG
-                .setAutoConnect(false)//设置是否自动连接
+                .setAutoConnect(true)//设置是否自动连接
                 .setIgnoreRepeat(false)//设置是否过滤扫描到的设备(已扫描到的不会再次扫描)
                 .setConnectFailedRetryCount(3)//连接异常时（如蓝牙协议栈错误）,重新连接次数
                 .setConnectTimeout(10 * 1000)//设置连接超时时长

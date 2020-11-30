@@ -3,18 +3,12 @@ package cn.com.heaton.blelibrary.ble.queue;
 public class RequestTask {
     private String address;
     private byte[] data;
+    private long delay;
 
-    private RequestTask(String address, byte[] data) {
+    RequestTask(String address, byte[] data, long delay) {
         this.address = address;
         this.data = data;
-    }
-
-    public static RequestTask newWriteTask(String address, byte[] data){
-        return new RequestTask(address, data);
-    }
-
-    public static RequestTask newConnectTask(String address){
-        return new RequestTask(address, null);
+        this.delay = delay;
     }
 
     public String getAddress() {
@@ -25,4 +19,35 @@ public class RequestTask {
         return data;
     }
 
+    public long getDelay() {
+        return delay;
+    }
+
+    public static final class Builder {
+        private String address;
+        private byte[] data;
+        private long delay = 500;
+
+        public Builder() {
+        }
+
+        public Builder address(String address) {
+            this.address = address;
+            return this;
+        }
+
+        public Builder data(byte[] data) {
+            this.data = data;
+            return this;
+        }
+
+        public Builder delay(long delay) {
+            this.delay = delay;
+            return this;
+        }
+
+        public RequestTask build() {
+            return new RequestTask(address,data,delay);
+        }
+    }
 }

@@ -5,7 +5,6 @@ import android.support.annotation.RestrictTo;
 import android.text.TextUtils;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import cn.com.heaton.blelibrary.ble.Ble;
@@ -14,41 +13,31 @@ import cn.com.heaton.blelibrary.ble.BleStates;
 import cn.com.heaton.blelibrary.ble.BleRequestImpl;
 import cn.com.heaton.blelibrary.ble.annotation.Implement;
 import cn.com.heaton.blelibrary.ble.callback.BleConnectCallback;
+import cn.com.heaton.blelibrary.ble.queue.reconnect.ReconnectHandlerCallback;
 import cn.com.heaton.blelibrary.ble.callback.wrapper.BleWrapperCallback;
 import cn.com.heaton.blelibrary.ble.callback.wrapper.ConnectWrapperCallback;
 import cn.com.heaton.blelibrary.ble.model.BleDevice;
-import cn.com.heaton.blelibrary.ble.queue.ConnectQueue;
-import cn.com.heaton.blelibrary.ble.queue.RequestTask;
+import cn.com.heaton.blelibrary.ble.queue.reconnect.DefaultReConnectHandler;
 import cn.com.heaton.blelibrary.ble.utils.ThreadUtils;
 
-/**
- *  TODO  断开蓝牙时,重新连接蓝牙不会自动重连,而且以后也不会重新连接bug
- * Created by LiuLei on 2017/10/21.
- */
 @Implement(ConnectRequest.class)
 public class ConnectRequest<T extends BleDevice> implements ConnectWrapperCallback<T> {
 
     private static final String TAG = "ConnectRequest";
-    private static final long DEFAULT_CONNECT_DELAY = 2000L;
     private BleConnectCallback<T> connectCallback;
-    private ArrayList<T> devices = new ArrayList<>();
-    private ArrayList<T> connectedDevices = new ArrayList<>();
-    private ArrayList<T> autoDevices = new ArrayList<>();
-    private BleConnectTask<T> task = new BleConnectTask<>();
-    private BleRequestImpl<T> bleRequest = BleRequestImpl.getBleRequest();
-    private BleWrapperCallback<T> bleWrapperCallback;
+    private final ArrayList<T> devices = new ArrayList<>();
+    private final ArrayList<T> connectedDevices = new ArrayList<>();
+    private final BleConnectsDispatcher<T> dispatcher = new BleConnectsDispatcher<>();
+    private final BleRequestImpl<T> bleRequest = BleRequestImpl.getBleRequest();
+    private final ReconnectHandlerCallback<T> reconnectHandlerCallback = DefaultReConnectHandler.provideReconnectHandler();
+    private final BleWrapperCallback<T> bleWrapperCallback;
 
     protected ConnectRequest() {
         bleWrapperCallback = Ble.options().bleWrapperCallback;
     }
 
-    public boolean reconnect(String address){
-        for (T device : autoDevices) {
-            if (TextUtils.equals(address, device.getBleAddress())){
-                return connect(device, connectCallback);
-            }
-        }
-        return false;
+    public boolean connect(T device){
+        return connect(device, connectCallback);
     }
 
     public boolean connect(T device, BleConnectCallback<T> callback) {
@@ -96,7 +85,7 @@ public class ConnectRequest<T extends BleDevice> implements ConnectWrapperCallba
      * @param callback
      */
     public void connect(List<T> devices, final BleConnectCallback<T> callback) {
-        task.excute(devices, new BleConnectTask.NextCallback<T>() {
+        dispatcher.excute(devices, new BleConnectsDispatcher.NextCallback<T>() {
             @Override
             public void onNext(T device) {
                 connect(device, callback);
@@ -110,21 +99,20 @@ public class ConnectRequest<T extends BleDevice> implements ConnectWrapperCallba
      */
     public void cancelConnecting(T device) {
         boolean connecting = device.isConnecting();
-        boolean ready_connect = task.isContains(device);
+        boolean ready_connect = dispatcher.isContains(device);
         if (connecting || ready_connect){
             if (null != connectCallback){
                 BleLog.d(TAG, "cancel connecting device："+device.getBleName());
                 connectCallback.onConnectCancel(device);
             }
             if (connecting){
-//                disconnect(device.getBleAddress());
                 disconnect(device);
                 bleRequest.cancelTimeout(device.getBleAddress());
                 device.setConnectionState(BleDevice.DISCONNECT);
                 onConnectionChanged(device);
             }
             if (ready_connect){
-                task.cancelOne(device);
+                dispatcher.cancelOne(device);
             }
         }
     }
@@ -140,14 +128,6 @@ public class ConnectRequest<T extends BleDevice> implements ConnectWrapperCallba
      * @param address 蓝牙地址
      */
     public void disconnect(String address){
-        //Traverse the connected device collection to disconnect automatically cancel the automatic connection
-        /*ArrayList<T> connectedDevices = getConnectedDevices();
-        for (T bleDevice : connectedDevices) {
-            if (bleDevice.getBleAddress().equals(address)) {
-                bleDevice.setAutoConnect(false);
-            }
-        }
-        bleRequest.disconnect(address);*/
         for (T bleDevice : connectedDevices) {
             if (bleDevice.getBleAddress().equals(address)) {
                 disconnect(bleDevice);
@@ -161,9 +141,6 @@ public class ConnectRequest<T extends BleDevice> implements ConnectWrapperCallba
      * @param device 设备对象
      */
     public void disconnect(BleDevice device) {
-        /*if (device != null){
-            disconnect(device.getBleAddress());
-        }*/
         disconnect(device, connectCallback);
     }
 
@@ -174,7 +151,6 @@ public class ConnectRequest<T extends BleDevice> implements ConnectWrapperCallba
     public void disconnect(BleDevice device, BleConnectCallback<T> callback) {
         if (device != null){
             connectCallback = callback;
-//            disconnect(device.getBleAddress());
             device.setAutoConnect(false);
             bleRequest.disconnect(device.getBleAddress());
         }
@@ -200,17 +176,6 @@ public class ConnectRequest<T extends BleDevice> implements ConnectWrapperCallba
         }
     }
 
-    /**
-     * 打开蓝牙后,重新连接异常断开时的设备
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public void openBluetooth(){
-        BleLog.i(TAG, "auto devices size："+autoDevices.size());
-        for (T device: autoDevices) {
-            addAutoPool(device);
-        }
-    }
-
     private void runOnUiThread(Runnable runnable){
         ThreadUtils.ui(runnable);
     }
@@ -221,25 +186,21 @@ public class ConnectRequest<T extends BleDevice> implements ConnectWrapperCallba
         if (bleDevice.isConnected()){
             connectedDevices.add(bleDevice);
             BleLog.d(TAG, "connected>>>> "+bleDevice.getBleName());
-            //After the success of the connection can be considered automatically reconnect
-            //If it is automatically connected device is removed from the automatic connection pool
-            removeAutoPool(bleDevice);
         }else if(bleDevice.isDisconnected()) {
             connectedDevices.remove(bleDevice);
             devices.remove(bleDevice);
             BleLog.d(TAG, "disconnected>>>> "+bleDevice.getBleName());
-            addAutoPool(bleDevice);
         }
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if (null != connectCallback){
+                if (connectCallback != null){
                     connectCallback.onConnectionChanged(bleDevice);
                 }
-
                 if (bleWrapperCallback != null){
                     bleWrapperCallback.onConnectionChanged(bleDevice);
                 }
+                reconnectHandlerCallback.onConnectionChanged(bleDevice);
             }
         });
 
@@ -335,61 +296,6 @@ public class ConnectRequest<T extends BleDevice> implements ConnectWrapperCallba
 
     public ArrayList<T> getConnectedDevices() {
         return connectedDevices;
-    }
-
-    /**
-     * If it is automatically connected device is removed from the automatic connection pool
-     *
-     * @param device Device object
-     */
-    private void removeAutoPool(BleDevice device) {
-        if (device == null) return;
-        Iterator<T> iterator = autoDevices.iterator();
-        while (iterator.hasNext()) {
-            BleDevice item = iterator.next();
-            if (device.getBleAddress().equals(item.getBleAddress())) {
-                iterator.remove();
-            }
-        }
-    }
-
-    /**
-     * Add a disconnected device to the autopool
-     *
-     * @param device Device object
-     */
-    private void addAutoPool(T device) {
-        if (device == null) return;
-        if (device.isAutoConnect()) {
-            BleLog.d(TAG, "addAutoPool: "+"Add automatic connection device to the connection pool");
-            if (!autoDevices.contains(device)){
-                autoDevices.add(device);
-            }
-            ConnectQueue.getInstance().put(DEFAULT_CONNECT_DELAY, RequestTask.newConnectTask(device.getBleAddress()));
-        }
-    }
-
-    public void resetAutoConnect(T device, boolean autoConnect){
-        if (device == null)return;
-        device.setAutoConnect(autoConnect);
-        if (!autoConnect){
-            removeAutoPool(device);
-            if (device.isConnecting()){
-                disconnect(device);
-            }
-        }else {//重连
-            addAutoPool(device);
-        }
-    }
-
-    //清空所有需要自动重连的设备
-    public void cancelAutoConnect(){
-        for (T device: devices) {
-            device.setAutoConnect(false);
-            if (device.isConnecting() || device.isConnected()){
-                disconnect(device);
-            }
-        }
     }
 
     public void cancelConnectCallback(){

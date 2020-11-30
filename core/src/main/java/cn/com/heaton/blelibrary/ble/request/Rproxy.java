@@ -1,7 +1,6 @@
 package cn.com.heaton.blelibrary.ble.request;
 
 import android.content.Context;
-
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
@@ -60,6 +59,7 @@ public class Rproxy {
             T request = null;
             try {
                 request = (T) constructor.newInstance();
+                requestObjs.put(cls,request);
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
             } catch (InstantiationException e) {

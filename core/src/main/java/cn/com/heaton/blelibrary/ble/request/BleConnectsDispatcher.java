@@ -3,7 +3,7 @@ import java.util.ArrayList;
 import java.util.List;
 import cn.com.heaton.blelibrary.ble.BleHandler;
 
-public class BleConnectTask<T> implements Runnable {
+public class BleConnectsDispatcher<T> implements Runnable {
 
     interface NextCallback<T> {
         void onNext(T device);
@@ -46,7 +46,7 @@ public class BleConnectTask<T> implements Runnable {
                 callback.onNext(connectDevices.get(0));
                 connectDevices.remove(0);
                 if (connectDevices.isEmpty())return;
-                BleHandler.of().postDelayed(BleConnectTask.this, DEFALUT_DELAY);
+                BleHandler.of().postDelayed(BleConnectsDispatcher.this, DEFALUT_DELAY);
             }
         }else {
             callback = null;

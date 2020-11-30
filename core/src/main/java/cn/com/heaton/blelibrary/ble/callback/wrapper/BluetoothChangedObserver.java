@@ -10,6 +10,7 @@ import java.lang.ref.WeakReference;
 
 import cn.com.heaton.blelibrary.ble.BleLog;
 import cn.com.heaton.blelibrary.ble.callback.BleStatusCallback;
+import cn.com.heaton.blelibrary.ble.queue.reconnect.DefaultReConnectHandler;
 import cn.com.heaton.blelibrary.ble.request.ConnectRequest;
 import cn.com.heaton.blelibrary.ble.request.Rproxy;
 import cn.com.heaton.blelibrary.ble.request.ScanRequest;
@@ -66,8 +67,7 @@ public class BluetoothChangedObserver {
                     if (observer.bleStatusCallback != null){
                         observer.bleStatusCallback.onBluetoothStatusChanged(true);
                     }
-                    ConnectRequest request = Rproxy.getRequest(ConnectRequest.class);
-                    request.openBluetooth();
+                    DefaultReConnectHandler.provideReconnectHandler().openBluetooth();
                 }else if(status == BluetoothAdapter.STATE_OFF){
                     BleLog.e("","系统蓝牙已关闭");
                     if (observer.bleStatusCallback != null){

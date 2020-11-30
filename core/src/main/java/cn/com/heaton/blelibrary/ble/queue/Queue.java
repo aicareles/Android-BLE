@@ -1,25 +1,24 @@
 package cn.com.heaton.blelibrary.ble.queue;
 
 import java.util.concurrent.DelayQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import cn.com.heaton.blelibrary.ble.BleLog;
 
 //TODO  优化 --- 执行完后  自动退出队列  销毁线程
 abstract class Queue {
 
+    private ExecutorService executor = Executors.newSingleThreadExecutor();
     protected DelayQueue<Task> delayQueue = new DelayQueue<>();
     //当前剩余总时长
     private long lastTime = 0L;
 
     protected Queue() {
-        Runnable daemonTask = new DaemonThread();
-        Thread daemonThread = new Thread(daemonTask);
-        daemonThread.setName("Connect Daemon");
-        daemonThread.start();
+        executor.execute(queueTask);
     }
 
-    //执行线程
-    class DaemonThread implements Runnable{
+    private final Runnable queueTask = new Runnable() {
         @Override
         public void run() {
             while (true) {
@@ -43,10 +42,11 @@ abstract class Queue {
                 }
             }
         }
-    }
+    };
 
-    public void put(long time, RequestTask requestTask){
-        lastTime+=time;
+    public void put(RequestTask requestTask){
+        long time = requestTask.getDelay();
+        lastTime += time;
         //创建一个任务
         Task k = new Task(time, lastTime, requestTask);
         //将任务放在延迟的队列中
@@ -62,6 +62,13 @@ abstract class Queue {
     public void clear(){
         delayQueue.clear();
         lastTime = 0L;
+    }
+
+    public void shutDown(){
+        if (executor != null && !executor.isShutdown()) {
+            executor.shutdownNow();
+            executor = null;
+        }
     }
 
 }

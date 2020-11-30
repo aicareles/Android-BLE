@@ -66,7 +66,7 @@ public class Test extends AppCompatActivity {
         data[3] = 0x35;
         data[4] = (byte) 0xf1;
         data[5] = (byte) CrcUtils.CRC8.CRC8(data, 0, data.length);
-        Log.e(TAG, "sendData: "+ ByteUtils.toHexString(data));
+        Log.e(TAG, "sendData: " + ByteUtils.toHexString(data));
 //        return ble.write(list.get(0), "Hello Android!".getBytes(), new BleWriteCallback<BleDevice>() {
         ble.write(ble.getConnectedDevices().get(0), data, new BleWriteCallback<BleDevice>() {
             @Override
@@ -157,6 +157,7 @@ public class Test extends AppCompatActivity {
     };
 
     ProgressDialog dialog;
+
     private void showProgress() {
         if (dialog == null) {
             dialog = new ProgressDialog(this);
@@ -197,8 +198,12 @@ public class Test extends AppCompatActivity {
     private void writeQueue() {
         String address = ble.getConnectedDevices().get(0).getBleAddress();
         for (int i = 0; i < 10; i++) {
-//            ble.writeQueueDelay(500, RequestTask.newWriteTask(address, "hello android".getBytes()));
-            ble.writeQueue(RequestTask.newWriteTask(address, "hello android".getBytes()));
+            RequestTask requestTask = new RequestTask.Builder()
+                    .address(address)
+                    .data("hello android".getBytes())
+                    .delay(500)
+                    .build();
+            ble.writeQueue(requestTask);
         }
     }
 

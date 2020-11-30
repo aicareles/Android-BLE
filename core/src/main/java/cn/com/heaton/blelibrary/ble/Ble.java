@@ -31,8 +31,10 @@ import cn.com.heaton.blelibrary.ble.exception.BleException;
 import cn.com.heaton.blelibrary.ble.model.BleDevice;
 import cn.com.heaton.blelibrary.ble.model.BleFactory;
 import cn.com.heaton.blelibrary.ble.model.EntityData;
+import cn.com.heaton.blelibrary.ble.queue.reconnect.DefaultReConnectHandler;
 import cn.com.heaton.blelibrary.ble.queue.RequestTask;
 import cn.com.heaton.blelibrary.ble.queue.WriteQueue;
+import cn.com.heaton.blelibrary.ble.queue.reconnect.ReconnectHandlerCallback;
 import cn.com.heaton.blelibrary.ble.request.ConnectRequest;
 import cn.com.heaton.blelibrary.ble.proxy.RequestImpl;
 import cn.com.heaton.blelibrary.ble.proxy.RequestListener;
@@ -211,15 +213,11 @@ public final class Ble<T extends BleDevice> {
      * @param autoConnect 是否自动连接
      */
     public void autoConnect(T device, boolean autoConnect){
-        ConnectRequest<T> request = Rproxy.getRequest(ConnectRequest.class);
-        request.resetAutoConnect(device, autoConnect);
+        DefaultReConnectHandler.provideReconnectHandler().resetAutoConnect(device, autoConnect);
     }
 
     public void cancelAutoConnects(){
-        ConnectRequest<T> request = Rproxy.getRequest(ConnectRequest.class);
-        if(request != null){
-            request.cancelAutoConnect();
-        }
+        DefaultReConnectHandler.provideReconnectHandler().cancelAutoConnect();
     }
 
     /**
@@ -362,12 +360,18 @@ public final class Ble<T extends BleDevice> {
         return request.writeByUuid(device, data, serviceUUID, characteristicUUID, callback);
     }
 
+    /**
+     *
+     * @param delay
+     * @param task
+     * @deprecated Use {@link Ble#writeQueue(RequestTask task)} instead.
+     */
     public void writeQueueDelay(long delay, RequestTask task){
-        WriteQueue.getInstance().put(delay, task);
+        writeQueue(task);
     }
 
     public void writeQueue(RequestTask task){
-        writeQueueDelay(DEFAULT_WRITE_DELAY, task);
+        WriteQueue.getInstance().put(task);
     }
 
     /**
