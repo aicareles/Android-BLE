@@ -68,7 +68,7 @@ public class ConnectRequest<T extends BleDevice> implements ConnectWrapperCallba
             @Override
             public void run() {
                 if (connectCallback != null){
-                    connectCallback.onConnectException(device, errorCode);
+                    connectCallback.onConnectFailed(device, errorCode);
                 }
             }
         });
@@ -207,26 +207,12 @@ public class ConnectRequest<T extends BleDevice> implements ConnectWrapperCallba
     }
 
     @Override
-    public void onConnectException(final T bleDevice, final int errorCode) {
+    public void onConnectFailed(final T bleDevice, final int errorCode) {
         if (bleDevice == null)return;
-        BleLog.e(TAG, "ConnectException>>>> "+bleDevice.getBleName()+"\n异常码:"+errorCode);
-        doConnectException(bleDevice, errorCode);
-    }
-
-    @Override
-    public void onConnectTimeOut(final T bleDevice) {
-        if (bleDevice == null)return;
-        BleLog.e(TAG, "ConnectTimeOut>>>> "+bleDevice.getBleName());
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (null != connectCallback){
-                    connectCallback.onConnectTimeOut(bleDevice);
-                }
-            }
-        });
+        BleLog.e(TAG, "onConnectFailed>>>> "+bleDevice.getBleName()+"\n异常码:"+errorCode);
         bleDevice.setConnectionState(BleDevice.DISCONNECT);
         onConnectionChanged(bleDevice);
+        doConnectException(bleDevice, errorCode);
     }
 
     @Override

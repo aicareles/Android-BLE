@@ -224,8 +224,6 @@ public class BleActivity extends AppCompatActivity {
     private BleScanCallback<BleRssiDevice> scanCallback = new BleScanCallback<BleRssiDevice>() {
         @Override
         public void onLeScan(final BleRssiDevice device, int rssi, byte[] scanRecord) {
-            if (TextUtils.isEmpty(device.getBleName())) return;
-
             synchronized (ble.getLocker()) {
                 for (int i = 0; i < bleRssiDevices.size(); i++) {
                     BleRssiDevice rssiDevice = bleRssiDevices.get(i);

@@ -25,11 +25,11 @@ public class BleStates {
     public static final int ConnectFailed = 2031;
     public static final int ConnectError = 2032;
     public static final int ConnectException = 2033;
-    public static final int MaxConnectNumException = 2034;
+    public static final int ConnectTimeOut = 2034;
+    public static final int MaxConnectNumException = 2035;
 
     public static final int NoService = 2040;
     public static final int DeviceNull = 2041;
-    public static final int ConnectTimeOut = 2044;
     public static final int NotInitUuid = 2045;
 
     public static final int CharaUuidNull = 2050;

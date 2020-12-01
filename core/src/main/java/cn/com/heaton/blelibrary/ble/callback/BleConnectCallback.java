@@ -36,7 +36,6 @@ public abstract class BleConnectCallback<T> {
      *  @param device ble device object
      * @param errorCode errorCode
      */
-    public void onConnectException(T device,int errorCode){}
+    public void onConnectFailed(T device, int errorCode){}
 
-    public void onConnectTimeOut(T device){}
 }

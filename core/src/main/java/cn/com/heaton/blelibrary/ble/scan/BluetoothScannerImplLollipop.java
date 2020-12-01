@@ -48,10 +48,10 @@ class BluetoothScannerImplLollipop extends BleScannerCompat {
         super.stopScan();
     }
 
-    private ScanCallback scannerCallback = new ScanCallback() {
+    private final ScanCallback scannerCallback = new ScanCallback() {
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
-            Log.e(TAG, "onScanResult: "+result.getScanRecord().getDeviceName());
+            BleLog.i(TAG, "onScanResult: "+result.getScanRecord().getDeviceName());
             BluetoothDevice device = result.getDevice();
             byte[] scanRecord = result.getScanRecord().getBytes();
             if (scanWrapperCallback != null){

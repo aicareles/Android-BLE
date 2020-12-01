@@ -13,7 +13,6 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.MenuItem;
 
-import com.example.admin.mybledemo.BleRssiDevice;
 import com.example.admin.mybledemo.R;
 import com.example.admin.mybledemo.Utils;
 import com.example.admin.mybledemo.adapter.DeviceInfoAdapter;
@@ -84,16 +83,9 @@ public class DeviceInfoActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onConnectException(BleDevice device, int errorCode) {
-            super.onConnectException(device, errorCode);
+        public void onConnectFailed(BleDevice device, int errorCode) {
+            super.onConnectFailed(device, errorCode);
             Utils.showToast("连接异常，异常状态码:" + errorCode);
-        }
-
-        @Override
-        public void onConnectTimeOut(BleDevice device) {
-            super.onConnectTimeOut(device);
-            Log.e(TAG, "onConnectTimeOut: " + device.getBleAddress());
-            Utils.showToast("连接超时:" + device.getBleName());
         }
 
         @Override
@@ -157,7 +149,6 @@ public class DeviceInfoActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        ble.cancelCallback(connectCallback);
         if (bleDevice != null){
             if (bleDevice.isConnecting()){
                 ble.cancelConnecting(bleDevice);
@@ -165,5 +156,6 @@ public class DeviceInfoActivity extends AppCompatActivity {
                 ble.disconnect(bleDevice);
             }
         }
+        ble.cancelCallback(connectCallback);
     }
 }

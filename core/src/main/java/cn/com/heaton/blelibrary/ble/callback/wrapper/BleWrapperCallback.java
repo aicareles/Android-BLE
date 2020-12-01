@@ -21,12 +21,7 @@ public abstract class BleWrapperCallback<T extends BleDevice> extends BleScanCal
     }
 
     @Override
-    public void onConnectException(T device, int errorCode) {
-
-    }
-
-    @Override
-    public void onConnectTimeOut(T device) {
+    public void onConnectFailed(T device, int errorCode) {
 
     }
 
