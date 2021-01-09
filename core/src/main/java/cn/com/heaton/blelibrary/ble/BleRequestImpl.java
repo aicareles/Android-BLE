@@ -15,6 +15,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.support.v4.os.HandlerCompat;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -470,6 +471,25 @@ public final class BleRequestImpl<T extends BleDevice> {
             }
         }
         return false;
+    }
+
+    public boolean isDeviceBusy(T device) {
+        boolean state = false;
+        try {
+            BluetoothGatt gatt = getBluetoothGatt(device.getBleAddress());
+            if (gatt != null){
+                Field field = gatt.getClass().getDeclaredField("mDeviceBusy");
+                field.setAccessible(true);
+                state = (boolean) field.get(gatt);
+                BleLog.i(TAG, "isDeviceBusy state:"+state);
+                return state;
+            }
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();
+        }
+        return state;
     }
 
 

@@ -16,6 +16,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.List;
 
 import cn.com.heaton.blelibrary.ble.Ble;
 import cn.com.heaton.blelibrary.ble.BleLog;
@@ -196,10 +197,10 @@ public class Test extends AppCompatActivity {
 
     @CheckConnect //检查是否连接
     private void writeQueue() {
-        String address = ble.getConnectedDevices().get(0).getBleAddress();
+        List<BleDevice> connectedDevices = ble.getConnectedDevices();
         for (int i = 0; i < 10; i++) {
             RequestTask requestTask = new RequestTask.Builder()
-                    .address(address)
+                    .devices(connectedDevices.toArray(new BleDevice[]{}))
                     .data("hello android".getBytes())
                     .delay(500)
                     .build();

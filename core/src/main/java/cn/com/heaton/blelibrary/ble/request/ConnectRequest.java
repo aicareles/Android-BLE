@@ -13,37 +13,41 @@ import cn.com.heaton.blelibrary.ble.BleStates;
 import cn.com.heaton.blelibrary.ble.BleRequestImpl;
 import cn.com.heaton.blelibrary.ble.annotation.Implement;
 import cn.com.heaton.blelibrary.ble.callback.BleConnectCallback;
-import cn.com.heaton.blelibrary.ble.queue.reconnect.ReconnectHandlerCallback;
 import cn.com.heaton.blelibrary.ble.callback.wrapper.BleWrapperCallback;
 import cn.com.heaton.blelibrary.ble.callback.wrapper.ConnectWrapperCallback;
 import cn.com.heaton.blelibrary.ble.model.BleDevice;
 import cn.com.heaton.blelibrary.ble.queue.reconnect.DefaultReConnectHandler;
+import cn.com.heaton.blelibrary.ble.queue.retry.RetryDispatcher;
 import cn.com.heaton.blelibrary.ble.utils.ThreadUtils;
 
 @Implement(ConnectRequest.class)
 public class ConnectRequest<T extends BleDevice> implements ConnectWrapperCallback<T> {
 
     private static final String TAG = "ConnectRequest";
-    private BleConnectCallback<T> connectCallback;
     private final ArrayList<T> devices = new ArrayList<>();
     private final ArrayList<T> connectedDevices = new ArrayList<>();
     private final BleConnectsDispatcher<T> dispatcher = new BleConnectsDispatcher<>();
     private final BleRequestImpl<T> bleRequest = BleRequestImpl.getBleRequest();
-    private final ReconnectHandlerCallback<T> reconnectHandlerCallback = DefaultReConnectHandler.provideReconnectHandler();
+    private BleConnectCallback<T> connectCallback;
+    private final List<BleConnectCallback<T>> connectInnerCallbacks = new ArrayList<>();
     private final BleWrapperCallback<T> bleWrapperCallback;
 
     protected ConnectRequest() {
-        bleWrapperCallback = Ble.options().bleWrapperCallback;
+        bleWrapperCallback = Ble.options().getBleWrapperCallback();
+        DefaultReConnectHandler<T> connectHandler = DefaultReConnectHandler.provideReconnectHandler();
+        addConnectHandlerCallbacks(connectHandler);
+        RetryDispatcher<T> retryDispatcher = RetryDispatcher.getInstance();
+        addConnectHandlerCallbacks(retryDispatcher);
     }
 
     public boolean connect(T device){
         return connect(device, connectCallback);
     }
 
-    public boolean connect(T device, BleConnectCallback<T> callback) {
+    public synchronized boolean connect(T device, BleConnectCallback<T> callback) {
         connectCallback = callback;
         if (device == null){
-            doConnectException(device, BleStates.DeviceNull);
+            doConnectException(null, BleStates.DeviceNull);
             return false;
         }
         if (device.isConnecting()){
@@ -72,6 +76,9 @@ public class ConnectRequest<T extends BleDevice> implements ConnectWrapperCallba
                 }
             }
         });
+        for (BleConnectCallback<T> callback: connectInnerCallbacks) {
+            callback.onConnectFailed(device, errorCode);
+        }
     }
 
     public boolean connect(String address, BleConnectCallback<T> callback) {
@@ -101,7 +108,7 @@ public class ConnectRequest<T extends BleDevice> implements ConnectWrapperCallba
         boolean connecting = device.isConnecting();
         boolean ready_connect = dispatcher.isContains(device);
         if (connecting || ready_connect){
-            if (null != connectCallback){
+            if (connectCallback != null){
                 BleLog.d(TAG, "cancel connecting device："+device.getBleName());
                 connectCallback.onConnectCancel(device);
             }
@@ -164,7 +171,7 @@ public class ConnectRequest<T extends BleDevice> implements ConnectWrapperCallba
     public void closeBluetooth(){
         if (!connectedDevices.isEmpty()){
             for (T device: connectedDevices) {
-                if (null != connectCallback){
+                if (connectCallback != null){
                     device.setConnectionState(BleDevice.DISCONNECT);
                     BleLog.e(TAG, "System Bluetooth is disconnected>>>> "+device.getBleName());
                     connectCallback.onConnectionChanged(device);
@@ -178,6 +185,10 @@ public class ConnectRequest<T extends BleDevice> implements ConnectWrapperCallba
 
     private void runOnUiThread(Runnable runnable){
         ThreadUtils.ui(runnable);
+    }
+
+    void addConnectHandlerCallbacks(BleConnectCallback<T> callback){
+        connectInnerCallbacks.add(callback);
     }
 
     @Override
@@ -200,9 +211,12 @@ public class ConnectRequest<T extends BleDevice> implements ConnectWrapperCallba
                 if (bleWrapperCallback != null){
                     bleWrapperCallback.onConnectionChanged(bleDevice);
                 }
-                reconnectHandlerCallback.onConnectionChanged(bleDevice);
             }
         });
+
+        for (BleConnectCallback<T> callback: connectInnerCallbacks) {
+            callback.onConnectionChanged(bleDevice);
+        }
 
     }
 
@@ -222,7 +236,7 @@ public class ConnectRequest<T extends BleDevice> implements ConnectWrapperCallba
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if (null != connectCallback){
+                if (connectCallback != null){
                     connectCallback.onReady(bleDevice);
                 }
 
@@ -236,7 +250,7 @@ public class ConnectRequest<T extends BleDevice> implements ConnectWrapperCallba
     @Override
     public void onServicesDiscovered(final T device, BluetoothGatt gatt) {
         BleLog.d(TAG, "onServicesDiscovered>>>> "+device.getBleName());
-        if (null != connectCallback){
+        if (connectCallback != null){
             connectCallback.onServicesDiscovered(device, gatt);
         }
 

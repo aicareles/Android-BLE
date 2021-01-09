@@ -3,6 +3,7 @@ package cn.com.heaton.blelibrary.ble.queue;
 import android.support.annotation.NonNull;
 
 import cn.com.heaton.blelibrary.ble.BleLog;
+import cn.com.heaton.blelibrary.ble.model.BleDevice;
 import cn.com.heaton.blelibrary.ble.queue.reconnect.DefaultReConnectHandler;
 
 public final class ConnectQueue extends Queue{
@@ -27,8 +28,9 @@ public final class ConnectQueue extends Queue{
 
     @Override
     public void execute(RequestTask requestTask) {
-        boolean reconnect = DefaultReConnectHandler.provideReconnectHandler().reconnect(requestTask.getAddress());
-        BleLog.i("ConnectQueue", "正在重新连接设备:>>>>>>>result:"+reconnect+">>>"+requestTask.getAddress());
+        BleDevice device = requestTask.getDevices()[0];
+        boolean reconnect = DefaultReConnectHandler.provideReconnectHandler().reconnect(device);
+        BleLog.i("ConnectQueue", "正在重新连接设备:>>>>>>>result:"+reconnect+">>>"+device.getBleName());
     }
 
 }

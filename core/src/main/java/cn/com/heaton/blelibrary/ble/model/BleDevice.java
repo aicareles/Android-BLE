@@ -189,7 +189,7 @@ public class BleDevice implements Parcelable {
     public String toString() {
         return "BleDevice{" +
                 "mConnectionState=" + mConnectionState +
-                "mDeviceType=" + mDeviceType +
+                ", mDeviceType=" + mDeviceType +
                 ", mBleAddress='" + mBleAddress + '\'' +
                 ", mBleName='" + mBleName + '\'' +
                 ", mBleAlias='" + mBleAlias + '\'' +

@@ -34,7 +34,6 @@ import cn.com.heaton.blelibrary.ble.model.EntityData;
 import cn.com.heaton.blelibrary.ble.queue.reconnect.DefaultReConnectHandler;
 import cn.com.heaton.blelibrary.ble.queue.RequestTask;
 import cn.com.heaton.blelibrary.ble.queue.WriteQueue;
-import cn.com.heaton.blelibrary.ble.queue.reconnect.ReconnectHandlerCallback;
 import cn.com.heaton.blelibrary.ble.request.ConnectRequest;
 import cn.com.heaton.blelibrary.ble.proxy.RequestImpl;
 import cn.com.heaton.blelibrary.ble.proxy.RequestListener;
@@ -383,7 +382,7 @@ public final class Ble<T extends BleDevice> {
      * @param callback 发送结果回调
      * @deprecated Use {@link Ble#writeEntity(EntityData, BleWriteEntityCallback)} instead.
      */
-    public void writeEntity(T device, final byte[]data, @IntRange(from = 1,to = 20)int packLength, int delay, BleWriteEntityCallback<T> callback){
+    public void writeEntity(T device, final byte[]data, @IntRange(from = 1,to = 512)int packLength, int delay, BleWriteEntityCallback<T> callback){
         request.writeEntity(device, data, packLength, delay, callback);
     }
 
@@ -584,6 +583,13 @@ public final class Ble<T extends BleDevice> {
         return false;
     }
 
+    public boolean isDeviceBusy(T device){
+        if (bleRequestImpl != null) {
+            return bleRequestImpl.isDeviceBusy(device);
+        }
+        return false;
+    }
+
     public static Options options(){
         if(options == null){
             options = new Options();
@@ -630,7 +636,7 @@ public final class Ble<T extends BleDevice> {
         /**
          * 蓝牙连接失败重试次数
          */
-        public int connectFailedRetryCount;
+        public int connectFailedRetryCount = 3;
 
         public int maxConnectNum = 7;
         /**
@@ -649,7 +655,10 @@ public final class Ble<T extends BleDevice> {
         @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
         public int manufacturerId = 65520; // 0xfff0
 
-        public BleWrapperCallback bleWrapperCallback;
+        /**
+         * TODO 待优化(泛型)
+         */
+        private BleWrapperCallback bleWrapperCallback;
 
         private BleFactory factory;
 

@@ -2,7 +2,10 @@ package cn.com.heaton.blelibrary.ble.queue;
 
 import android.support.annotation.NonNull;
 
+import java.util.List;
+
 import cn.com.heaton.blelibrary.ble.BleRequestImpl;
+import cn.com.heaton.blelibrary.ble.model.BleDevice;
 
 public final class WriteQueue extends Queue{
 
@@ -28,7 +31,10 @@ public final class WriteQueue extends Queue{
 
     @Override
     public void execute(RequestTask requestTask) {
-        bleRequest.writeCharacteristic(requestTask.getAddress(), requestTask.getData());
+        BleDevice[] devices = requestTask.getDevices();
+        for (BleDevice device: devices) {
+            bleRequest.writeCharacteristic(device.getBleAddress(), requestTask.getData());
+        }
     }
 
 }

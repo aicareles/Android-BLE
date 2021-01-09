@@ -5,6 +5,7 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.os.HandlerCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
@@ -21,6 +22,7 @@ import java.util.List;
 import java.util.UUID;
 
 import cn.com.heaton.blelibrary.ble.Ble;
+import cn.com.heaton.blelibrary.ble.BleHandler;
 import cn.com.heaton.blelibrary.ble.BleLog;
 import cn.com.heaton.blelibrary.ble.callback.BleConnectCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleNotifyCallback;
@@ -71,7 +73,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
     private BleConnectCallback<BleDevice> connectCallback = new BleConnectCallback<BleDevice>() {
         @Override
         public void onConnectionChanged(BleDevice device) {
-            Log.e(TAG, "onConnectionChanged: " + device.getConnectionState());
+            Log.e(TAG, "onConnectionChanged: " + device.getConnectionState()+Thread.currentThread().getName());
             if (device.isConnected()) {
                 actionBar.setSubtitle("已连接");
             }else if (device.isConnecting()){

@@ -1,18 +1,30 @@
 package cn.com.heaton.blelibrary.ble.queue;
 
+import cn.com.heaton.blelibrary.ble.model.BleDevice;
+
+
 public class RequestTask {
-    private String address;
+    private String[] address;
+    private BleDevice[] devices;
     private byte[] data;
     private long delay;
 
-    RequestTask(String address, byte[] data, long delay) {
+    RequestTask(String[] address, BleDevice[] devices, byte[] data, long delay) {
         this.address = address;
+        this.devices = devices;
         this.data = data;
         this.delay = delay;
     }
 
-    public String getAddress() {
+    /**
+     * @deprecated Use {@link Builder#getDevices()} instead.
+     */
+    public String[] getAddress() {
         return address;
+    }
+
+    public BleDevice[] getDevices() {
+        return devices;
     }
 
     public byte[] getData() {
@@ -24,15 +36,30 @@ public class RequestTask {
     }
 
     public static final class Builder {
-        private String address;
+        private String[] address;
+        private BleDevice[] devices;
         private byte[] data;
         private long delay = 500;
 
         public Builder() {
         }
 
-        public Builder address(String address) {
+        /**
+         * @deprecated Use {@link Builder#devices(BleDevice...)} instead.
+         * this method will be removed in a later version
+         */
+        public Builder address(String... address) {
             this.address = address;
+            return this;
+        }
+
+        /**
+         * Array of connected devices
+         * @param devices
+         * @return
+         */
+        public Builder devices(BleDevice... devices) {
+            this.devices = devices;
             return this;
         }
 
@@ -47,7 +74,7 @@ public class RequestTask {
         }
 
         public RequestTask build() {
-            return new RequestTask(address,data,delay);
+            return new RequestTask(address,devices,data,delay);
         }
     }
 }

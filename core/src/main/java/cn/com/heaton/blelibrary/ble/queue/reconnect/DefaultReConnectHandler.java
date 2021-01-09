@@ -5,6 +5,7 @@ import android.text.TextUtils;
 import java.util.ArrayList;
 import java.util.Iterator;
 import cn.com.heaton.blelibrary.ble.BleLog;
+import cn.com.heaton.blelibrary.ble.callback.BleConnectCallback;
 import cn.com.heaton.blelibrary.ble.model.BleDevice;
 import cn.com.heaton.blelibrary.ble.queue.ConnectQueue;
 import cn.com.heaton.blelibrary.ble.queue.RequestTask;
@@ -17,7 +18,7 @@ import cn.com.heaton.blelibrary.ble.request.Rproxy;
  * email: superliu0911@gmail.com
  * des:
  */
-public class DefaultReConnectHandler<T extends BleDevice> implements ReconnectHandlerCallback<T> {
+public class DefaultReConnectHandler<T extends BleDevice> extends BleConnectCallback<T> {
     private static final String TAG = "DefaultReConnectHandler";
     public static final long DEFAULT_CONNECT_DELAY = 2000L;
     private static DefaultReConnectHandler defaultReConnectHandler;
@@ -32,10 +33,10 @@ public class DefaultReConnectHandler<T extends BleDevice> implements ReconnectHa
         return defaultReConnectHandler;
     }
 
-    public boolean reconnect(String address){
+    public boolean reconnect(T device){
         BleLog.e(TAG, "reconnect>>>>>: "+autoDevices.size());
-        for (T device : autoDevices) {
-            if (TextUtils.equals(address, device.getBleAddress())){
+        for (T autoDevice : autoDevices) {
+            if (TextUtils.equals(autoDevice.getBleAddress(), device.getBleAddress())){
                 ConnectRequest<T> connectRequest = Rproxy.getRequest(ConnectRequest.class);
                 return connectRequest.connect(device);
             }
@@ -56,7 +57,7 @@ public class DefaultReConnectHandler<T extends BleDevice> implements ReconnectHa
                 autoDevices.add(device);
             }
             RequestTask requestTask = new RequestTask.Builder()
-                    .address(device.getBleAddress())
+                    .devices(device)
                     .delay(DEFAULT_CONNECT_DELAY)
                     .build();
             ConnectQueue.getInstance().put(requestTask);
