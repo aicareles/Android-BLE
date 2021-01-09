@@ -51,7 +51,7 @@ publish{
     groupId = 'cn.com.superLei'//一个唯一值，默认包名,生成的gradle依赖前缀
     artifactId = 'blelibrary'//远程仓库包名称
     uploadName = 'BleLib'//bintray中包的显示名称。 如果没有设置，artifactId将用于作为包名称。
-    publishVersion = '3.1.0'
+    publishVersion = '3.2.0'
     desc = 'Android-BLE Bluetooth framework, including scanning, connecting, enabling / disabling notifications, sending / reading data, receiving data, reading rssi, setting mtu and other Bluetooth-related operation interfaces, internally optimized connection queue, and fast write queue, And support multi-service communication, can be extended to configure Bluetooth related operations.'
     website = 'https://github.com/aicareles/Android-BLE'
     licences = ['Apache-2.0']
