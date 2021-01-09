@@ -7,8 +7,8 @@ android {
         applicationId "com.example.admin.mybledemo"
         minSdkVersion 19
         targetSdkVersion 28
-        versionCode 58
-        versionName "3.1.0"
+        versionCode 60
+        versionName "3.2.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
     }
@@ -49,7 +49,7 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 
     implementation project(':core')
-//    implementation 'cn.com.superLei:blelibrary:3.1.0'
+//    implementation 'cn.com.superLei:blelibrary:3.2.0'
     implementation 'com.android.support:appcompat-v7:28.0.0'
 //    implementation 'com.github.skydoves:colorpickerview:1.0.8'
     implementation 'cn.com.superLei:aop-arms:1.0.4'
