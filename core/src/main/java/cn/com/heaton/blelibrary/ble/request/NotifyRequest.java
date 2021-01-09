@@ -20,13 +20,8 @@ public class NotifyRequest<T extends BleDevice> implements NotifyWrapperCallback
 
     private static final String TAG = "NotifyRequest";
     private BleNotifyCallback<T> notifyCallback;
-    private final BleWrapperCallback<T> bleWrapperCallback;
-    private final BleRequestImpl<T> bleRequest;
-
-    protected NotifyRequest() {
-        bleWrapperCallback = Ble.options().bleWrapperCallback;
-        bleRequest = BleRequestImpl.getBleRequest();
-    }
+    private final BleWrapperCallback<T> bleWrapperCallback = Ble.options().getBleWrapperCallback();
+    private final BleRequestImpl<T> bleRequest = BleRequestImpl.getBleRequest();
 
     public void notify(T device, boolean enable, BleNotifyCallback<T> callback) {
         notifyCallback = callback;
@@ -60,7 +55,6 @@ public class NotifyRequest<T extends BleDevice> implements NotifyWrapperCallback
         if (null != notifyCallback){
             notifyCallback.onNotifySuccess(device);
         }
-
         if (bleWrapperCallback != null){
             bleWrapperCallback.onNotifySuccess(device);
         }

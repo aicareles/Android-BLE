@@ -26,6 +26,7 @@ import android.widget.TextView;
 import com.example.admin.mybledemo.R;
 
 import cn.com.heaton.blelibrary.ble.Ble;
+import cn.com.heaton.blelibrary.ble.Options;
 
 public class FilterView extends BaseFrameLayout {
     private static final String TAG = "FilterView";
@@ -132,7 +133,7 @@ public class FilterView extends BaseFrameLayout {
 
                 @Override
                 public void afterTextChanged(Editable s) {
-                    Ble.Options options = Ble.options();
+                    Options options = Ble.options();
                     Log.e(TAG, "afterTextChanged: "+s.toString());
                     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
                         String add_name = s.toString();

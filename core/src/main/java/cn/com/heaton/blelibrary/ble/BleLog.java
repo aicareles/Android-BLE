@@ -15,7 +15,7 @@ public class BleLog {
     public static String TAG = "AndroidBLE";
     public static boolean isDebug;
 
-    public static void init(Ble.Options options){
+    public static void init(Options options){
         isDebug = options.logBleEnable;
         if (!TextUtils.isEmpty(options.logTAG)){
             TAG = options.logTAG;

@@ -20,21 +20,16 @@ import cn.com.heaton.blelibrary.ble.callback.BleReadCallback;
 public class ReadRequest<T extends BleDevice> implements ReadWrapperCallback<T> {
 
     private BleReadCallback<T> bleReadCallback;
-    private BleWrapperCallback<T> bleWrapperCallback;
-
-    protected ReadRequest() {
-        bleWrapperCallback = Ble.options().bleWrapperCallback;
-    }
+    private final BleWrapperCallback<T> bleWrapperCallback = Ble.options().getBleWrapperCallback();
+    private final BleRequestImpl<T> bleRequest = BleRequestImpl.getBleRequest();
 
     public boolean read(T device, BleReadCallback<T> callback){
         this.bleReadCallback = callback;
-        BleRequestImpl bleRequest = BleRequestImpl.getBleRequest();
         return bleRequest.readCharacteristic(device.getBleAddress());
     }
 
     public boolean readByUuid(T device, UUID serviceUUID, UUID characteristicUUID, BleReadCallback<T> callback){
         this.bleReadCallback = callback;
-        BleRequestImpl bleRequest = BleRequestImpl.getBleRequest();
         return bleRequest.readCharacteristicByUuid(device.getBleAddress(), serviceUUID, characteristicUUID);
     }
 

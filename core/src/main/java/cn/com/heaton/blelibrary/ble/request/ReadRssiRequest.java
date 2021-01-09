@@ -14,14 +14,11 @@ import cn.com.heaton.blelibrary.ble.model.BleDevice;
 public class ReadRssiRequest<T extends BleDevice> implements ReadRssiWrapperCallback<T> {
 
     private BleReadRssiCallback<T> readRssiCallback;
-
-    protected ReadRssiRequest() {
-    }
+    private final BleRequestImpl<T> bleRequest = BleRequestImpl.getBleRequest();
 
     public boolean readRssi(T device, BleReadRssiCallback<T> callback){
         this.readRssiCallback = callback;
         boolean result = false;
-        BleRequestImpl bleRequest = BleRequestImpl.getBleRequest();
         if (bleRequest != null) {
             result = bleRequest.readRssi(device.getBleAddress());
         }

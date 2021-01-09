@@ -22,21 +22,16 @@ public class DescriptorRequest<T extends BleDevice> implements DescWrapperCallba
 
     private BleReadDescCallback<T> bleReadDescCallback;
     private BleWriteDescCallback<T> bleWriteDescCallback;
-    private BleWrapperCallback<T> bleWrapperCallback;
-
-    protected DescriptorRequest() {
-        bleWrapperCallback = Ble.options().bleWrapperCallback;
-    }
+    private final BleWrapperCallback<T> bleWrapperCallback = Ble.options().getBleWrapperCallback();
+    private final BleRequestImpl<T> bleRequest = BleRequestImpl.getBleRequest();
 
     public boolean readDes(T device, UUID serviceUUID, UUID characteristicUUID, UUID descriptorUUID, BleReadDescCallback<T> callback){
         this.bleReadDescCallback = callback;
-        BleRequestImpl bleRequest = BleRequestImpl.getBleRequest();
         return bleRequest.readDescriptor(device.getBleAddress(), serviceUUID, characteristicUUID, descriptorUUID);
     }
 
     public boolean writeDes(T device, byte[] data, UUID serviceUUID, UUID characteristicUUID, UUID descriptorUUID, BleWriteDescCallback<T> callback){
         this.bleWriteDescCallback = callback;
-        BleRequestImpl bleRequest = BleRequestImpl.getBleRequest();
         return bleRequest.writeDescriptor(device.getBleAddress(), data, serviceUUID, characteristicUUID, descriptorUUID);
     }
 

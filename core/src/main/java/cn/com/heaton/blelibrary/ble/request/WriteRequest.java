@@ -33,7 +33,7 @@ public class WriteRequest<T extends BleDevice> implements WriteWrapperCallback<T
     private BleWrapperCallback<T> bleWrapperCallback;
 
     protected WriteRequest() {
-        bleWrapperCallback = Ble.options().bleWrapperCallback;
+        bleWrapperCallback = Ble.options().getBleWrapperCallback();
     }
 
     public boolean write(T device, byte[]data, BleWriteCallback<T> callback){

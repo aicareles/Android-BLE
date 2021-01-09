@@ -5,7 +5,10 @@ import android.support.annotation.RestrictTo;
 import android.text.TextUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import cn.com.heaton.blelibrary.ble.Ble;
 import cn.com.heaton.blelibrary.ble.BleLog;
@@ -24,16 +27,15 @@ import cn.com.heaton.blelibrary.ble.utils.ThreadUtils;
 public class ConnectRequest<T extends BleDevice> implements ConnectWrapperCallback<T> {
 
     private static final String TAG = "ConnectRequest";
-    private final ArrayList<T> devices = new ArrayList<>();
-    private final ArrayList<T> connectedDevices = new ArrayList<>();
+    private final Map<String, T> devices = new HashMap<>();
+    private final Map<String, T> connectedDevices = new HashMap<>();
     private final BleConnectsDispatcher<T> dispatcher = new BleConnectsDispatcher<>();
     private final BleRequestImpl<T> bleRequest = BleRequestImpl.getBleRequest();
     private BleConnectCallback<T> connectCallback;
     private final List<BleConnectCallback<T>> connectInnerCallbacks = new ArrayList<>();
-    private final BleWrapperCallback<T> bleWrapperCallback;
+    private final BleWrapperCallback<T> bleWrapperCallback = Ble.options().getBleWrapperCallback();
 
     protected ConnectRequest() {
-        bleWrapperCallback = Ble.options().getBleWrapperCallback();
         DefaultReConnectHandler<T> connectHandler = DefaultReConnectHandler.provideReconnectHandler();
         addConnectHandlerCallbacks(connectHandler);
         RetryDispatcher<T> retryDispatcher = RetryDispatcher.getInstance();
@@ -135,12 +137,9 @@ public class ConnectRequest<T extends BleDevice> implements ConnectWrapperCallba
      * @param address 蓝牙地址
      */
     public void disconnect(String address){
-        for (T bleDevice : connectedDevices) {
-            if (bleDevice.getBleAddress().equals(address)) {
-                disconnect(bleDevice);
-            }
+        if (connectedDevices.containsKey(address)){
+            disconnect(connectedDevices.get(address));
         }
-
     }
 
     /**
@@ -170,7 +169,7 @@ public class ConnectRequest<T extends BleDevice> implements ConnectWrapperCallba
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public void closeBluetooth(){
         if (!connectedDevices.isEmpty()){
-            for (T device: connectedDevices) {
+            for (T device: connectedDevices.values()) {
                 if (connectCallback != null){
                     device.setConnectionState(BleDevice.DISCONNECT);
                     BleLog.e(TAG, "System Bluetooth is disconnected>>>> "+device.getBleName());
@@ -195,11 +194,11 @@ public class ConnectRequest<T extends BleDevice> implements ConnectWrapperCallba
     public void onConnectionChanged(final T bleDevice) {
         if (bleDevice == null)return;
         if (bleDevice.isConnected()){
-            connectedDevices.add(bleDevice);
+            connectedDevices.put(bleDevice.getBleAddress(), bleDevice);
             BleLog.d(TAG, "connected>>>> "+bleDevice.getBleName());
         }else if(bleDevice.isDisconnected()) {
-            connectedDevices.remove(bleDevice);
-            devices.remove(bleDevice);
+            connectedDevices.remove(bleDevice.getBleAddress());
+            devices.remove(bleDevice.getBleAddress());
             BleLog.d(TAG, "disconnected>>>> "+bleDevice.getBleName());
         }
         runOnUiThread(new Runnable() {
@@ -239,7 +238,6 @@ public class ConnectRequest<T extends BleDevice> implements ConnectWrapperCallba
                 if (connectCallback != null){
                     connectCallback.onReady(bleDevice);
                 }
-
                 if (bleWrapperCallback != null){
                     bleWrapperCallback.onReady(bleDevice);
                 }
@@ -253,20 +251,17 @@ public class ConnectRequest<T extends BleDevice> implements ConnectWrapperCallba
         if (connectCallback != null){
             connectCallback.onServicesDiscovered(device, gatt);
         }
-
         if (bleWrapperCallback != null){
             bleWrapperCallback.onServicesDiscovered(device, gatt);
         }
     }
 
     private void addBleToPool(T device) {
-        for (T bleDevice : devices){
-            if(bleDevice.getBleAddress().equals(device.getBleAddress())){
-                BleLog.d(TAG, "addBleToPool>>>> device pool already exist device");
-                return;
-            }
+        if (devices.containsKey(device.getBleAddress())){
+            BleLog.d(TAG, "addBleToPool>>>> device pool already exist device");
+            return;
         }
-        devices.add(device);
+        devices.put(device.getBleAddress(), device);
         BleLog.d(TAG, "addBleToPool>>>> added a new device to the device pool");
     }
 
@@ -275,27 +270,15 @@ public class ConnectRequest<T extends BleDevice> implements ConnectWrapperCallba
             BleLog.e(TAG,"By address to get BleDevice but address is null");
             return null;
         }
-        synchronized (devices){
-            if(devices.size() > 0){
-                for (T bleDevice : devices){
-                    if(bleDevice.getBleAddress().equals(address)){
-                        return bleDevice;
-                    }
-                }
-            }
-            BleLog.e(TAG,"By address to get BleDevice and BleDevice isn't exist");
-            return null;
-        }
-
+        return devices.get(address);
     }
 
     /**
      *
      * @return 已经连接的蓝牙设备集合
      */
-
     public ArrayList<T> getConnectedDevices() {
-        return connectedDevices;
+        return new ArrayList<>(connectedDevices.values());
     }
 
     public void cancelConnectCallback(){

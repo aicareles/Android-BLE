@@ -51,7 +51,7 @@ public final class BleRequestImpl<T extends BleDevice> {
 
     private static BleRequestImpl instance;
     private final Handler handler = BleHandler.of();
-    private Ble.Options options;
+    private Options options;
     private Context context;
     private BluetoothAdapter bluetoothAdapter;
     private final Object locker = new Object();

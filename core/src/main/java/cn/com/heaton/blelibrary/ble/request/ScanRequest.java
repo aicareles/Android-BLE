@@ -8,6 +8,9 @@ import android.os.Handler;
 import android.support.v4.os.HandlerCompat;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
 import cn.com.heaton.blelibrary.ble.Ble;
 import cn.com.heaton.blelibrary.ble.BleHandler;
 import cn.com.heaton.blelibrary.ble.BleStates;
@@ -29,16 +32,11 @@ public class ScanRequest<T extends BleDevice> implements ScanWrapperCallback {
     private static final String TAG = "ScanRequest";
     private static final String HANDLER_TOKEN = "stop_token";
     private boolean scanning;
-    private BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+    private final BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
     private BleScanCallback<T> bleScanCallback;
-    private ArrayList<T> scanDevices = new ArrayList<>();
-    private Handler handler = BleHandler.of();
-    private BleWrapperCallback<T> bleWrapperCallback;
-
-    protected ScanRequest() {
-        Ble.Options options = Ble.options();
-        bleWrapperCallback = options.bleWrapperCallback;
-    }
+    private final Map<String, T> scanDevices = new HashMap<>();
+    private final Handler handler = BleHandler.of();
+    private final BleWrapperCallback<T> bleWrapperCallback = Ble.options().getBleWrapperCallback();
 
     public void startScan(BleScanCallback<T> callback, long scanPeriod) {
         if (callback == null) throw new IllegalArgumentException("BleScanCallback can not be null!");
@@ -125,25 +123,23 @@ public class ScanRequest<T extends BleDevice> implements ScanWrapperCallback {
     @Override
     public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
         if (device == null) return;
-        T bleDevice = getDevice(device.getAddress());
+        String address = device.getAddress();
+        T bleDevice = getDevice(address);
         if (bleDevice == null) {
-            bleDevice = (T) Ble.options().getFactory().create(device.getAddress(), device.getName());
+            bleDevice = (T) Ble.options().getFactory().create(address, device.getName());
             bleDevice.setDeviceType(device.getType());
             if (bleScanCallback != null) {
                 bleScanCallback.onLeScan(bleDevice, rssi, scanRecord);
             }
-
             if (bleWrapperCallback != null){
                 bleWrapperCallback.onLeScan(bleDevice, rssi, scanRecord);
             }
-
-            scanDevices.add(bleDevice);
+            scanDevices.put(device.getAddress(), bleDevice);
         } else {
             if (!Ble.options().isIgnoreRepeat) {//无需过滤
                 if (bleScanCallback != null) {
                     bleScanCallback.onLeScan(bleDevice, rssi, scanRecord);
                 }
-
                 if (bleWrapperCallback != null){
                     bleWrapperCallback.onLeScan(bleDevice, rssi, scanRecord);
                 }
@@ -174,12 +170,7 @@ public class ScanRequest<T extends BleDevice> implements ScanWrapperCallback {
 
     //获取已扫描到的设备（重复设备）
     private T getDevice(String address) {
-        for (T device : scanDevices) {
-            if (device.getBleAddress().equals(address)) {
-                return device;
-            }
-        }
-        return null;
+        return scanDevices.get(address);
     }
 
     public void cancelScanCallback(){

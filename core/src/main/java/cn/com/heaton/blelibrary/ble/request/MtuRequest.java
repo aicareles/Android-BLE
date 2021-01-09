@@ -16,15 +16,11 @@ import cn.com.heaton.blelibrary.ble.callback.BleMtuCallback;
 public class MtuRequest<T extends BleDevice> implements MtuWrapperCallback<T> {
 
     private BleMtuCallback<T> bleMtuCallback;
-    private BleWrapperCallback<T> bleWrapperCallback;
-
-    protected MtuRequest() {
-        bleWrapperCallback = Ble.options().bleWrapperCallback;
-    }
+    private final BleWrapperCallback<T> bleWrapperCallback = Ble.options().getBleWrapperCallback();
+    private final BleRequestImpl<T> bleRequest = BleRequestImpl.getBleRequest();
 
     public boolean setMtu(String address, int mtu, BleMtuCallback<T> callback){
         this.bleMtuCallback = callback;
-        BleRequestImpl bleRequest = BleRequestImpl.getBleRequest();
         return bleRequest.setMtu(address, mtu);
     }
 

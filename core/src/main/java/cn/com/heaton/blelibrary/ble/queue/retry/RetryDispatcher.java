@@ -56,7 +56,7 @@ public class RetryDispatcher<T extends BleDevice> extends BleConnectCallback<T> 
         if (errorCode == BleStates.ConnectError || errorCode == BleStates.ConnectFailed){
             String key = device.getBleAddress();
             int lastRetryCount = Ble.options().connectFailedRetryCount;
-            if (lastRetryCount<=0)return;
+            if (lastRetryCount <= 0)return;
             if (deviceRetryMap.containsKey(key)){
                 lastRetryCount = deviceRetryMap.get(key);
             }
