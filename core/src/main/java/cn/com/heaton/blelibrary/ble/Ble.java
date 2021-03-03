@@ -1,3 +1,18 @@
+/*
+ * Copyright (C)  aicareles, Android-BLE Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package cn.com.heaton.blelibrary.ble;
 
 import android.app.Activity;
@@ -44,8 +59,9 @@ import cn.com.heaton.blelibrary.ble.request.Rproxy;
 import cn.com.heaton.blelibrary.ble.request.ScanRequest;
 
 /**
- * 这个类对外提供所有的蓝牙操作API
- * Created by jerry on 2016/12/7.
+ * provides all bluetooth operation apis
+ * @author aicareles
+ * @since 2016/12/7
  */
 public final class Ble<T extends BleDevice> {
 
@@ -85,9 +101,8 @@ public final class Ble<T extends BleDevice> {
     }
 
     /**
-     *  蓝牙初始化
-     * @param context 上下文对象
-     * @return 初始化是否成功
+     *  bluetooth initialization
+     * @param context context object
      */
     public void init(Context context, Options options, InitCallback callback) {
         if (context == null){
@@ -118,7 +133,6 @@ public final class Ble<T extends BleDevice> {
         }
         Ble.options = (options == null ? options() : options);
         BleLog.init(Ble.options);
-        //设置动态代理
         request = (RequestListener<T>) RequestProxy.newProxy().bindProxy(context, RequestImpl.newRequestImpl());
         bleRequestImpl = BleRequestImpl.getBleRequest();
         bleRequestImpl.initialize(context);
@@ -140,8 +154,7 @@ public final class Ble<T extends BleDevice> {
     }
 
     /**
-     * 设置全局蓝牙开启、关闭监听
-     * @param callback
+     * global bluetooth on off monitoring
      */
     public void setBleStatusCallback(BleStatusCallback callback){
         if (bleObserver != null) {
@@ -150,8 +163,7 @@ public final class Ble<T extends BleDevice> {
     }
 
     /**
-     * 开始扫描
-     * @param callback 扫描回调
+     * start scanning
      */
     public void startScan(BleScanCallback<T> callback){
         request.startScan(callback, options().scanPeriod);
@@ -162,16 +174,14 @@ public final class Ble<T extends BleDevice> {
     }
 
     /**
-     * 停止扫描
+     * stop scanning
      */
     public void stopScan(){
         request.stopScan();
     }
 
     /**
-     * 连接蓝牙
-     *
-     * @param device 蓝牙设备对象
+     * connect bluetooth
      */
     public void connect(T device, BleConnectCallback<T> callback) {
         synchronized (locker) {
@@ -180,10 +190,7 @@ public final class Ble<T extends BleDevice> {
     }
 
     /**
-     * 通过mac地址连接设备
-     *
-     * @param address  mac地址
-     * @param callback 连接回调
+     * connect to the device through the mac address
      */
     public void connect(String address,BleConnectCallback<T> callback){
         synchronized (locker) {
@@ -207,9 +214,7 @@ public final class Ble<T extends BleDevice> {
     }
 
     /**
-     * 动态设置是否自动连接
-     * @param device 设备对象
-     * @param autoConnect 是否自动连接
+     * set whether to automatically connect
      */
     public void autoConnect(T device, boolean autoConnect){
         DefaultReConnectHandler.provideReconnectHandler().resetAutoConnect(device, autoConnect);
@@ -220,19 +225,13 @@ public final class Ble<T extends BleDevice> {
     }
 
     /**
-     * 断开蓝牙  无回调
-     *
-     * @param device 蓝牙设备对象
+     * disconnect
+     * @param device
      */
     public void disconnect(T device) {
         request.disconnect(device);
     }
 
-    /**
-     * 断开蓝牙  有回调
-     *
-     * @param device 蓝牙设备对象
-     */
     public void disconnect(T device, BleConnectCallback<T> callback) {
         request.disconnect(device, callback);
     }
@@ -572,7 +571,7 @@ public final class Ble<T extends BleDevice> {
     }
 
     /**
-     * 清理蓝牙缓存
+     * clear bluetooth cache
      * @param address 蓝牙设备地址
      * @return 是否清理成功
      */

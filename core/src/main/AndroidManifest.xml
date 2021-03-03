@@ -10,8 +10,6 @@
 
     <application android:allowBackup="true" android:supportsRtl="true">
 
-        <service android:name="cn.com.heaton.blelibrary.ble.BleRequestImpl"/>
-
     </application>
 
 </manifest>

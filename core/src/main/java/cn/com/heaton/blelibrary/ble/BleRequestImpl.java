@@ -1,3 +1,18 @@
+/*
+ * Copyright (C)  aicareles, Android-BLE Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package cn.com.heaton.blelibrary.ble;
 
 import android.annotation.TargetApi;
@@ -44,7 +59,11 @@ import cn.com.heaton.blelibrary.ble.request.WriteRequest;
 import cn.com.heaton.blelibrary.ble.utils.ByteUtils;
 import cn.com.heaton.blelibrary.ota.OtaListener;
 
-
+/**
+ * the main implementation class of all methods
+ * @author aicareles
+ * @since 2016/12/10
+ */
 public final class BleRequestImpl<T extends BleDevice> {
 
     private final static String TAG = BleRequestImpl.class.getSimpleName();
@@ -56,7 +75,7 @@ public final class BleRequestImpl<T extends BleDevice> {
     private BluetoothAdapter bluetoothAdapter;
     private final Object locker = new Object();
     private final List<BluetoothGattCharacteristic> notifyCharacteristics = new ArrayList<>();//Notification attribute callback array
-    private int notifyIndex = 0;//Notification feature callback list
+    //private int notifyIndex = 0;//Notification feature callback list
     private BluetoothGattCharacteristic otaWriteCharacteristic;//Ota ble send the object
     private boolean otaUpdating = false;//Whether the OTA is updated
     private final Map<String, BluetoothGattCharacteristic> writeCharacteristicMap = new HashMap<>();
@@ -76,7 +95,6 @@ public final class BleRequestImpl<T extends BleDevice> {
 
     private BleRequestImpl(){}
 
-    //在各种状态回调中发现连接更改或服务
     private final BluetoothGattCallback gattCallback = new BluetoothGattCallback() {
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
@@ -138,7 +156,7 @@ public final class BleRequestImpl<T extends BleDevice> {
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 //Empty the notification attribute list
                 notifyCharacteristics.clear();
-                notifyIndex = 0;
+                //notifyIndex = 0;
                 displayGattServices(gatt);
             } else {
                 BleLog.e(TAG, "onServicesDiscovered received: " + status);
@@ -223,19 +241,18 @@ public final class BleRequestImpl<T extends BleDevice> {
                     if (null != descWrapperCallback){
                         descWrapperCallback.onDescWriteSuccess(bleDevice, descriptor);
                     }
-                    if (notifyCharacteristics.size() > 0 && notifyIndex < notifyCharacteristics.size()) {
+                    /*if (notifyCharacteristics.size() > 0 && notifyIndex < notifyCharacteristics.size()) {
                         BleLog.d(TAG, "set characteristic notification, notify_index is "+notifyIndex);
                         setCharacteristicNotification(gatt.getDevice().getAddress(), true);
-                    } else {
-                        BleLog.d(TAG, "set characteristic notification is completed");
-                        if (notifyWrapperCallback != null) {
-                            if (Arrays.equals(descriptor.getValue(), BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE)
-                                    || Arrays.equals(descriptor.getValue(), BluetoothGattDescriptor.ENABLE_INDICATION_VALUE)){
-                                notifyWrapperCallback.onNotifySuccess(bleDevice);
-                            }else if (Arrays.equals(descriptor.getValue(), BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE)){
-                                notifyWrapperCallback.onNotifyCanceled(bleDevice);
-                            }
-
+                    }*/
+                    //fix bug
+                    BleLog.d(TAG, "set characteristic notification is completed");
+                    if (notifyWrapperCallback != null) {
+                        if (Arrays.equals(descriptor.getValue(), BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE)
+                                || Arrays.equals(descriptor.getValue(), BluetoothGattDescriptor.ENABLE_INDICATION_VALUE)){
+                            notifyWrapperCallback.onNotifySuccess(bleDevice);
+                        }else if (Arrays.equals(descriptor.getValue(), BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE)){
+                            notifyWrapperCallback.onNotifyCanceled(bleDevice);
                         }
                     }
                 }else {
@@ -404,7 +421,7 @@ public final class BleRequestImpl<T extends BleDevice> {
         if (gatt != null){
             gatt.disconnect();
         }
-        notifyIndex = 0;
+        //notifyIndex = 0;
         notifyCharacteristics.clear();
         writeCharacteristicMap.remove(address);
         readCharacteristicMap.remove(address);
@@ -623,9 +640,10 @@ public final class BleRequestImpl<T extends BleDevice> {
      * @param enabled   是否设置通知使能
      */
     public void setCharacteristicNotification(String address, boolean enabled) {
-        if (notifyCharacteristics.size() > 0 && notifyIndex < notifyCharacteristics.size()){
-            BluetoothGattCharacteristic characteristic = notifyCharacteristics.get(notifyIndex++);
-            setCharacteristicNotificationInternal(getBluetoothGatt(address), characteristic, enabled);
+        if (notifyCharacteristics.size() > 0){
+            for (BluetoothGattCharacteristic characteristic: notifyCharacteristics) {
+                setCharacteristicNotificationInternal(getBluetoothGatt(address), characteristic, enabled);
+            }
         }
     }
 
@@ -709,6 +727,8 @@ public final class BleRequestImpl<T extends BleDevice> {
                     if ((charaProp & BluetoothGattCharacteristic.PROPERTY_READ) != 0) {
                         properties_builder.append("read,");
                     }
+                    //Optimize designated notifications
+
                     //Auto obtain Notification feature
                     if ((gattCharacteristic.getProperties() & BluetoothGattCharacteristic.PROPERTY_NOTIFY) != 0) {
                         notifyCharacteristics.add(gattCharacteristic);
