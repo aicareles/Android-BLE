@@ -38,6 +38,12 @@ Android-BLE蓝牙框架,提供了扫描、连接、使能/除能通知、发送/
 ``` groovy
 implementation 'cn.com.superLei:blelibrary:latestVersion'
 ```
+
+### android12 权限适配
+``` xml
+<uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
+<uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+``` 
 ### 2. 在Application中初始化.
 ```
 private void initBle() {
