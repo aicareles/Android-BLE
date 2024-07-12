@@ -1,4 +1,38 @@
-apply plugin: 'com.android.library'
+plugins {
+    id 'com.android.library'
+    id 'maven-publish'
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                from components.release
+                groupId = 'com.github.aicareles'//插件id，格式：com.gitee/github.用户名
+                artifactId = 'blelib'//插件名称
+                version = '3.3.0'//版本号
+            }
+        }
+        //jitpack推送授权
+        /*repositories {
+            maven {
+                name('jitpack')
+                url "https://jitpack.io"
+                credentials {
+                    username gitUser
+                    password gitPassWord
+                }
+            }
+        }*/
+    }
+}
+//release插件，https授权
+/*scmVersion{
+    repository{
+        customUsername = gitUser
+        customPassword = gitPassWord
+    }
+}*/
 
 android {
     compileSdk 34
