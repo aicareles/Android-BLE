@@ -13,26 +13,8 @@ afterEvaluate {
                 version = '3.3.0'//版本号
             }
         }
-        //jitpack推送授权
-        /*repositories {
-            maven {
-                name('jitpack')
-                url "https://jitpack.io"
-                credentials {
-                    username gitUser
-                    password gitPassWord
-                }
-            }
-        }*/
     }
 }
-//release插件，https授权
-/*scmVersion{
-    repository{
-        customUsername = gitUser
-        customPassword = gitPassWord
-    }
-}*/
 
 android {
     compileSdk 34

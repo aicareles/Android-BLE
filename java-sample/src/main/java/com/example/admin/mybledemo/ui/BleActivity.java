@@ -48,10 +48,6 @@ import cn.com.heaton.blelibrary.ble.callback.BleScanCallback;
 import cn.com.heaton.blelibrary.ble.callback.BleStatusCallback;
 import cn.com.heaton.blelibrary.ble.model.ScanRecord;
 import cn.com.heaton.blelibrary.ble.utils.Utils;
-import cn.com.superLei.aoparms.annotation.Permission;
-import cn.com.superLei.aoparms.annotation.PermissionDenied;
-import cn.com.superLei.aoparms.annotation.PermissionNoAskDenied;
-import cn.com.superLei.aoparms.common.permission.AopPermissionUtils;
 
 /**
  * Activity for scanning and displaying available Bluetooth LE devices.

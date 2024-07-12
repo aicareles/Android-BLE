@@ -7,7 +7,7 @@
 
 # Android-BLE
 [![License](https://img.shields.io/badge/license-Apache%202-green.svg)](https://www.apache.org/licenses/LICENSE-2.0)
-[![Download](https://api.bintray.com/packages/superliu/maven/BleLib/images/download.svg)](https://bintray.com/superliu/maven/BleLib/_latestVersion)
+[![](https://jitpack.io/v/aicareles/Android-BLE.svg)](https://jitpack.io/#aicareles/Android-BLE)
 
 Android-BLE蓝牙框架,提供了扫描、连接、使能/除能通知、发送/读取数据、接收数据,读取rssi,设置mtu等蓝牙相关的所有操作接口,内部优化了连接队列,以及快速写入队列,
 并支持多服务通讯,可扩展配置蓝牙相关操作。
@@ -31,9 +31,9 @@ Android-BLE蓝牙框架,提供了扫描、连接、使能/除能通知、发送/
 ```
 
 ## 接入文档
-### 1. 在 **build.gradle** 中添加下面依赖. [![Download](https://api.bintray.com/packages/superliu/maven/BleLib/images/download.svg)](https://bintray.com/superliu/maven/BleLib/_latestVersion)
+### 1. 在 **build.gradle** 中添加下面依赖. [![](https://jitpack.io/v/aicareles/Android-BLE.svg)](https://jitpack.io/#aicareles/Android-BLE)
 ``` groovy
-implementation 'cn.com.superLei:blelibrary:latestVersion'
+implementation 'com.github.aicareles:Android-BLE:3.3.0'
 ```
 
 ### android12 权限适配
