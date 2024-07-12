@@ -1,6 +1,6 @@
 
-### 个人项目或者定制化需求加v:liulei633001 进行联系，如果需要单独咨询相关问题，记得先请喝杯咖啡哦！！！
-### Email：jerryee0911@qq.com
+### 个人项目或者定制化需求加v:liulei633001 
+### Email：aicareles@163.com
 
 ### [下载APK](https://github.com/aicareles/Android-BLE/blob/master/apk/BLE-v3.3.0.apk)
 
@@ -38,8 +38,16 @@ implementation 'com.github.aicareles:Android-BLE:3.3.0'
 
 ### android12 权限适配
 ``` xml
-<uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
-<uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    List<String> permissions = new ArrayList<>();
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        permissions.add(Manifest.permission.BLUETOOTH_SCAN);
+        permissions.add(Manifest.permission.BLUETOOTH_ADVERTISE);
+        permissions.add(Manifest.permission.BLUETOOTH_CONNECT);
+    } else {
+        permissions.add(Manifest.permission.ACCESS_COARSE_LOCATION);
+        permissions.add(Manifest.permission.ACCESS_FINE_LOCATION);
+    }
+    requestPermission(permissions);
 ``` 
 ### 2. 在Application中初始化.
 ```
