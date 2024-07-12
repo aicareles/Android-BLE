@@ -2,8 +2,7 @@
 ### 个人项目或者定制化需求加v:liulei633001 进行联系，如果需要单独咨询相关问题，记得先请喝杯咖啡哦！！！
 ### Email：jerryee0911@qq.com
 
-### 扫描下载APK:
-![二维码.png](https://github.com/aicareles/Android-BLE/blob/master/screenshots/download.png)
+### [下载APK](https://github.com/aicareles/Android-BLE/blob/master/apk/BLE-v3.3.0.apk)
 
 
 # Android-BLE
