@@ -38,16 +38,16 @@ implementation 'com.github.aicareles:Android-BLE:3.3.0'
 
 ### android12 权限适配
 ``` xml
-    List<String> permissions = new ArrayList<>();
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-        permissions.add(Manifest.permission.BLUETOOTH_SCAN);
-        permissions.add(Manifest.permission.BLUETOOTH_ADVERTISE);
-        permissions.add(Manifest.permission.BLUETOOTH_CONNECT);
-    } else {
-        permissions.add(Manifest.permission.ACCESS_COARSE_LOCATION);
-        permissions.add(Manifest.permission.ACCESS_FINE_LOCATION);
-    }
-    requestPermission(permissions);
+List<String> permissions = new ArrayList<>();
+if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+    permissions.add(Manifest.permission.BLUETOOTH_SCAN);
+    permissions.add(Manifest.permission.BLUETOOTH_ADVERTISE);
+    permissions.add(Manifest.permission.BLUETOOTH_CONNECT);
+} else {
+    permissions.add(Manifest.permission.ACCESS_COARSE_LOCATION);
+    permissions.add(Manifest.permission.ACCESS_FINE_LOCATION);
+}
+requestPermission(permissions);
 ``` 
 ### 2. 在Application中初始化.
 ```
