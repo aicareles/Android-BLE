@@ -1,7 +1,9 @@
 
 # Android-BLE
 [![License](https://img.shields.io/badge/license-Apache%202-green.svg)](https://www.apache.org/licenses/LICENSE-2.0)
-[![Download](https://api.bintray.com/packages/superliu/maven/BleLib/images/download.svg)](https://bintray.com/superliu/maven/BleLib/_latestVersion)
+[![](https://jitpack.io/v/aicareles/Android-BLE.svg)](https://jitpack.io/#aicareles/Android-BLE)
+
+### [Download APK](https://github.com/aicareles/Android-BLE/blob/master/apk/BLE-v3.3.0.apk)
 
 Android-BLE Bluetooth framework, including scanning, connecting, enabling / disabling notifications, sending / reading data, receiving data, reading rssi, setting mtu and other Bluetooth-related operation interfaces, internally optimized connection queue, and fast write queue,
 And support multi-service communication, can be extended to configure Bluetooth related operations.
@@ -14,9 +16,9 @@ And support multi-service communication, can be extended to configure Bluetooth 
 * **ByteUtils** - Various byte data conversion tools
 
 ## Documentation/[中文](https://github.com/aicareles/Android-BLE/wiki/BLE%E5%BA%93%E4%BD%BF%E7%94%A8%E6%AD%A5%E9%AA%A4)
-### 1. Edit **build.gradle** file and add dependency.
+### 1. Edit **build.gradle** file and add dependency. [![](https://jitpack.io/v/aicareles/Android-BLE.svg)](https://jitpack.io/#aicareles/Android-BLE)
 ``` groovy
-implementation 'cn.com.superLei:blelibrary:latestVersion'
+implementation 'com.github.aicareles:Android-BLE:3.3.0'
 ```
 ### 2. Init the Bluetooth library in Application.
 ```
@@ -62,27 +64,27 @@ ble.startScan(scanCallback);
 #### scan callback (Note: turn on bluetooth and check bluetooth permissions)
 ```
 BleScanCallback<BleDevice> scanCallback = new BleScanCallback<BleDevice>() {
-        @Override
-        public void onLeScan(final BleDevice device, int rssi, byte[] scanRecord) {
-            //Scanned devices
-        }
+    @Override
+    public void onLeScan(final BleDevice device, int rssi, byte[] scanRecord) {
+        //Scanned devices
+    }
 
-       @Override
-        public void onStart() {
-            super.onStart();
-        }
+   @Override
+    public void onStart() {
+        super.onStart();
+    }
 
-        @Override
-        public void onStop() {
-            super.onStop();
-        }
+    @Override
+    public void onStop() {
+        super.onStop();
+    }
 
-        @Override
-        public void onScanFailed(int errorCode) {
-            super.onScanFailed(errorCode);
-            Log.e(TAG, "onScanFailed: "+errorCode);
-        }
-    };
+    @Override
+    public void onScanFailed(int errorCode) {
+        super.onScanFailed(errorCode);
+        Log.e(TAG, "onScanFailed: "+errorCode);
+    }
+};
 ```
 #### 2.connect/disconnect
 ```
@@ -107,72 +109,72 @@ ble.disconnectAll();
 #### connect/disconnect callback
 ```
 private BleConnCallback<BleDevice> connectCallback = new BleConnCallback<BleDevice>() {
-        @Override
-        public void onConnectionChanged(BleDevice device) {
+    @Override
+    public void onConnectionChanged(BleDevice device) {
 
-        }
+    }
 
-        @Override
-        public void onConnectTimeOut(BleDevice device) {
-            super.onConnectTimeOut(device);
-            Log.e(TAG, "onConnectTimeOut: " + device.getBleAddress());
-        }
+    @Override
+    public void onConnectTimeOut(BleDevice device) {
+        super.onConnectTimeOut(device);
+        Log.e(TAG, "onConnectTimeOut: " + device.getBleAddress());
+    }
 
-        @Override
-        public void onConnectCancel(BleDevice device) {
-            super.onConnectCancel(device);
-            Log.e(TAG, "onConnectCancel: " + device.getBleName());
-        }
+    @Override
+    public void onConnectCancel(BleDevice device) {
+        super.onConnectCancel(device);
+        Log.e(TAG, "onConnectCancel: " + device.getBleName());
+    }
 
-        @Override
-        public void onServicesDiscovered(BleDevice device, BluetoothGatt gatt) {
-            super.onServicesDiscovered(device, gatt);
-        }
+    @Override
+    public void onServicesDiscovered(BleDevice device, BluetoothGatt gatt) {
+        super.onServicesDiscovered(device, gatt);
+    }
 
-        @Override
-        public void onReady(BleDevice device) {
-            super.onReady(device);
-            //connect successful to enable notification
-            ble.enableNotify(...);
-        }
+    @Override
+    public void onReady(BleDevice device) {
+        super.onReady(device);
+        //connect successful to enable notification
+        ble.enableNotify(...);
+    }
 
-        @Override
-        public void onConnectException(BleDevice device, int errorCode) {
-            super.onConnectException(device, errorCode);
+    @Override
+    public void onConnectException(BleDevice device, int errorCode) {
+        super.onConnectException(device, errorCode);
 
-        }
-    };
+    }
+};
 ```
 #### 3.enable/disable notification
 ```
 ble.enableNotify(device, true, new BleNotifyCallback<BleDevice>() {
-        @Override
-        public void onChanged(BleDevice device, BluetoothGattCharacteristic characteristic) {
-            UUID uuid = characteristic.getUuid();
-            BleLog.e(TAG, "onChanged==uuid:" + uuid.toString());
-            BleLog.e(TAG, "onChanged==data:" + ByteUtils.toHexString(characteristic.getValue()));
-        }
+    @Override
+    public void onChanged(BleDevice device, BluetoothGattCharacteristic characteristic) {
+        UUID uuid = characteristic.getUuid();
+        BleLog.e(TAG, "onChanged==uuid:" + uuid.toString());
+        BleLog.e(TAG, "onChanged==data:" + ByteUtils.toHexString(characteristic.getValue()));
+    }
 
-        @Override
-        public void onNotifySuccess(BleDevice device) {
-            super.onNotifySuccess(device);
-            BleLog.e(TAG, "onNotifySuccess: "+device.getBleName());
-        }
-    });
+    @Override
+    public void onNotifySuccess(BleDevice device) {
+        super.onNotifySuccess(device);
+        BleLog.e(TAG, "onNotifySuccess: "+device.getBleName());
+    }
+});
 ```
 #### 4.read data
 ```
 ble.read(device, new BleReadCallback<BleRssiDevice>() {
-            @Override
-            public void onReadSuccess(BleRssiDevice dedvice, BluetoothGattCharacteristic characteristic) {
-                super.onReadSuccess(dedvice, characteristic);
-            }
+    @Override
+    public void onReadSuccess(BleRssiDevice dedvice, BluetoothGattCharacteristic characteristic) {
+        super.onReadSuccess(dedvice, characteristic);
+    }
 
-            @Override
-            public void onReadFailed(BleRssiDevice device, int failedCode) {
-                super.onReadFailed(device, failedCode);
-            }
-        })
+    @Override
+    public void onReadFailed(BleRssiDevice device, int failedCode) {
+        super.onReadFailed(device, failedCode);
+    }
+})
 ```
 #### 5.write data
 ```
