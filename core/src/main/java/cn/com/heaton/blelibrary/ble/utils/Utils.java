@@ -61,23 +61,4 @@ public class Utils {
         return Build.VERSION.SDK_INT < Build.VERSION_CODES.M || ContextCompat.checkSelfPermission(context, permission) == PERMISSION_GRANTED;
     }
 
-    public static void reqBlePermission(Context context) {
-        List<String> mPermissionList = new ArrayList<>();
-        // Android 版本大于等于 12 时，申请新的蓝牙权限
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            mPermissionList.add(Manifest.permission.BLUETOOTH_SCAN);
-            mPermissionList.add(Manifest.permission.BLUETOOTH_ADVERTISE);
-            mPermissionList.add(Manifest.permission.BLUETOOTH_CONNECT);
-            //根据实际需要申请定位权限
-            //mPermissionList.add(Manifest.permission.ACCESS_COARSE_LOCATION);
-            //mPermissionList.add(Manifest.permission.ACCESS_FINE_LOCATION);
-        } else {
-            mPermissionList.add(Manifest.permission.ACCESS_COARSE_LOCATION);
-            mPermissionList.add(Manifest.permission.ACCESS_FINE_LOCATION);
-        }
-
-
-
-    }
-
 }
