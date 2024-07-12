@@ -94,27 +94,27 @@ ble.startScan(scanCallback);
 #### 扫描回调 (注: 记得打开蓝牙并检查是否授予蓝牙权限)
 ```
 BleScanCallback<BleDevice> scanCallback = new BleScanCallback<BleDevice>() {
-        @Override
-        public void onLeScan(final BleDevice device, int rssi, byte[] scanRecord) {
-            //Scanned devices
-        }
+    @Override
+    public void onLeScan(final BleDevice device, int rssi, byte[] scanRecord) {
+        //Scanned devices
+    }
 
-       @Override
-        public void onStart() {
-            super.onStart();
-        }
+   @Override
+    public void onStart() {
+        super.onStart();
+    }
 
-        @Override
-        public void onStop() {
-            super.onStop();
-        }
+    @Override
+    public void onStop() {
+        super.onStop();
+    }
 
-        @Override
-        public void onScanFailed(int errorCode) {
-            super.onScanFailed(errorCode);
-            Log.e(TAG, "onScanFailed: "+errorCode);
-        }
-    };
+    @Override
+    public void onScanFailed(int errorCode) {
+        super.onScanFailed(errorCode);
+        Log.e(TAG, "onScanFailed: "+errorCode);
+    }
+};
 ```
 #### 2.连接/断开
 ```
@@ -139,72 +139,72 @@ ble.disconnectAll();
 #### 连接/断开回调
 ```
 private BleConnCallback<BleDevice> connectCallback = new BleConnCallback<BleDevice>() {
-        @Override
-        public void onConnectionChanged(BleDevice device) {
+    @Override
+    public void onConnectionChanged(BleDevice device) {
 
-        }
+    }
 
-        @Override
-        public void onConnectTimeOut(BleDevice device) {
-            super.onConnectTimeOut(device);
-            Log.e(TAG, "onConnectTimeOut: " + device.getBleAddress());
-        }
+    @Override
+    public void onConnectTimeOut(BleDevice device) {
+        super.onConnectTimeOut(device);
+        Log.e(TAG, "onConnectTimeOut: " + device.getBleAddress());
+    }
 
-        @Override
-        public void onConnectCancel(BleDevice device) {
-            super.onConnectCancel(device);
-            Log.e(TAG, "onConnectCancel: " + device.getBleName());
-        }
+    @Override
+    public void onConnectCancel(BleDevice device) {
+        super.onConnectCancel(device);
+        Log.e(TAG, "onConnectCancel: " + device.getBleName());
+    }
 
-        @Override
-        public void onServicesDiscovered(BleDevice device, BluetoothGatt gatt) {
-            super.onServicesDiscovered(device, gatt);
-        }
+    @Override
+    public void onServicesDiscovered(BleDevice device, BluetoothGatt gatt) {
+        super.onServicesDiscovered(device, gatt);
+    }
 
-        @Override
-        public void onReady(BleDevice device) {
-            super.onReady(device);
-            //connect successful to enable notification
-            ble.enableNotify(...);
-        }
+    @Override
+    public void onReady(BleDevice device) {
+        super.onReady(device);
+        //connect successful to enable notification
+        ble.enableNotify(...);
+    }
 
-        @Override
-        public void onConnectException(BleDevice device, int errorCode) {
-            super.onConnectException(device, errorCode);
+    @Override
+    public void onConnectException(BleDevice device, int errorCode) {
+        super.onConnectException(device, errorCode);
 
-        }
-    };
+    }
+};
 ```
 #### 3.使能/除能通知
 ```
 ble.enableNotify(device, true, new BleNotifyCallback<BleDevice>() {
-        @Override
-        public void onChanged(BleDevice device, BluetoothGattCharacteristic characteristic) {
-            UUID uuid = characteristic.getUuid();
-            BleLog.e(TAG, "onChanged==uuid:" + uuid.toString());
-            BleLog.e(TAG, "onChanged==data:" + ByteUtils.toHexString(characteristic.getValue()));
-        }
+    @Override
+    public void onChanged(BleDevice device, BluetoothGattCharacteristic characteristic) {
+        UUID uuid = characteristic.getUuid();
+        BleLog.e(TAG, "onChanged==uuid:" + uuid.toString());
+        BleLog.e(TAG, "onChanged==data:" + ByteUtils.toHexString(characteristic.getValue()));
+    }
 
-        @Override
-        public void onNotifySuccess(BleDevice device) {
-            super.onNotifySuccess(device);
-            BleLog.e(TAG, "onNotifySuccess: "+device.getBleName());
-        }
-    });
+    @Override
+    public void onNotifySuccess(BleDevice device) {
+        super.onNotifySuccess(device);
+        BleLog.e(TAG, "onNotifySuccess: "+device.getBleName());
+    }
+});
 ```
 #### 4.读取数据
 ```
 ble.read(device, new BleReadCallback<BleRssiDevice>() {
-            @Override
-            public void onReadSuccess(BleRssiDevice dedvice, BluetoothGattCharacteristic characteristic) {
-                super.onReadSuccess(dedvice, characteristic);
-            }
+    @Override
+    public void onReadSuccess(BleRssiDevice dedvice, BluetoothGattCharacteristic characteristic) {
+        super.onReadSuccess(dedvice, characteristic);
+    }
 
-            @Override
-            public void onReadFailed(BleRssiDevice device, int failedCode) {
-                super.onReadFailed(device, failedCode);
-            }
-        })
+    @Override
+    public void onReadFailed(BleRssiDevice device, int failedCode) {
+        super.onReadFailed(device, failedCode);
+    }
+})
 ```
 #### 5.写入数据
 ```
