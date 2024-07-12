@@ -1,6 +1,6 @@
 package cn.com.heaton.blelibrary.ble.queue.reconnect;
 
-import android.support.annotation.RestrictTo;
+import androidx.annotation.RestrictTo;
 import android.text.TextUtils;
 import java.util.ArrayList;
 import java.util.Iterator;

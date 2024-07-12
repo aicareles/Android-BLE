@@ -2,9 +2,15 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/Android-BLE.iml" filepath="$PROJECT_DIR$/Android-BLE.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/core/Github.Android-BLE.core.iml" filepath="$PROJECT_DIR$/.idea/modules/core/Github.Android-BLE.core.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/java-sample/Github.Android-BLE.java-sample.iml" filepath="$PROJECT_DIR$/.idea/modules/java-sample/Github.Android-BLE.java-sample.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Android-BLE.iml" filepath="$PROJECT_DIR$/.idea/modules/Android-BLE.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/core/Android-BLE.core.iml" filepath="$PROJECT_DIR$/.idea/modules/core/Android-BLE.core.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/core/Android-BLE.core.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/core/Android-BLE.core.androidTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/core/Android-BLE.core.main.iml" filepath="$PROJECT_DIR$/.idea/modules/core/Android-BLE.core.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/core/Android-BLE.core.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/core/Android-BLE.core.unitTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/java-sample/Android-BLE.java-sample.iml" filepath="$PROJECT_DIR$/.idea/modules/java-sample/Android-BLE.java-sample.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/java-sample/Android-BLE.java-sample.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/java-sample/Android-BLE.java-sample.androidTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/java-sample/Android-BLE.java-sample.main.iml" filepath="$PROJECT_DIR$/.idea/modules/java-sample/Android-BLE.java-sample.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/java-sample/Android-BLE.java-sample.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/java-sample/Android-BLE.java-sample.unitTest.iml" />
     </modules>
   </component>
 </project>

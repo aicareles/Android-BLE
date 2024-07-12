@@ -3,7 +3,7 @@ package cn.com.heaton.blelibrary.ble.model;
 import android.bluetooth.BluetoothDevice;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.annotation.RestrictTo;
+import androidx.annotation.RestrictTo;
 
 import java.util.HashMap;
 import java.util.Map;

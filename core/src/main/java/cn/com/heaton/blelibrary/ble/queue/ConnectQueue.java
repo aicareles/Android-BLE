@@ -1,6 +1,6 @@
 package cn.com.heaton.blelibrary.ble.queue;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import cn.com.heaton.blelibrary.ble.BleLog;
 import cn.com.heaton.blelibrary.ble.model.BleDevice;

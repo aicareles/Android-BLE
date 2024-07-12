@@ -5,7 +5,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.os.Build;
 import android.os.Handler;
-import android.support.v4.os.HandlerCompat;
+import androidx.core.os.HandlerCompat;
 
 import java.util.ArrayList;
 import java.util.HashMap;

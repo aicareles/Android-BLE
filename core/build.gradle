@@ -1,16 +1,14 @@
 apply plugin: 'com.android.library'
-//配置插件
-apply plugin: 'com.novoda.bintray-release'
 
 android {
-    compileSdkVersion 28
+    compileSdk 34
     defaultConfig {
-        minSdkVersion 18
-        targetSdkVersion 28
-        versionCode 60
-        versionName "3.2.0"
+        minSdk 18
+        targetSdk 33
+        versionCode 330
+        versionName "3.3.0"
 
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
     buildTypes {
         release {
@@ -26,33 +24,5 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'com.android.support:appcompat-v7:28.0.0'
-}
-
-repositories {
-    jcenter()
-}
-
-allprojects {
-    repositories {
-        jcenter()
-    }
-    tasks.withType(Javadoc) {
-        options{ encoding "UTF-8"
-            charSet 'UTF-8'
-            links "http://docs.oracle.com/javase/7/docs/api"
-        }
-    }
-}
-
-publish{
-    repoName = 'maven'//远程仓库名字,不指明，默认是上传到maven
-    userOrg = 'superliu'//bintray.com的用户名
-    groupId = 'cn.com.superLei'//一个唯一值，默认包名,生成的gradle依赖前缀
-    artifactId = 'blelibrary'//远程仓库包名称
-    uploadName = 'BleLib'//bintray中包的显示名称。 如果没有设置，artifactId将用于作为包名称。
-    publishVersion = '3.2.0'
-    desc = 'Android-BLE Bluetooth framework, including scanning, connecting, enabling / disabling notifications, sending / reading data, receiving data, reading rssi, setting mtu and other Bluetooth-related operation interfaces, internally optimized connection queue, and fast write queue, And support multi-service communication, can be extended to configure Bluetooth related operations.'
-    website = 'https://github.com/aicareles/Android-BLE'
-    licences = ['Apache-2.0']
+    implementation 'androidx.appcompat:appcompat:1.6.1'
 }

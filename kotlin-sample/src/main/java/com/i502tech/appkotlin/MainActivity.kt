@@ -9,12 +9,12 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.support.v4.app.ActivityCompat
-import android.support.v4.content.ContextCompat
-import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.LinearLayoutManager
 import android.text.TextUtils
 import android.util.Log
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.LinearLayoutManager
 import cn.com.heaton.blelibrary.ble.Ble
 import cn.com.heaton.blelibrary.ble.BleLog
 import cn.com.heaton.blelibrary.ble.callback.*
@@ -159,6 +159,20 @@ class MainActivity : AppCompatActivity() {
         if (!mBle.isBleEnable) {
             //4、若未打开，则请求打开蓝牙
             val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+            if (ActivityCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.BLUETOOTH_CONNECT
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+                return
+            }
             startActivityForResult(enableBtIntent, Ble.REQUEST_ENABLE_BT)
         } else {
             //5、若已打开，则进行扫描
@@ -189,15 +203,6 @@ class MainActivity : AppCompatActivity() {
         return object : BleConnectCallback<BleDevice>(){
             override fun onConnectionChanged(device: BleDevice?) {
                 adapter.notifyDataSetChanged()
-            }
-
-            override fun onConnectException(device: BleDevice?, errorCode: Int) {
-                super.onConnectException(device, errorCode)
-                toast("连接异常，异常状态码:$errorCode")
-            }
-
-            override fun onConnectTimeOut(device: BleDevice?) {
-                super.onConnectTimeOut(device)
             }
 
             override fun onReady(device: BleDevice?) {

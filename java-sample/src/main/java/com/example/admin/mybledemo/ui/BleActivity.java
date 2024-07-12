@@ -6,18 +6,23 @@ import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
@@ -31,9 +36,11 @@ import android.widget.TextView;
 import com.example.admin.mybledemo.BleRssiDevice;
 import com.example.admin.mybledemo.R;
 import com.example.admin.mybledemo.adapter.ScanAdapter;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import cn.com.heaton.blelibrary.ble.Ble;
 import cn.com.heaton.blelibrary.ble.BleLog;
@@ -82,7 +89,7 @@ public class BleActivity extends AppCompatActivity {
         bleRssiDevices = new ArrayList<>();
         adapter = new ScanAdapter(this, bleRssiDevices);
         recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
-        recyclerView.addItemDecoration(new DividerItemDecoration(this,DividerItemDecoration.VERTICAL));
+        recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         recyclerView.getItemAnimator().setChangeDuration(300);
         recyclerView.getItemAnimator().setMoveDuration(300);
         recyclerView.setAdapter(adapter);
@@ -138,30 +145,27 @@ public class BleActivity extends AppCompatActivity {
     }
 
     //请求权限
-    @Permission(value = {Manifest.permission.ACCESS_COARSE_LOCATION,Manifest.permission.ACCESS_FINE_LOCATION},
-            requestCode = REQUEST_PERMISSION_LOCATION,
-            rationale = "需要蓝牙相关权限")
     public void requestPermission() {
-        checkBlueStatus();
-    }
-
-    @PermissionDenied
-    public void permissionDenied(int requestCode, List<String> denyList) {
-        if (requestCode == REQUEST_PERMISSION_LOCATION) {
-            Log.e(TAG, "permissionDenied>>>:定位权限被拒 " + denyList.toString());
-        } else if (requestCode == REQUEST_PERMISSION_WRITE) {
-            Log.e(TAG, "permissionDenied>>>:读写权限被拒 " + denyList.toString());
+        List<String> permissions = new ArrayList<>();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            permissions.add(Manifest.permission.BLUETOOTH_SCAN);
+            permissions.add(Manifest.permission.BLUETOOTH_ADVERTISE);
+            permissions.add(Manifest.permission.BLUETOOTH_CONNECT);
+            //根据实际需要申请定位权限
+            //mPermissionList.add(Manifest.permission.ACCESS_COARSE_LOCATION);
+            //mPermissionList.add(Manifest.permission.ACCESS_FINE_LOCATION);
+        } else {
+            permissions.add(Manifest.permission.ACCESS_COARSE_LOCATION);
+            permissions.add(Manifest.permission.ACCESS_FINE_LOCATION);
         }
-    }
 
-    @PermissionNoAskDenied
-    public void permissionNoAskDenied(int requestCode, List<String> denyNoAskList) {
-        if (requestCode == REQUEST_PERMISSION_LOCATION) {
-            Log.e(TAG, "permissionNoAskDenied 定位权限被拒>>>: " + denyNoAskList.toString());
-        } else if (requestCode == REQUEST_PERMISSION_WRITE) {
-            Log.e(TAG, "permissionDenied>>>:读写权限被拒>>> " + denyNoAskList.toString());
-        }
-        AopPermissionUtils.showGoSetting(this, "为了更好的体验，建议前往设置页面打开权限");
+        registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), new ActivityResultCallback<Map<String, Boolean>>() {
+            @Override
+            public void onActivityResult(Map<String, Boolean> map) {
+                // must all permissions agree
+                checkBlueStatus();
+            }
+        }).launch(permissions.toArray(new String[0]));
     }
 
     //监听蓝牙开关状态
@@ -312,8 +316,6 @@ public class BleActivity extends AppCompatActivity {
             finish();
         } else if (requestCode == Ble.REQUEST_ENABLE_BT && resultCode == Activity.RESULT_OK) {
             ble.startScan(scanCallback);
-        }else if (requestCode == REQUEST_GPS){
-
         }
         super.onActivityResult(requestCode, resultCode, data);
     }

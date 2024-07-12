@@ -1,16 +1,18 @@
 package cn.com.heaton.blelibrary.ble.utils;
 
+import android.Manifest;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.os.Build;
 import android.provider.Settings;
-import android.support.v4.content.ContextCompat;
+
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import android.text.TextUtils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
-import cn.com.heaton.blelibrary.ble.model.BleDevice;
 
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
@@ -57,6 +59,25 @@ public class Utils {
     //判断某个权限是否打开
     public static boolean isPermission(Context context, String permission) {
         return Build.VERSION.SDK_INT < Build.VERSION_CODES.M || ContextCompat.checkSelfPermission(context, permission) == PERMISSION_GRANTED;
+    }
+
+    public static void reqBlePermission(Context context) {
+        List<String> mPermissionList = new ArrayList<>();
+        // Android 版本大于等于 12 时，申请新的蓝牙权限
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            mPermissionList.add(Manifest.permission.BLUETOOTH_SCAN);
+            mPermissionList.add(Manifest.permission.BLUETOOTH_ADVERTISE);
+            mPermissionList.add(Manifest.permission.BLUETOOTH_CONNECT);
+            //根据实际需要申请定位权限
+            //mPermissionList.add(Manifest.permission.ACCESS_COARSE_LOCATION);
+            //mPermissionList.add(Manifest.permission.ACCESS_FINE_LOCATION);
+        } else {
+            mPermissionList.add(Manifest.permission.ACCESS_COARSE_LOCATION);
+            mPermissionList.add(Manifest.permission.ACCESS_FINE_LOCATION);
+        }
+
+
+
     }
 
 }

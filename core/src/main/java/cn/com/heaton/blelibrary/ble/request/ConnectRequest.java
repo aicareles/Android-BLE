@@ -1,7 +1,7 @@
 package cn.com.heaton.blelibrary.ble.request;
 
 import android.bluetooth.BluetoothGatt;
-import android.support.annotation.RestrictTo;
+import androidx.annotation.RestrictTo;
 import android.text.TextUtils;
 
 import java.util.ArrayList;

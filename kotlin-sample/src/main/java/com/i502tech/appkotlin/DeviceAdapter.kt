@@ -1,9 +1,9 @@
 package com.i502tech.appkotlin
 
-import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.RecyclerView
 import cn.com.heaton.blelibrary.ble.model.BleDevice
 import kotlinx.android.synthetic.main.item_device.view.*
 

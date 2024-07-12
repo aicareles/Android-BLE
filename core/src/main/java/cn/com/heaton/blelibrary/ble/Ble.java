@@ -23,8 +23,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
-import android.support.annotation.IntRange;
-import android.support.annotation.RequiresApi;
+import androidx.annotation.RequiresApi;
+
+import androidx.annotation.IntRange;
 
 import java.util.Collection;
 import java.util.List;
@@ -582,6 +583,7 @@ public final class Ble<T extends BleDevice> {
         return false;
     }
 
+    @Deprecated
     public boolean isDeviceBusy(T device){
         if (bleRequestImpl != null) {
             return bleRequestImpl.isDeviceBusy(device);

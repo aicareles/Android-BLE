@@ -33,6 +33,7 @@
         </provider>
 
         <activity android:name=".ui.BleActivity"
+            android:exported="true"
             android:windowSoftInputMode="adjustPan">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

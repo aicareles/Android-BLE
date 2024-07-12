@@ -50,7 +50,7 @@
 -keepattributes Signature
 -keepattributes Exceptions,InnerClasses
 -dontwarn org.apache.**
--dontwarn android.support.**
+-dontwarn androidx.**
 
 #基础配置
 # 保留所有的本地native方法不被混淆
@@ -72,12 +72,12 @@
 -keep public class com.android.vending.licensing.ILicensingService
 
 #如果有引用v4包可以添加下面这行
--keep public class * extends android.support.v4.app.Fragment
+-keep public class * extends androidx.v4.app.Fragment
 -keep public class * extends android.view.View {*;}
--keep class android.support.v4.**{ *; }
--keep class android.support.v7.**{ *; }
+-keep class androidx.v4.**{ *; }
+-keep class androidx.v7.**{ *; }
 -keep class android.webkit.**{*;}
--keep interface android.support.v4.app.** { *; }
+-keep interface androidx.v4.app.** { *; }
 # 保留Activity中的方法参数是view的方法，
 # 从而我们在layout里面编写onClick就不会影响
 -keepclassmembers class * extends android.app.Activity {

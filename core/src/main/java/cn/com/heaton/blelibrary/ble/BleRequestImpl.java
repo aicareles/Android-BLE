@@ -15,6 +15,7 @@
  */
 package cn.com.heaton.blelibrary.ble;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -28,7 +29,7 @@ import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.os.Build;
 import android.os.Handler;
-import android.support.v4.os.HandlerCompat;
+import androidx.core.os.HandlerCompat;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -57,13 +58,13 @@ import cn.com.heaton.blelibrary.ble.request.ReadRssiRequest;
 import cn.com.heaton.blelibrary.ble.request.Rproxy;
 import cn.com.heaton.blelibrary.ble.request.WriteRequest;
 import cn.com.heaton.blelibrary.ble.utils.ByteUtils;
-import cn.com.heaton.blelibrary.ota.OtaListener;
 
 /**
  * the main implementation class of all methods
  * @author aicareles
  * @since 2016/12/10
  */
+@SuppressLint("MissingPermission")
 public final class BleRequestImpl<T extends BleDevice> {
 
     private final static String TAG = BleRequestImpl.class.getSimpleName();
@@ -76,8 +77,6 @@ public final class BleRequestImpl<T extends BleDevice> {
     private final Object locker = new Object();
     private final List<BluetoothGattCharacteristic> notifyCharacteristics = new ArrayList<>();//Notification attribute callback array
     //private int notifyIndex = 0;//Notification feature callback list
-    private BluetoothGattCharacteristic otaWriteCharacteristic;//Ota ble send the object
-    private boolean otaUpdating = false;//Whether the OTA is updated
     private final Map<String, BluetoothGattCharacteristic> writeCharacteristicMap = new HashMap<>();
     private final Map<String, BluetoothGattCharacteristic> readCharacteristicMap = new HashMap<>();
     //Multiple device connections must put the gatt object in the collection
@@ -91,8 +90,6 @@ public final class BleRequestImpl<T extends BleDevice> {
     private ReadWrapperCallback<T> readWrapperCallback;
     private DescWrapperCallback<T> descWrapperCallback;
     private WriteWrapperCallback<T> writeWrapperCallback;
-    private OtaListener otaListener;//Ota update operation listener
-
     private BleRequestImpl(){}
 
     private final BluetoothGattCallback gattCallback = new BluetoothGattCallback() {
@@ -191,11 +188,6 @@ public final class BleRequestImpl<T extends BleDevice> {
                     if (null != writeWrapperCallback){
                         writeWrapperCallback.onWriteSuccess(bleDevice, characteristic);
                     }
-                    if (options.uuid_ota_write_cha.equals(characteristic.getUuid())) {
-                        if (otaListener != null) {
-                            otaListener.onWrite();
-                        }
-                    }
                 }else {
                     if (null != writeWrapperCallback){
                         writeWrapperCallback.onWriteFailed(bleDevice, status);
@@ -220,11 +212,6 @@ public final class BleRequestImpl<T extends BleDevice> {
                 T bleDevice = getBleDeviceInternal(gatt.getDevice().getAddress());
                 if (notifyWrapperCallback != null) {
                     notifyWrapperCallback.onChanged(bleDevice, characteristic);
-                }
-                if (options.uuid_ota_write_cha.equals(characteristic.getUuid()) || options.uuid_ota_notify_cha.equals(characteristic.getUuid())) {
-                    if (otaListener != null) {
-                        otaListener.onChange(characteristic.getValue());
-                    }
                 }
             }
         }
@@ -425,7 +412,6 @@ public final class BleRequestImpl<T extends BleDevice> {
         notifyCharacteristics.clear();
         writeCharacteristicMap.remove(address);
         readCharacteristicMap.remove(address);
-        otaWriteCharacteristic = null;
     }
 
     /**
@@ -490,6 +476,8 @@ public final class BleRequestImpl<T extends BleDevice> {
         return false;
     }
 
+    @SuppressLint("SoonBlockedPrivateApi")
+    @Deprecated
     public boolean isDeviceBusy(T device) {
         boolean state = false;
         try {
@@ -825,46 +813,6 @@ public final class BleRequestImpl<T extends BleDevice> {
         return gattHashMap.get(address);
     }
 
-    /**
-     * 写入OTA数据
-     *
-     * @param address 蓝牙地址
-     * @param value   发送字节数组
-     * @return 写入是否成功
-     */
-    public boolean writeOtaData(String address, byte[] value) {
-        try {
-            if (otaWriteCharacteristic == null) {
-                otaUpdating = true;
-                BluetoothGattService bluetoothGattService = getBluetoothGatt(address).getService(options.uuid_ota_service);
-                if (bluetoothGattService == null) {
-                    return false;
-                } else {
-                    BluetoothGattCharacteristic mOtaNotifyCharacteristic = bluetoothGattService.getCharacteristic(options.uuid_ota_notify_cha);
-                    if (mOtaNotifyCharacteristic != null) {
-                        getBluetoothGatt(address).setCharacteristicNotification(mOtaNotifyCharacteristic, true);
-                    }
-                    otaWriteCharacteristic = bluetoothGattService.getCharacteristic(options.uuid_ota_write_cha);
-                }
-
-            }
-            if (otaWriteCharacteristic != null && options.uuid_ota_write_cha.equals(otaWriteCharacteristic.getUuid())) {
-                otaWriteCharacteristic.setValue(value);
-                boolean result = writeCharacteristic(getBluetoothGatt(address), otaWriteCharacteristic);
-                BleLog.d(TAG, address + " -- write data:" + Arrays.toString(value));
-                BleLog.d(TAG, address + " -- write result:" + result);
-                return result;
-            }
-            return true;
-        } catch (Exception e) {
-            if (BuildConfig.DEBUG) {
-                e.printStackTrace();
-            }
-            close();
-            return false;
-        }
-    }
-
     //The basic method of writing data
     private boolean writeCharacteristic(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
         synchronized (locker) {
@@ -872,28 +820,4 @@ public final class BleRequestImpl<T extends BleDevice> {
         }
     }
 
-    /**
-     * OTA升级完成
-     */
-    public void otaUpdateComplete() {
-        otaUpdating = false;
-    }
-
-    /**
-     * 设置OTA是否正在升级
-     *
-     * @param updating 升级状态
-     */
-    public void setOtaUpdating(boolean updating) {
-        this.otaUpdating = updating;
-    }
-
-    /**
-     * 设置OTA更新状态监听
-     *
-     * @param otaListener 监听对象
-     */
-    public void setOtaListener(OtaListener otaListener) {
-        this.otaListener = otaListener;
-    }
 }

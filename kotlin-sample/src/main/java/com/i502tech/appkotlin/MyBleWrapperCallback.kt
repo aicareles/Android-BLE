@@ -40,6 +40,10 @@ class MyBleWrapperCallback : BleWrapperCallback<BleDevice>() {
         Log.d(TAG, "onStop: ")
     }
 
+    override fun onNotifyFailed(device: BleDevice?, failedCode: Int) {
+
+    }
+
     override fun onLeScan(device: BleDevice, rssi: Int, scanRecord: ByteArray) {
         super.onLeScan(device, rssi, scanRecord)
         Log.d(TAG, "onLeScan: $device")

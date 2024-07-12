@@ -2,7 +2,7 @@ package cn.com.heaton.blelibrary.ble.callback.wrapper;
 
 import android.bluetooth.BluetoothDevice;
 import android.os.Build;
-import android.support.annotation.RequiresApi;
+import androidx.annotation.RequiresApi;
 
 import cn.com.heaton.blelibrary.ble.model.ScanRecord;
 
