@@ -28,8 +28,6 @@ import cn.com.heaton.blelibrary.ble.model.EntityData;
 import cn.com.heaton.blelibrary.ble.queue.RequestTask;
 import cn.com.heaton.blelibrary.ble.utils.ByteUtils;
 import cn.com.heaton.blelibrary.ble.utils.CrcUtils;
-import cn.com.superLei.aoparms.annotation.Permission;
-import cn.com.superLei.aoparms.annotation.Retry;
 
 public class Test extends AppCompatActivity {
     private static final String TAG = "Test";
@@ -38,7 +36,6 @@ public class Test extends AppCompatActivity {
     /**
      * 发送数据
      */
-    @Retry(count = 3, delay = 100, asyn = true)
     private void sendData() {
         byte[] data = new byte[20];
         data[0] = 0x01;
@@ -67,7 +64,6 @@ public class Test extends AppCompatActivity {
      *
      * @param device 设备对象
      */
-    @Retry(count = 3, delay = 100, asyn = true)
     public boolean read(BleDevice device) {
         return ble.read(device, new BleReadCallback<BleDevice>() {
             @Override

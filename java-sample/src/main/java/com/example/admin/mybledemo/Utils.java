@@ -22,7 +22,6 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 import cn.com.heaton.blelibrary.ble.utils.UuidUtils;
-import cn.com.superLei.aoparms.annotation.Async;
 
 public class Utils {
 
@@ -100,7 +99,6 @@ public class Utils {
     /**
      * 拷贝OTA升级文件到SD卡
      */
-    @Async
     public static void copyOtaFile(final Context context, final String path) {
         //判断是否存在ota文件
         if (SPUtils.get(context, Constant.SP.OTA_FILE_EXIST, false))return;
