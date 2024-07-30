@@ -34,7 +34,7 @@ Android-BLE蓝牙框架,提供了扫描、连接、使能/除能通知、发送/
 ## 接入文档
 ### 1. 在 **build.gradle** 中添加下面依赖. [![](https://jitpack.io/v/aicareles/Android-BLE.svg)](https://jitpack.io/#aicareles/Android-BLE)
 ``` groovy
-implementation 'com.github.aicareles:Android-BLE:3.3.0'
+implementation 'com.github.aicareles:Android-BLE:3.3.1'
 
 注意: 项目根build.gradle记得添加：
 maven { url 'https://www.jitpack.io' }

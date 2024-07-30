@@ -10,7 +10,7 @@ afterEvaluate {
                 from components.release
                 groupId = 'com.github.aicareles'//插件id，格式：com.gitee/github.用户名
                 artifactId = 'blelib'//插件名称
-                version = '3.3.0'//版本号
+                version = '3.3.1'//版本号
             }
         }
     }
@@ -21,8 +21,8 @@ android {
     defaultConfig {
         minSdk 18
         targetSdk 33
-        versionCode 330
-        versionName "3.3.0"
+        versionCode 331
+        versionName "3.3.1"
 
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }

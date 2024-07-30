@@ -42,12 +42,12 @@ public class ScanRequest<T extends BleDevice> implements ScanWrapperCallback {
         if (callback == null) throw new IllegalArgumentException("BleScanCallback can not be null!");
         bleScanCallback = callback;
         //TODO
-        if (!Utils.isPermission(Ble.getInstance().getContext(), Manifest.permission.ACCESS_COARSE_LOCATION)){
+        /*if (!Utils.isPermission(Ble.getInstance().getContext(), Manifest.permission.ACCESS_COARSE_LOCATION)){
             if (bleScanCallback != null){
                 bleScanCallback.onScanFailed(BleStates.BlePermissionError);
             }
             return;
-        }
+        }*/
         if (!isEnableInternal()) {
             return;
         }
