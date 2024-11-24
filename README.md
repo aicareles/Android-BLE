@@ -1,6 +1,3 @@
-
-### 个人项目或者定制化需求加v:liulei633001 
-### Email：aicareles@163.com
 ### QQ技术交流群：一群：494309361（已满）  二群：419784672
 
 ### [下载APK](https://github.com/aicareles/Android-BLE/blob/master/apk/BLE-v3.3.0.apk)
